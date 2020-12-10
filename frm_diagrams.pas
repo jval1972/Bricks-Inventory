@@ -115,7 +115,8 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_db, bi_delphi, bi_utils, DateUtils, StrUtils, bi_priceadjust, bi_orders;
+  bi_db, bi_delphi, bi_utils, DateUtils, StrUtils, bi_priceadjust, bi_orders,
+  bi_globals;
 
 type
   parecarray_t = array[0..$1fff] of parecdate_t;
@@ -269,6 +270,9 @@ var
   mx: double;
   ddxxx: double;
   dd20141216, dd20141220: double;
+  dd20151218: double;
+  dd20160119: double;
+  dd20160123: double;
   h: pieceinventoryhistory_t;
   h2: brickstatshistory_t;
   st: set_t;
@@ -423,7 +427,8 @@ begin
           y := h2.Sold_uQtyAvg.value;
         if i = 0 then
           c.Series[0].AddXY(x, 0.0);
-        c.Series[0].AddXY(x, y);
+        if y > 0.0001 then
+          c.Series[0].AddXY(x, y);
       end;
 
       f.Free;
@@ -433,6 +438,9 @@ begin
 
   if idx = 27 then
   begin
+    dd20151218 := s2date1('20151218');
+    dd20160119 := s2date1('20160119');
+    dd20160123 := s2date1('20160123');
     if color = -1 then
       fname := basedefault + 'out\' + piece + '\' + piece + '.history'
     else
@@ -476,8 +484,13 @@ begin
                   list27a.Strings[i][13] + list27a.Strings[i][14] + list27a.Strings[i][15] + list27a.Strings[i][16] +
                   list27a.Strings[i][17] + list27a.Strings[i][18] + list27a.Strings[i][19] + list27a.Strings[i][20]
                 );
-                c.Series[0].AddXY(date27, num27);
-
+                if Trunc(date27) <> Trunc(dd20151218) then
+                  if Trunc(date27) <> Trunc(dd20160119) then
+                  begin
+                    if (piece = '2431') and (color = 71) and (Trunc(date27) = Trunc(dd20160123)) then
+                    else
+                      c.Series[0].AddXY(date27, num27);
+                  end;
               end;
           list27a.Free;
           list27b.Free;
@@ -492,7 +505,13 @@ begin
           y := h.nbuilded
         else
           y := h.nnew + h.nused;
-        c.Series[0].AddXY(x, y);
+        if Trunc(x) <> Trunc(dd20151218) then
+          if Trunc(x) <> Trunc(dd20160119) then
+          begin
+            if (piece = '2431') and (color = 71) and (Trunc(date27) = Trunc(dd20160123)) then
+            else
+            c.Series[0].AddXY(x, y);
+          end;
       end;
       if color = -1 then
       begin
@@ -508,7 +527,7 @@ begin
     end;
     exit;
   end;
-  
+
   NNN := Now;
   numextra := 1;
   EXTRA[0].dir := 'cache';

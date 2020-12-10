@@ -43,7 +43,7 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_db, bi_delphi, bi_utils, bi_crawler;
+  bi_db, bi_delphi, bi_utils, bi_crawler, bi_globals;
 
 function EditPiece(const part: string; const color: integer): boolean;
 var

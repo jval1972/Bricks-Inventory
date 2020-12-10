@@ -75,7 +75,7 @@ UnicodeToLocale=1
 LocaleToUnicode=1
 ImagebaseMultiple=1
 SuspiciousTypecast=1
-PrivatePropAccessor=0
+PrivatePropAccessor=1
 UnsafeType=0
 UnsafeCode=0
 UnsafeCast=0
@@ -91,12 +91,12 @@ ImageBase=4194304
 ExeDescription=
 [Directories]
 OutputDir=..\bin
-UnitOutputDir=..\dcu
+UnitOutputDir=..\dcu\crawler
 PackageDLLOutputDir=
 PackageDCPOutputDir=
 SearchPath=
-Packages=vcl;rtl;dbrtl;inet;inetdb;dsnap;bdertl;vclx;vcldb;vcldbx;visualclx;visualdbclx;vclactnband;vclshlctrls;vclie;xmlrtl;inetdbbde;inetdbxpress;webdsnap;soaprtl;websnap;adortl;dbexpress;dsnapcon;dbxcds;ibxpress;teeui;teedb;tee;dss;indy;VclSmp;qrpt;teeqr;Rave50CLX;Rave50VCL;IntrawebDB_50_70;Intraweb_50_70;VclNewlyext;imgbtn_d7;reversi_d7
-Conditionals=
+Packages=vcl;rtl;vclx;vclactnband;vclshlctrls;vclie;xmlrtl;inetdbbde;inet;inetdbxpress;dbrtl;soaprtl;dsnap;vcldb;websnap;webdsnap;adortl;bdertl;vcldbx;teeui;teedb;tee;dss;indy;VclSmp;qrpt;teeqr;Rave50CLX;Rave50VCL;IntrawebDB_50_70;Intraweb_50_70;VclNewlyext
+Conditionals=CRAWLER
 DebugSourceDirs=
 UsePackages=0
 [Parameters]
@@ -121,18 +121,15 @@ Locale=1032
 CodePage=1253
 [Excluded Packages]
 c:\program files (x86)\borland\delphi7\Projects\Bpl\Package1.bpl=(untitled)
+[HistoryLists\hlConditionals]
+Count=1
+Item0=CRAWLER
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
-[HistoryLists\hlSearchPath]
-Count=1
-Item0=C:\Program Files (x86)\Borland\Delphi7\Source\XML
 [HistoryLists\hlUnitOutputDirectory]
-Count=2
-Item0=..\dcu
-Item1=dcu
+Count=1
+Item0=..\dcu\crawler
 [HistoryLists\hlOutputDirectorry]
-Count=3
+Count=1
 Item0=..\bin
-Item1=bin
-Item2=release\bin

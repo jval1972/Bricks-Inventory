@@ -157,6 +157,9 @@ var
   soutproc: TOutProc;
 begin
 // JVAL: Avoid recursive calls
+  if stderr = nil then
+    Exit;
+
   if in_i_error then
     exit;
 
@@ -192,6 +195,8 @@ procedure I_Warning(const warning: string);
 var
   wrstr: string;
 begin
+  if stderr = nil then
+    Exit;
   wrstr := 'I_Warning: ' + warning;
   fprintf(stderr, wrstr);
   printf(wrstr);

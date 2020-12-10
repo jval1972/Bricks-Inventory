@@ -28,7 +28,7 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_db;
+  bi_db, bi_globals;
 
 function GetSetID(var setid: string): boolean;
 var

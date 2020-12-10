@@ -59,7 +59,7 @@ function EvaluatedPrice(const order: IXMLORDERType): Double;
 implementation
 
 uses
-  bi_delphi, bi_utils, bi_io, bi_system;
+  bi_delphi, bi_utils, bi_io, bi_system, bi_globals;
 
 constructor TOrders.Create;
 begin

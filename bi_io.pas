@@ -6,10 +6,10 @@ uses
   bi_delphi, Classes;
 
 var
-  debugfile: TFileStream;
-  stderr: TFileStream;
-  stdout: TFileStream;
-  stdoutbuffer: TDStringList;
+  debugfile: TFileStream = nil;
+  stderr: TFileStream = nil;
+  stdout: TFileStream = nil;
+  stdoutbuffer: TDStringList = nil;
 
 procedure I_InitializeIO;
 
@@ -89,6 +89,8 @@ end;
 
 procedure I_AddText(const txt: string);
 begin
+  if stdout = nil then
+    Exit;
   fprintf(stdout, txt);
 end;
 

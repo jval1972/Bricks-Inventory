@@ -38,7 +38,11 @@ uses
   frm_lugbulksuggest in 'frm_lugbulksuggest.pas' {LugbulkSuggestForm},
   bi_priceadjust in 'bi_priceadjust.pas',
   frm_selectsets in 'frm_selectsets.pas' {SelectSetsForm},
-  frm_batch in 'frm_batch.pas' {BatchLinkForm};
+  frm_batch in 'frm_batch.pas' {BatchLinkForm},
+  removepiecefromstoragefrm in 'removepiecefromstoragefrm.pas' {RemovePieceFromStorageForm},
+  bi_binaryset in 'bi_binaryset.pas',
+  bi_globals in 'bi_globals.pas',
+  frm_editsetastext in 'frm_editsetastext.pas' {EditSetAsTextForm};
 
 {$R *.res}
 

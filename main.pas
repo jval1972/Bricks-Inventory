@@ -68,6 +68,21 @@ type
     S1: TMenuItem;
     Reloadcache1: TMenuItem;
     CheckCacheHashEfficiency1: TMenuItem;
+    Queries1: TMenuItem;
+    Lengthqueries1: TMenuItem;
+    Bricks1x1: TMenuItem;
+    Bricks2x1: TMenuItem;
+    N9: TMenuItem;
+    Plates1x1: TMenuItem;
+    Plates2x1: TMenuItem;
+    N10: TMenuItem;
+    Plates6x1: TMenuItem;
+    Plates8x1: TMenuItem;
+    N11: TMenuItem;
+    iles1x1: TMenuItem;
+    iles2x1: TMenuItem;
+    Edit1: TMenuItem;
+    Set2: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String;
       var Stream: TMemoryStream);
@@ -115,6 +130,16 @@ type
     procedure Batchlink1Click(Sender: TObject);
     procedure Reloadcache1Click(Sender: TObject);
     procedure CheckCacheHashEfficiency1Click(Sender: TObject);
+    procedure Bricks1x1Click(Sender: TObject);
+    procedure Bricks2x1Click(Sender: TObject);
+    procedure Plates1x1Click(Sender: TObject);
+    procedure Plates2x1Click(Sender: TObject);
+    procedure N10Click(Sender: TObject);
+    procedure Plates6x1Click(Sender: TObject);
+    procedure Plates8x1Click(Sender: TObject);
+    procedure iles1x1Click(Sender: TObject);
+    procedure iles2x1Click(Sender: TObject);
+    procedure Set2Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -129,6 +154,8 @@ type
     orders: TOrders;
     dodraworderinfo: boolean;
     dismantaledsetsinv: TBrickInventory;
+    procedure doShowLengthQueryColor(inv: TBrickInventory; const id: string; const color: integer; inflst: TStringList);
+    procedure doShowLengthQuery(inv: TBrickInventory; const id: string);
     procedure dbloadprogress(const s: string; d : Double);
     procedure ShowLooseParts(inv: TBrickInventory; colormask: Integer = -1; partmask: string = ''; cat: Integer = -1);
     procedure ShowSetInventory(const setid: string);
@@ -160,15 +187,17 @@ type
     procedure ShowInventorySets(const inv: TBrickInventory; const header_flash: boolean);
     procedure ShowMySets;
     procedure ShowMySetsPieces;
+    procedure ShowLengthQuery(const id: string);
     procedure DrawNavigateBar;
     procedure DrawHeadLine(const s: string);
     procedure DrawPartOutValue(inv: TBrickInventory; const setid: string = '');
     procedure DrawInventoryTable(inv: TBrickInventory; const lite: Boolean = false; const setid: string = '');
-    procedure DrawBrickOrderInfo(const brick: brickpool_p);
+    procedure DrawBrickOrderInfo(const brick: brickpool_p; const setid: string = '');
     procedure UpdateDismantaledsetsinv;
     procedure DrawPriceguide(const part: string; const color: integer = -1);
     procedure HTMLClick(const SRC: String; var Handled: Boolean);
     procedure StoreInventoryStatsRec(const piece: string; const color: string = '');
+    procedure DoEditSet(const setid: string);
   public
     { Public declarations }
     activebits: integer;
@@ -182,8 +211,9 @@ implementation
 uses
   bi_delphi, bi_pak, bi_io, bi_system, bi_tmp, slpash, bi_utils, timing,
   searchset, searchpart, frm_multiplesets, PreviewForm, bl_orderxml,
-  compare2sets, mosaicfrm, editpiecefrm, strutils, frm_diagrams,
-  frm_lugbulksuggest, frm_selectsets, bi_script, frm_batch;
+  compare2sets, mosaicfrm, editpiecefrm, removepiecefromstoragefrm, strutils,
+  frm_diagrams, frm_lugbulksuggest, frm_selectsets, bi_script, frm_batch,
+  bi_globals, frm_editsetastext;
 
 {$R *.dfm}
 
@@ -977,6 +1007,7 @@ begin
   db := TSetsDatabase.Create;
   progress_string := 'Loading database...';
   db.progressfunc := dbloadprogress;
+  db.InitCreate;
   db.LoadFromDisk(basedefault + 'db\db_set_pieces.txt');
   inventory := TBrickInventory.Create;
   if FileExists(basedefault + 'myparts.txt') then
@@ -1072,7 +1103,7 @@ begin
 
 end;
 
-procedure TMainForm.DrawBrickOrderInfo(const brick: brickpool_p);
+procedure TMainForm.DrawBrickOrderInfo(const brick: brickpool_p; const setid: string = '');
 var
   oinf: TStringList;
   oitem: TOrderItemInfo;
@@ -1087,6 +1118,7 @@ var
   sset: string;
   pavl: integer;
   sid: string;
+  removeforbuildsetstr: string;
 begin
   if not dodraworderinfo then
     exit;
@@ -1183,6 +1215,14 @@ begin
     begin
       document.write('<tr bgcolor=#EEEEEE>');
       splitstring(pci.storage.Strings[i], stor, stmp, ':');
+      // Remove from storage button for building this set
+      if setid = '' then
+        removeforbuildsetstr := ''
+      else
+        removeforbuildsetstr :=
+          ' <a href=removepiecefromstorage/' + brick.part + '/' + itoa(brick.color) + '/' +
+              setid + '/' + stor + '><img src="images\remove.png"></a>';
+
       stmp2 := strupper(stmp);
       p := Pos('SET ', stmp2);
       if p > 0 then
@@ -1221,7 +1261,7 @@ begin
       else
         stmp3 := stmp;
       document.write('<td colspan="8">%s</td></tr>',
-                ['<b><a href=storage/' + stor + '>' + stor + '</a></b>:' + stmp3]);
+                ['<b><a href=storage/' + stor + '>' + stor + '</a></b>:' + stmp3 + removeforbuildsetstr]);
     end;
   end;
 
@@ -1302,8 +1342,12 @@ begin
     document.write('<a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
     document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=20%>');
     document.BlancColorCell(db.colors(brick.color).RGB, 25);
-    document.write('<a href=spiecec/' + brick.part + '/' + IntToStr(brick.color) + '>' +  db.colors(brick.color).name + ' (' + scolor + ') (BL=' + IntToStr(db.colors(brick.color).BrickLingColor) + ')<img src="images\details.png"></a></td>');
     pci := db.PieceColorInfo(brick.part, brick.color);
+    if lite then
+      document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  db.colors(brick.color).name + ' (' + scolor + ') (BL=' + IntToStr(db.colors(brick.color).BrickLingColor) + ')<img src="images\details.png"></td>')
+    else
+      document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  db.colors(brick.color).name + ' (' + scolor + ') (BL=' + IntToStr(db.colors(brick.color).BrickLingColor) + ')<img src="images\details.png">' +
+        decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
     if not lite then
     begin
       if pci <> nil then
@@ -1354,7 +1398,10 @@ begin
       pl.Add(brick.part);
     num := num + brick.num;
 
-    DrawBrickOrderInfo(brick);
+    if lite then
+      DrawBrickOrderInfo(brick)
+    else
+      DrawBrickOrderInfo(brick, setid);
     Inc(brick);
     if inv.numlooseparts < 20 then
       SplashProgress('Working...', i / (inv.numlooseparts))
@@ -1555,7 +1602,7 @@ var
   i, j: integer;
   desc: string;
   tmpsets: TStringList;
-  s1: string;
+  s1, s2: string;
   sx, ss1, ss2, ss3: string;
   sf1, sf2, sf3, sf4: string;
   numbricks: integer;
@@ -1612,14 +1659,23 @@ begin
     exit;
   end;
 
+  if not db.IsMoc(setid) then
+  begin
+    lnk := '<a href=downloadsetandrefresh/' + setid + '>Refresh set inventory from bricklink.com</a>';
+    DrawHeadLine(lnk);
+  end;
   inv.DoUpdateCostValues;
   inv.SortPieces;
 
   s1 := basedefault + 'out\' + setid + '\';
   if not DirectoryExists(s1) then
     ForceDirectories(s1);
-  s1 := s1 + setid + '.txt';
-  inv.SaveLooseParts(s1);
+  s2 := s1 + setid + '.txt';
+  inv.SaveLooseParts(s2);
+
+  s2 := s1 + setid + '_priceguide.txt';
+  inv.SavePartsInventoryPriceguide(s2);
+
 
   inv.StoreHistoryStatsRec(basedefault + 'out\' + setid + '\' + setid + '.stats');
   inventory.StorePieceInventoryStatsRec(basedefault + 'out\' + setid + '\' + setid + '.history', setid, -1);
@@ -2142,8 +2198,8 @@ begin
 
   aa := 0;
 
-  for i := 0 to MAXINFOCOLOR do
-    if db.Colors(i).id = i then
+  for i := -1 to MAXINFOCOLOR do
+    if (i = -1) or (db.Colors(i).id = i) then
       if db.Colors(i).knownpieces <> nil then
       begin
         idx := db.Colors(i).knownpieces.IndexOf(pcs);
@@ -2191,8 +2247,8 @@ begin
   totpieces := 0;
   mycosttot := 0.0;
 
-  for i := 0 to MAXINFOCOLOR do
-    if db.Colors(i).id = i then
+  for i := -1 to MAXINFOCOLOR do
+    if (i = -1) or (db.Colors(i).id = i) then
       if db.Colors(i).knownpieces <> nil then
       begin
         idx := db.Colors(i).knownpieces.IndexOf(pcs);
@@ -2208,15 +2264,19 @@ begin
           document.write('<td width=35%><img src=' + IntToStr(i) + '\' + pcs + '.png></td>');
           document.write('<td width=20%>');
           document.BlancColorCell(db.colors(i).RGB, 25);
-          document.write('<a href=spiecec/' + pcs + '/' + IntToStr(i) + '>' + db.colors(i).name + '</a> (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')<img src="images\details.png"></td>');
           pci := db.PieceColorInfo(pcs, i);
           if pci <> nil then
           begin
+            document.write('<a href=spiecec/' + pcs + '/' + IntToStr(i) + '>' + db.colors(i).name + '</a> (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')<img src="images\details.png">' +
+              decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
             document.write('<td width=10% align=right>');
             document.write('N=%2.3f<br>U=%2.3f</td>', [pci.nDemand, pci.uDemand]);
           end
           else
+          begin
+            document.write('<a href=spiecec/' + pcs + '/' + IntToStr(i) + '>' + db.colors(i).name + '</a> (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')<img src="images\details.png"></td>');
             document.write('<td width=10% align=right></td>');
+          end;
           document.write('<td width=15% align=right>' + Format('%d', [numpieces]) +
             '<br><a href=editpiece/' + pcs + '/' + itoa(i) + '><img src="images\edit.png"></a>' +
             '<br><a href=diagrampiece/' + pcs + '/' + itoa(i) + '><img src="images\diagram.png"></a>' +
@@ -2324,14 +2384,20 @@ begin
     document.write(' - ' + db.PieceDesc(pcs) + '</td>');
     document.write('<td width=20%>');
     document.BlancColorCell(db.colors(cl).RGB, 25);
-    document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name + '</a> (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLingColor) + ')<img src="images\details.png"></td>');
+
+    pci := db.PieceColorInfo(pcs, cl);
+    if pci = nil then
+      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name + '</a> (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLingColor) + ')<img src="images\details.png"></td>')
+    else
+      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name + '</a> (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLingColor) + ')<img src="images\details.png">' +
+         decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+
     document.write('<td width=15% align=right>' + Format('%d', [numpieces]) +
             '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
             '<br><a href=diagrampiece/' + pcs + '/' + itoa(cl) + '><img src="images\diagram.png"></a>' +
             '</td>');
 
     pi := db.PieceInfo(pcs);
-    pci := db.PieceColorInfo(pcs, cl);
     if pci <> nil then
     begin
       prn := pci.EvaluatePriceNew;
@@ -2437,7 +2503,11 @@ begin
     document.write(' - ' + db.PieceDesc(pcs) + '</td>');
     document.write('<td width=20%>');
     document.BlancColorCell(db.colors(cl).RGB, 25);
-    document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name + '</a> (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLingColor) + ')<img src="images\details.png"></td>');
+    if pci = nil then
+      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name + '</a> (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLingColor) + ')<img src="images\details.png"></td>')
+    else
+      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name + '</a> (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLingColor) + ')<img src="images\details.png">' +
+         decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
     document.write('<td width=15% align=right>' + Format('%2.3f', [decided(pci = nil, 0.0, pci.nDemand)]) +
             '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
             '<br><a href=diagrampiece/' + pcs + '/' + itoa(cl) + '><img src="images\diagram.png"></a>' +
@@ -2549,7 +2619,7 @@ var
   y: string;
 begin
   UpdateDismantaledsetsinv;
-  
+
   document.write('<body background="splash.jpg">');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
@@ -2599,7 +2669,11 @@ begin
           document.write('<td width=35%><a href=spiece/' + pcs + '><img src=' + IntToStr(i) + '\' + pcs + '.png></a></td>');
           document.write('<td width=20%>');
           document.BlancColorCell(db.colors(i).RGB, 25);
-          document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')</td>');
+          if pci = nil then
+            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')</td>')
+          else
+            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')' +
+              decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
           document.write('<td width=15% align=right>' + Format('%d', [numpieces]) + '</td>');
 
           if pci <> nil then
@@ -3660,11 +3734,17 @@ begin
       document.write(db.PieceDesc(brick.part) + '</a> <a href=spiece/' + brick.part + '>...</a></td><td width=25%>');
       document.BlancColorCell(db.colors(brick.color).RGB, 20);
       document.write('<a href="inv/' + invs +'/C/' + IntToStr(decide(colormask=-1, brick.color, -1)) + '">');
+
       document.write(db.colors(brick.color).name + ' (' + scolor + ') (BL=' +
                      IntToStr(db.colors(brick.color).BrickLingColor) +  ')</a> <a href=spiecec/' +
-                     brick.part + '/' + scolor + '><img src="images\details.png"></a></td>');
-
+                     brick.part + '/' + scolor + '><img src="images\details.png"></a>');
+                     
       pci := db.PieceColorInfo(brick.part, brick.color);
+      if pci = nil then
+        document.write('</td>')
+      else
+        document.write(decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+
       if pci <> nil then
       begin
         document.write('<td width=10% align=right>');
@@ -3795,6 +3875,26 @@ begin
       exit;
     end;
 
+    if Pos('removepiecefromstorage/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, s3, s4, s5, '/');
+      inventory.StorePieceInventoryStatsRec(basedefault + 'cache\' + decide(s3 = '-1', '9999', s3) + '\' + s2 + '.history', s2, atoi(s3));
+      if RemovePieceFromStorageForSet(s2, atoi(s3), s4, s5) then
+      begin
+        inventory.StorePieceInventoryStatsRec(basedefault + 'cache\' + s3 + '\' + s2 + '.history', s2, atoi(s3));
+        btn_SaveClick(nil);
+        idx := streams.IndexOf(strupper(s3 + '\' + s2 + '.png'));
+        if idx > -1 then  // Clear cache
+        begin
+          streams.Objects[idx].Free;
+          streams.Delete(idx);
+        end;
+        HTMLClick('refresh', Handled);
+      end;
+      Handled := true;
+      exit;
+    end;
+
     if Pos('StoreInventoryStatsRec/', SRC) = 1 then
     begin
       splitstring(SRC, s1, s2, s3, '/');
@@ -3892,6 +3992,24 @@ begin
       splitstring(SRC, s1, s2, '/');
       if db.DownloadSetFromBricklink(s2) then
         HTMLClick('refresh', Handled)
+      else
+        MessageBeep(MB_ICONERROR);
+      Handled := true;
+      exit;
+    end;
+
+    if Pos('downloadsetandrefresh/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      if db.DownloadSetFromBricklink(s2) then
+      begin
+        Screen.Cursor := crHourglass;
+        ShowSplash;
+        if db.RefreshSet(s2) then
+          HTMLClick('refresh', Handled);
+        HideSplash;
+        Screen.Cursor := crDefault;
+      end
       else
         MessageBeep(MB_ICONERROR);
       Handled := true;
@@ -4175,6 +4293,11 @@ begin
   begin
     splitstring(slink, s1, s2, '/');
     ShowSetsForPartInUsed(atoi(s2));
+  end
+  else if Pos('lengthquery/', slink) = 1 then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowLengthQuery(s2);
   end
   else if slink = 'ShowMissingFromStorageBins' then
   begin
@@ -4501,6 +4624,403 @@ begin
 
 end;
 
+
+procedure TMainForm.doShowLengthQueryColor(inv: TBrickInventory; const id: string; const color: integer; inflst: TStringList);
+var
+  scode, spart, slen, sarea: string;
+  len, area: integer;
+  aa, i: integer;
+  pci: TPieceColorInfo;
+  pi: TPieceInfo;
+  num: integer;
+  totalweight: double;
+  stmp, scolor: string;
+  totallen: integer;
+  totalarea: integer;
+  totalpieces: integer;
+begin
+  if inv = nil then
+    inv := inventory;
+
+  scolor := itoa(color);
+
+  totallen := 0;
+  totalarea := 0;
+  totalpieces := 0;
+  totalweight := 0.0;
+  aa := 0;
+
+  document.write('<p valign=top>');
+  stmp := db.colors(color).name + ' (' + itoa(color) + ') (BL=' + IntToStr(db.colors(color).BrickLingColor) + ')' +
+    '<table border=1 width=' + IntToStr(25) + ' bgcolor="#' + IntToHex(db.colors(color).RGB, 6) + '"><tr><td><br></td></tr></table>';
+  DrawHeadLine(stmp);
+
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+
+  document.write('<tr bgcolor=' + THBGCOLOR + '>');
+  document.write('<th><b>#</b></th>');
+  document.write('<th><b>Part</b></th>');
+  document.write('<th>Qty</th>');
+  document.write('<th>Len</th>');
+  document.write('<th>Area</th>');
+  document.write('</tr>');
+
+
+  for i := 1 to inflst.Count - 1 do // skip 0 - header
+  begin
+    splitstring(inflst.Strings[i], scode, spart, slen, sarea, ',');
+    if scode <> id then
+      Continue;
+
+    pci := db.PieceColorInfo(spart, color);
+    if pci = nil then
+      Continue;
+
+    pi := db.PieceInfo(spart);
+
+    len := atoi(slen);
+    area := atoi(sarea);
+
+    num := inv.LoosePartCount(spart, color);
+
+    totallen := totallen + num * len;
+    totalarea := totalarea + num * area;
+    totalpieces := totalpieces + num;
+
+    Inc(aa);
+
+    document.write('<tr bgcolor=' + THBGCOLOR + '>');
+    document.write('<td><p align="right">' + itoa(aa) + '.</b></td>');
+
+    document.write('<td width=25%><img src=' + scolor + '\' + spart + '.png><br><b>');
+    document.write('<a href=spiece/' + spart + '>' + spart + '</a></b>');
+    document.write(' - ' + db.PieceDesc(spart));
+    document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a></td>');
+
+    document.write('<td width=10% align=right><b>' + IntToStr(num) + '</b>');
+    document.write('<br><a href=editpiece/' + spart + '/' + scolor + '><img src="images\edit.png"></a>');
+    document.write('<br><a href=diagrampiece/' + spart + '/' + scolor + '><img src="images\diagram.png"></a>');
+    document.write('</td>');
+
+    document.write('<td width=25% align=right><b>' + IntToStr(num * len) + '</b><br>');
+    if pci <> nil then
+    begin
+      document.write(Format('(N) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceNew, len)]));
+      document.write(Format('(U) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceUsed, len)]));
+    end;
+    document.write('</td>');
+
+    document.write('<td width=25% align=right><b>' + IntToStr(num * area) + '</b><br>');
+    if pci <> nil then
+    begin
+      document.write(Format('(N) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceNew, area)]));
+      document.write(Format('(U) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceUsed, area)]));
+    end;
+    document.write('</td>');
+
+    if pi <> nil then
+      if pi.weight > 0.0 then
+        totalweight := totalweight + pi.weight * num;
+
+    document.write('</tr>');
+  end;
+
+
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
+  document.write('<td width=35%><b>' + IntToStr(aa) + ' unique mold' + decide(aa = 1, '', 's') + '</b></td>');
+
+  document.write('<td width=10% align=right><b>' + IntToStr(totalpieces) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>');
+
+  document.write('<td width=10% align=right><b>' + IntToStr(totallen) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + IntToStr(totalarea) + '</b></td>');
+
+  document.write('</tr></table></p>');
+
+end;
+
+procedure TMainForm.doShowLengthQuery(inv: TBrickInventory; const id: string);
+var
+  lenlst: TStringList;
+begin
+  ShowSplash;
+
+  lenlst := TStringList.Create;
+  if FileExists(basedefault + 'db\db_cross_stats.txt') then
+    lenlst.LoadFromFile(basedefault + 'db\db_cross_stats.txt');
+
+  UpdateDismantaledsetsinv;
+
+  if inv = nil then
+    inv := inventory;
+
+
+  Screen.Cursor := crHourglass;
+
+  document.write('<body background="splash.jpg">');
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+  DrawHeadLine(id);
+
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+
+  document.write('<tr bgcolor=' + THBGCOLOR + '>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 0, lenlst);
+  SplashProgress('Working', 1 / 30);
+  document.write('</td>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 1, lenlst);
+  SplashProgress('Working', 2 / 30);
+  document.write('</td>');
+
+  document.write('</tr>');
+
+// -----------------------------------------------------------------------------
+
+  document.write('<tr>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 2, lenlst);
+  SplashProgress('Working', 3 / 30);
+  document.write('</td>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 4, lenlst);
+  SplashProgress('Working', 4 / 30);
+  document.write('</td>');
+
+  document.write('</tr>');
+
+// -----------------------------------------------------------------------------
+
+  document.write('<tr>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 5, lenlst);
+  SplashProgress('Working', 5 / 30);
+  document.write('</td>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 6, lenlst);
+  SplashProgress('Working', 6 / 30);
+  document.write('</td>');
+
+  document.write('</tr>');
+
+
+// -----------------------------------------------------------------------------
+
+  document.write('<tr>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 7, lenlst);
+  SplashProgress('Working', 7 / 30);
+  document.write('</td>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 8, lenlst);
+  SplashProgress('Working', 8 / 30);
+  document.write('</td>');
+
+  document.write('</tr>');
+
+
+// -----------------------------------------------------------------------------
+
+  document.write('<tr>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 14, lenlst);
+  SplashProgress('Working', 9 / 30);
+  document.write('</td>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 15, lenlst);
+  SplashProgress('Working', 10 / 30);
+  document.write('</td>');
+
+  document.write('</tr>');
+
+// -----------------------------------------------------------------------------
+
+  document.write('<tr>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 19, lenlst);
+  SplashProgress('Working', 11 / 30);
+  document.write('</td>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 28, lenlst);
+  SplashProgress('Working', 12 / 30);
+  document.write('</td>');
+
+  document.write('</tr>');
+
+// -----------------------------------------------------------------------------
+
+  document.write('<tr>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 25, lenlst);
+  SplashProgress('Working', 13 / 30);
+  document.write('</td>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 27, lenlst);
+  SplashProgress('Working', 14 / 30);
+  document.write('</td>');
+
+  document.write('</tr>');
+
+// -----------------------------------------------------------------------------
+
+  document.write('<tr>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 70, lenlst);
+  SplashProgress('Working', 15 / 30);
+  document.write('</td>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 308, lenlst);
+  SplashProgress('Working', 16 / 30);
+  document.write('</td>');
+
+  document.write('</tr>');
+
+// -----------------------------------------------------------------------------
+
+  document.write('<tr>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 71, lenlst);
+  SplashProgress('Working', 17 / 30);
+  document.write('</td>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 72, lenlst);
+  SplashProgress('Working', 18 / 30);
+  document.write('</td>');
+
+  document.write('</tr>');
+
+// -----------------------------------------------------------------------------
+
+  document.write('<tr>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 73, lenlst);
+  SplashProgress('Working', 19 / 30);
+  document.write('</td>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 85, lenlst);
+  SplashProgress('Working', 20 / 30);
+  document.write('</td>');
+
+  document.write('</tr>');
+
+// -----------------------------------------------------------------------------
+
+  document.write('<tr>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 272, lenlst);
+  SplashProgress('Working', 21 / 30);
+  document.write('</td>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 288, lenlst);
+  SplashProgress('Working', 22 / 30);
+  document.write('</td>');
+
+  document.write('</tr>');
+
+
+// -----------------------------------------------------------------------------
+
+  document.write('<tr>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 320, lenlst);
+  SplashProgress('Working', 23 / 30);
+  document.write('</td>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 326, lenlst);
+  SplashProgress('Working', 24 / 30);
+  document.write('</td>');
+
+  document.write('</tr>');
+
+// -----------------------------------------------------------------------------
+
+  document.write('<tr>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 378, lenlst);
+  SplashProgress('Working', 25 / 30);
+  document.write('</td>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 379, lenlst);
+  SplashProgress('Working', 26 / 30);
+  document.write('</td>');
+
+  document.write('</tr>');
+
+// -----------------------------------------------------------------------------
+
+  document.write('<tr>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 84, lenlst);
+  SplashProgress('Working', 27 / 30);
+  document.write('</td>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 484, lenlst);
+  SplashProgress('Working', 28 / 30);
+  document.write('</td>');
+
+  document.write('</tr>');
+
+// -----------------------------------------------------------------------------
+
+  document.write('<tr>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 73, lenlst);
+  SplashProgress('Working', 29 / 30);
+  document.write('</td>');
+
+  document.write('<td>');
+  doShowLengthQueryColor(inv, id, 74, lenlst);
+  SplashProgress('Working', 30 / 30);
+  document.write('</td>');
+
+  document.write('</tr>');
+
+///////////////////////////
+  document.write('</table></p></div>');
+  document.Flash;
+
+  lenlst.Free;
+
+  Screen.Cursor := crDefault;
+
+  HideSplash;
+end;
+
+procedure TMainForm.ShowLengthQuery(const id: string);
+begin
+  doShowLengthQuery(inventory, id);
+end;
+
 procedure TMainForm.Missingfromstoragebins1Click(Sender: TObject);
 var
   foo: Boolean;
@@ -4788,6 +5308,118 @@ begin
   HideSplash;
   ShowMessage(Format('Maximum:'#13#10'%d hits / %d total'#13#10'Efficiency = %2.2f%s'#13#10#13#10'Current:'#13#10'%d hits / %d total'#13#10'Efficiency = %2.2f%s',
     [hits, total, dbl_safe_div(hits * 100, total), '%', db.pciloadscache, db.pciloads, dbl_safe_div(db.pciloadscache * 100, db.pciloads), '%']));
+end;
+
+procedure TMainForm.Bricks1x1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('lengthquery/bricks1x', foo);
+end;
+
+procedure TMainForm.Bricks2x1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('lengthquery/bricks2x', foo);
+end;
+
+procedure TMainForm.Plates1x1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('lengthquery/plates1x', foo);
+end;
+
+procedure TMainForm.Plates2x1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('lengthquery/plates2x', foo);
+end;
+
+procedure TMainForm.N10Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('lengthquery/plates4x', foo);
+end;
+
+procedure TMainForm.Plates6x1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('lengthquery/plates6x', foo);
+end;
+
+procedure TMainForm.Plates8x1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('lengthquery/plates8x', foo);
+end;
+
+procedure TMainForm.iles1x1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('lengthquery/tiles1x', foo);
+end;
+
+procedure TMainForm.iles2x1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('lengthquery/tiles2x', foo);
+end;
+
+procedure TMainForm.Set2Click(Sender: TObject);
+var
+  setid: string;
+begin
+  if GetSetID(setid) then
+    DoEditSet(setid);
+end;
+
+procedure TMainForm.DoEditSet(const setid: string);
+var
+  foo: Boolean;
+  lst: TStringList;
+  data: string;
+  desc: string;
+  year: integer;
+  inv: TBrickInventory;
+  s1, s2: string;
+begin
+  lst := TStringList.Create;
+  lst.Text := db.binarysets.GetSetAsText(setid);
+  if lst.Count < 2 then
+    if fexists(basedefault + 'db\sets\' + setid + '.txt') then
+      lst.LoadFromFile(basedefault + 'db\sets\' + setid + '.txt');
+  if lst.Count < 2 then
+    if db.SetDesc(setid) <> '' then
+    begin
+      inv := db.GetSetInventory(setid);
+      s1 := basedefault + 'out\' + setid + '\';
+      if not DirectoryExists(s1) then
+        ForceDirectories(s1);
+      s2 := s1 + setid + '.txt';
+      inv.SaveLooseParts(s2);
+      lst.LoadFromFile(s2);
+    end;
+
+  data := lst.Text;
+  desc := db.SetDesc(setid);
+  year := db.SetYear(setid);
+  if EditSetAsTextForm(setid, data, desc, year) then
+  begin
+    Screen.Cursor := crHourglass;
+    db.UpdateSet(setid, data);
+    HTMLClick('sinv/' + setid, foo);
+    Screen.Cursor := crDefault;
+  end;
+  lst.Free;
+
 end;
 
 end.

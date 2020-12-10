@@ -45,7 +45,8 @@ function GetNextAlphanumeric(const s: string): string;
 implementation
 
 uses
-  bi_delphi, bi_db, jpeg, bi_pak, bi_tmp, URLMon, Clipbrd, pngimage, GIFImage;
+  bi_delphi, bi_db, jpeg, bi_pak, bi_tmp, URLMon, Clipbrd, pngimage, GIFImage,
+  bi_globals;
 
 function IndexOfString(const hash: THashTable; const s: string): integer;
 begin
@@ -384,6 +385,8 @@ begin
   if not fexists(fname) then
     exit;
   fbck := fname + '_' + FormatDateTime('yyyymmdd', Now);
+  if fexists(fbck) then
+    fbck := fbck + '_latest';
   CopyFile(fname, fbck);
 end;
 

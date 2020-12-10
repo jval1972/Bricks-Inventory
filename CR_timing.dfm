@@ -4,7 +4,7 @@ object Form1: TForm1
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'CR_CRAWLER'
-  ClientHeight = 233
+  ClientHeight = 264
   ClientWidth = 297
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -200,9 +200,30 @@ object Form1: TForm1
     Font.Style = [fsBold]
     ParentFont = False
   end
+  object Label2: TLabel
+    Left = 24
+    Top = 136
+    Width = 3
+    Height = 13
+    Caption = ' '
+  end
+  object Label3: TLabel
+    Left = 32
+    Top = 88
+    Width = 22
+    Height = 13
+    Caption = 'Slow'
+  end
+  object Label4: TLabel
+    Left = 216
+    Top = 88
+    Width = 19
+    Height = 13
+    Caption = 'fast'
+  end
   object Button1: TButton
-    Left = 80
-    Top = 40
+    Left = 88
+    Top = 32
     Width = 121
     Height = 41
     Caption = 'Close'
@@ -211,7 +232,7 @@ object Form1: TForm1
   end
   object Memo1: TMemo
     Left = 0
-    Top = 121
+    Top = 152
     Width = 297
     Height = 112
     Align = alBottom
@@ -228,14 +249,23 @@ object Form1: TForm1
       'Memo5')
     ParentFont = False
     ScrollBars = ssBoth
-    TabOrder = 1
+    TabOrder = 2
     WordWrap = False
+  end
+  object TrackBar1: TTrackBar
+    Left = 64
+    Top = 88
+    Width = 150
+    Height = 33
+    Position = 5
+    TabOrder = 1
+    OnChange = TrackBar1Change
   end
   object CrawlerTimer: TTimer
     Enabled = False
     Interval = 6000
     OnTimer = CrawlerTimerTimer
     Left = 48
-    Top = 48
+    Top = 32
   end
 end

@@ -16,7 +16,7 @@ var
 implementation
 
 uses
-  Windows, bi_delphi, bi_script, bi_utils, bi_system;
+  Windows, bi_delphi, bi_script, bi_utils, bi_system, bi_globals;
 
 var
   hSession: HInternet;

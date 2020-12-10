@@ -29,7 +29,7 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_db, main;
+  bi_db, main, bi_globals;
 
 procedure TTimingForm.FormCreate(Sender: TObject);
 begin

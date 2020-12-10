@@ -28,7 +28,7 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_db;
+  bi_db, bi_globals;
 
 function GetPieceID(var pieceid: string): boolean;
 var

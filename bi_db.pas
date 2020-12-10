@@ -3,7 +3,8 @@ unit bi_db;
 interface
 
 uses
-  SysUtils, Classes, bi_hash, bi_threads, bi_currency, bi_delphi;
+  SysUtils, Classes, bi_hash, bi_threads, bi_currency, bi_delphi,
+  bi_binaryset;
 
 type
   progressfunc_t = procedure (const s: string; a: double) of object;
@@ -180,7 +181,7 @@ type
     BrickLingColor: integer;
     PeeronColor: string[24];
     alternateid: integer;
-    knownpieces: TStringList;
+    knownpieces: THashStringList;
   end;
   colorinfo_p = ^colorinfo_t;
 
@@ -194,7 +195,7 @@ type
 type
   categoryinfo_t = record
     name: string[32];
-    knownpieces: TStringList;
+    knownpieces: THashStringList;
   end;
   categoryinfo_p = ^categoryinfo_t;
 
@@ -291,6 +292,8 @@ type
     fsets: TStringList;
     fstorage: TStringList;
     fdate: TDateTime;
+    fsetmost: string;
+    fsetmostnum: integer;
   public
     constructor Create(const apiece: string; const acolor: integer); virtual;
     destructor Destroy; override;
@@ -318,6 +321,8 @@ type
     property sets: TStringList read fsets;
     property storage: TStringList read fstorage;
     property Hash: LongWord read fhash;
+    property setmost: string read fsetmost;
+    property setmostnum: integer read fsetmostnum;
     function invalid: boolean;
   end;
 
@@ -368,25 +373,27 @@ type
   TSetsDatabase = class(TObject)
   private
     floaded: boolean;
-    fallsets: TStringList;
-    fallsetswithoutextra: TStringList;
+    fallsets: THashStringList;
+    fallsetswithoutextra: THashStringList;
     fcolors: colorinfoarray_t;
     fcategories: categoryinfoarray_t;
     fpieces: TStringList;
     fpieceshash: THashTable;
     fsets: TStringList;
     fsetshash: THashTable;
-    fpiecesaliasBL: TStringList;
-    fpiecesaliasRB: TStringList;
+    fpiecesaliasBL: THashStringList;
+    fpiecesaliasRB: THashStringList;
     fCrawlerLinks: TStringList;
     fcolorpieces: TStringList;
     fcrawlerpriority: TStringList;
+    flastcrawlpiece: string;
     fstorage: TStringList;
     fstubpieceinfo: TPieceInfo;
     fcurrencies: TCurrency;
     fcrawlerfilename: string;
     fbricklinkcolortorebricablecolor: array[0..MAXBRICKLINKCOLOR - 1] of integer;
     fCacheDB: TCacheDB;
+    fbinarysets: TBinarySetCollection;
     st_pciloads: integer;
     st_pciloadscache: integer;
 //    fpciloader: TDThread;
@@ -400,7 +407,8 @@ type
     procedure InitSetReferences;
   public
     progressfunc: progressfunc_t;
-    constructor Create(const app: string = ''); virtual;
+    constructor Create; virtual;
+    procedure InitCreate(const app: string = ''); virtual;
     destructor Destroy; override;
     function LoadFromDisk(const fname: string): boolean;
     procedure AddSetPiece(const setid: string; const part: string; const typ: string; color: integer; num: integer);
@@ -439,23 +447,22 @@ type
     function InventoryForAllStorageBins: TBrickInventory;
     procedure SetPieceStorage(const piece: string; const color: integer; const st: TStringList);
     function RefreshInv(const inv: TBrickInventory): boolean;
-    function RefreshSet(const s: string): boolean;
+    function RefreshSet(const s: string; const lite: boolean = false): boolean;
     function RefreshPart(const s: string): boolean;
     function DownloadSetFromBricklink(const s: string; const typ: string = ''): boolean;
+    function UpdateSet(const s: string; const data: string = ''): boolean;
+    property lastcrawlpiece: string read flastcrawlpiece;
     property loaded: boolean read floaded;
     property categories: categoryinfoarray_t read fcategories;
-    property AllSets: TStringList read fallsets;
-    property AllSetsWithOutExtra: TStringList read fallsetswithoutextra;
+    property AllSets: THashStringList read fallsets;
+    property AllSetsWithOutExtra: THashStringList read fallsetswithoutextra;
     property AllPieces: TStringList read fpieces;
     property crawlerfilename: string read fcrawlerfilename write fcrawlerfilename;
     property CacheDB: TCacheDB read fCacheDB;
     property pciloads: integer read st_pciloads;
     property pciloadscache: integer read st_pciloadscache;
+    property binarysets: TBinarySetCollection read fbinarysets;
   end;
-
-var
-  db: TSetsDatabase = nil;
-  inventory: TBrickInventory = nil;
 
 function PieceColorCacheDir(const piece, color: string): string;
 function PieceColorCacheFName(const piece, color: string): string;
@@ -469,7 +476,7 @@ function F_uDemand(const favailability: availability_t; const fpriceguide: price
 implementation
 
 uses
-  bi_system, bi_utils, bi_crawler, StrUtils, bi_priceadjust, bi_tmp;
+  bi_system, bi_utils, bi_crawler, StrUtils, bi_priceadjust, bi_tmp, bi_globals;
 
 function MkBHash(const part: string; color: integer): Longword;
 var
@@ -761,12 +768,12 @@ var
   pci: TPieceColorInfo;
 begin
   s := TStringList.Create;
-  s.Add('Part,Color,Num,pg_nTimesSold,pg_nTotalQty,pg_nMinPrice,pg_nAvgPrice,' +
-        'pg_nQtyAvgPrice,pg_nMaxPrice,pg_uTimesSold,pg_uTotalQty,pg_uMinPrice,' +
-        'pg_uAvgPrice,pg_uQtyAvgPrice,pg_uMaxPrice,av_nTotalLots,av_nTotalQty,' +
-        'av_nMinPrice,av_nAvgPrice,av_nQtyAvgPrice,av_nMaxPrice,av_uTotalLots,' +
-        'av_uTotalQty,av_uMinPrice,av_uAvgPrice,av_uQtyAvgPrice,av_uMaxPrice,' +
-        'EvaluatePriceNew,EvaluatePriceUsed');
+  s.Add('Part;Color;Num;pg_nTimesSold;pg_nTotalQty;pg_nMinPrice;pg_nAvgPrice;' +
+        'pg_nQtyAvgPrice;pg_nMaxPrice;pg_uTimesSold;pg_uTotalQty;pg_uMinPrice;' +
+        'pg_uAvgPrice;pg_uQtyAvgPrice;pg_uMaxPrice;av_nTotalLots;av_nTotalQty;' +
+        'av_nMinPrice;av_nAvgPrice;av_nQtyAvgPrice;av_nMaxPrice;av_uTotalLots;' +
+        'av_uTotalQty;av_uMinPrice;av_uAvgPrice;av_uQtyAvgPrice;av_uMaxPrice;' +
+        'EvaluatePriceNew;EvaluatePriceUsed');
   for i := 0 to fnumlooseparts - 1 do
   begin
     pci := db.PieceColorInfo(flooseparts[i].part, flooseparts[i].color);
@@ -774,8 +781,8 @@ begin
     begin
       if not pci.hasloaded then
         pci.Load;
-      s.Add(Format('%s,%d,%d,%d,%d,%2.5f,%2.5f,%2.5f,%2.5f,%d,%d,%2.5f,%2.5f,%2.5f,%2.5f'+
-      ',%d,%d,%2.5f,%2.5f,%2.5f,%2.5f,%d,%d,%2.5f,%2.5f,%2.5f,%2.5f,%2.5f,%2.5f', [
+      s.Add(Format('%s;%d;%d;%d;%d;%2.5f;%2.5f;%2.5f;%2.5f;%d;%d;%2.5f;%2.5f;%2.5f;%2.5f'+
+      ';%d;%d;%2.5f;%2.5f;%2.5f;%2.5f;%d;%d;%2.5f;%2.5f;%2.5f;%2.5f;%2.5f;%2.5f', [
         flooseparts[i].part,
         flooseparts[i].color,
         flooseparts[i].num,
@@ -863,6 +870,8 @@ begin
     if pci = nil then
     begin
       pci := TPieceColorInfo.Create(nparts[i].part, nparts[i].color);
+      if db.Colors(nparts[i].color).knownpieces = nil then
+        db.Colors(nparts[i].color).knownpieces := THashStringList.Create;
       db.Colors(nparts[i].color).knownpieces.AddObject(nparts[i].part, pci);
     end;
   end;
@@ -2305,8 +2314,9 @@ begin
   for i := -1 to MAXINFOCOLOR do
     if parms.db.fcolors[i].id = i then
     begin
-      for j := 0 to parms.db.fcolors[i].knownpieces.Count - 1 do
-        (parms.db.fcolors[i].knownpieces.Objects[j] as TPieceColorInfo).Load;
+      if parms.db.fcolors[i].knownpieces <> nil then
+        for j := 0 to parms.db.fcolors[i].knownpieces.Count - 1 do
+          (parms.db.fcolors[i].knownpieces.Objects[j] as TPieceColorInfo).Load;
     end;
   result := 0;
 end;
@@ -2429,30 +2439,54 @@ function TCacheDB.LoadPCI(const p: TPieceColorInfo): boolean;
 var
   idx: integer;
   pc: cachedbitem_p;
+  i: integer;
 begin
-  result := false;
   idx := p.fhash;
-  pc := @parecs[idx];
-  if pc.color = p.color then
-    if apart(pc) = p.piece then
-    begin
-      p.Assign(pc.parec.priceguide);
-      p.Assign(pc.parec.availability);
-      p.fdate := pc.parec.date;                                                            ;
-      result := true;
-    end;
+  for i := idx to idx + 20 do
+  begin
+    pc := @parecs[i mod CACHEDBHASHSIZE];
+    if pc.color = p.color then
+      if apart(pc) = p.piece then
+      begin
+        p.Assign(pc.parec.priceguide);
+        p.Assign(pc.parec.availability);
+        p.fdate := pc.parec.date;                                                            ;
+        result := true;
+        exit;
+      end;
+  end;
+  result := false;
 end;
 
 function TCacheDB.SavePCI(const p: TPieceColorInfo): boolean;
 var
-  idx: integer;
+  idx, idx2: integer;
   pc: cachedbitem_p;
   i, len: integer;
   spiece: string;
 begin
   idx := p.Hash;
-  pc := @parecs[idx];
+  idx2 := idx;
   spiece := p.piece;
+  pc := @parecs[idx];
+  for i := idx to idx + 20 do
+  begin
+    pc := @parecs[i mod CACHEDBHASHSIZE];
+    if pc.color = p.color then
+      if apart(pc) = p.piece then
+      begin
+        idx2 := i mod CACHEDBHASHSIZE;
+        Break;
+      end;
+    if pc.color = 0 then
+      if apart(pc) = '' then
+      begin
+        idx2 := i mod CACHEDBHASHSIZE;
+        Break;
+      end;
+  end;
+  pc := @parecs[idx2];
+
   len := length(spiece);
   if len > CACHEDBSTRINGSIZE then
     len := CACHEDBSTRINGSIZE;
@@ -2464,7 +2498,7 @@ begin
   pc.parec.priceguide := p.priceguide;
   pc.parec.availability := p.availability;
   pc.parec.date := p.fdate;
-  waitlist.Add(idx);
+  waitlist.Add(idx2);
   if waitlist.Count > 5 then
     Flash;
   result := true;
@@ -2498,10 +2532,16 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-constructor TSetsDatabase.Create(const app: string = '');
+constructor TSetsDatabase.Create;
 begin
   db := self;
   inherited Create;
+  flastcrawlpiece := '';
+  progressfunc := nil;
+end;
+
+procedure TSetsDatabase.InitCreate(const app: string = '');
+begin
 //  fpciloaderparams.db := self;
   if app = '' then
     fcrawlerfilename := 'crawler.tmp'
@@ -2512,6 +2552,8 @@ begin
   if not DirectoryExists(basedefault + 'storage') then
     MkDir(basedefault + 'storage');
   fCacheDB := TCacheDB.Create(basedefault + 'cache\cache.db');
+  fbinarysets := TBinarySetCollection.Create(basedefault + 'db\sets.db');
+
   st_pciloads := 0;
   st_pciloadscache := 0;
 
@@ -2519,12 +2561,11 @@ begin
   fstubpieceinfo := TPieceInfo.Create;
   fstubpieceinfo.desc := '(Unknown)';
   floaded := false;
-  fallsets := TStringList.Create;
-  fallsetswithoutextra := TStringList.Create;
+  fallsets := THashStringList.Create;
+  fallsetswithoutextra := THashStringList.Create;
   fcolorpieces := TStringList.Create;
   fcrawlerpriority := TStringList.Create;
   fstorage := TStringList.Create;
-  progressfunc := nil;
   InitColors;
   InitPieces;
   InitSets;
@@ -2615,11 +2656,9 @@ begin
   for i := 0 to MAXINFOCOLOR do
     if fcolors[i].id <> 0 then
       fcolors[i].alternateid := FindAproxColorIndex(@fcolors, i);
-  for i := -1 to MAXINFOCOLOR do
-  begin
-    fcolors[i].knownpieces := TStringList.Create;
-    fcolors[i].knownpieces.Sorted := True;
-  end;
+
+  fcolors[-1].knownpieces := THashStringList.Create;
+
   s.Free;
   s1.Free;
 end;
@@ -2636,8 +2675,8 @@ var
 begin
   ZeroMemory(@fcategories, SizeOf(categoryinfoarray_t));
   for i := 0 to MAXCATEGORIES - 1 do
-    fcategories[i].knownpieces := TStringList.Create;
-    
+    fcategories[i].knownpieces := THashStringList.Create;
+
   sl := TStringList.Create;
   sl.LoadFromFile(basedefault + 'db\db_categories.txt');
   if sl.Count > 0 then
@@ -2722,7 +2761,14 @@ var
       begin
         for i := 1 to s.Count - 1 do
         begin
-          stmp := Trim(s.Strings[i]);
+          if i mod 200 = 0 then
+            if Assigned(progressfunc) then
+              if ismoc then
+                progressfunc('Initializing mocs...', i / s.Count)
+              else
+                progressfunc('Initializing sets...', i / s.Count);
+
+          stmp := s.Strings[i];
           p := Pos(',', stmp);
           if p > 0 then
           begin
@@ -2746,11 +2792,11 @@ var
 begin
   fsets := TStringList.Create;
   fsetshash := THashTable.Create;
+  fsets.Sorted := True;
 
   _loadsets(basedefault + 'db\db_sets.txt', false);
   _loadsets(basedefault + 'db\db_mocs.txt', true);
 
-  fsets.Sorted := True;
   fsetshash.AssignStringList(fsets);
   for i := 0 to fsets.Count - 1 do
     fcolors[-1].knownpieces.AddObject(fsets.Strings[i], TPieceColorInfo.Create(fsets.Strings[i], -1));
@@ -2760,22 +2806,104 @@ end;
 procedure TSetsDatabase.InitSetReferences;
 var
   i: integer;
-  inv: TBrickInventory;
-  inv2: TBrickInventory;
+  binset: PBinarySetRecord;
+  numrecs: integer;
+//  fs: TFileStream;
+  pci: TPieceColorInfo;
+  spiece, scolor, snum, scost, sset: string;
+  s: TStringList;
+  idx, j: integer;
+  cc, num: integer;
 begin
+  s := TStringList.Create;
   for i := 0 to fsets.Count - 1 do
-    if fallsets.IndexOf(fsets.strings[i]) < 0 then
-      if fallsetswithoutextra.IndexOf(fsets.strings[i]) < 0 then
-        if FileExists(basedefault + 'db\sets\' + fsets.strings[i] + '.txt') then
-        begin
-          inv := TBrickInventory.Create;
-          inv.LoadLooseParts(basedefault + 'db\sets\' + fsets.Strings[i] + '.txt');
-          fallsets.AddObject(fsets.Strings[i], inv);
+  begin
+    if i mod 500 = 0 then
+      if Assigned(progressfunc) then
+        progressfunc('Loading sets...', i / fsets.Count);
 
-          inv2 := TBrickInventory.Create;
-          inv2.MergeWith(inv);
-          fallsetswithoutextra.AddObject(fsets.Strings[i], inv2);
+    sset := fsets.strings[i];
+    if fallsets.IndexOf(sset) < 0 then
+      if fallsetswithoutextra.IndexOf(sset) < 0 then
+      begin
+        binset := fbinarysets.GetSet(sset);
+        if binset <> nil then
+        begin
+          numrecs := binset.numitems;
+          for j := 0 to numrecs - 1 do
+          begin
+            spiece := binset.data[j].piece;
+            cc := binset.data[j].color;
+            num := binset.data[j].num;
+
+            AddSetPiece(sset, spiece, '1', cc, num);
+
+            if (cc >= -1) and (cc <= MAXINFOCOLOR) then
+            begin
+              idx := fcolors[cc].knownpieces.Indexof(spiece);
+              if idx < 0 then
+              begin
+                pci := TPieceColorInfo.Create(spiece, cc);
+                fcolors[cc].knownpieces.AddObject(spiece, pci);
+              end
+              else
+                pci := fcolors[cc].knownpieces.Objects[idx] as TPieceColorInfo;
+              pci.AddSetReference(sset, num);
+            end;
+          end;
+        end
+        else if FileExists(basedefault + 'db\sets\' + sset + '.txt') then
+        begin
+         // numrecs := 0;
+          s.LoadFromFile(basedefault + 'db\sets\' + sset + '.txt');
+          for j := 1 to s.Count - 1 do
+          begin
+            splitstring(s.strings[j], spiece, scolor, snum, scost, ',');
+
+            if Pos('BL ', spiece) = 1 then
+              spiece := RebricablePart(Copy(spiece, 4, Length(spiece) - 3))
+            else
+              spiece := RebricablePart(spiece);
+            if Pos('BL', scolor) = 1 then
+            begin
+              scolor := Copy(scolor, 3, Length(scolor) - 2);
+              cc := BrickLinkColorToRebricableColor(StrToIntDef(scolor, 0));
+            end
+            else
+              cc := atoi(scolor);
+
+          {  binset[numrecs].piece := spiece;
+            binset[numrecs].color := cc;
+            binset[numrecs].num := num;
+            binset[numrecs].cost := atof(scost);
+            inc(numrecs);       }
+            num := atoi(snum);
+            AddSetPiece(sset, spiece, '1', cc, num);
+
+            if (cc >= -1) and (cc <= MAXINFOCOLOR) then
+            begin
+              idx := fcolors[cc].knownpieces.Indexof(spiece);
+              if idx < 0 then
+              begin
+                pci := TPieceColorInfo.Create(spiece, cc);
+                fcolors[cc].knownpieces.AddObject(spiece, pci);
+              end
+              else
+                pci := fcolors[cc].knownpieces.Objects[idx] as TPieceColorInfo;
+              pci.AddSetReference(sset, num);
+            end;
+
+           { fs := TFileStream.Create(basedefault + 'db\sets\' + sset + '.dat', fmCreate or fmShareExclusive);
+            fs.Write(binset, numrecs * SizeOf(TBinarySetItem));
+            fs.Free;  }
+          end;
+          fbinarysets.UpdateSetFromText(sset, s);
+
         end;
+      end;
+  end;
+
+  s.Free;
 end;
 
 procedure TSetsDatabase.InitPieces;
@@ -2808,12 +2936,12 @@ begin
     begin
       for i := 1 to s.Count - 1 do
       begin
-        stmp := Trim(s.Strings[i]);
+        stmp := s.Strings[i];
         p := Pos(',', stmp);
         if p > 0 then
         begin
           sp := TPieceInfo.Create;
-          sp.desc := Trim (Copy(stmp, p + 1, Length(stmp) - p));
+          sp.desc := Trim(Copy(stmp, p + 1, Length(stmp) - p));
           fpieces.AddObject(Trim(Copy(stmp, 1, p - 1)), sp);
         end;
       end;
@@ -2834,8 +2962,8 @@ var
   s1, s2: string;
   ss: TString;
 begin
-  fpiecesaliasBL := TStringList.Create;
-  fpiecesaliasRB := TStringList.Create;
+  fpiecesaliasBL := THashStringList.Create;
+  fpiecesaliasRB := THashStringList.Create;
   s := TBStringList.Create;
   s.LoadFromFile(basedefault + 'db\db_pieces_alias.txt');
 
@@ -2844,28 +2972,31 @@ begin
     begin
       for i := s.Count - 1 downto 1 do
       begin
-        stmp := Trim(s.Strings[i]);
+        stmp := s.Strings[i];
         p := Pos(',', stmp);
         if p > 0 then
         begin
           s1 := Trim(Copy(stmp, p + 1, Length(stmp) - p));
           s2 := Trim(Copy(stmp, 1, p - 1));
+          // jval Maybe remove the following if
           if (fpiecesaliasBL.IndexOf(s1) < 0) and (fpiecesaliasRB.IndexOf(s2) < 0) then
           begin
             ss := TString.Create;
+            ss.Text := s2;
             idx := fpiecesaliasBL.AddObject(s1, ss);
-            (fpiecesaliasBL.Objects[idx] as TString).Text := s2;
+//            (fpiecesaliasBL.Objects[idx] as TString).Text := s2;
 
             ss := TString.Create;
+            ss.Text := s1;
             idx := fpiecesaliasRB.AddObject(s2, ss);
-            (fpiecesaliasRB.Objects[idx] as TString).Text := s1;
+//            (fpiecesaliasRB.Objects[idx] as TString).Text := s1;
           end;
         end;
       end;
     end;
 
-  fpiecesaliasBL.Sorted := true;
-  fpiecesaliasRB.Sorted := true;
+{  fpiecesaliasBL.Sorted := true;
+  fpiecesaliasRB.Sorted := true;}
   s.Free;
 end;
 
@@ -2921,8 +3052,8 @@ begin
     if idx > 0 then
     begin
       s.delete(idx);
-      FreeList(fpiecesaliasBL);
-      FreeList(fpiecesaliasRB);
+      FreeHashList(fpiecesaliasBL);
+      FreeHashList(fpiecesaliasRB);
       backupfile(basedefault + 'db\db_pieces_alias.txt');
       s.SaveToFile(basedefault + 'db\db_pieces_alias.txt');
       InitPiecesAlias;
@@ -2935,8 +3066,8 @@ begin
       ch := strtrim(bl) + ',' + strtrim(rb);
       if s.IndexOf(ch) < 0 then
       begin
-        FreeList(fpiecesaliasBL);
-        FreeList(fpiecesaliasRB);
+        FreeHashList(fpiecesaliasBL);
+        FreeHashList(fpiecesaliasRB);
         s.Add(ch);
         backupfile(basedefault + 'db\db_pieces_alias.txt');
         s.SaveToFile(basedefault + 'db\db_pieces_alias.txt');
@@ -3160,16 +3291,16 @@ begin
   SaveStorage;
 
   for i := -1 to MAXINFOCOLOR do
-    FreeList(fcolors[i].knownpieces);
+    FreeHashList(fcolors[i].knownpieces);
 
   for i := 0 to MAXCATEGORIES - 1 do
     fcategories[i].knownpieces.Free;
 
-  FreeList(fpiecesaliasBL);
-  FreeList(fpiecesaliasRB);
+  FreeHashList(fpiecesaliasBL);
+  FreeHashList(fpiecesaliasRB);
   FreeList(fCrawlerLinks);
-  FreeList(fallsets);
-  FreeList(fallsetswithoutextra);
+  FreeHashList(fallsets);
+  FreeHashList(fallsetswithoutextra);
   FreeList(fpieces);
   fpieceshash.Free;
   fsetshash.Free;
@@ -3184,6 +3315,7 @@ begin
   fstubpieceinfo.Free;
   FreeList(fsets);
   fCacheDB.Free;
+  fbinarysets.Free;
   inherited;
 end;
 
@@ -3219,7 +3351,7 @@ begin
   for i := 1 to s1.Count - 1 do
   begin
     splitstring(s1.strings[i], x1, x2, ',');
-    x1 := db.RebricablePart(x1);
+    x1 := RebricablePart(x1);
     s1.Strings[i] := x1 + ',' + x2;
     s2 := string2stringlist(s1.Strings[i], ',');
     if s2.Count > 2 then
@@ -3232,6 +3364,8 @@ begin
       if pci = nil then
       begin
         pci := TPieceColorInfo.Create(pt, cl);
+        if fcolors[cl].knownpieces = nil then
+          fcolors[cl].knownpieces := THashStringList.Create;
         fcolors[cl].knownpieces.AddObject(pt, pci);
         pci.Load;
       end;
@@ -3484,7 +3618,7 @@ begin
   slist.Free;
 end;
 
-function TSetsDatabase.RefreshSet(const s: string): boolean;
+function TSetsDatabase.RefreshSet(const s: string; const lite: boolean = false): boolean;
 var
   inv: TBrickInventory;
   pci: TPieceColorInfo;
@@ -3508,19 +3642,23 @@ begin
       (fallsetswithoutextra.Objects[idx] as TBrickInventory).MergeWith(inv);
     end;
     result := true;
-    RefreshInv(inv);
+    if not lite then
+      RefreshInv(inv);
+    fbinarysets.UpdateSetFromTextFile(s, basedefault + 'db\sets\' + s + '.txt')
   end
   else
-    result := RefreshInv(inv);
+    if not lite then
+      result := RefreshInv(inv);
 
   if result then
-  begin
-    pci := PieceColorInfo(s, -1);
-    if pci <> nil then
-      pci.InternetUpdate;
+    if not lite then
+    begin
+      pci := PieceColorInfo(s, -1);
+      if pci <> nil then
+        pci.InternetUpdate;
 
-    inv.DoUpdateCostValues;
-  end;
+      inv.DoUpdateCostValues;
+    end;
 
 end;
 
@@ -3531,8 +3669,9 @@ var
 begin
   inv := TBrickInventory.Create;
   for i := -1 to MAXINFOCOLOR do
-    if Colors(i).knownpieces.IndexOf(s) > - 1 then
-      inv.AddLoosePartFast(s, i, 1);
+    if Colors(i).knownpieces <> nil then
+      if Colors(i).knownpieces.IndexOf(s) > - 1 then
+        inv.AddLoosePartFast(s, i, 1);
 
   result := RefreshInv(inv);
 
@@ -3550,6 +3689,7 @@ var
   pci: TPieceColorInfo;
   idx: integer;
   pi: TPieceInfo;
+  pcolor: colorinfo_p;
 begin
   result := false;
   fname := I_NewTempFile(s);
@@ -3597,7 +3737,10 @@ begin
             if pci = nil then
             begin
               pci := TPieceColorInfo.Create(RebricablePart(stmp.Strings[1]), BrickLinkColorToRebricableColor(atoi(stmp.Strings[4])));
-              db.Colors(BrickLinkColorToRebricableColor(atoi(stmp.Strings[4]))).knownpieces.AddObject(RebricablePart(stmp.Strings[1]), pci);
+              pcolor := db.Colors(BrickLinkColorToRebricableColor(atoi(stmp.Strings[4])));
+              if pcolor.knownpieces = nil then
+                pcolor.knownpieces := THashStringList.Create;
+              pcolor.knownpieces.AddObject(RebricablePart(stmp.Strings[1]), pci);
             end;
             if PieceDesc(RebricablePart(stmp.Strings[1])) = '' then
             begin
@@ -3608,6 +3751,7 @@ begin
               if fexists(basedefault + 'db\db_pieces.extra.txt') then
                 stmp2.LoadFromFile(basedefault + 'db\db_pieces.extra.txt');
               stmp2.Add(fpieces.Strings[idx] + ',' + (fpieces.Objects[idx] as TPieceInfo).desc);
+              backupfile(basedefault + 'db\db_pieces.extra.txt');
               stmp2.SaveToFile(basedefault + 'db\db_pieces.extra.txt');
               stmp2.Free;
             end;
@@ -3615,6 +3759,8 @@ begin
     stmp.Free;
   end;
   sout.SaveToFile(basedefault + 'db\sets\' + s + '.txt');
+  fbinarysets.UpdateSetFromText(s, sout);
+
   sout.Free;
   slist.Free;
   result := true;
@@ -3631,6 +3777,98 @@ begin
   end;
   if fcolors[-1].knownpieces.IndexOf(s) = -1 then
     fcolors[-1].knownpieces.AddObject(s, TPieceColorInfo.Create(s, -1));
+end;
+
+function TSetsDatabase.UpdateSet(const s: string; const data: string = ''): boolean;
+var
+  i: integer;
+  slist: TStringList;
+  sout: TStringList;
+  spiece, scolor, snum, scost: string;
+  color: integer;
+  stmp2: TStringList;
+  pci: TPieceColorInfo;
+  idx: integer;
+  pi: TPieceInfo;
+  pcolor: colorinfo_p;
+begin
+  slist := TStringList.Create;
+  slist.Text := data;
+  if slist.Count < 2 then
+  begin
+    slist.Free;
+    result := false;
+    exit;
+  end;
+
+  sout := TStringList.Create;
+  sout.Add('Part,Color,Num');
+
+  for i := 1 to slist.Count - 1 do
+  begin
+    splitstring(slist.Strings[i], spiece, scolor, snum, scost, ',');
+    if spiece = '' then
+      Continue;
+
+    sout.Add(spiece + ',' + scolor + ',' + snum);
+
+    if Pos('BL ', spiece) = 1 then
+      spiece := db.RebricablePart(Copy(spiece, 4, Length(spiece) - 3))
+    else
+      spiece := db.RebricablePart(spiece);
+
+    if Pos('BL', scolor) = 1 then
+    begin
+      scolor := Copy(scolor, 3, Length(scolor) - 2);
+
+      color := db.BrickLinkColorToRebricableColor(StrToIntDef(scolor, 0))
+    end
+    else
+      color := StrToIntDef(scolor, 0);
+
+    pci := PieceColorInfo(spiece, color);
+    if pci = nil then
+    begin
+      pci := TPieceColorInfo.Create(spiece, color);
+      pcolor := db.Colors(color);
+      if pcolor.knownpieces = nil then
+        pcolor.knownpieces := THashStringList.Create;
+      pcolor.knownpieces.AddObject(spiece, pci);
+    end;
+    if PieceDesc(spiece) = '' then
+    begin
+      pi := TPieceInfo.Create;
+      pi.desc := spiece;
+      idx := fpieces.AddObject(spiece, pi);
+      stmp2 := TStringList.Create;
+      if fexists(basedefault + 'db\db_pieces.extra.txt') then
+        stmp2.LoadFromFile(basedefault + 'db\db_pieces.extra.txt');
+      stmp2.Add(spiece + ',' + spiece);
+      backupfile(basedefault + 'db\db_pieces.extra.txt');
+      stmp2.SaveToFile(basedefault + 'db\db_pieces.extra.txt');
+      stmp2.Free;
+    end;
+  end;
+  sout.SaveToFile(basedefault + 'db\sets\' + s + '.txt');
+  fbinarysets.UpdateSetFromText(s, sout);
+
+  sout.Free;
+  slist.Free;
+  result := true;
+  if SetDesc(s) = '' then
+  begin
+    stmp2 := TStringList.Create;
+    if fexists(basedefault + 'db\db_mocs.txt') then
+      stmp2.LoadFromFile(basedefault + 'db\db_mocs.txt')
+    else
+      stmp2.Add('set_id,descr,year');
+    stmp2.Add(s + ',' + s + ',0');
+    stmp2.SaveToFile(basedefault + 'db\db_mocs.txt');
+    stmp2.Free;
+  end;
+  if fcolors[-1].knownpieces.IndexOf(s) = -1 then
+    fcolors[-1].knownpieces.AddObject(s, TPieceColorInfo.Create(s, -1));
+  RefreshSet(s, true);
 end;
 
 function TSetsDatabase.PieceInfo(const piece: string): TPieceInfo;
@@ -3676,6 +3914,13 @@ begin
     result := _checkset;
     Exit;
   end;
+
+  if fcolors[color].knownpieces = nil then
+  begin
+    result := _checkset;
+    Exit;
+  end;
+
   idx := fcolors[color].knownpieces.IndexOf(piece);
   if idx < 0 then
   begin
@@ -3793,6 +4038,7 @@ begin
 
   Dec(idx);
   s := fcrawlerpriority.Strings[idx];
+  flastcrawlpiece := s;
   splitstring(s, scolor, spart, ',');
   fcrawlerpriority.Delete(idx);
 
@@ -3832,12 +4078,12 @@ begin
   printf('TSetsDatabase.ExportPriceGuide(' + fname + ')'#13#10);
 
   s := TStringList.Create;
-  s.Add('Part,Color,BLPart,BLColor,pg_nTimesSold,pg_nTotalQty,pg_nMinPrice,pg_nAvgPrice,' +
-        'pg_nQtyAvgPrice,pg_nMaxPrice,pg_uTimesSold,pg_uTotalQty,pg_uMinPrice,' +
-        'pg_uAvgPrice,pg_uQtyAvgPrice,pg_uMaxPrice,av_nTotalLots,av_nTotalQty,' +
-        'av_nMinPrice,av_nAvgPrice,av_nQtyAvgPrice,av_nMaxPrice,av_uTotalLots,' +
-        'av_uTotalQty,av_uMinPrice,av_uAvgPrice,av_uQtyAvgPrice,av_uMaxPrice,' +
-        'EvaluatePriceNew,EvaluatePriceUsed');
+  s.Add('Part;Color;BLPart;BLColor;pg_nTimesSold;pg_nTotalQty;pg_nMinPrice;pg_nAvgPrice;' +
+        'pg_nQtyAvgPrice;pg_nMaxPrice;pg_uTimesSold;pg_uTotalQty;pg_uMinPrice;' +
+        'pg_uAvgPrice;pg_uQtyAvgPrice;pg_uMaxPrice;av_nTotalLots;av_nTotalQty;' +
+        'av_nMinPrice;av_nAvgPrice;av_nQtyAvgPrice;av_nMaxPrice;av_uTotalLots;' +
+        'av_uTotalQty;av_uMinPrice;av_uAvgPrice;av_uQtyAvgPrice;av_uMaxPrice;' +
+        'EvaluatePriceNew;EvaluatePriceUsed');
 
   tot := 0;
   for i := -1 to MAXINFOCOLOR do
@@ -3851,10 +4097,11 @@ begin
       inc(k);
       if Assigned(progressfunc) then
         progressfunc('Export price guide...', k / tot);
-      for j := 0 to fcolors[i].knownpieces.Count - 1 do
-      begin
-        s.Add((fcolors[i].knownpieces.Objects[j] as TPieceColorInfo).dbExportString);
-      end;
+      if fcolors[i].knownpieces <> nil then
+        for j := 0 to fcolors[i].knownpieces.Count - 1 do
+        begin
+          s.Add((fcolors[i].knownpieces.Objects[j] as TPieceColorInfo).dbExportString);
+        end;
     end;
 
   s.SaveToFile(fname);
@@ -3922,9 +4169,9 @@ begin
 
     s.Add(
       Format(
-        '%s,%d,%d,%2.2f,%2.2f,%2.2f,%2.2f,%d,%d,%2.2f,%2.2f,%2.2f,%2.2f,' +
-        '%d,%d,%2.2f,%2.2f,%2.2f,%2.2f,%d,%d,%2.2f,%2.2f,%2.2f,%2.2f,' +
-        '%2.2f,%2.2f,%2.2f,%2.2f,%2.2f,%2.2f,%2.2f,%2.2f,%2.2f,%2.2f,%2.2f,%2.2f',
+        '%s;%d;%d;%2.2f;%2.2f;%2.2f;%2.2f;%d;%d;%2.2f;%2.2f;%2.2f;%2.2f;' +
+        '%d;%d;%2.2f;%2.2f;%2.2f;%2.2f;%d;%d;%2.2f;%2.2f;%2.2f;%2.2f;' +
+        '%2.2f;%2.2f;%2.2f;%2.2f;%2.2f;%2.2f;%2.2f;%2.2f;%2.2f;%2.2f;%2.2f;%2.2f',
        [sset,
         pg.nTimesSold,
         pg.nTotalQty,
@@ -3988,6 +4235,8 @@ end;
 
 constructor TPieceColorInfo.Create(const apiece: string; const acolor: integer);
 begin
+  fsetmost := '';
+  fsetmostnum := 0;
   fsets := TStringList.Create;
   fsets.Sorted := true;
   fstorage := TStringList.Create;
@@ -4210,6 +4459,11 @@ begin
     Inc(fappearsinsetstotal, numpieces);
     if fsets.IndexOf(aset) < 0 then
       fsets.Add(aset);
+    if numpieces > fsetmostnum then
+    begin
+      fsetmost := aset;
+      fsetmostnum := numpieces;
+    end;
   end;
 end;
 
@@ -4408,8 +4662,8 @@ begin
     Load;
 
   result :=
-    Format('%s,%d,%s,%d,%d,%d,%2.5f,%2.5f,%2.5f,%2.5f,%d,%d,%2.5f,%2.5f,%2.5f,%2.5f'+
-           ',%d,%d,%2.5f,%2.5f,%2.5f,%2.5f,%d,%d,%2.5f,%2.5f,%2.5f,%2.5f,%2.5f,%2.5f', [
+    Format('%s;%d;%s;%d;%d;%d;%2.5f;%2.5f;%2.5f;%2.5f;%d;%d;%2.5f;%2.5f;%2.5f;%2.5f'+
+           ';%d;%d;%2.5f;%2.5f;%2.5f;%2.5f;%d;%d;%2.5f;%2.5f;%2.5f;%2.5f;%2.5f;%2.5f', [
         fpiece,
         fcolor,
         db.BrickLinkPart(fpiece),
@@ -4501,18 +4755,27 @@ end;
 
 function TSetsDatabase.LoadFromDisk(const fname: string): boolean;
 var
-  s, kp: TStringList;
+  s: TStringList;
+  kp: THashStringList;
   i, j, tot: integer;
-  sset, snum, spiece, scolor, stype: string;
+  sset, snum, spiece, scolor, stype: string[255];
   npieces: integer;
   cc: integer;
   pci: TPieceColorInfo;
   idx: integer;
   k, len: integer;
   ss: string;
+  prosets: TStringList;
+  lastignoredset: string;
+  sout: TStringList;
 begin
   AllowInternetAccess := false;
   fcurrencies := TCurrency.Create(basedefault + 'db\db_currency.txt');
+
+{  fallsets.Sorted := true;
+  fallsetswithoutextra.Sorted := true;}
+
+  InitSetReferences;
 
   s := TStringList.Create;
   s.LoadFromFile(fname);
@@ -4532,8 +4795,17 @@ begin
     exit;
   end;
 
+  sout := TStringList.Create;
+  sout.Add('set_id,piece_id,num,color,type');
+
   if Assigned(progressfunc) then
     progressfunc('Loading database...', 0.0);
+
+  prosets := TStringList.Create;
+  prosets.AddStrings(fallsets);
+  prosets.Sorted := true;
+  lastignoredset := '';
+
   s.Delete(0);
   s.Sort;
   for i := 0 to s.Count - 1 do
@@ -4544,10 +4816,6 @@ begin
       ss := s.strings[i];
       len := Length(ss);
       sset := '';
-      spiece := '';
-      snum := '';
-      scolor := '';
-      stype := '';
 
       k := 0;
 
@@ -4560,10 +4828,25 @@ begin
           Break;
       end;
 
+      if sset = lastignoredset then
+        Continue;
+
+      if prosets.IndexOf(sset) >= 0 then
+      begin
+        lastignoredset := sset;
+        Continue;
+      end;
+
+      sout.Add(ss);
+
+      spiece := '';
+      snum := '';
+      scolor := '';
+      stype := '';
 
       while k < len do
       begin
-        Inc(k);                    
+        Inc(k);
         if ss[k] <> ',' then
           spiece := spiece + ss[k]
         else
@@ -4617,12 +4900,25 @@ begin
     end;
   end;
 
+  if sout.Count <> s.Count + 1 then
+  begin
+    backupfile(fname);
+    sout.SaveToFile(fname);
+  end;
+  sout.Free;
   for i := -1 to MAXINFOCOLOR do
   begin
-    scolor := IntToStr(i) + ',';
-    for j := 0 to fcolors[i].knownpieces.Count - 1 do
-      fcolorpieces.AddObject(scolor + fcolors[i].knownpieces.Strings[j], fcolors[i].knownpieces.Objects[j]);
+    kp := fcolors[i].knownpieces;
+    if kp <> nil then
+    begin
+      scolor := IntToStr(i) + ',';
+      for j := 0 to kp.Count - 1 do
+        fcolorpieces.AddObject(scolor + kp.Strings[j], kp.Objects[j]);
+    end;
   end;
+
+  prosets.Free;
+
   fcolorpieces.Sorted := True;
   if FileExists(basedefault + 'cache\' + fcrawlerfilename) then
     fcrawlerpriority.LoadFromFile(basedefault + 'cache\' + fcrawlerfilename)
@@ -4647,16 +4943,12 @@ begin
       if Assigned(progressfunc) then
         progressfunc('Loading cache...', k / tot);
       kp := fcolors[i].knownpieces;
-      for j := 0 to kp.Count - 1 do
-        (kp.Objects[j] as TPieceColorInfo).Load;
+      if kp <> nil then
+        for j := 0 to kp.Count - 1 do
+          (kp.Objects[j] as TPieceColorInfo).Load;
     end;
 
   LoadStorage;
-
-  fallsets.Sorted := true;
-  fallsetswithoutextra.Sorted := true;
-
-  InitSetReferences;
 
   result := True;
   AllowInternetAccess := true;
@@ -4687,6 +4979,8 @@ begin
       inv := fallsets.Objects[idx] as TBrickInventory;
     cacheidx := idx;
   end;
+  if fcolors[color].knownpieces = nil then
+    fcolors[color].knownpieces := THashStringList.Create;
   inv.AddLoosePartFast(part, color, num);
 
   if typ <> '1' then
@@ -4722,7 +5016,7 @@ begin
       fallsets.Objects[idx] := TBrickInventory.Create;
       (fallsets.Objects[idx] as TBrickInventory).LoadLooseParts(basedefault + 'db\sets\' + setid + '.txt');
       Result := (fallsets.Objects[idx] as TBrickInventory);
-    end
+            end
     else if FileExists(basedefault + 'mosaic\' + setid + '.txt') then
     begin
       idx := fallsets.Add(setid);
@@ -4801,8 +5095,9 @@ begin
       inc(k);
       if assigned(progressfunc) then
         progressfunc('Reloading cache...', k / mx);
-      for j := 0 to fcolors[i].knownpieces.Count - 1 do
-        (fcolors[i].knownpieces.Objects[j] as TPieceColorInfo).Load;
+      if fcolors[i].knownpieces <> nil then
+        for j := 0 to fcolors[i].knownpieces.Count - 1 do
+          (fcolors[i].knownpieces.Objects[j] as TPieceColorInfo).Load;
     end;
   end;
 
@@ -4840,12 +5135,13 @@ begin
         inc(k);
         if assigned(progressfunc) then
           progressfunc('Calculating...', k / mx);
-        for j := 0 to fcolors[i].knownpieces.Count - 1 do
-        begin
-          pci := fcolors[i].knownpieces.Objects[j] as TPieceColorInfo;
-          inc(A[MkPCIHash(pci.piece, pci.color)]);
-          inc(total);
-        end;
+        if fcolors[i].knownpieces <> nil then
+          for j := 0 to fcolors[i].knownpieces.Count - 1 do
+          begin
+            pci := fcolors[i].knownpieces.Objects[j] as TPieceColorInfo;
+            inc(A[MkPCIHash(pci.piece, pci.color)]);
+            inc(total);
+          end;
       end;
     end;
   end;

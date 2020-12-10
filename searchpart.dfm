@@ -27,7 +27,7 @@ object SearchPartForm: TSearchPartForm
     Left = 78
     Top = 6
     Width = 91
-    Height = 24
+    Height = 20
     TabOrder = 0
   end
   object ListBox1: TListBox

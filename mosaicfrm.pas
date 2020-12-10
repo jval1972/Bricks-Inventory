@@ -136,7 +136,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Math, clipbrd, bi_utils, bi_tmp;
+  Math, clipbrd, bi_utils, bi_tmp, bi_globals;
 
 const
   C_bricks: array[0..NUMBRICKS - 1] of mosaicbrick_t = (

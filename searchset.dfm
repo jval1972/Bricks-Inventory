@@ -4,12 +4,12 @@ object SearchSetForm: TSearchSetForm
   BorderIcons = []
   BorderStyle = bsDialog
   Caption = 'Search Set'
-  ClientHeight = 207
-  ClientWidth = 343
+  ClientHeight = 155
+  ClientWidth = 257
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
+  Font.Height = -10
   Font.Name = 'Tahoma'
   Font.Style = []
   Icon.Data = {
@@ -546,47 +546,47 @@ object SearchSetForm: TSearchSetForm
   OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
-  PixelsPerInch = 120
-  TextHeight = 16
+  PixelsPerInch = 96
+  TextHeight = 12
   object Label1: TLabel
-    Left = 24
-    Top = 8
-    Width = 70
-    Height = 16
+    Left = 18
+    Top = 6
+    Width = 56
+    Height = 12
     Caption = 'Enter SetID:'
     FocusControl = Edit1
   end
   object Edit1: TEdit
-    Left = 104
-    Top = 8
-    Width = 121
+    Left = 78
+    Top = 6
+    Width = 91
     Height = 24
     TabOrder = 0
   end
   object ListBox1: TListBox
-    Left = 16
-    Top = 48
-    Width = 305
-    Height = 97
-    ItemHeight = 16
+    Left = 12
+    Top = 36
+    Width = 229
+    Height = 73
+    ItemHeight = 12
     TabOrder = 1
     OnClick = ListBox1Click
   end
   object Button1: TButton
-    Left = 72
-    Top = 168
-    Width = 75
-    Height = 25
+    Left = 54
+    Top = 126
+    Width = 56
+    Height = 19
     Caption = 'OK'
     Default = True
     ModalResult = 1
     TabOrder = 2
   end
   object Button2: TButton
-    Left = 176
-    Top = 168
-    Width = 75
-    Height = 25
+    Left = 132
+    Top = 126
+    Width = 56
+    Height = 19
     Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 3

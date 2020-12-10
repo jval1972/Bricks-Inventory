@@ -1771,6 +1771,43 @@ object MainForm: TMainForm
           OnClick = LugBulk2019CheapInvertedSlopes1Click
         end
       end
+      object N20201: TMenuItem
+        Caption = '2020'
+        object Lugbulk2020items1: TMenuItem
+          Caption = 'Lugbulk 2020 items'
+          OnClick = Lugbulk2020items1Click
+        end
+        object N49: TMenuItem
+          Caption = '-'
+        end
+        object LugBulk2020CheapParts1: TMenuItem
+          Caption = 'LugBulk 2020 Cheap Parts'
+          OnClick = LugBulk2020CheapParts1Click
+        end
+        object N50: TMenuItem
+          Caption = '-'
+        end
+        object LugBulk2020CheapBricks1: TMenuItem
+          Caption = 'LugBulk 2020 Cheap Bricks'
+          OnClick = LugBulk2020CheapBricks1Click
+        end
+        object LugBulk2020CheapPlates1: TMenuItem
+          Caption = 'LugBulk 2020 Cheap Plates'
+          OnClick = LugBulk2020CheapPlates1Click
+        end
+        object LugBulk2020CheapTiles1: TMenuItem
+          Caption = 'LugBulk 2020 Cheap Tiles'
+          OnClick = LugBulk2020CheapTiles1Click
+        end
+        object LugBulk2020CheapSlopes1: TMenuItem
+          Caption = 'LugBulk 2020 Cheap Slopes'
+          OnClick = LugBulk2020CheapSlopes1Click
+        end
+        object LugBulk2020CheapInvertedSlopes1: TMenuItem
+          Caption = 'LugBulk 2020 Cheap Inverted Slopes'
+          OnClick = LugBulk2020CheapInvertedSlopes1Click
+        end
+      end
     end
     object Inventory1: TMenuItem
       Caption = 'Inventory'

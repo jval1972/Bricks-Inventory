@@ -681,7 +681,7 @@ object UpdateForm1: TUpdateForm1
       Top = 16
       Width = 225
       Height = 25
-      Caption = 'Add Set Invenotories'
+      Caption = 'Add Set Inventories'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
       Font.Height = -13
@@ -711,7 +711,7 @@ object UpdateForm1: TUpdateForm1
       Top = 48
       Width = 225
       Height = 25
-      Caption = 'Add Minifig Invenotories'
+      Caption = 'Add Minifig Invent'#959'ries'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
       Font.Height = -13
@@ -741,7 +741,7 @@ object UpdateForm1: TUpdateForm1
       Top = 80
       Width = 225
       Height = 25
-      Caption = 'Add Book Invenotories'
+      Caption = 'Add Book Inventories'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
       Font.Height = -13
@@ -771,7 +771,7 @@ object UpdateForm1: TUpdateForm1
       Top = 112
       Width = 225
       Height = 25
-      Caption = 'Add Gear Invenotories'
+      Caption = 'Add Gear Inventories'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
       Font.Height = -13

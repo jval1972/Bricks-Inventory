@@ -36,6 +36,7 @@ var
   db: TSetsDatabase = nil;
   inventory: TBrickInventory = nil;
   BL_NET: string = 'www.bricklink.com';
+  s_bricklink: string = 'bricklink';
 
 const
   PARTNAMESIZE = 20;  

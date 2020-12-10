@@ -89,7 +89,7 @@ begin
   Result := success;
 end;
 
-function S_LoadFromFile_disk(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
+function S_LoadFromFile_disk(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 500): boolean;
 var
   success: boolean;
   i: integer;
@@ -118,7 +118,7 @@ begin
   Result := success;
 end;
 
-function SH_SaveToFile_disk(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
+function SH_SaveToFile_disk(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 500): boolean;
 var
   success: boolean;
   i: integer;
@@ -146,7 +146,7 @@ begin
   Result := success;
 end;
 
-function SH_LoadFromFile_disk(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
+function SH_LoadFromFile_disk(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 500): boolean;
 var
   success: boolean;
   i: integer;

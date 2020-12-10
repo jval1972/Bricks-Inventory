@@ -138,7 +138,7 @@ begin
           begin
             sl := string2stringlist(src2, '&');
             sl.CaseSensitive := False;
-            Result := 'http://www.bricklink.com/priceGuideSummary.asp?vcID=2&vatInc=y&' +
+            Result := 'http://' + BL_NET + '/' + 'priceGuideSummary.asp' + '?vcID=2&vatInc=y&' +
                       'a=' + src2[1] + '&' +
                       'itemID=' + sl.Values[src2[1]] + '&' +
                       'colorID=' + sl.Values['colorID'] + '&' +
@@ -179,27 +179,27 @@ begin
       if (Pos('BRICKLINK.COM', UpperCase(tmp)) <= 0) or (Pos('CATALOGPG.ASP', UpperCase(tmp)) > 0) or (Pos('/PRICEGUIDE.ASP', UpperCase(tmp)) > 0) then
       begin
         if (parttype = 's') or (parttype = 'S') then
-          tmp := 'http://www.bricklink.com/priceGuideSummary.asp?vcID=2&vatInc=y&' +
+          tmp := 'http://' + BL_NET + '/' + 'priceGuideSummary.asp' + '?vcID=2&vatInc=y&' +
                  'a=S' + '&itemID=' + db.GetBLNetPieceName(pci.piece) +
                  '&colorID=0' + '&viewdec=6' + '&viewMy=&viewExclude=Y'
         else if (parttype = 'b') or (parttype = 'B') then
-          tmp := 'http://www.bricklink.com/priceGuideSummary.asp?vcID=2&vatInc=y&' +
+          tmp := 'http://' + BL_NET + '/' + 'priceGuideSummary.asp' + '?vcID=2&vatInc=y&' +
                  'a=B' + '&itemID=' + db.GetBLNetPieceName(pci.piece) +
                  '&colorID=0' + '&viewdec=6'
         else if (parttype = 'i') or (parttype = 'I') then
-          tmp := 'http://www.bricklink.com/priceGuideSummary.asp?vcID=2&vatInc=y&' +
+          tmp := 'http://' + BL_NET + '/' + 'priceGuideSummary.asp' + '?vcID=2&vatInc=y&' +
                  'a=I' + '&itemID=' + db.GetBLNetPieceName(pci.piece) +
                  '&colorID=0' + '&viewdec=6'
         else if (parttype = 'o') or (parttype = 'O') then
-          tmp := 'http://www.bricklink.com/priceGuideSummary.asp?vcID=2&vatInc=y&' +
+          tmp := 'http://' + BL_NET + '/' + 'priceGuideSummary.asp' + '?vcID=2&vatInc=y&' +
                  'a=O' + '&itemID=' + db.GetBLNetPieceName(pci.piece) +
                  '&colorID=0' + '&viewdec=6'
         else if (parttype = 'c') or (parttype = 'C') then
-          tmp := 'http://www.bricklink.com/priceGuideSummary.asp?vcID=2&vatInc=y&' +
+          tmp := 'http://' + BL_NET + '/' + 'priceGuideSummary.asp' + '?vcID=2&vatInc=y&' +
                  'a=C' + '&itemID=' + db.GetBLNetPieceName(pci.piece) +
                  '&colorID=0' + '&viewdec=6'
         else
-          tmp := 'http://www.bricklink.com/priceGuideSummary.asp?vcID=2&vatInc=y&' +
+          tmp := 'http://' + BL_NET + '/' + 'priceGuideSummary.asp' + '?vcID=2&vatInc=y&' +
                  'a=' + parttype + '&itemID=' + db.GetBLNetPieceName(pci.piece) +
                  '&colorID=' + itoa(db.colors(color).BrickLingColor) + '&viewdec=6';
       end;
@@ -287,7 +287,7 @@ begin
     colorID := '0'
   else
     colorID := itoa(atoi(BricklinkColorEdit.Text));
-  Result := 'http://www.bricklink.com/priceGuideSummary.asp?' +
+  Result := 'http://' + BL_NET + '/' + 'priceGuideSummary.asp' + '?' +
             'vcID=' + vcID + '&' +
             'vatInc=' + vatInc + '&' +
             'a=' + a + '&' +

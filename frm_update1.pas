@@ -70,6 +70,7 @@ type
   private
     { Private declarations }
     procedure AddInvSetRec(const s: string);
+    procedure AddInvGearRec(const s: string);
     procedure AddInvMinifigRec(const s: string);
     procedure AddNoInvSetRec(const s: string);
     procedure AddNoInvMinifigRec(const s: string);
@@ -125,6 +126,22 @@ var
   s1: string;
 begin
   s1 := 'downloadsetnorefresh/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  s1 := 'sinv/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  s1 := 'spiece/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  UpdateLabel;
+end;
+
+procedure TUpdateForm1.AddInvGearRec(const s: string);
+var
+  s1: string;
+begin
+  s1 := 'downloadgearnorefresh/' + s;
   if Memo1.Lines.IndexOf(s1) = -1 then
     Memo1.Lines.Add(s1);
   s1 := 'sinv/' + s;
@@ -289,7 +306,7 @@ begin
       lnk := 'https://' + BL_NET + '/catalogList.asp?pg=' + itoa(i) + '&viewInv=Y&sortBy=D&sortAsc=D&itemBrand=1000&catType=G';
       lst := db.QryNewInventoriesFromBricklink(lnk, '<a href="catalogItemInv.asp?G=');
       for j := 0 to lst.Count - 1 do
-        AddInvSetRec(lst.Strings[j]);
+        AddInvGearRec(lst.Strings[j]);
       lst.Free;
     end;
   finally

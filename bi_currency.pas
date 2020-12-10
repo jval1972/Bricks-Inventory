@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -207,20 +207,25 @@ begin
     Exit;
 
   htm := LoadStringFromFile(tmpname);
-  check := '<div class="dDoNo vk_bk">';
+  check := '<span class="DFlfde SwHCTb" data-precision="2" data-value=';
   p := Pos(check, htm);
   if p < 1 then
-  begin // give a second chance
-    p := Pos(UpperCase(check), UpperCase(htm));
+  begin
+    check := '<div class="dDoNo vk_bk">';
+    p := Pos(check, htm);
     if p < 1 then
-      Exit;
+    begin // give a second chance
+      p := Pos(UpperCase(check), UpperCase(htm));
+      if p < 1 then
+        Exit;
+    end;
   end;
   svalue := '';
   for i := p + length(check) - 1 to length(htm) do
   begin
     if htm[i] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', ','] then
       svalue := svalue + htm[i]
-    else if htm[i] in ['<', '/'] then
+    else if htm[i] in ['<', '/', '>'] then
       break;
   end;
   Add(acurrency, Now, atof(svalue));
@@ -336,6 +341,9 @@ procedure TCurrencyConvert.Add(const scurrency: string; const sdate: string; con
 var
   pc: currencyconvert_p;
 begin
+  if value <= 0.0000000001 then
+    Exit;
+
   Grow;
   pc := @A[fnumitems];
   pc.currency := UpperCase(scurrency);

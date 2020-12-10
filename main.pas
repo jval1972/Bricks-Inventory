@@ -330,6 +330,16 @@ type
     N48: TMenuItem;
     Instructionswithunknownweight1: TMenuItem;
     OriginalBoxeswithunknownweight1: TMenuItem;
+    N20201: TMenuItem;
+    Lugbulk2020items1: TMenuItem;
+    N49: TMenuItem;
+    LugBulk2020CheapParts1: TMenuItem;
+    N50: TMenuItem;
+    LugBulk2020CheapBricks1: TMenuItem;
+    LugBulk2020CheapPlates1: TMenuItem;
+    LugBulk2020CheapTiles1: TMenuItem;
+    LugBulk2020CheapSlopes1: TMenuItem;
+    LugBulk2020CheapInvertedSlopes1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -545,6 +555,13 @@ type
     procedure OpenItemPU1Click(Sender: TObject);
     procedure Instructionswithunknownweight1Click(Sender: TObject);
     procedure OriginalBoxeswithunknownweight1Click(Sender: TObject);
+    procedure Lugbulk2020items1Click(Sender: TObject);
+    procedure LugBulk2020CheapParts1Click(Sender: TObject);
+    procedure LugBulk2020CheapBricks1Click(Sender: TObject);
+    procedure LugBulk2020CheapPlates1Click(Sender: TObject);
+    procedure LugBulk2020CheapTiles1Click(Sender: TObject);
+    procedure LugBulk2020CheapInvertedSlopes1Click(Sender: TObject);
+    procedure LugBulk2020CheapSlopes1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -636,6 +653,7 @@ type
     procedure ShowSetsAtUnknownYear;
     procedure UpdateUnknownYearFromDisk(const qry: string);
     procedure UpdateAllPartsUnknownYear;
+    procedure UpdateAllItemsUnknownDesc;
     procedure UpdatePartFromDisk(const spart: string);
     procedure UpdateSetAssetsFromBricklink(const s: string);
     procedure ShowSetsDataCompare(const tit: string; const setlist: TStringList);
@@ -1991,12 +2009,12 @@ begin
           if not DownloadFileImg('https://' + BL_NET + '/BL/' + jnewblname, outfname) then
             if not DownloadFileImg('https://' + BL_NET + '/BN/' + pnewblname, outfname) then
               if not DownloadFileImg('http://' + BL_NET + '/SL/' + jnewblname, outfname) then
-                if not DownloadFileImg('https://img.bricklink.com/ItemImage/SL/' + jnewblname, outfname) then
-                  if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/PN/0/' + pnewblname, outfname) then
-                    if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/SL/' + pnewblname, outfname) then
-                      if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/MN/0/' + pnewblname, outfname) then
-                        if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/ON/0/' + pnewblname, outfname) then
-                          if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/SN/0/' + pnewblname, outfname) then
+                if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/SL/' + jnewblname, outfname) then
+                  if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/PN/0/' + pnewblname, outfname) then
+                    if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SL/' + pnewblname, outfname) then
+                      if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/MN/0/' + pnewblname, outfname) then
+                        if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/ON/0/' + pnewblname, outfname) then
+                          if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SN/0/' + pnewblname, outfname) then
                             if not DownloadFileImg('http://' + BL_NET + '/ML/' + jnewblname, outfname) then
                               if not DownloadFileImg('http://www.1000steine.com/brickset/images/' + jnewblname, outfname) then
                                 if not DownloadFileImg('https://images.brickset.com/sets/images/' + jnewblname, outfname) then
@@ -2005,24 +2023,24 @@ begin
         else if db.IsGear(firstword(ExtractFileName(SRC), '.')) then
         begin
           pnewblname := NewBlFileName(pngfilename);
-          if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/GL/' + pnewblname, outfname) then
-            if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/GN/0/' + pnewblname, outfname) then
+          if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/GL/' + pnewblname, outfname) then
+            if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/GN/0/' + pnewblname, outfname) then
               if not DownloadFileImg('https://' + BL_NET + '/BL/' + NewBlFileName(jpgfilename), outfname) then;
         end
         else if db.IsMinifigure(firstword(ExtractFileName(SRC), '.')) then
         begin
           jnewblname := NewBlFileName(jpgfilename);
           pnewblname := NewBlFileName(pngfilename);
-          if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/MN/0/' + pnewblname, outfname) then
+          if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/MN/0/' + pnewblname, outfname) then
             if not DownloadFileImg('http://' + BL_NET + '/ML/' + jnewblname, outfname) then
               if not DownloadFileImg('http://' + BL_NET + '/SL/' + jnewblname, outfname) then
                 if not DownloadFileImg('https://' + BL_NET + '/BL/' + jnewblname, outfname) then
-                  if not DownloadFileImg('https://img.bricklink.com/ItemImage/SL/' + jnewblname, outfname) then
-                    if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/PN/0/' + pnewblname, outfname) then
+                  if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/SL/' + jnewblname, outfname) then
+                    if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/PN/0/' + pnewblname, outfname) then
                       if not DownloadFileImg('https://' + BL_NET + '/BN/' + pnewblname, outfname) then
-                        if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/SL/' + pnewblname, outfname) then
-                          if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/ON/0/' + pnewblname, outfname) then
-                            if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/SN/0/' + pnewblname, outfname) then
+                        if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SL/' + pnewblname, outfname) then
+                          if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/ON/0/' + pnewblname, outfname) then
+                            if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SN/0/' + pnewblname, outfname) then
                               if not DownloadFileImg('http://www.1000steine.com/brickset/images/' + jpgfilename, outfname) then
                                 if not DownloadFileImg('https://images.brickset.com/sets/images/' + jpgfilename, outfname) then
                                   if not DownloadFileImg('http://img.rebrickable.com/img/sets-b/' + jpgfilename, outfname) then;
@@ -2033,12 +2051,12 @@ begin
           pnewblname := NewBlFileName(pngfilename);
           if not DownloadFileImg('http://' + BL_NET + '/SL/' + jnewblname, outfname) then
             if not DownloadFileImg('https://' + BL_NET + '/BL/' + jnewblname, outfname) then
-              if not DownloadFileImg('https://img.bricklink.com/ItemImage/SL/' + jnewblname, outfname) then
-                if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/PN/0/' + pnewblname, outfname) then
-                  if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/SL/' + pnewblname, outfname) then
-                    if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/MN/0/' + pnewblname, outfname) then
-                      if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/ON/0/' + pnewblname, outfname) then
-                        if not DownloadPngFileToJpg('https://img.bricklink.com/ItemImage/SN/0/' + pnewblname, outfname) then
+              if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/SL/' + jnewblname, outfname) then
+                if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/PN/0/' + pnewblname, outfname) then
+                  if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SL/' + pnewblname, outfname) then
+                    if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/MN/0/' + pnewblname, outfname) then
+                      if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/ON/0/' + pnewblname, outfname) then
+                        if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SN/0/' + pnewblname, outfname) then
                           if not DownloadFileImg('http://' + BL_NET + '/ML/' + jnewblname, outfname) then
                             if not DownloadFileImg('https://' + BL_NET + '/BN/' + pnewblname, outfname) then
                               if not DownloadFileImg('http://www.1000steine.com/brickset/images/' + jpgfilename, outfname) then
@@ -2060,18 +2078,18 @@ begin
         else if RBCOLOR1 = itoa(CATALOGCOLORINDEX) then
         begin
           outfname := basedefault + itoa(CATALOGCOLORINDEX) + '\' + ExtractFileName(SRC);
-          if not DownloadFileImg('https://img.bricklink.com/ItemImage/CN/0/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
-            if not DownloadFileImg('https://img.bricklink.com/ItemImage/CT/0/' + ChangeFileExt(NewBlFileName(ExtractFileName(SRC)), '.t1.png'), outfname) then
-              if not DownloadGIFFileToPNG('http://img.bricklink.com/C/' + NewBlFileName(ChangeFileExt(ExtractFileName(SRC), '.gif')), outfname) then
-                DownloadJpgFileToPNG('http://img.bricklink.com/C/' + NewBlFileName(ChangeFileExt(ExtractFileName(SRC), '.jpg')), outfname);
+          if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/CN/0/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
+            if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/CT/0/' + ChangeFileExt(NewBlFileName(ExtractFileName(SRC)), '.t1.png'), outfname) then
+              if not DownloadGIFFileToPNG('http://img.' + s_bricklink + '.com/C/' + NewBlFileName(ChangeFileExt(ExtractFileName(SRC), '.gif')), outfname) then
+                DownloadJpgFileToPNG('http://img.' + s_bricklink + '.com/C/' + NewBlFileName(ChangeFileExt(ExtractFileName(SRC), '.jpg')), outfname);
         end
         else if RBCOLOR1 = itoa(INSTRUCTIONCOLORINDEX) then
         begin
           outfname := basedefault + itoa(INSTRUCTIONCOLORINDEX) + '\' + ExtractFileName(SRC);
-          if not DownloadFileImg('https://img.bricklink.com/ItemImage/IN/0/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
-            if not DownloadFileImg('https://img.bricklink.com/ItemImage/IN/0/' + NewBlFileName(ChangeFileExt(ExtractFileName(SRC), '') + '-99') + '.png', outfname) then
-              if not DownloadFileImg('https://img.bricklink.com/ItemImage/IT/0/' + ChangeFileExt(NewBlFileName(ExtractFileName(SRC)), '.t1.png'), outfname) then
-                if not DownloadJpgFileToPNG('http://img.bricklink.com/I/' + NewBlFileName(ChangeFileExt(ExtractFileName(SRC), '.jpg')), outfname) then
+          if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/IN/0/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
+            if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/IN/0/' + NewBlFileName(ChangeFileExt(ExtractFileName(SRC), '') + '-99') + '.png', outfname) then
+              if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/IT/0/' + ChangeFileExt(NewBlFileName(ExtractFileName(SRC)), '.t1.png'), outfname) then
+                if not DownloadJpgFileToPNG('http://img.' + s_bricklink + '.com/I/' + NewBlFileName(ChangeFileExt(ExtractFileName(SRC), '.jpg')), outfname) then
                 begin
                   iname1 := ChangeFileExt(ExtractFileName(SRC), '');
                   if Length(iname1) > 5 then
@@ -2092,8 +2110,8 @@ begin
         else if RBCOLOR1 = itoa(BOXCOLORINDEX) then
         begin
           outfname := basedefault + itoa(BOXCOLORINDEX) + '\' + ExtractFileName(SRC);
-          if not DownloadFileImg('https://img.bricklink.com/ItemImage/ON/0/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
-            DownloadFileImg('https://img.bricklink.com/ItemImage/OT/0/' + ChangeFileExt(NewBlFileName(ExtractFileName(SRC)), '.t1.png'), outfname);
+          if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/ON/0/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
+            DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/OT/0/' + ChangeFileExt(NewBlFileName(ExtractFileName(SRC)), '.t1.png'), outfname);
         end
         else
         begin
@@ -2140,33 +2158,39 @@ begin
                 pci := db.PieceColorInfo(firstword(ExtractFileName(SRC), '.'), -1);
                 if pci <> nil then
                   if pci.parttype = TYPE_MINIFIGURE then
-                    imgfound := DownloadFileImg('https://img.bricklink.com/ItemImage/MN/0/' + NewBlFileName(ExtractFileName(SRC)), outfname);
+                    imgfound := DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/MN/0/' + NewBlFileName(ExtractFileName(SRC)), outfname);
                 if not imgfound then
-                  imgfound := DownloadFileImg('https://img.bricklink.com/ItemImage/SN/0/' + NewBlFileName(ExtractFileName(SRC)), outfname);
+                  imgfound := DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/SN/0/' + NewBlFileName(ExtractFileName(SRC)), outfname);
                 if not imgfound then
                 begin
-                  imgfound := DownloadFile('https://img.bricklink.com/ItemImage/GN/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.png', outfname);
+                  imgfound := DownloadFile('https://img.' + s_bricklink + '.com/ItemImage/GN/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.png', outfname);
+                  if not imgfound then
+                    imgfound := DownloadFile('https://img.' + s_bricklink + '.com/ItemImage/GL/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.png', outfname);
                   didgear := True;
                 end;
               end
               else
               begin
-                imgfound := DownloadFileImg('https://img.bricklink.com/ItemImage/PT/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.t1.png', outfname);
+                imgfound := DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/PT/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.t1.png', outfname);
               end;
             end;
 
             if not imgfound then
-              if not DownloadJpgFileToPNG('http://img.bricklink.com/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
-                if not DownloadJpgFileToPNG('http://img.bricklink.com/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(firstword(ExtractFileName(SRC), '.')) + '.jpg', outfname) then
+              if not DownloadJpgFileToPNG('http://img.' + s_bricklink + '.com/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
+                if not DownloadJpgFileToPNG('http://img.' + s_bricklink + '.com/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(firstword(ExtractFileName(SRC), '.')) + '.jpg', outfname) then
                   if not DownloadJpgFileToPNG('http://' + BL_NET + '/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
                     if not DownloadGIFFileToPNG('http://' + BL_NET + '/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then
                       if not DownloadGIFFileToPNG('http://' + BL_NET + '/M/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then
                         if not DownloadJpgFileToPNG('http://' + BL_NET + '/M/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
                           if not DownloadGIFFileToPNG('https://' + BL_NET + '/ML/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then
                             if not DownloadJpgFileToPNG('https://' + BL_NET + '/ML/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
-                              if not DownloadFileImg('https://img.bricklink.com/ItemImage/BN/' + BLCOLOR1 + '/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
-                                if not DownloadFileImg('https://img.bricklink.com/ItemImage/PN/' + BLCOLOR1 + '/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
-                                  if not didgear then DownloadFile('https://img.bricklink.com/ItemImage/GN/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.png', outfname)
+                              if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/BN/' + BLCOLOR1 + '/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
+                                if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/PN/' + BLCOLOR1 + '/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
+                                  if not didgear then
+                                  begin
+                                    if not DownloadFile('https://img.' + s_bricklink + '.com/ItemImage/GN/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.png', outfname) then
+                                      DownloadFile('https://img.' + s_bricklink + '.com/ItemImage/GL/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.png', outfname)
+                                  end;
           end
         end;
 
@@ -2993,7 +3017,7 @@ begin
         ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' +
           GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
           HtmlDrawInvImgLink(brick.part, brick.color, pi) +
-          decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) +
+          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) +
           ' times in ' + pci.setmost + '</a>') + '</td>');
     if not lite then
     begin
@@ -3027,7 +3051,7 @@ begin
         begin
           lcostt := lcostt + lcost * brick.num;
           document.write('<td width=' + decide(lite, '15%', '10%') + ' align=right>' + Format('€ ' + '<a href=' + lugcostedit + '>' + accurstr + '</a><br>€ ' + accurstr + '<br>€ %2.2f / Kgr', [lcost, lcost * brick.num, dbl_safe_div(lcost, www) * 1000]) + '</td>')
-        end
+        end                                     
         else
         begin
           lcost := 0.0;
@@ -3581,7 +3605,7 @@ begin
   if inv = nil then
   begin
     if Trim(setid) <> '' then
-      lnk := '<a href=downloadset/' + setid + '>Try to download the inventory from bricklink.com</a>'
+      lnk := '<a href=downloadset/' + setid + '>Try to download the inventory from ' + s_bricklink + '.com</a>'
     else
       lnk := '';
     pci := db.PieceColorInfo(setid, -1);
@@ -3647,7 +3671,7 @@ begin
 
   if not db.IsMoc(setid) then
   begin
-    lnk := '<a href=downloadsetandrefresh/' + setid + '>Refresh set inventory from bricklink.com</a>';
+    lnk := '<a href=downloadsetandrefresh/' + setid + '>Refresh set inventory from ' + s_bricklink + '.com</a>';
     DrawHeadLine(lnk);
   end;
   inv.DoUpdateCostValues;
@@ -3808,7 +3832,7 @@ begin
   end
   else if not db.IsMoc(setid) then
   begin
-    DrawHeadLine('<a href=downloadsetaltparts/' + Trim(setid) + '>Try to download alternate parts from bricklink.com</a>');
+    DrawHeadLine('<a href=downloadsetaltparts/' + Trim(setid) + '>Try to download alternate parts from ' + s_bricklink + '.com</a>');
     document.write('<br>');
     document.write('<br>');
   end;
@@ -4863,7 +4887,7 @@ begin
                 ' (' + si + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(i) +
                 '<img src="images\details.png"></a>' +
                 HtmlDrawInvImgLink(pcs, i, pi) +
-                decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+                decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
               document.write('<td width=10% align=right>');
               document.write('N=%2.3f<br>U=%2.3f</td>', [pci.nDemand, pci.uDemand]);
             end
@@ -5714,7 +5738,7 @@ begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
         ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-          decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
 
     document.write('<td width=15% align=right>' + Format('%d', [numpieces]) +
             '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
@@ -5870,7 +5894,7 @@ begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
         ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-          decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
 
     document.write('<td width=10% align=right>' + Format('%d', [numpieces]) +
             '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
@@ -6037,7 +6061,7 @@ begin
         ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) +
         '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-          decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
 
     document.write('<td width=15% align=right>' +
             '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
@@ -6156,19 +6180,27 @@ begin
     // document.BlancColorCell(db.colors(cl).RGB, 25);
     cinfo := db.colors(cl);
     if pci = nil then
+    begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
         ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-          '</td>')
+          '</td>');
+      document.write('<td width=15% align=right>' + Format('%2.3f', [0.0]) +
+              '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
+              '<br><a href=diagrampiece/' + pcs + '/' + itoa(cl) + '><img src="images\diagram.png"></a>' +
+              '</td>');
+    end
     else
+    begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
         ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-         decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
-    document.write('<td width=15% align=right>' + Format('%2.3f', [decided(pci = nil, 0.0, pci.nDemand)]) +
-            '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
-            '<br><a href=diagrampiece/' + pcs + '/' + itoa(cl) + '><img src="images\diagram.png"></a>' +
-            '</td>');
+         decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+       document.write('<td width=15% align=right>' + Format('%2.3f', [pci.nDemand]) +
+              '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
+              '<br><a href=diagrampiece/' + pcs + '/' + itoa(cl) + '><img src="images\diagram.png"></a>' +
+              '</td>');
+    end;
 
     if pci <> nil then
     begin
@@ -9944,7 +9976,9 @@ begin
   if s1 = UpperCase('RefreshUnKnownMinifigWeight/') then Exit;
   if s1 = UpperCase('RefreshUnKnownInventoryPiecesCategory') then Exit;
   if s1 = UpperCase('downloadset/') then Exit;
+  if s1 = UpperCase('downloadgear/') then Exit;
   if s1 = UpperCase('downloadsetnorefresh/') then Exit;
+  if s1 = UpperCase('downloadgearnorefresh/') then Exit;
   if s1 = UpperCase('downloadminifig/') then Exit;
   if s1 = UpperCase('downloadminifignorefresh/') then Exit;
   if s1 = UpperCase('downloadsetaltparts/') then Exit;
@@ -10321,6 +10355,14 @@ begin
     if SRC = 'UpdateAllPartsUnknownYear' then
     begin
       UpdateAllPartsUnknownYear;
+      HTMLClick('refresh', Handled);
+      Handled := True;
+      Exit;
+    end;
+
+    if SRC = 'UpdateAllItemsUnknownDesc' then
+    begin
+      UpdateAllItemsUnknownDesc;
       HTMLClick('refresh', Handled);
       Handled := True;
       Exit;
@@ -10824,10 +10866,30 @@ begin
       Exit;
     end;
 
+    if Pos('downloadgear/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      if db.DownloadSetFromBricklinkNew(s2, 'G') then
+        HTMLClick('refresh', Handled)
+      else
+        ErrorBeep;
+      Handled := True;
+      Exit;
+    end;
+
     if Pos('downloadsetnorefresh/', SRC) = 1 then
     begin
       splitstring(SRC, s1, s2, '/');
       if not db.DownloadSetFromBricklinkNew(s2) then
+        ErrorBeep;
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('downloadgearnorefresh/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      if not db.DownloadSetFromBricklinkNew(s2, 'G') then
         ErrorBeep;
       Handled := True;
       Exit;
@@ -13326,7 +13388,7 @@ begin
 
   lst := TStringList.Create;
 
-  if over = 0.0 then
+  if over >= 1.0 then
   begin
     for i := 0 to lb.List.Count - 1 do
     begin
@@ -13349,9 +13411,16 @@ begin
     for i := 0 to lb.List.Count - 1 do
     begin
       lprice := (lb.List.Objects[i] as TLugBulkDouble).value;
-      pcs := lb.Part[i];
-      if (catid = -1) or (catid = db.PieceInfo(pcs).category) then
-        lst.Add(lb.List.Strings[i]);
+      if lprice > 0.0 then
+      begin
+        pcs := lb.Part[i];
+        if (catid = -1) or (catid = db.PieceInfo(pcs).category) then
+        begin
+          pci := db.PieceColorInfo(pcs, lb.Color[i]);
+          if pci <> nil then
+            lst.Add(lb.List.Strings[i]);
+        end;
+      end;
     end;
   end;
 
@@ -13360,7 +13429,7 @@ begin
   for i := lst.Count - 1 downto 1 do
     if lst.Strings[i] = lst.Strings[i - 1] then
       lst.Delete(i);
-      
+
   if domultipagedocuments then
     document.NewMultiPageDocument('DrawPieceListLugbulkKnownCost', tit + '_' + itoa(lb.List.Count) + '_' + itoa(lst.Count) + '_' + ftoa(over) + '_' + itoa(Ord(dobrickorederinfo)) + '_' + itoa(catid));
 
@@ -13413,19 +13482,27 @@ begin
     DrawColorCell(cl, 25);
 //    document.BlancColorCell(db.colors(cl).RGB, 25);
     if pci = nil then
+    begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name +
         ' (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLingColor) + ')' + GetRebrickableColorHtml(cl) +
-        '<img src="images\details.png"></a>' + HtmlDrawInvImgLink(pcs, cl, pi) + '</td>')
+        '<img src="images\details.png"></a>' + HtmlDrawInvImgLink(pcs, cl, pi) + '</td>');
+      document.write(
+        '<td width=15% align=right>' + Format('%2.3f', [0.0]) +
+        '<br><a href=editpiece/' + pcs + '/' + col + '><img src="images\edit.png"></a>' +
+        '<br><a href=diagrampiece/' + pcs + '/' + col + '><img src="images\diagram.png"></a></td>');
+    end
     else
+    begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name +
         ' (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLingColor) + ')' + GetRebrickableColorHtml(cl) +
         '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
-    document.write(
-      '<td width=15% align=right>' + Format('%2.3f', [decided(pci = nil, 0.0, pci.nDemand)]) +
-      '<br><a href=editpiece/' + pcs + '/' + col + '><img src="images\edit.png"></a>' +
-      '<br><a href=diagrampiece/' + pcs + '/' + col + '><img src="images\diagram.png"></a></td>');
+      document.write(
+        '<td width=15% align=right>' + Format('%2.3f', [pci.nDemand]) +
+        '<br><a href=editpiece/' + pcs + '/' + col + '><img src="images\edit.png"></a>' +
+        '<br><a href=diagrampiece/' + pcs + '/' + col + '><img src="images\diagram.png"></a></td>');
+    end;
 
     lprice := lb.ItemCost(pcs, cl);
     lugcostedit := 'EditLugbulkPrice/' + pcs + '/' + col + '/' + syear;
@@ -17653,6 +17730,55 @@ begin
   FreeList(lst);
 end;
 
+procedure TMainForm.UpdateAllItemsUnknownDesc;
+var
+  i, j: integer;
+  pci: TPieceColorInfo;
+  kp: THashStringList;
+  idx, tot: integer;
+  smsg: string;
+  lst: TStringList;
+begin
+  Screen.Cursor := crHourglass;
+  ShowSplash;
+  lst := TStringList.Create;
+  smsg := 'Working...';
+  SplashProgress(smsg, 0.0);
+  for i := -1 to MAXINFOCOLOR do
+    if (i = -1) or (db.Colors(i).id = i) then
+    begin
+      kp := db.Colors(i).knownpieces;
+      if kp <> nil then
+      begin
+        for j := 0 to kp.Count - 1 do
+        begin
+          pci := kp.Objects[j] as TPieceColorInfo;
+          if db.PieceDesc(pci.piece) = '' then
+          begin
+            idx := lst.IndexOf(pci.piece);
+            if idx < 0 then
+              lst.Add(pci.piece);
+          end;
+        end;
+      end;
+    end;
+
+  tot := lst.Count;
+
+  SplashProgress(smsg, 0.01);
+
+  for i := 0 to tot - 1 do
+  begin
+    db.UpdatePartKnownColorsFromBricklink(lst.Strings[i]);
+    if i mod 100 = 0 then
+      SplashProgress(smsg, 0.01 + 0.99 * (i / tot));
+  end;
+
+  SplashProgress(smsg, 1.0);
+  Screen.Cursor := crDefault;
+  FreeList(lst);
+end;
+
 procedure TMainForm.UpdatePartFromDisk(const spart: string);
 begin
   if not db.UpdatePartKnownColorsFromBricklink(spart, false) then
@@ -17699,7 +17825,7 @@ procedure TMainForm.LugBulk2019CheapInvertedSlopes1Click(Sender: TObject);
 var
   foo: boolean;
 begin
-  HTMLClick('lugbulkbstprice/2018/5.0/32', foo);
+  HTMLClick('lugbulkbstprice/2019/5.0/32', foo);
 end;
 
 procedure TMainForm.ExportPartsColors1Click(Sender: TObject);
@@ -18274,6 +18400,55 @@ var
   foo: Boolean;
 begin
   HTMLClick('BoxesUnknownWeight', foo);
+end;
+
+procedure TMainForm.Lugbulk2020items1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('ShowLugbulk/2020', foo);
+end;
+
+procedure TMainForm.LugBulk2020CheapParts1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('lugbulkbstprice/2020/5.0', foo);
+end;
+
+procedure TMainForm.LugBulk2020CheapBricks1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('lugbulkbstprice/2020/5.0/5', foo);
+end;
+
+procedure TMainForm.LugBulk2020CheapPlates1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('lugbulkbstprice/2020/5.0/26', foo);
+end;
+
+procedure TMainForm.LugBulk2020CheapTiles1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('lugbulkbstprice/2020/5.0/37', foo);
+end;
+
+procedure TMainForm.LugBulk2020CheapInvertedSlopes1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('lugbulkbstprice/2020/5.0/32', foo);
+end;
+
+procedure TMainForm.LugBulk2020CheapSlopes1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('lugbulkbstprice/2019/5.0/31', foo);
 end;
 
 end.

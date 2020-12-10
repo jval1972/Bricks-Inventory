@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 165
   Top = 115
   Width = 484
-  Height = 437
+  Height = 458
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Bricklink Crawler'
   Color = clBtnFace
@@ -192,7 +192,7 @@ object Form1: TForm1
     Left = 0
     Top = 0
     Width = 468
-    Height = 177
+    Height = 209
     Align = alTop
     BevelOuter = bvNone
     Caption = ' '
@@ -211,8 +211,8 @@ object Form1: TForm1
       ParentFont = False
     end
     object Label2: TLabel
-      Left = 24
-      Top = 152
+      Left = 32
+      Top = 184
       Width = 18
       Height = 16
       Caption = '      '
@@ -315,12 +315,38 @@ object Form1: TForm1
       ParentFont = False
       TabOrder = 4
     end
+    object CheckBoxRandom: TCheckBox
+      Left = 32
+      Top = 160
+      Width = 121
+      Height = 17
+      Caption = 'Random Select: '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 5
+      OnClick = CheckBoxRandomClick
+    end
+    object TrackBarRandom: TTrackBar
+      Left = 152
+      Top = 152
+      Width = 225
+      Height = 33
+      Max = 100
+      Min = 1
+      Position = 5
+      TabOrder = 6
+      OnChange = TrackBar1Change
+    end
   end
   object Panel2: TPanel
     Left = 0
-    Top = 177
+    Top = 209
     Width = 468
-    Height = 221
+    Height = 210
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 8
@@ -330,7 +356,7 @@ object Form1: TForm1
       Left = 8
       Top = 8
       Width = 452
-      Height = 205
+      Height = 194
       ActivePage = TabSheet3
       Align = alClient
       TabOrder = 0
@@ -340,7 +366,7 @@ object Form1: TForm1
           Left = 0
           Top = 0
           Width = 444
-          Height = 177
+          Height = 166
           Align = alClient
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clMaroon
@@ -366,7 +392,7 @@ object Form1: TForm1
           Left = 0
           Top = 0
           Width = 444
-          Height = 177
+          Height = 166
           Align = alClient
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack

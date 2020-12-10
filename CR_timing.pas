@@ -34,12 +34,15 @@ type
     CheckBox3: TCheckBox;
     Label7: TLabel;
     Edit3: TEdit;
+    CheckBoxRandom: TCheckBox;
+    TrackBarRandom: TTrackBar;
     procedure FormCreate(Sender: TObject);
     procedure CrawlerTimerTimer(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
     procedure FormHide(Sender: TObject);
+    procedure CheckBoxRandomClick(Sender: TObject);
   private
     { Private declarations }
  //   tr: TThreadComponent;
@@ -48,6 +51,7 @@ type
     cnt_total, cnt_success: integer;
     cont_success, cont_fail: integer;
     procedure CrawlerStep;
+    procedure UpdateControls;
   public
     { Public declarations }
     crawling: Boolean;
@@ -96,12 +100,15 @@ begin
   end
   else
   begin
+    db := nil;
     Label1.Caption := '';
     Memo1.Lines.Clear;
     Memo2.Lines.Clear;
     CrawlerTimer.Interval := 1;
     Close;
   end;
+
+  UpdateControls;
 
   cnt_total := 0;
   cnt_success := 0;
@@ -147,6 +154,8 @@ begin
 
     if crawling then
       exit;
+
+    UpdateControls;
 
     crawling := true;
     Label1.Font.Color := clMaroon;
@@ -278,6 +287,23 @@ begin
     Application.Terminate;
     exit;
   end;
+end;
+
+procedure TForm1.UpdateControls;
+begin
+  TrackBarRandom.Visible := CheckBoxRandom.Checked;
+  if db <> nil then
+  begin
+    if CheckBoxRandom.Checked then
+      db.crawlerrandom := TrackBarRandom.Position
+    else
+      db.crawlerrandom := 0;
+  end;
+end;
+
+procedure TForm1.CheckBoxRandomClick(Sender: TObject);
+begin
+  UpdateControls;
 end;
 
 end.

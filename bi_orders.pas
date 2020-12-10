@@ -113,8 +113,8 @@ begin
     for j := 0 to (fpieceorderinfo.Objects[i] as TStringList).Count - 1 do
       (fpieceorderinfo.Objects[i] as TStringList).Objects[j].Free;
   FreeList(fpieceorderinfo);
-{  for i := 0 to fnumorders - 1 do
-    forders[i]._Release;}
+  for i := 0 to fnumorders - 1 do
+    I_ClearInterface(IInterface(forders[i]));
   inherited;
 end;
 

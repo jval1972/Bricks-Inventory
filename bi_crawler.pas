@@ -934,7 +934,7 @@ begin
       Exit;
     end;
   end;
-  if db.pieceinfo(pci).category = 9999 then
+  if db.pieceinfo(pci).category = CATEGORYCUSTOMMINIFIGS then
   begin
     {$IFDEF CRAWLER}
     FAILwarning := True;
@@ -973,7 +973,7 @@ begin
       Exit;
     end;
   end
-  else if Pos('WWW.BRICKLINK.COM/PRICEGUIDE', UpperCase(link)) > 0 then
+  else if Pos(UpperCase(BL_NET) + '/PRICEGUIDE', UpperCase(link)) > 0 then
   begin
     forcelink := link;
     if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
@@ -991,13 +991,13 @@ begin
       Exit;
     end;
   end
-  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?G=', UpperCase(link)) > 0 then
+  else if Pos(UpperCase(BL_NET) + '/' + 'CATALOGPG.ASP' + '?G=', UpperCase(link)) > 0 then
   begin
     forcelink := NET_MakePriceGuideLink2(
                   'G',
                   HTMLLinkParseParam(link, 'G', id),
                   atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
-                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                  atoi(HTMLLinkParseParam(link, 'prDec', '4'))
                 );
     if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
     begin
@@ -1017,13 +1017,13 @@ begin
       Exit;
     end;
   end
-  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?S=', UpperCase(link)) > 0 then
+  else if Pos(UpperCase(BL_NET) + '/' + 'CATALOGPG.ASP' + '?S=', UpperCase(link)) > 0 then
   begin
     forcelink := NET_MakePriceGuideLink2(
                   'S',
                   HTMLLinkParseParam(link, 'S', id),
                   atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
-                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                  atoi(HTMLLinkParseParam(link, 'prDec', '4'))
                 );
     if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
     begin
@@ -1043,13 +1043,13 @@ begin
       Exit;
     end;
   end
-  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?I=', UpperCase(link)) > 0 then
+  else if Pos(UpperCase(BL_NET) + '/' + 'CATALOGPG.ASP' + '?I=', UpperCase(link)) > 0 then
   begin
     forcelink := NET_MakePriceGuideLink2(
                   'I',
                   HTMLLinkParseParam(link, 'I', id),
                   atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
-                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                  atoi(HTMLLinkParseParam(link, 'prDec', '4'))
                 );
     if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
     begin
@@ -1069,13 +1069,13 @@ begin
       Exit;
     end;
   end
-  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?P=', UpperCase(link)) > 0 then
+  else if Pos(UpperCase(BL_NET) + '/' + 'CATALOGPG.ASP' + '?P=', UpperCase(link)) > 0 then
   begin
     forcelink := NET_MakePriceGuideLink2(
                   'P',
                   HTMLLinkParseParam(link, 'P', id),
                   atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
-                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                  atoi(HTMLLinkParseParam(link, 'prDec', '4'))
                 );
     if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
     begin
@@ -1095,13 +1095,13 @@ begin
       Exit;
     end;
   end
-  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?C=', UpperCase(link)) > 0 then
+  else if Pos(UpperCase(BL_NET) + '/' + 'CATALOGPG.ASP' + '?C=', UpperCase(link)) > 0 then
   begin
     forcelink := NET_MakePriceGuideLink2(
                   'C',
                   HTMLLinkParseParam(link, 'C', id),
                   atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
-                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                  atoi(HTMLLinkParseParam(link, 'prDec', '4'))
                 );
     if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
     begin
@@ -1121,13 +1121,13 @@ begin
       Exit;
     end;
   end
-  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?B=', UpperCase(link)) > 0 then
+  else if Pos(UpperCase(BL_NET) + '/' + 'CATALOGPG.ASP' + '?B=', UpperCase(link)) > 0 then
   begin
     forcelink := NET_MakePriceGuideLink2(
                   'B',
                   HTMLLinkParseParam(link, 'B', id),
                   atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
-                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                  atoi(HTMLLinkParseParam(link, 'prDec', '4'))
                 );
     if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
     begin
@@ -1147,13 +1147,13 @@ begin
       Exit;
     end;
   end
-  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?O=', UpperCase(link)) > 0 then
+  else if Pos(UpperCase(BL_NET) + '/' + 'CATALOGPG.ASP' + '?O=', UpperCase(link)) > 0 then
   begin
     forcelink := NET_MakePriceGuideLink2(
                   'O',
                   HTMLLinkParseParam(link, 'O', id),
                   atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
-                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                  atoi(HTMLLinkParseParam(link, 'prDec', '4'))
                 );
     if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
     begin
@@ -1173,13 +1173,13 @@ begin
       Exit;
     end;
   end
-  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?M=', UpperCase(link)) > 0 then
+  else if Pos(UpperCase(BL_NET) + '/' + 'CATALOGPG.ASP' + '?M=', UpperCase(link)) > 0 then
   begin
     forcelink := NET_MakePriceGuideLink2(
                   'M',
                   HTMLLinkParseParam(link, 'M', id),
                   atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
-                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                  atoi(HTMLLinkParseParam(link, 'prDec', '4'))
                 );
     if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
     begin
@@ -1289,7 +1289,7 @@ begin
   if link <> '' then
     if Pos('&PRDEC=', UpperCase(link)) <= 0 then
     begin
-      link := link + '&prdec=6';
+      link := link + '&prdec=4';
       fixlink := True;
     end;
   if link = '' then
@@ -1297,53 +1297,53 @@ begin
     id := db.BrickLinkPart(id);
     if (color = '89') or (color = '') or ((color = '-1') and (Pos('-', id) > 0))  then // set
     begin
-      link := 'http://' + BL_NET + '/catalogPG.asp?S=' + db.GetBLNetPieceName(id) + '--&colorID=0&v=D&viewExclude=Y&cID=Y&prDec=6';
+      link := 'http://' + BL_NET + '/' + 'catalogPG.asp' + '?S=' + db.GetBLNetPieceName(id) + '--&colorID=0&v=D&viewExclude=Y&cID=Y&prDec=4';
       tryparttype := 'S';
     end
     else if color = '-1' then // minifigure - sticker
     begin
       if issticker(id) then // sticker
       begin
-        link := 'https://' + BL_NET + '/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6';
+        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=4';
         tryparttype := 'P';
       end
       else if db.isbook(id) then  // book
       begin
-        link := 'https://' + BL_NET + '/catalogPG.asp?B=' + db.GetBLNetPieceName(id) + '&prdec=6';
+        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?B=' + db.GetBLNetPieceName(id) + '&prdec=4';
         didbook := True;
         tryparttype := 'B';
       end
       else if db.IsGear(id) then
       begin
-        link := 'https://' + BL_NET + '/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&prDec=6';
+        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?G=' + db.GetBLNetPieceName(id) + '&prDec=4';
         didgear := True;
         tryparttype := 'G';
       end
       else  // minifigure
       begin
-        link := 'https://' + BL_NET + '/catalogPG.asp?M=' + db.GetBLNetPieceName(id) + '&prDec=6';
+        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?M=' + db.GetBLNetPieceName(id) + '&prDec=4';
         tryparttype := 'M';
       end
     end
     else if atoi(color) = CATALOGCOLORINDEX then // Catalogs
     begin
-      link := 'https://' + BL_NET + '/catalogPG.asp?C=' + db.GetBLNetPieceName(id) + '&ColorID=0&prDec=6'
+      link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?C=' + db.GetBLNetPieceName(id) + '&ColorID=0&prDec=4'
     end
     else if atoi(color) = INSTRUCTIONCOLORINDEX then // INstructions
     begin
-      link := 'https://' + BL_NET + '/catalogPG.asp?I=' + db.GetBLNetPieceName(id) + '&ColorID=0&prDec=6'
+      link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?I=' + db.GetBLNetPieceName(id) + '&ColorID=0&prDec=4'
     end
     else if atoi(color) = BOXCOLORINDEX then // Original box
     begin
-      link := 'https://' + BL_NET + '/catalogPG.asp?O=' + db.GetBLNetPieceName(id) + '&ColorID=0&prDec=6'
+      link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?O=' + db.GetBLNetPieceName(id) + '&ColorID=0&prDec=4'
     end
     else // part
     begin
       cc := StrToIntDef(color, -2);
       if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
-        link := 'https://' + BL_NET + '/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6'
+        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=4'
       else
-        link := 'https://' + BL_NET + '/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?P=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=4';
       tryparttype := 'P';
     end;
   end;
@@ -1378,9 +1378,9 @@ begin
       id := '3068bpb0' + id[8] + id[9] + id[10];
       cc := StrToIntDef(color, -2);
       if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
-        link := 'https://' + BL_NET + '/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6'
+        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=4'
       else
-        link := 'https://' + BL_NET + '/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?P=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=4';
       tryparttype := 'P';
       savelink := True;
       loadedfromcache := False;
@@ -1390,7 +1390,7 @@ begin
     end
     else if color = '9999' then
     begin
-      link := 'https://' + BL_NET + '/catalogPG.asp?M=' + db.GetBLNetPieceName(id) + '&prDec=6';
+      link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?M=' + db.GetBLNetPieceName(id) + '&prDec=4';
       tryparttype := 'M';
       savelink := True;
       loadedfromcache := False;
@@ -1402,9 +1402,9 @@ begin
     begin
       cc := StrToIntDef(color, -2);
       if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
-        link := 'https://' + BL_NET + '/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6'
+        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?G=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=4'
       else
-        link := 'https://' + BL_NET + '/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?G=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=4';
       tryparttype := 'G';
       savelink := True;
       loadedfromcache := False;
@@ -1420,15 +1420,15 @@ begin
     cc := StrToIntDef(color, -2);
     if (cc < -1) or (cc > MAXINFOCOLOR) then
     begin
-      link := 'https://' + BL_NET + '/catalogPriceGuide.asp?S=' + db.GetBLNetPieceName(id) + '&prDec=6';
+      link := 'https://' + BL_NET + '/catalogPriceGuide.asp?S=' + db.GetBLNetPieceName(id) + '&prDec=4';
       tryparttype := 'S';
     end
     else
     begin
       if cc > LASTNORMALCOLORINDEX then
-        link := 'https://' + BL_NET + '/catalogPriceGuide.asp?P=' + db.GetBLNetPieceName(id) + '&colorid=0&prDec=6'
+        link := 'https://' + BL_NET + '/catalogPriceGuide.asp?P=' + db.GetBLNetPieceName(id) + '&colorid=0&prDec=4'
       else
-        link := 'https://' + BL_NET + '/catalogPriceGuide.asp?P=' + db.GetBLNetPieceName(id) + '&colorid=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+        link := 'https://' + BL_NET + '/catalogPriceGuide.asp?P=' + db.GetBLNetPieceName(id) + '&colorid=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=4';
       tryparttype := 'P';
     end;
     savelink := False;
@@ -1445,7 +1445,7 @@ begin
     if color = '9999' then
     begin
       isdollar := False;
-      link := 'https://' + BL_NET + '/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&prDec=6';
+      link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?G=' + db.GetBLNetPieceName(id) + '&prDec=4';
       tryparttype := 'G';
       savelink := True;
       loadedfromcache := False;
@@ -1462,7 +1462,7 @@ begin
       if not didbook then
       begin
         isdollar := False;
-        link := 'https://' + BL_NET + '/catalogPG.asp?B=' + db.GetBLNetPieceName(id) + '&prDec=6';
+        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?B=' + db.GetBLNetPieceName(id) + '&prDec=4';
         tryparttype := 'B';
         savelink := True;
         loadedfromcache := False;
@@ -1680,7 +1680,24 @@ var
   id1: string;
 begin
   Result := '';
+
   id1 := strtrim(id);
+
+  if Length(id1) = 12 then
+    if Pos('dupupn', id1) = 1 then
+      if IsNumericC(id1[7]) and IsNumericC(id1[8]) and
+         (id1[9] = 'p') and (id1[10] = 'r') and
+         IsNumericC(id1[11]) and IsNumericC(id1[12]) then
+          id1 := 'dupupn00' + id1[7] + id1[8] + 'pr00' + id1[11] + id1[12];
+
+  if Length(id1) = 15 then
+    if Pos('dupupn', id1) = 1 then
+      if IsNumericC(id1[7]) and IsNumericC(id1[8]) and
+         (id1[9] = 'c') and IsNumericC(id1[10]) and IsNumericC(id1[11]) and
+         (id1[12] = 'p') and (id1[13] = 'r') and 
+         IsNumericC(id1[14]) and IsNumericC(id1[15]) then
+          id1 := 'dupupn00' + id1[7] + id1[8] + 'c' + id1[10] + id1[11] + 'pr00' + id1[14] + id1[15];
+
   if UpperCase(id1) = '44302A' then
     Exit;
   if UpperCase(id1) = '44302' then

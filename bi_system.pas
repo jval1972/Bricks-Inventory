@@ -571,7 +571,6 @@ begin
   Result := numcpus;
 end;
 
-
 initialization
   basetime := 0;
 

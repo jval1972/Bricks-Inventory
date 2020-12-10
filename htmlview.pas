@@ -53,6 +53,7 @@ type
     ImageX, ImageY: integer;
     ClickWord: WideString;
     end;
+
   TRightClickEvent = procedure(Sender: TObject; Parameters: TRightClickParameters) of Object;
   THotSpotEvent = procedure(Sender: TObject; const SRC: string) of Object;
   THotSpotClickEvent = procedure(Sender: TObject; const SRC: string;
@@ -783,7 +784,7 @@ begin
       else
       begin
         SBuffer := '<img src="'+FName+'">';
-        ParseHTMLString(SBuffer, FSectionList, Nil, Nil, Nil, Nil);
+        ParseHTMLString(SBuffer, FSectionList, nil, nil, nil, nil);
       end;
     finally
       SetupAndLogic;
@@ -1083,7 +1084,7 @@ begin
       FImageStream := AStream;
       SBuffer := '<img src="'+URL+'">';
       try
-        ParseHTMLString(SBuffer, FSectionList, Nil, Nil, Nil, Nil);
+        ParseHTMLString(SBuffer, FSectionList, nil, nil, nil, nil);
         SetupAndLogic;
       finally
         SetOnImageRequest(SaveOnImageRequest);
@@ -1351,7 +1352,7 @@ begin
     begin
     if PositionTo(S) then    {no filename with this one}
     begin
-      BumpHistory(FCurrentFile, FTitle, OldPos, Nil, FCurrentFileType);
+      BumpHistory(FCurrentFile, FTitle, OldPos, nil, FCurrentFileType);
       AddVisitedLink(FCurrentFile+S);
     end;
   end
@@ -1375,7 +1376,7 @@ begin
       end
       else if PositionTo(Dest) then   {file already loaded, change position}
       begin
-        BumpHistory(FCurrentFile, FTitle, OldPos, Nil, HTMLType);
+        BumpHistory(FCurrentFile, FTitle, OldPos, nil, HTMLType);
         AddVisitedLink(S+Dest);
       end;
     end
@@ -1485,7 +1486,7 @@ begin
       if Sel1 > -1 then
       begin
         if (SelB <> SelE) or (ssShift in Shift) then
-          InvalidateRect(PaintPanel.Handle, Nil, True);
+          InvalidateRect(PaintPanel.Handle, nil, True);
         if (ssShift in Shift) then
           if Sel1 < CaretPos then
           begin
@@ -1606,7 +1607,7 @@ begin
     Exit;
   end;
 
-  UrlTarget := Nil;
+  UrlTarget := nil;
   URL := '';
   NextCursor := crArrow;
   FTitleAttr := '';
@@ -1636,7 +1637,7 @@ begin
 
   PaintPanel.Cursor := NextCursor;
 
-  if ((NextCursor = HandCursor) or (SectionList.ActiveImage <> Nil)) then
+  if ((NextCursor = HandCursor) or (SectionList.ActiveImage <> nil)) then
     HTMLTimer.Enabled := True
   else
     HTMLTimer.Enabled := False;
@@ -1730,7 +1731,7 @@ begin
     begin
       guResult := GetURL(X, Y, UrlTarget, FormControl, FTitleAttr);
       if guControl in guResult then
-        FormControl.ImageClick(Nil)
+        FormControl.ImageClick(nil)
       else if guUrl in guResult then
       begin
         FURL := UrlTarget.Url;
@@ -1905,7 +1906,7 @@ if not FNoSelect and GetWordAtCursor(Message.XPos, Message.YPos, St, En, AWord) 
   FSectionList.SelB := st+1;
   FSectionList.SelE := en;
   FCaretPos := st+1;
-  InvalidateRect(PaintPanel.Handle, Nil, True);
+  InvalidateRect(PaintPanel.Handle, nil, True);
   end;
 if Assigned(FOnMouseDouble) then
   with Message do
@@ -1935,7 +1936,7 @@ if Hiliting and (Sel1 >= 0) then
         SelB := Curs;
         SelE := Sel1;
         end;
-      InvalidateRect(PaintPanel.Handle, Nil, True);
+      InvalidateRect(PaintPanel.Handle, nil, True);
       end;
     CaretPos := Curs;
     end;
@@ -2175,7 +2176,7 @@ with VScrollBar do
     TheChange := OrigPos-Pos;
     if not BGFixed and (abs(TheChange) = SmallChange) then
       begin  {update only the scrolled part}
-      ScrollWindow(PaintPanel.Handle, 0, TheChange, NIL, NIL);
+      ScrollWindow(PaintPanel.Handle, 0, TheChange, nil, nil);
       PaintPanel.Update;
       end
     else PaintPanel.Invalidate;
@@ -2389,7 +2390,7 @@ with FHistory do
         begin
         SetFormData(FormData);    {reload the forms if any}
         FormData.Free;           
-        FormData := Nil;
+        FormData := nil;
         end;
       end;
     FHistoryIndex := Value;
@@ -2669,7 +2670,7 @@ if DC <> 0 then
         X := XStart;
         while X < XLast do
           begin
-          if Mask = Nil then
+          if Mask = nil then
             BitBlt(DC, X, Y, BW, BH, Bitmap.Canvas.Handle, 0, 0, SRCCOPY)
           else
             begin
@@ -2769,7 +2770,7 @@ if DC <> 0 then
           X := XStart;
           while X < XLast do
             begin
-            if Mask = Nil then
+            if Mask = nil then
               PrintBitmap(ACanvas, X, Y, BW, BH, Bitmap.Handle)
             else
               begin
@@ -2863,11 +2864,11 @@ if FSectionList.ShowImages and Assigned(Image) then
   {Calculate where the tiled background images go}
   CalcBackgroundLocationAndTiling(PRec, ARect, XOff, YOff, IW, IH, BW, BH, X, Y, X2, Y2);
 
-  DrawBackground(ACanvas, ARect, X, Y, X2, Y2, Image, Mask, Nil, BW, BH, PaintPanel.Color);
+  DrawBackground(ACanvas, ARect, X, Y, X2, Y2, Image, Mask, nil, BW, BH, PaintPanel.Color);
   end
 else
   begin  {no background image, show color only}
-  DrawBackground(ACanvas, ARect, 0,0,0,0, Nil, Nil, Nil, 0, 0, PaintPanel.Color);   
+  DrawBackground(ACanvas, ARect, 0,0,0,0, nil, nil, nil, 0, 0, PaintPanel.Color);   
   end;
 end;
 
@@ -2904,7 +2905,7 @@ if FSectionList.ShowImages and Assigned(Image) then
     try
       if Assigned(Mask) then
         NewMask := TBitmap(EnlargeImage(Mask, X2-X, Y2-Y))
-      else NewMask := Nil;
+      else NewMask := nil;
       try
         DrawBackground2(ACanvas, ARect, X, Y, X2, Y2, NewBitmap, NewMask, NewBitmap.Width, NewBitmap.Height, AColor);
       finally
@@ -2919,7 +2920,7 @@ if FSectionList.ShowImages and Assigned(Image) then
   end
 else
   begin  {no background image, show color only}
-  DrawBackground2(ACanvas, ARect, 0,0,0,0, Nil, Nil, 0, 0, AColor);
+  DrawBackground2(ACanvas, ARect, 0,0,0,0, nil, nil, 0, 0, AColor);
   end;
 end;
 
@@ -2934,7 +2935,7 @@ var
   Canvas: TMetaFileCanvas;
   DocHeight: integer;
 begin
-Result := Nil;
+Result := nil;
 if FProcessing or (FSectionList.Count = 0) then
   Exit;
 if Height > 4000 then
@@ -2954,7 +2955,7 @@ try
     CopyList.Draw(Canvas, Rect(0, 0, Width, Height), MaxHScroll, 0, 0, 0,0);
   except
     Result.Free;
-    Result := Nil;
+    Result := nil;
     end;
   Canvas.Free;
 finally
@@ -2984,8 +2985,8 @@ var
 
 begin
 Done := False;
-Result := Nil;
-TablePartRec := Nil;   
+Result := nil;
+TablePartRec := nil;   
 if FProcessing or (SectionList.Count = 0) then
   Exit;
 CopyList := TSectionList.CreateCopy(SectionList);
@@ -3100,7 +3101,7 @@ var
   DocHeight: integer;
 
 begin
-Result := Nil;
+Result := nil;
 if FProcessing or (FSectionList.Count = 0) then
   Exit;
 if Height > 4000 then
@@ -3121,7 +3122,7 @@ try
     CopyList.Draw(Result.Canvas, Rect(0, 0, Width, Height), MaxHScroll, 0, 0, 0,0);
   except
     Result.Free;
-    Result := Nil;
+    Result := nil;
     end;
 finally
   CopyList.Free;
@@ -3130,7 +3131,7 @@ end;
 
 function ThtmlViewer.CreateHeaderFooter: ThtmlViewer;
 begin
-Result := ThtmlViewer.Create(Nil);
+Result := ThtmlViewer.Create(nil);
 Result.Visible := False;
 Result.Parent := Parent;
 Result.DefBackground := DefBackground;
@@ -3264,9 +3265,9 @@ var
 
 begin
 Done := False;
-FootViewer := Nil;
-HeadViewer := Nil;
-TablePartRec := Nil;   
+FootViewer := nil;
+HeadViewer := nil;
+TablePartRec := nil;   
 if Assigned(FOnPageEvent) then
   FOnPageEvent(Self, 0, Done);
 FPage := 0;
@@ -3308,8 +3309,8 @@ try
         PrintList.ScaleX := fScaleX;
         PrintList.ScaleY := fScaleY;
         SetMapMode(DC, mm_AnIsotropic);
-        SetWindowExtEx(DC, P2, P2, Nil);
-        SetViewPortExtEx(DC, P1,P3, Nil);
+        SetWindowExtEx(DC, P2, P2, nil);
+        SetViewPortExtEx(DC, P1,P3, nil);
 
 
         { calculate the amount of space that is non-printable }
@@ -3403,9 +3404,9 @@ try
           begin
           PrintList.SetYOffset(HTop-TopPixels);
           SetMapMode(DC, mm_AnIsotropic);
-          SetWindowExtEx(DC, P2, P2, Nil);
-          SetViewPortExtEx(DC, P1,P3, Nil);
-          SetWindowOrgEx(DC, 0, 0, Nil);
+          SetWindowExtEx(DC, P2, P2, nil);
+          SetViewPortExtEx(DC, P1,P3, nil);
+          SetWindowOrgEx(DC, 0, 0, nil);
           SelectClipRgn(DC, hrgnClip);
 
           if FPage >= FromPage then
@@ -3481,12 +3482,12 @@ try
             Align := SetTextAlign(DC, TA_Top or TA_Left or TA_NOUPDATECP);
             if Assigned(FOnPrintHeader) then
               begin
-              SetWindowOrgEx(DC, 0, 0, Nil);
+              SetWindowOrgEx(DC, 0, 0, nil);
               FOnPrintHeader(Self, Canvas, FPage, ScaledPgWid, TopPixels, Done);
               end;
             if Assigned(FOnPrintFooter) then
               begin
-              SetWindowOrgEx(DC, 0, -(TopPixels+H), Nil);
+              SetWindowOrgEx(DC, 0, -(TopPixels+H), nil);
               FOnPrintFooter(Self, Canvas, FPage, ScaledPgWid,
                   ScaledPgHt-(TopPixels+H), Done);
               end;
@@ -3590,8 +3591,8 @@ function ThtmlViewer.NumPrinterPages(var WidthRatio: double): integer;
 var
   MFPrinter: TMetaFilePrinter;
 begin
-MFPrinter := TMetaFilePrinter.Create(Nil);
-FOnPageEvent := Nil;
+MFPrinter := TMetaFilePrinter.Create(nil);
+FOnPageEvent := nil;
 try
   PrintPreview(MFPrinter, True);
   Result := MFPrinter.LastAvailablePage;
@@ -3741,9 +3742,9 @@ var
 
 begin
 Done := False;
-FootViewer := Nil;
-HeadViewer := Nil;
-TablePartRec := Nil;   
+FootViewer := nil;
+HeadViewer := nil;
+TablePartRec := nil;   
 if Assigned(FOnPageEvent) then
   FOnPageEvent(Self, 0, Done);
 FPage := 0;
@@ -3963,7 +3964,7 @@ try
 
           if Assigned(FOnPrintHeader) then
             begin
-            SetWindowOrgEx(DC, 0, 0, Nil);
+            SetWindowOrgEx(DC, 0, 0, nil);
             FOnPrintHeader(Self, Canvas, FPage, ScaledPgWid, TopPixels, Done);
             end;
 
@@ -4110,7 +4111,7 @@ begin
 FOnFormSubmit := Handler;
 if Assigned(Handler) then
   FSectionList.SubmitForm := SubmitForm
-else FSectionList.SubmitForm := Nil;
+else FSectionList.SubmitForm := nil;
 end;
 
 procedure ThtmlViewer.SubmitForm(Sender: TObject; const Action, Target, EncType, Method: string;
@@ -4326,33 +4327,34 @@ var
     StartFragmentIndex,
     EndFragmentIndex: integer;
   begin
-  if CurrentFile = '' then
-    UrlString := SourceURL+'unsaved:///ThtmlViewer.htm'
-  else if Pos('://', CurrentFile) > 0 then
-    URLString := SourceURL+CurrentFile    {already has protocol}
-  else
-    URLString := SourceURL+'file://'+CurrentFile;
-  StartHTMLIndex := PreliminaryLength + Length(URLString);
-  EndHTMLIndex := StartHTMLIndex + Length(HTML);
-  StartFragmentIndex := StartHTMLIndex + Pos(StartFrag, HTML) + Length(StartFrag)-1;
-  EndFragmentIndex := StartHTMLIndex + Pos(EndFrag, HTML)-1;
+    if CurrentFile = '' then
+      UrlString := SourceURL + 'unsaved:///ThtmlViewer.htm'
+    else if Pos('://', CurrentFile) > 0 then
+      URLString := SourceURL + CurrentFile    {already has protocol}
+    else
+      URLString := SourceURL+'file://'+CurrentFile;
+    StartHTMLIndex := PreliminaryLength + Length(URLString);
+    EndHTMLIndex := StartHTMLIndex + Length(HTML);
+    StartFragmentIndex := StartHTMLIndex + Pos(StartFrag, HTML) + Length(StartFrag)-1;
+    EndFragmentIndex := StartHTMLIndex + Pos(EndFrag, HTML)-1;
 
-  Result := Version +
-    SysUtils.Format('%s%.8d', [StartHTML, StartHTMLIndex]) + #13#10 +
-    SysUtils.Format('%s%.8d', [EndHTML, EndHTMLIndex]) + #13#10 +
-    SysUtils.Format('%s%.8d', [StartFragment, StartFragmentIndex]) + #13#10 +
-    SysUtils.Format('%s%.8d', [EndFragment, EndFragmentIndex]) + #13#10 +
-    URLString + #13#10;
+    Result := Version +
+      SysUtils.Format('%s%.8d', [StartHTML, StartHTMLIndex]) + #13#10 +
+      SysUtils.Format('%s%.8d', [EndHTML, EndHTMLIndex]) + #13#10 +
+      SysUtils.Format('%s%.8d', [StartFragment, StartFragmentIndex]) + #13#10 +
+      SysUtils.Format('%s%.8d', [EndFragment, EndFragmentIndex]) + #13#10 +
+      URLString + #13#10;
   end;
 
   function Truncate(const S: string): string;
   var
     I: integer;
   begin
-  I := Pos(EndFrag, S);
-  Result := S;
-  if I > 0 then
-    Result := Copy(Result, 1, I+Length(EndFrag)-1);
+    I := Pos(EndFrag, S);
+    if I > 0 then
+      Result := Copy(S, 1, I + Length(EndFrag) - 1)
+    else
+      Result := S;
   end;
 
   procedure RemoveTag(const Tag: string);
@@ -4362,19 +4364,20 @@ var
     L: string;
     C: char;
   begin
-  L := Lowercase(HTML);
-  I := Pos(Tag, L);
-  while (I > 0) do
-    begin
-    Delete(HTML, I, Length(Tag));
-    repeat
-      if I  <= Length(HTML) then
-        C := HTML[I]
-      else C := #0;
-      Delete(HTML, I, 1);
-    until C in ['>', #0];
     L := Lowercase(HTML);
     I := Pos(Tag, L);
+    while (I > 0) do
+    begin
+      Delete(HTML, I, Length(Tag));
+      repeat
+        if I  <= Length(HTML) then
+          C := HTML[I]
+        else
+          C := #0;
+        Delete(HTML, I, 1);
+      until C in ['>', #0];
+      L := Lowercase(HTML);
+      I := Pos(Tag, L);
     end;
   end;
 
@@ -4383,13 +4386,13 @@ var
     I: integer;
     L: string;
   begin
-  L := Lowercase(HTML);
-  I := Pos(S, L);
-  while (I > 0) do
-    begin
-    Delete(HTML, I, 1);
     L := Lowercase(HTML);
     I := Pos(S, L);
+    while (I > 0) do
+    begin
+      Delete(HTML, I, 1);
+      L := Lowercase(HTML);
+      I := Pos(S, L);
     end;
   end;
 
@@ -4398,18 +4401,18 @@ var
     Len, Len1: integer;
     WS: WideString;
   begin
-  if CodePage = CP_UTF8 then   
+    if CodePage = CP_UTF8 then
     begin
-    Result := S;
-    Exit;
-    End;
-  Len := Length(S);
-  SetLength(WS, Len);
-  Len := MultibyteToWideChar(CodePage, 0, PChar(S), Len, PWideChar(WS), Len);
-  Len1 := 4*Len;
-  SetLength(Result, Len1);
-  Len1 := WideCharToMultibyte(CP_UTF8, 0, PWideChar(WS), Len, PChar(Result), Len1, Nil, Nil);
-  SetLength(Result, Len1);
+      Result := S;
+      Exit;
+    end;
+    Len := Length(S);
+    SetLength(WS, Len);
+    Len := MultibyteToWideChar(CodePage, 0, PChar(S), Len, PWideChar(WS), Len);
+    Len1 := 4 * Len;
+    SetLength(Result, Len1);
+    Len1 := WideCharToMultibyte(CP_UTF8, 0, PWideChar(WS), Len, PChar(Result), Len1, nil, nil);
+    SetLength(Result, Len1);
   end;
 
   procedure InsertDefaultFontInfo;
@@ -4418,18 +4421,18 @@ var
     S, L: string;
     HeadFound: boolean;
   begin
-  L := LowerCase(HTML);
-  I := Pos('<head>', L);
-  HeadFound := I > 0;
-  if not HeadFound then
-    I := Pos('<html>', L);
-  if I <= 0 then
-    I := 1;
-  S := '<style> body {font-size: '+IntToStr(DefFontSize)+'pt; font-family: "'+
-       DefFontName+'"; }</style>';
-  if not HeadFound then
-    S := '<head>'+S+'</head>';
-  Insert(S, HTML, I);
+    L := LowerCase(HTML);
+    I := Pos('<head>', L);
+    HeadFound := I > 0;
+    if not HeadFound then
+      I := Pos('<html>', L);
+    if I <= 0 then
+      I := 1;
+    S := '<style> body {font-size: ' + IntToStr(DefFontSize) + 'pt; font-family: "' +
+         DefFontName + '"; }</style>';
+    if not HeadFound then
+      S := '<head>' + S + '</head>';
+    Insert(S, HTML, I);
   end;
 
   procedure BackupToContent;
@@ -4439,208 +4442,215 @@ var
 
     procedure GetC;  {reads characters backwards}
     begin
-    if I-1 > StSrc then
+      if I - 1 > StSrc then
       begin
-      Dec(I);
-      C := HTML[I];
+        Dec(I);
+        C := HTML[I];
       end
-    else C  := #0;
+      else
+        C  := #0;
     end;
 
   begin
-  I := EnSrc;
-  repeat
-    repeat     {skip past white space}
-      GetC;
-    until C in [#0, '!'..#255];
-    if C = '>' then
-      repeat   {read thru a tag}
-        repeat
-          GetC;
-        until C in [#0, '<'];
+    I := EnSrc;
+    repeat
+      repeat     {skip past white space}
         GetC;
-      until C <> '>';
-  until C in [#0, '!'..#255]; {until found some content}
-  if C = #0 then Dec(I);
-  HTML := Copy(HTML, 1, I);  {truncate the tags}
+      until C in [#0, '!'..#255];
+      if C = '>' then
+        repeat   {read thru a tag}
+          repeat
+            GetC;
+          until C in [#0, '<'];
+          GetC;
+        until C <> '>';
+    until C in [#0, '!'..#255]; {until found some content}
+    if C = #0 then Dec(I);
+    HTML := Copy(HTML, 1, I);  {truncate the tags}
   end;
 
 begin
-Leng := FSectionList.GetSelLength;
-if Leng = 0 then
-  Exit;
-FSectionList.CopyToClipboardA(Leng+1);
+  Leng := FSectionList.GetSelLength;
+  if Leng = 0 then
+    Exit;
+  FSectionList.CopyToClipboardA(Leng+1);
 
-HTML := DocumentSource;
-StSrc := FindSourcePos(FSectionList.SelB)+1;
-EnSrc := FindSourcePos(FSectionList.SelE);
-if EnSrc < 0 then    {check to see if end selection is at end of document}
+  HTML := DocumentSource;
+  StSrc := FindSourcePos(FSectionList.SelB) + 1;
+  EnSrc := FindSourcePos(FSectionList.SelE);
+  if EnSrc < 0 then    {check to see if end selection is at end of document}
   begin
-  EnSrc := Length(HTML);
-  if HTML[EnSrc] = '>' then
+    EnSrc := Length(HTML);
+    if HTML[EnSrc] = '>' then
     begin
-    HTML := HTML + ' ';
-    Inc(EnSrc);
+      HTML := HTML + ' ';
+      Inc(EnSrc);
     end;
   end
-else EnSrc := EnSrc + 1;
-{Truncate beyond EnSrc}
-HTML := Copy(HTML, 1, EnSrc-1);
-{Also remove any tags on the end}
-BackupToContent;
-{insert the StartFrag string}
-Insert(StartFrag, HTML, StSrc);
-{Remove all Meta tags, in particular the ones that specify language, but others
- seem to cause problems also}
-RemoveTag('<meta');
-{Remove <!doctype> in preparation to having one added}
-RemoveTag('<!doctype');
-{page-break-... stylesheet properties cause a hang in Word -- mess them up}
-MessUp('page-break-');
-{Add in default font information which wouldn't be in the HTML}
-InsertDefaultFontInfo;
-{Convert character set to UTF-8}
-HTML := ConvertToUTF8(HTML);
-{Add Doctype tag at start}
-HTML := DocType+HTML;
-{Append the EndFrag string}
-HTML := HTML+EndFrag;
-{Add the header to start}
-HTML := GetHeader(HTML)+HTML;
+  else
+    EnSrc := EnSrc + 1;
+  {Truncate beyond EnSrc}
+  HTML := Copy(HTML, 1, EnSrc-1);
+  {Also remove any tags on the end}
+  BackupToContent;
+  {insert the StartFrag string}
+  Insert(StartFrag, HTML, StSrc);
+  {Remove all Meta tags, in particular the ones that specify language, but others
+   seem to cause problems also}
+  RemoveTag('<meta');
+  {Remove <!doctype> in preparation to having one added}
+  RemoveTag('<!doctype');
+  {page-break-... stylesheet properties cause a hang in Word -- mess them up}
+  MessUp('page-break-');
+  {Add in default font information which wouldn't be in the HTML}
+  InsertDefaultFontInfo;
+  {Convert character set to UTF-8}
+  HTML := ConvertToUTF8(HTML);
+  {Add Doctype tag at start}
+  HTML := DocType + HTML;
+  {Append the EndFrag string}
+  HTML := HTML+EndFrag;
+  {Add the header to start}
+  HTML := GetHeader(HTML) + HTML;
 
-format := RegisterClipboardFormat('HTML Format'); {not sure this is necessary}
-CopyFormatToClipBoard(HTML, format);
+  format := RegisterClipboardFormat('HTML Format'); {not sure this is necessary}
+  try
+    CopyFormatToClipBoard(HTML, format);
+  except
+  end;
 end;
 
 function ThtmlViewer.GetSelTextBuf(Buffer: PWideChar; BufSize: integer): integer;
 begin
-if BufSize <= 0 then Result := 0
-else Result := FSectionList.GetSelTextBuf(Buffer, BufSize);
+  if BufSize <= 0 then
+    Result := 0
+  else
+    Result := FSectionList.GetSelTextBuf(Buffer, BufSize);
 end;
 
-function ThtmlViewer.GetSelText: WideString;   
+function ThtmlViewer.GetSelText: WideString;
 var
   Len: integer;
 begin
-Len := FSectionList.GetSelLength;
-if Len > 0 then
+  Len := FSectionList.GetSelLength;
+  if Len > 0 then
   begin
-  SetString(Result, Nil, Len);
-  FSectionList.GetSelTextBuf(Pointer(Result), Len+1);
+    SetString(Result, nil, Len);
+    FSectionList.GetSelTextBuf(Pointer(Result), Len + 1);
   end
-else Result := '';
-end;
-
-function ThtmlViewer.GetSelLength: integer;   
-begin
-with FSectionList do
-  if FCaretPos = SelB then
-    Result := SelE - SelB
   else
-    Result := SelB - SelE;
+    Result := '';
 end;
 
-procedure ThtmlViewer.SetSelLength(Value: integer); 
+function ThtmlViewer.GetSelLength: integer;
 begin
-with FSectionList do
+  with FSectionList do
+    if FCaretPos = SelB then
+      Result := SelE - SelB
+    else
+      Result := SelB - SelE;
+end;
+
+procedure ThtmlViewer.SetSelLength(Value: integer);
+begin
+  with FSectionList do
   begin
-  if Value >= 0 then
+    if Value >= 0 then
     begin
-    SelB := FCaretPos;
-    SelE := FCaretPos + Value;
+      SelB := FCaretPos;
+      SelE := FCaretPos + Value;
     end
-  else
+    else
     begin
-    SelE := FCaretPos;
-    SelB := FCaretPos + Value;
+      SelE := FCaretPos;
+      SelB := FCaretPos + Value;
     end;
-  Invalidate;
+    Invalidate;
   end;
 end;
 
-procedure ThtmlViewer.SetSelStart(Value: integer);  
+procedure ThtmlViewer.SetSelStart(Value: integer);
 begin
-with FSectionList do
+  with FSectionList do
   begin
-  FCaretPos := Value;     
-  SelB := Value;
-  SelE := Value;
-  Invalidate;
+    FCaretPos := Value;
+    SelB := Value;
+    SelE := Value;
+    Invalidate;
   end;
 end;
 
 procedure ThtmlViewer.SetNoSelect(Value: boolean);
 begin
-if Value <> FNoSelect then
+  if Value <> FNoSelect then
   begin
-  FNoSelect := Value;
-  if Value = True then
+    FNoSelect := Value;
+    if Value = True then
     begin
-    FSectionList.SelB := -1;
-    FSectionList.SelE := -1;
-    RePaint;
+      FSectionList.SelB := -1;
+      FSectionList.SelE := -1;
+      RePaint;
     end;
   end;
 end;
 
 procedure ThtmlViewer.UpdateImageCache;
 begin
-FSectionList.BitmapList.BumpAndCheck;    
+  FSectionList.BitmapList.BumpAndCheck;
 end;
 
 procedure ThtmlViewer.SetImageCacheCount(Value: integer);
 begin
-Value := IntMax(0, Value);
-Value := IntMin(20, Value);
-if Value <> FImageCacheCount then
+  Value := IntMax(0, Value);
+  Value := IntMin(20, Value);
+  if Value <> FImageCacheCount then
   begin
-  FImageCacheCount := Value;
-  if Assigned(FSectionList.BitmapList) then   
-    FSectionList.BitmapList.SetCacheCount(FImageCacheCount);
+    FImageCacheCount := Value;
+    if Assigned(FSectionList.BitmapList) then
+      FSectionList.BitmapList.SetCacheCount(FImageCacheCount);
   end;
 end;
 
 procedure ThtmlViewer.SetStringBitmapList(BitmapList: TStringBitmapList);
 begin
-FSectionList.BitmapList := BitmapList;
-LocalBitmapList := False;
+  FSectionList.BitmapList := BitmapList;
+  LocalBitmapList := False;
 end;
 
 procedure ThtmlViewer.DrawBorder;
 begin
-if (Focused and (FBorderStyle = htFocused)) or (FBorderStyle = htSingle)
-       or (csDesigning in ComponentState) then
-  BorderPanel.BorderStyle := bsSingle
-else
-  BorderPanel.BorderStyle := bsNone;
+  if (Focused and (FBorderStyle = htFocused)) or (FBorderStyle = htSingle) or (csDesigning in ComponentState) then
+    BorderPanel.BorderStyle := bsSingle
+  else
+    BorderPanel.BorderStyle := bsNone;
 end;
 
 procedure ThtmlViewer.DoEnter;
 begin
-inherited DoEnter;
-DrawBorder;
+  inherited DoEnter;
+  DrawBorder;
 end;
 
 procedure ThtmlViewer.DoExit;
 begin
-inherited DoExit;
-DrawBorder;
+  inherited DoExit;
+  DrawBorder;
 end;
 
 procedure ThtmlViewer.SetScrollBars(Value: TScrollStyle);
 begin
-if (Value <> FScrollBars) then
+  if (Value <> FScrollBars) then
   begin
-  FScrollBars := Value;
-  if not (csLoading in ComponentState) and HandleAllocated then
+    FScrollBars := Value;
+    if not (csLoading in ComponentState) and HandleAllocated then
     begin
-    SetProcessing(True);
-    try
-      DoLogic;
-    finally
-      SetProcessing(False);
+      SetProcessing(True);
+      try
+        DoLogic;
+      finally
+        SetProcessing(False);
       end;
-    Invalidate;
+      Invalidate;
     end;
   end;
 end;
@@ -4650,24 +4660,26 @@ procedure ThtmlViewer.Reload;     {reload the last file}
 var
   Pos: integer;
 begin
-if FCurrentFile <> '' then
+  if FCurrentFile <> '' then
   begin
-  Pos := Position;
-  if FCurrentFileType = HTMLType then
-    LoadFromFile(FCurrentFile)
-  else if FCurrentFileType = TextType then
-    LoadTextFile(FCurrentFile)
-  else LoadImageFile(FCurrentFile);
-  Position := Pos;
+    Pos := Position;
+    if FCurrentFileType = HTMLType then
+      LoadFromFile(FCurrentFile)
+    else if FCurrentFileType = TextType then
+      LoadTextFile(FCurrentFile)
+    else
+      LoadImageFile(FCurrentFile);
+    Position := Pos;
   end;
 end;
 
 {----------------ThtmlViewer.GetOurPalette:}
 function ThtmlViewer.GetOurPalette: HPalette;
 begin
-if ColorBits = 8 then
-  Result := CopyPalette(ThePalette)
-else Result := 0;
+  if ColorBits = 8 then
+    Result := CopyPalette(ThePalette)
+  else
+    Result := 0;
 end;
 
 {----------------ThtmlViewer.SetOurPalette}
@@ -4675,15 +4687,16 @@ procedure ThtmlViewer.SetOurPalette(Value: HPalette);
 var
   NewPalette: HPalette;
 begin
-if (Value <> 0) and (ColorBits = 8) then
+  if (Value <> 0) and (ColorBits = 8) then
   begin
-  NewPalette := CopyPalette(Value);
-  if NewPalette <> 0 then
+    NewPalette := CopyPalette(Value);
+    if NewPalette <> 0 then
     begin
-    if ThePalette <> 0 then
-      DeleteObject(ThePalette);
-    ThePalette := NewPalette;
-    if FDither then SetGlobalPalette(ThePalette);
+      if ThePalette <> 0 then
+        DeleteObject(ThePalette);
+      ThePalette := NewPalette;
+      if FDither then
+        SetGlobalPalette(ThePalette);
     end;
   end;
 end;
@@ -4691,92 +4704,97 @@ end;
 {----------------ThtmlViewer.SetDither}
 procedure ThtmlViewer.SetDither(Value: boolean);
 begin
-if (Value <> FDither) and (ColorBits = 8) then
+  if (Value <> FDither) and (ColorBits = 8) then
   begin
-  FDither := Value;
-  if Value then SetGlobalPalette(ThePalette)
-  else SetGLobalPalette(0);
+    FDither := Value;
+    if Value then
+      SetGlobalPalette(ThePalette)
+    else
+      SetGLobalPalette(0);
   end;
 end;
 
 procedure ThtmlViewer.SetCaretPos(Value: integer);
 begin
-if Value >= 0 then
-  begin
-  FCaretPos := Value;
-  end;
+  if Value >= 0 then
+    FCaretPos := Value;
 end;
 
-function ThtmlViewer.FindSourcePos(DisplayPos: integer): integer;  
+function ThtmlViewer.FindSourcePos(DisplayPos: integer): integer;
 begin
-Result := FSectionList.FindSourcePos(DisplayPos);
+  Result := FSectionList.FindSourcePos(DisplayPos);
 end;
 
 function ThtmlViewer.FindDisplayPos(SourcePos: integer; Prev: boolean): integer;
 begin
-Result := FSectionList.FindDocPos(SourcePos, Prev);
+  Result := FSectionList.FindDocPos(SourcePos, Prev);
 end;
 
 function ThtmlViewer.DisplayPosToXy(DisplayPos: integer; var X, Y: integer): boolean;
 begin
-Result := FSectionList.CursorToXY(PaintPanel.Canvas, DisplayPos, X, integer(Y));  {integer() req'd for delphi 2}
+  Result := FSectionList.CursorToXY(PaintPanel.Canvas, DisplayPos, X, integer(Y));  {integer() req'd for delphi 2}
 end;
 
 {----------------ThtmlViewer.SetProcessing}
 procedure ThtmlViewer.SetProcessing(Value: boolean);
 begin
-if FProcessing <> Value then
+  if FProcessing <> Value then
   begin
-  FProcessing := Value;
-  if Assigned(FOnProcessing) and not (csLoading in ComponentState) then
-        FOnProcessing(Self, FProcessing);
+    FProcessing := Value;
+    if Assigned(FOnProcessing) and not (csLoading in ComponentState) then
+      FOnProcessing(Self, FProcessing);
   end;
 end;
 
 procedure THTMLViewer.SetServerRoot(Value: string);
 begin
-Value := Trim(Value);
-if (Length(Value) >= 1) and (Value[Length(Value)] = '\') then
-  SetLength(Value, Length(Value)-1);
-FServerRoot := Value;
+  Value := Trim(Value);
+  if (Length(Value) >= 1) and (Value[Length(Value)] = '\') then
+    SetLength(Value, Length(Value) - 1);
+  FServerRoot := Value;
 end;
 
 procedure THTMLViewer.HandleMeta(Sender: TObject; const HttpEq, Name, Content: string);
 var
   DelTime, I: integer;
 begin
-if Assigned(FOnMeta) then FOnMeta(Self, HttpEq, Name, Content);
-if Assigned(FOnMetaRefresh) then
-  if CompareText(Lowercase(HttpEq), 'refresh') = 0 then
+  if Assigned(FOnMeta) then
+    FOnMeta(Self, HttpEq, Name, Content);
+  if Assigned(FOnMetaRefresh) then
+    if CompareText(Lowercase(HttpEq), 'refresh') = 0 then
     begin
-    I := Pos(';', Content);
-    if I > 0 then
-      DelTime := StrToIntDef(copy(Content, 1, I-1), -1)
-    else DelTime := StrToIntDef(Content, -1);        
-    if DelTime < 0 then Exit
-    else if DelTime = 0 then DelTime := 1;
-    I := Pos('url=', Lowercase(Content));
-    if I > 0 then   
-      FRefreshURL := Copy(Content, I+4, Length(Content)-I-3)
-    else FRefreshURL := '';
-    FRefreshDelay := DelTime;   
+      I := Pos(';', Content);
+      if I > 0 then
+        DelTime := StrToIntDef(copy(Content, 1, I-1), -1)
+      else
+        DelTime := StrToIntDef(Content, -1);
+      if DelTime < 0 then
+        Exit
+      else if DelTime = 0 then
+        DelTime := 1;
+      I := Pos('url=', Lowercase(Content));
+      if I > 0 then
+        FRefreshURL := Copy(Content, I + 4, Length(Content) - I - 3)
+      else
+        FRefreshURL := '';
+      FRefreshDelay := DelTime;
     end;
 end;
 
-procedure THTMLViewer.SetOptions(Value: ThtmlViewerOptions); 
+procedure THTMLViewer.SetOptions(Value: ThtmlViewerOptions);
 begin
-if Value <> FOptions then
+  if Value <> FOptions then
   begin
-  FOptions := Value;
-  if Assigned(FSectionList) then
-    with FSectionList do
+    FOptions := Value;
+    if Assigned(FSectionList) then
+      with FSectionList do
       begin
-      LinksActive := htOverLinksActive in FOptions;
-      PrintTableBackground := (htPrintTableBackground in FOptions) or
-                              (htPrintBackground in FOptions);   
-      PrintBackground := htPrintBackground in FOptions;     
-      PrintMonoBlack := htPrintMonochromeBlack in FOptions;
-      ShowDummyCaret := htShowDummyCaret in FOptions;
+        LinksActive := htOverLinksActive in FOptions;
+        PrintTableBackground := (htPrintTableBackground in FOptions) or
+                                (htPrintBackground in FOptions);
+        PrintBackground := htPrintBackground in FOptions;
+        PrintMonoBlack := htPrintMonochromeBlack in FOptions;
+        ShowDummyCaret := htShowDummyCaret in FOptions;
       end;
   end;
 end;
@@ -4785,68 +4803,71 @@ procedure ThtmlViewer.Repaint;
 var
   I: integer;
 begin
-for I := 0 to FormControlList.count-1 do
-  with TFormControlObj(FormControlList.Items[I]) do
-    if Assigned(TheControl) then
-      TheControl.Hide;  
-BorderPanel.BorderStyle := bsNone;
-inherited Repaint;
+  for I := 0 to FormControlList.count-1 do
+    with TFormControlObj(FormControlList.Items[I]) do
+      if Assigned(TheControl) then
+        TheControl.Hide;
+  BorderPanel.BorderStyle := bsNone;
+  inherited Repaint;
 end;
 
 function THTMLViewer.GetDragDrop: TDragDropEvent;
 begin
-Result := FOnDragDrop;
+  Result := FOnDragDrop;
 end;
 
 procedure THTMLViewer.SetDragDrop(const Value: TDragDropEvent);
 begin
-FOnDragDrop := Value;
-if Assigned(Value) then
-  PaintPanel.OnDragDrop := HTMLDragDrop
-else PaintPanel.OnDragDrop := Nil;
+  FOnDragDrop := Value;
+  if Assigned(Value) then
+    PaintPanel.OnDragDrop := HTMLDragDrop
+  else
+    PaintPanel.OnDragDrop := nil;
 end;
 
 procedure THTMLViewer.HTMLDragDrop(Sender, Source: TObject; X, Y: Integer);
 begin
-if Assigned(FOnDragDrop) then
-  FOnDragDrop(Self, Source, X, Y);
+  if Assigned(FOnDragDrop) then
+    FOnDragDrop(Self, Source, X, Y);
 end;
 
 function THTMLViewer.GetDragOver: TDragOverEvent;
 begin
-Result := FOnDragOver;
+  Result := FOnDragOver;
 end;
 
 procedure THTMLViewer.SetDragOver(const Value: TDragOverEvent);
 begin
-FOnDragOver := Value;
-if Assigned(Value) then
-  PaintPanel.OnDragOver := HTMLDragOver
-else PaintPanel.OnDragOver := Nil;
+  FOnDragOver := Value;
+  if Assigned(Value) then
+    PaintPanel.OnDragOver := HTMLDragOver
+  else
+    PaintPanel.OnDragOver := nil;
 end;
 
 procedure THTMLViewer.HTMLDragOver(Sender, Source: TObject; X, Y: Integer;
   State: TDragState; var Accept: Boolean);
 begin
-if Assigned(FOnDragOver) then
-  FOnDragOver(Self, Source, X, Y, State, Accept);
+  if Assigned(FOnDragOver) then
+    FOnDragOver(Self, Source, X, Y, State, Accept);
 end;
 
-function THTMLViewer.GetFormData: TFreeList;     
+function THTMLViewer.GetFormData: TFreeList;
 begin
-if Assigned(SectionList) then
-  Result := SectionList.GetFormControlData
-else Result := Nil;
+  if Assigned(SectionList) then
+    Result := SectionList.GetFormControlData
+  else
+    Result := nil;
 end;
 
 procedure THTMLViewer.SetFormData(T: TFreeList);
 begin
-if Assigned(SectionList) and Assigned(T) then
-  with SectionList do
+  if Assigned(SectionList) and Assigned(T) then
+    with SectionList do
     begin
-    ObjectClick := Nil;
-    SetFormControlData(T);
-    ObjectClick := FOnObjectClick;
+      ObjectClick := nil;
+      SetFormControlData(T);
+      ObjectClick := FOnObjectClick;
     end;
 end;
 
@@ -4855,17 +4876,17 @@ var
   I: integer;
   OldPos: integer;
 begin
-if FNameList.Find(NameID, I) then
-  if FNameList.Objects[I] is TImageObj then
+  if FNameList.Find(NameID, I) then
+    if FNameList.Objects[I] is TImageObj then
     begin
-    TImageObj(FNameList.Objects[I]).ReplaceImage(NewImage);
-    if not TImageObj(FNameList.Objects[I]).ImageKnown then
-      if FSectionList.Count > 0 then
+      TImageObj(FNameList.Objects[I]).ReplaceImage(NewImage);
+      if not TImageObj(FNameList.Objects[I]).ImageKnown then
+        if FSectionList.Count > 0 then
         begin
-        FSectionList.GetBackgroundBitmap;    {load any background bitmap}
-        OldPos := Position;
-        DoLogic;
-        Position := OldPos;
+          FSectionList.GetBackgroundBitmap;    {load any background bitmap}
+          OldPos := Position;
+          DoLogic;
+          Position := OldPos;
         end;
     end;
 end;
@@ -4875,19 +4896,20 @@ var
   I: integer;
   Obj: TObject;
 begin
-Result := Nil;
-with FSectionList.IDNameList do
-  if Find(ID, I) then
+  Result := nil;
+  with FSectionList.IDNameList do
+    if Find(ID, I) then
     begin
-    Obj := Objects[I];
-    if (Obj is TFormControlObj) then   
+      Obj := Objects[I];
+      if (Obj is TFormControlObj) then
       begin
-      if (Obj is THiddenFormControlObj) then
-        Result := Obj
-      else Result := TFormControlObj(Obj).TheControl;
+        if (Obj is THiddenFormControlObj) then
+          Result := Obj
+        else
+          Result := TFormControlObj(Obj).TheControl;
       end
-    else if (Obj is TImageObj) then
-      Result := Obj;
+      else if (Obj is TImageObj) then
+        Result := Obj;
     end;
 end;
 
@@ -4896,13 +4918,13 @@ var
   I: integer;
   Obj: TObject;
 begin
-Result := False;
-with FSectionList.IDNameList do
-  if Find(ID, I) then
+  Result := False;
+  with FSectionList.IDNameList do
+    if Find(ID, I) then
     begin
-    Obj := Objects[I];
-    if (Obj is TBlock) then
-      Result := not TBlock(Obj).DisplayNone;
+      Obj := Objects[I];
+      if (Obj is TBlock) then
+        Result := not TBlock(Obj).DisplayNone;
     end;
 end;
 
@@ -4911,58 +4933,58 @@ var
   I: integer;
   Obj: TObject;
 begin
-with FSectionList.IDNameList do
-  if Find(ID, I) then
+  with FSectionList.IDNameList do
+    if Find(ID, I) then
     begin
-    Obj := Objects[I];
-    if (Obj is TBlock) and (TBlock(Obj).DisplayNone = Value) then
+      Obj := Objects[I];
+      if (Obj is TBlock) and (TBlock(Obj).DisplayNone = Value) then
       begin
-      FSectionList.HideControls;
-      TBlock(Obj).DisplayNone := not Value;
+        FSectionList.HideControls;
+        TBlock(Obj).DisplayNone := not Value;
       end;
     end;
 end;
 
 procedure THTMLViewer.SetPrintScale(Value: double);
 begin
-If Value > 4.0 then
-  FPrintScale := 4.0
-else if Value < 0.25 then
-  FPrintScale := 0.25
-else FPrintScale := Value;
+  if Value > 4.0 then
+    FPrintScale := 4.0
+  else if Value < 0.25 then
+    FPrintScale := 0.25
+  else
+    FPrintScale := Value;
 end;
 
 procedure THTMLViewer.Reformat;
 var
   Pt: TPoint;
 begin
-Layout;
-Update;
-GetCursorPos(Pt);
-SetCursorPos(Pt.X, Pt.Y); {trigger a mousemove to keep cursor correct}
+  Layout;
+  Update;
+  GetCursorPos(Pt);
+  SetCursorPos(Pt.X, Pt.Y); {trigger a mousemove to keep cursor correct}
 end;
 
-procedure THTMLViewer.htProgressInit;   
+procedure THTMLViewer.htProgressInit;
 begin
-if Assigned(FOnProgress) then
-  FOnProgress(Self, psStarting, 0);
+  if Assigned(FOnProgress) then
+    FOnProgress(Self, psStarting, 0);
 end;
 
-procedure THTMLViewer.htProgress(Percent: Integer); 
+procedure THTMLViewer.htProgress(Percent: Integer);
 begin
-if Assigned(FOnProgress) then
-  FOnProgress(Self, psRunning, Percent);
+  if Assigned(FOnProgress) then
+    FOnProgress(Self, psRunning, Percent);
 end;
 
 procedure THTMLViewer.htProgressEnd;
 begin
-if Assigned(FOnProgress) then
-  FOnProgress(Self, psEnding, 100);
+  if Assigned(FOnProgress) then
+    FOnProgress(Self, psEnding, 100);
 end;
 
 {----------------TPaintPanel.CreateIt}
 constructor TPaintPanel.CreateIt(AOwner: TComponent; Viewer: ThtmlViewer);
-
 begin
   inherited Create(AOwner);
   FViewer := Viewer;
@@ -4976,44 +4998,44 @@ var
   ARect: TRect;
   OldPal: HPalette;
 begin
-if FViewer.DontDraw or (Canvas2 <> Nil) then    
-  Exit;
-FViewer.DrawBorder;
-OldPal := 0;
-Canvas.Font := Font;
-Canvas.Brush.Color := Color;
-ARect := Canvas.ClipRect;
-Canvas2 := TCanvas.Create;   {paint on a memory DC}
-try
-  MemDC := CreateCompatibleDC(Canvas.Handle);
-  ABitmap := 0;
+  if FViewer.DontDraw or (Canvas2 <> nil) then
+    Exit;
+  FViewer.DrawBorder;
+  OldPal := 0;
+  Canvas.Font := Font;
+  Canvas.Brush.Color := Color;
+  ARect := Canvas.ClipRect;
+  Canvas2 := TCanvas.Create;   {paint on a memory DC}
   try
-    with ARect do
+    MemDC := CreateCompatibleDC(Canvas.Handle);
+    ABitmap := 0;
+    try
+      with ARect do
       begin
-      ABitmap := CreateCompatibleBitmap(Canvas.Handle, Right-Left, Bottom-Top);
-      if (ABitmap = 0) and (Right-Left + Bottom-Top <> 0) then
-             raise EOutOfResources.Create('Out of Resources');  
-      try
-        SelectObject(MemDC, ABitmap);
-        SetWindowOrgEx(memDC, Left, Top, Nil);
-        Canvas2.Handle := MemDC;
-        DoBackground(Canvas2);
-        if Assigned(FOnPaint) then FOnPaint(Self);
-        OldPal := SelectPalette(Canvas.Handle, ThePalette, False);
-        RealizePalette(Canvas.Handle);
-        BitBlt(Canvas.Handle, Left, Top, Right-Left, Bottom-Top,
-                              MemDC, Left, Top, SrcCopy);
-     finally
-        if OldPal <> 0 then SelectPalette(MemDC, OldPal, False);
-        Canvas2.Handle := 0;
+        ABitmap := CreateCompatibleBitmap(Canvas.Handle, Right-Left, Bottom-Top);
+        if (ABitmap = 0) and (Right-Left + Bottom-Top <> 0) then
+               raise EOutOfResources.Create('Out of Resources');
+        try
+          SelectObject(MemDC, ABitmap);
+          SetWindowOrgEx(memDC, Left, Top, nil);
+          Canvas2.Handle := MemDC;
+          DoBackground(Canvas2);
+          if Assigned(FOnPaint) then FOnPaint(Self);
+          OldPal := SelectPalette(Canvas.Handle, ThePalette, False);
+          RealizePalette(Canvas.Handle);
+          BitBlt(Canvas.Handle, Left, Top, Right-Left, Bottom-Top,
+                                MemDC, Left, Top, SrcCopy);
+        finally
+          if OldPal <> 0 then SelectPalette(MemDC, OldPal, False);
+          Canvas2.Handle := 0;
         end;
       end;
+    finally
+      DeleteDC(MemDC);
+      DeleteObject(ABitmap);
+    end;
   finally
-    DeleteDC(MemDC);
-    DeleteObject(ABitmap);
-  end;
-finally
-  FreeAndNil(Canvas2);   
+    FreeAndNil(Canvas2);
   end;
 end;
 
@@ -5024,81 +5046,80 @@ var
   Mask, NewBitmap, NewMask: TBitmap;
   PRec: PtPositionRec;
   BW, BH, X, Y, X2, Y2, IW, IH, XOff, YOff: integer;
-  AniGif: TGifImage;  
-
+  AniGif: TGifImage;
 begin
-with FViewer do
+  with FViewer do
   begin
-  if FSectionList.Printing then
-    Exit;    {no background}
+    if FSectionList.Printing then
+      Exit;    {no background}
 
-  ARect := Canvas.ClipRect;
-  Image := FSectionList.BackgroundBitmap;
-  if FSectionList.ShowImages and Assigned(Image) then
+    ARect := Canvas.ClipRect;
+    Image := FSectionList.BackgroundBitmap;
+    if FSectionList.ShowImages and Assigned(Image) then
     begin
-    Mask := FSectionList.BackgroundMask;
-    BW := GetImageWidth(Image);
-    BH := GetImageHeight(Image);
-    PRec := FSectionList.BackgroundPRec;
-    BGFixed := PRec[1].Fixed;
-    if BGFixed then
+      Mask := FSectionList.BackgroundMask;
+      BW := GetImageWidth(Image);
+      BH := GetImageHeight(Image);
+      PRec := FSectionList.BackgroundPRec;
+      BGFixed := PRec[1].Fixed;
+      if BGFixed then
       begin  {fixed background}
-      XOff := 0;
-      YOff := 0;
-      IW := Self.ClientRect.Right;    
-      IH := Self.ClientRect.Bottom;    
+        XOff := 0;
+        YOff := 0;
+        IW := Self.ClientRect.Right;
+        IH := Self.ClientRect.Bottom;
       end
-    else
+      else
       begin   {scrolling background}
-      XOff := HScrollbar.Position;
-      YOff := FSectionList.YOff;
-      IW := HScrollbar.Max;
-      IH := IntMax(MaxVertical, Self.ClientRect.Bottom);  
+        XOff := HScrollbar.Position;
+        YOff := FSectionList.YOff;
+        IW := HScrollbar.Max;
+        IH := IntMax(MaxVertical, Self.ClientRect.Bottom);
       end;
 
-    {Calculate where the tiled background images go}
-    CalcBackgroundLocationAndTiling(PRec, ARect, XOff, YOff, IW, IH, BW, BH, X, Y, X2, Y2);
+      {Calculate where the tiled background images go}
+      CalcBackgroundLocationAndTiling(PRec, ARect, XOff, YOff, IW, IH, BW, BH, X, Y, X2, Y2);
 
-    if (BW = 1) or (BH = 1) then
+      if (BW = 1) or (BH = 1) then
       begin  {this is for people who try to tile 1 pixel images}
         NewBitmap := EnlargeImage(Image, X2-X, Y2-Y);// as TBitmap;
-      try
-        if Assigned(Mask) then
-            NewMask := TBitmap(EnlargeImage(Mask, X2-X, Y2-Y))
-        else NewMask := Nil;
         try
-          DrawBackground(ACanvas, ARect, X, Y, X2, Y2, NewBitmap, NewMask, Nil, NewBitmap.Width, NewBitmap.Height, Self.Color);
+          if Assigned(Mask) then
+              NewMask := TBitmap(EnlargeImage(Mask, X2-X, Y2-Y))
+          else NewMask := nil;
+          try
+            DrawBackground(ACanvas, ARect, X, Y, X2, Y2, NewBitmap, NewMask, nil, NewBitmap.Width, NewBitmap.Height, Self.Color);
+          finally
+            NewMask.Free;
+            end;
         finally
-          NewMask.Free;
-          end;
-      finally
-        NewBitmap.Free;
+          NewBitmap.Free;
         end;
       end
-    else  {normal situation}
+      else  {normal situation}
       begin
-      AniGif := FSectionList.BackgroundAniGif;
-      DrawBackground(ACanvas, ARect, X, Y, X2, Y2, Image, Mask, AniGif, BW, BH, Self.Color);
+        AniGif := FSectionList.BackgroundAniGif;
+        DrawBackground(ACanvas, ARect, X, Y, X2, Y2, Image, Mask, AniGif, BW, BH, Self.Color);
       end;
     end
-  else
+    else
     begin  {no background image, show color only}
-    BGFixed := False;
-    DrawBackground(ACanvas, ARect, 0,0,0,0, Nil, Nil, Nil, 0, 0, Self.Color);  
+      BGFixed := False;
+      DrawBackground(ACanvas, ARect, 0,0,0,0, nil, nil, nil, 0, 0, Self.Color);
     end;
   end;
 end;
 
 procedure TPaintPanel.WMEraseBkgnd(var Message: TWMEraseBkgnd);
 begin
-Message.Result := 1;   {it's erased}
+  Message.Result := 1;   {it's erased}
 end;
 
-{----------------TPaintPanel.WMLButtonDblClk} 
+{----------------TPaintPanel.WMLButtonDblClk}
 procedure TPaintPanel.WMLButtonDblClk(var Message: TWMMouse);
 begin
-if Message.Keys and MK_LButton <> 0 then
-  ThtmlViewer(FViewer).HTMLMouseDblClk(Message);  
+  if Message.Keys and MK_LButton <> 0 then
+    ThtmlViewer(FViewer).HTMLMouseDblClk(Message);
 end;
 
 {----------------T32ScrollBar.SetParams}
@@ -5106,23 +5127,22 @@ procedure T32ScrollBar.SetParams(APosition, APage, AMin, AMax: Integer);
 var
   ScrollInfo: TScrollInfo;
 begin
-if (APosition <> FPosition) or (APage <> FPage) or (AMin <> FMin)
-              or (AMax <> FMax) then
-  with ScrollInfo do
+  if (APosition <> FPosition) or (APage <> FPage) or (AMin <> FMin) or (AMax <> FMax) then
+    with ScrollInfo do
     begin
-    cbSize := SizeOf(ScrollInfo);
-    fMask := SIF_ALL;
-    if htShowVScroll in (Owner as ThtmlViewer).FOptions then
-      fMask := fMask or SIF_DISABLENOSCROLL;
-    nPos := APosition;
-    nPage := APage;
-    nMin := AMin;
-    nMax := AMax;
-    SetScrollInfo(Handle, SB_CTL, ScrollInfo, True);
-    FPosition := APosition;
-    FPage := APage;
-    FMin := AMin;
-    FMax := AMax;
+      cbSize := SizeOf(ScrollInfo);
+      fMask := SIF_ALL;
+      if htShowVScroll in (Owner as ThtmlViewer).FOptions then
+        fMask := fMask or SIF_DISABLENOSCROLL;
+      nPos := APosition;
+      nPage := APage;
+      nMin := AMin;
+      nMax := AMax;
+      SetScrollInfo(Handle, SB_CTL, ScrollInfo, True);
+      FPosition := APosition;
+      FPage := APage;
+      FMin := AMin;
+      FMax := AMax;
     end;
 end;
 
@@ -5130,10 +5150,10 @@ procedure T32ScrollBar.SetPosition(Value: integer);
 var
   SavePos: integer;
 begin
-SavePos := FPosition;
-SetParams(Value, FPage, FMin, FMax);
-if FPosition <> SavePos then
-  Change;           
+  SavePos := FPosition;
+  SetParams(Value, FPage, FMin, FMax);
+  if FPosition <> SavePos then
+    Change;
 end;
 
 procedure T32ScrollBar.SetMin(Value: Integer);
@@ -5153,58 +5173,57 @@ var
   OrigPos: integer;
   TheChange: integer;
 begin
-with ThtmlViewer(Parent) do
+  with ThtmlViewer(Parent) do
   begin
-  ScrollInfo.cbSize := SizeOf(ScrollInfo);
-  ScrollInfo.fMask := SIF_ALL;
-  GetScrollInfo(Self.Handle, SB_CTL, ScrollInfo);
-  if TScrollCode(Message.ScrollCode) = scTrack then
+    ScrollInfo.cbSize := SizeOf(ScrollInfo);
+    ScrollInfo.fMask := SIF_ALL;
+    GetScrollInfo(Self.Handle, SB_CTL, ScrollInfo);
+    if TScrollCode(Message.ScrollCode) = scTrack then
     begin
-    OrigPos := ScrollInfo.nPos;
-    SPos := ScrollInfo.nTrackPos;
+      OrigPos := ScrollInfo.nPos;
+      SPos := ScrollInfo.nTrackPos;
     end
-  else
+    else
     begin
-    SPos := ScrollInfo.nPos;
-    OrigPos := SPos;
-    case TScrollCode(Message.ScrollCode) of
-      scLineUp:
-        Dec(SPos, SmallChange);
-      scLineDown:
-        Inc(SPos, SmallChange);
-      scPageUp:
-        Dec(SPos, LargeChange);
-      scPageDown:
-        Inc(SPos, LargeChange);
-      scTop:
-        SPos := 0;
-      scBottom:
-        SPos := (FMaxVertical - PaintPanel.Height);
+      SPos := ScrollInfo.nPos;
+      OrigPos := SPos;
+      case TScrollCode(Message.ScrollCode) of
+        scLineUp:
+          Dec(SPos, SmallChange);
+        scLineDown:
+          Inc(SPos, SmallChange);
+        scPageUp:
+          Dec(SPos, LargeChange);
+        scPageDown:
+          Inc(SPos, LargeChange);
+        scTop:
+          SPos := 0;
+        scBottom:
+          SPos := (FMaxVertical - PaintPanel.Height);
       end;
     end;
-  SPos := IntMax(0, IntMin(SPos, (FMaxVertical - PaintPanel.Height)));
+    SPos := IntMax(0, IntMin(SPos, (FMaxVertical - PaintPanel.Height)));
 
-  Self.SetPosition(SPos);
+    Self.SetPosition(SPos);
 
-  FSectionList.SetYOffset(SPos);
-  if BGFixed then
-    PaintPanel.Invalidate
-  else
+    FSectionList.SetYOffset(SPos);
+    if BGFixed then
+      PaintPanel.Invalidate
+    else
     begin      {scroll background}
-    TheChange := OrigPos-SPos;
-    ScrollWindow(PaintPanel.Handle,0,TheChange,NIL,NIL);
-    PaintPanel.Update;
+      TheChange := OrigPos - SPos;
+      ScrollWindow(PaintPanel.Handle, 0, TheChange, nil, nil);
+      PaintPanel.Update;
     end;
   end;
 end;
 
 { PositionObj }
-
 destructor PositionObj.Destroy;
 begin
-FormData.Free;
-inherited;
-end;             
-      
+  FormData.Free;
+  inherited;
+end;
+
 end.
 

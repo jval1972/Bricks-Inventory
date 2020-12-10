@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -41,11 +41,13 @@ procedure RemoveDuplicates(const s: TStringList);
 
 procedure FreeList(var s: TStringList);
 
+procedure ClearList(var s: TStringList);
+
 procedure SaveBmpToJpeg(const MyBitmap: TBitmap; const JPEGFName: string);
 
 function RGBInvert(const t: TColor): TColor;
 
-procedure PieceToImage(const img: TImage; const piece: string; color: integer = -1);
+function PieceToImage(const img: TImage; const piece: string; color: integer = -1): boolean;
 
 function filenamestring(const s: string): string;
 
@@ -55,7 +57,7 @@ type
     procedure AppendFromFile(const fname: string);
   end;
 
-procedure backupfile(const fname: string);
+procedure backupfile(const fn: string);
 
 function DownloadFile(SourceFile, DestFile: string): Boolean;
 
@@ -149,6 +151,10 @@ type
     constructor Create(const apos: Int64);
   end;
 
+function IsValidDBMask(const msk: string): boolean;
+
+procedure RemoveBlancLines(const lst: TStringList);
+
 implementation
 
 uses
@@ -161,10 +167,10 @@ begin
   if Result = -1 then
   begin
     Result := hash.List.IndexOf(s);
-    exit;
+    Exit;
   end;
   if hash.List.Strings[Result] = s then
-    exit;
+    Exit;
   Result := hash.List.IndexOf(s);
 end;
 
@@ -279,7 +285,7 @@ begin
   if idx > -1 then
   begin
     Result := s;
-    exit;
+    Exit;
   end;
 
   splitstring(s, s1, s2, '\');
@@ -295,7 +301,7 @@ begin
       if idx > -1 then
       begin
         Result := check;
-        exit;
+        Exit;
       end;
     end;
   end;
@@ -331,7 +337,7 @@ begin
     begin
       Result := nlist.Strings[idx];
       nlist.Free;
-      exit;
+      Exit;
     end;
     nlist.Free;
   end;
@@ -368,6 +374,15 @@ begin
     s.Objects[i].Free;
   s.Free;
   s := nil;
+end;
+
+procedure ClearList(var s: TStringList);
+var
+  i: integer;
+begin
+  for i := 0 to s.Count - 1 do
+    s.Objects[i].Free;
+  s.Clear;
 end;
 
 procedure SaveBmpToJpeg(const MyBitmap: TBitmap; const JPEGFName: string);
@@ -407,7 +422,7 @@ begin
   end;
 end;
 
-procedure PieceToImage(const img: TImage; const piece: string; color: integer = -1);
+function PieceToImage(const img: TImage; const piece: string; color: integer = -1): boolean;
 var
   ps: TPakStream;
   path: string;
@@ -419,6 +434,8 @@ var
   s1, s2: string;
   sticker: boolean;
 begin
+  Result := False;
+
   sticker := issticker(piece);
 
   if color = -1 then
@@ -447,7 +464,7 @@ begin
         if ps.IOResult <> 0 then
         begin
           ps.Free;
-          exit;
+          Exit;
         end;
       end;
     end
@@ -465,7 +482,7 @@ begin
           if ps.IOResult <> 0 then
           begin
             ps.Free;
-            exit;
+            Exit;
           end;
         end;
       end
@@ -485,16 +502,16 @@ begin
 
         printf('Image %s not found, retrying ... [%s]'#13#10,[path, sTmp]);
         if sTmp = path then
-          exit;
+          Exit;
         if sTmp = '' then
-          exit;
+          Exit;
         if sTmp[Length(sTmp)] = '\' then
-          exit;
+          Exit;
         ps := TPakStream.Create(sTmp, pm_full);
         if ps.IOResult <> 0 then
         begin
           ps.Free;
-          exit;
+          Exit;
         end;
       end;
     end;
@@ -510,9 +527,11 @@ begin
     m.SaveToFile(tmp);
     try
       img.Picture.LoadFromFile(tmp);
+      Result := True;
     except
       printf('Image %s is invalid '#13#10,[path]);
     end;
+    DeleteFile(tmp);
   finally
     m.Free;
   end;
@@ -532,12 +551,19 @@ begin
   end;
 end;
 
-procedure backupfile(const fname: string);
+procedure backupfile(const fn: string);
 var
   fbck: string;
+  fname: string;
 begin
+  fname := Trim(fn);
+
+  if fname = '' then
+    Exit;
+
   if not fexists(fname) then
-    exit;
+    Exit;
+    
   fbck := fname + '_' + FormatDateTime('yyyymmdd', Now);
   if fexists(fbck) then
     fbck := fbck + '_latest';
@@ -590,9 +616,9 @@ begin
   Result := DownloadFileImg(SourceFile, 'tmp1.jpg');
   if not Result then
   begin
-    if FileExists('tmp1.jpg') then
+    if fexists('tmp1.jpg') then
       DeleteFile('tmp1.jpg');
-    exit;
+    Exit;
   end;
 
   Result := True;
@@ -611,7 +637,7 @@ begin
   B.Free;
   P.Free;
 
-  if FileExists('tmp1.jpg') then
+  if fexists('tmp1.jpg') then
     DeleteFile('tmp1.jpg');
 end;
 
@@ -622,8 +648,8 @@ var
   P: TPNGObject;
 begin
   Result := False;
-  if not FileExists(ajpg) then
-    exit;
+  if not fexists(ajpg) then
+    Exit;
 
   J := TJpegImage.Create;
   B := TBitmap.Create;
@@ -649,8 +675,8 @@ var
   P: TPNGObject;
 begin
   Result := False;
-  if not FileExists(apng) then
-    exit;
+  if not fexists(apng) then
+    Exit;
 
   J := TJpegImage.Create;
   B := TBitmap.Create;
@@ -678,9 +704,9 @@ begin
   Result := DownloadFileImg(SourceFile, 'tmp1.png');
   if not Result then
   begin
-    if FileExists('tmp1.png') then
+    if fexists('tmp1.png') then
       DeleteFile('tmp1.png');
-    exit;
+    Exit;
   end;
 
   Result := True;
@@ -699,7 +725,7 @@ begin
   B.Free;
   P.Free;
 
-  if FileExists('tmp1.png') then
+  if fexists('tmp1.png') then
     DeleteFile('tmp1.png');
 end;
 
@@ -716,7 +742,7 @@ begin
   begin
     Result := False;
     f.Free;
-    exit;
+    Exit;
   end;
 
   f.Position := 7;
@@ -725,7 +751,7 @@ begin
   begin
     Result := False;
     f.Free;
-    exit;
+    Exit;
   end;
 
   f.Position := 7;
@@ -734,7 +760,7 @@ begin
   begin
     Result := False;
     f.Free;
-    exit;
+    Exit;
   end;
 
   f.Position := 8;
@@ -743,7 +769,7 @@ begin
   begin
     Result := False;
     f.Free;
-    exit;
+    Exit;
   end;
 
   f.Position := 9;
@@ -752,7 +778,7 @@ begin
   begin
     Result := False;
     f.Free;
-    exit;
+    Exit;
   end;
 
   Result := True;
@@ -769,9 +795,9 @@ begin
   Result := DownloadFileImg(SourceFile, 'tmp1.gif');
   if not Result then
   begin
-    if FileExists('tmp1.gif') then
+    if fexists('tmp1.gif') then
       DeleteFile('tmp1.gif');
-    exit;
+    Exit;
   end;
 
   if IsLikeJpeg('tmp1.gif') then
@@ -797,7 +823,7 @@ begin
     P.Free;
   end;
 
-  if FileExists('tmp1.gif') then
+  if fexists('tmp1.gif') then
     DeleteFile('tmp1.gif');
 end;
 
@@ -863,15 +889,15 @@ begin
         if ret1b <> ret1a then
         begin
           Result := ret1b + '9' + ret2;
-          exit;
+          Exit;
         end
         else
-          exit;
+          Exit;
       end
       else
       begin
         Result[i] := itoa(n - 1)[1];
-        exit;
+        Exit;
       end;
     end;
     dec(i);
@@ -906,15 +932,15 @@ begin
         if ret1b <> ret1a then
         begin
           Result := ret1b + '0' + ret2;
-          exit;
+          Exit;
         end
         else
-          exit;
+          Exit;
       end
       else
       begin
         Result[i] := itoa(n + 1)[1];
-        exit;
+        Exit;
       end;
     end;
     dec(i);
@@ -1215,7 +1241,7 @@ var
 begin
   Result := False;
   if not fexists(src) then
-    exit;
+    Exit;
   f := TFileStream.Create(src, fmOpenRead or fmShareDenyWrite);
   if f.Size = 0 then
   begin
@@ -1267,10 +1293,13 @@ var
 begin
   TagBegin := Pos( '<', S);      // search position of first < 
 
-  while (TagBegin > 0) do begin  // while there is a < in S
-    TagEnd := Pos('>', S);              // find the matching > 
+  while (TagBegin > 0) do
+  begin  // while there is a < in S
+    TagEnd := Pos('>', S);              // find the matching >
+    if TagEnd <= 0 then
+      Break;
     TagLength := TagEnd - TagBegin + 1;
-    Delete(S, TagBegin, TagLength);     // delete the tag 
+    Delete(S, TagBegin, TagLength);     // delete the tag
     TagBegin:= Pos( '<', S);            // search for next <
   end;
 
@@ -1405,7 +1434,7 @@ begin
   ctx := TStringList.Create;  // content of file
   inv := TStringList.Create;  // inventory part,color:count
 
-  if FileExists(filename) then
+  if fexists(filename) then
   try
     ctx.LoadFromFile(filename);
     inv.NameValueSeparator := ',';
@@ -1572,7 +1601,7 @@ begin
   Result := success;
 end;
 
-procedure AppendLineToFile(const fname: string; const line: string);
+function DoAppendLineToFile(const fname: string; const line: string): boolean;
 var
   f: file;
   i: integer;
@@ -1580,6 +1609,8 @@ var
   b, b1, b2: byte;
   fsize: integer;
 begin
+  IOResult;
+{$I-}
   oldmode := FileMode;
   if not fexists(fname) then
   begin
@@ -1630,6 +1661,32 @@ begin
   closeFile(f);
 
   FileMode := oldmode;
+{$I+}
+  Result := IOResult = 0;
+end;
+
+procedure AppendLineToFile(const fname: string; const line: string);
+var
+  i: integer;
+begin
+  for i := 1 to 10 do
+  begin
+    if DoAppendLineToFile(fname, line) then
+      Exit;
+    Sleep(50);
+  end;
+  for i := 1 to 10 do
+  begin
+    if DoAppendLineToFile(fname, line) then
+      Exit;
+    Sleep(200);
+  end;
+  for i := 1 to 10 do
+  begin
+    if DoAppendLineToFile(fname, line) then
+      Exit;
+    Sleep(1000);
+  end;
 end;
 
 function ResizeJpg2Png(const fin, fout: string; const dograyscale: boolean = True;
@@ -1864,4 +1921,46 @@ begin
   position := apos;
 end;
 
+function IsValidDBMask(const msk: string): boolean;
+var
+  p: integer;
+  cnt1, cnt2: integer;
+begin
+  p := Pos('?', msk);
+  if p <= 0 then
+    p := Pos('*', msk);
+  if p <= 0 then
+  begin
+    Result := False;
+    Exit;
+  end;
+
+  cnt1 := 0;
+  cnt2 := 0;
+  for p := 1 to Length(msk) do
+  begin
+    if msk[p] <> ' ' then
+    begin
+      if msk[p] in ['?' ,'*'] then
+        inc(cnt1);
+      inc(cnt2);
+    end;
+  end;
+
+  Result := cnt2 > cnt1;
+end;
+
+procedure RemoveBlancLines(const lst: TStringList);
+var
+  i: integer;
+begin
+  if lst = nil then
+    Exit;
+
+  for i := lst.Count - 1 downto 0 do
+    if Trim(lst.Strings[i]) = '' then
+      lst.Delete(i);
+end;
+
 end.
+

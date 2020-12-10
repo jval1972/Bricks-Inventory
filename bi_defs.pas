@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -52,9 +52,10 @@ var
   dpagesize: integer;
   savealwayspartinvinfo: boolean;
   generatethumbnailsondemand: boolean;
+  silentwarnings: boolean;
 
 const
-  NUMDEFAULTS = 8;
+  NUMDEFAULTS = 9;
 
   defaults: array[0..NUMDEFAULTS - 1] of default_t = (
     (name: 'General';
@@ -95,6 +96,14 @@ const
      defaultsvalue: '0';
      defaultivalue: 0;
      defaultbvalue: True;
+     _type: tBoolean),
+
+    (name: 'silentwarnings';
+     location: @silentwarnings;
+     setable: true;
+     defaultsvalue: '0';
+     defaultivalue: 0;
+     defaultbvalue: False;
      _type: tBoolean),
 
     (name: 'MultiPage';

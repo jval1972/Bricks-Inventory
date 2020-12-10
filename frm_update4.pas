@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -54,11 +54,19 @@ type
     Button5: TButton;
     Label3: TLabel;
     Edit3: TEdit;
+    Button6: TButton;
+    Label4: TLabel;
+    Edit4: TEdit;
+    Button7: TButton;
+    Label5: TLabel;
+    Edit5: TEdit;
     procedure Button3Click(Sender: TObject);
     procedure EditKeyPress(Sender: TObject; var Key: Char);
     procedure Button4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button5Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
   private
     { Private declarations }
     procedure AddNewCatalogRec(const s: string);
@@ -142,7 +150,7 @@ begin
     for i := 1 to num do
     begin
       newparts := db.QryPartsFromBricklink(
-        'https://www.bricklink.com/catalogList.asp?pg=' + itoa(i) + '&viewInv=Y&sortBy=D&sortAsc=D&itemBrand=1000&catType=P',
+        'https://' + BL_NET + '/catalogList.asp?pg=' + itoa(i) + '&viewInv=Y&sortBy=D&sortAsc=D&itemBrand=1000&catType=P',
         'catalogitem.page?P=');
       MergeSList(allparts, newparts);
       newparts.Free;
@@ -152,12 +160,12 @@ begin
       if not db.PieceInfo(allparts.Strings[i]).hasinventory then
         searchinvs.Add(allparts.Strings[i]);
       fname := basedefault + 'db\parts\' + allparts.Strings[i] + '.htm';
-      if not overwrite and FileExists(fname) then
+      if not overwrite and fexists(fname) then
         newparts := db.QryNewPartsFromFile(
           fname, 'catalogitem.page?P=')
       else
         newparts := db.QryNewPartsFromBricklink(
-          'https://www.bricklink.com/catalogItemInv.asp?P=' + allparts.Strings[i] + '&viewType=P&bt=0&sortBy=0&sortAsc=A',
+          'https://' + BL_NET + '/catalogItemInv.asp?P=' + allparts.Strings[i] + '&viewType=P&bt=0&sortBy=0&sortAsc=A',
           'catalogitem.page?P=',
           fname);
       MergeSList(allparts2, newparts);
@@ -288,7 +296,7 @@ begin
     for i := 1 to num do
     begin
       newparts := db.QryPartsFromBricklink(
-        'https://www.bricklink.com/catalogList.asp?pg=' + itoa(i) + '&itemInvUserID=0&sortBy=D&sortAsc=D&itemBrand=1000&catType=P',
+        'https://' + BL_NET + '/catalogList.asp?pg=' + itoa(i) + '&itemInvUserID=0&sortBy=D&sortAsc=D&itemBrand=1000&catType=P',
         'catalogitem.page?P=');
       MergeSList(allparts, newparts);
       newparts.Free;
@@ -384,13 +392,171 @@ begin
   try
     for i := 1 to num do
     begin
-      lnk := 'https://www.bricklink.com/catalogList.asp?pg=' + itoa(i) + '&sortBy=D&sortAsc=D&itemBrand=1000&catType=C&v=1';
+      lnk := 'https://' + BL_NET + '/catalogList.asp?pg=' + itoa(i) + '&sortBy=D&sortAsc=D&itemBrand=1000&catType=C&v=1';
       lst := db.QryNewCatalogsFromBricklink(lnk, '<a href="/v2/catalog/catalogitem.page?C=');
       for j := 0 to lst.Count - 1 do
         AddNewCatalogRec(lst.Strings[j]);
       lst.Free;
     end;
   finally
+    Screen.Cursor := crDefault;
+  end;
+end;
+
+procedure TTUpdateNewPartsFromBLForm.Button6Click(Sender: TObject);
+var
+  i: integer;
+  b: boolean;
+  tmp: TStringList;
+  stmp: string;
+  num: integer;
+  newparts: TStringList;
+  allparts: TStringList;
+  dbUpieces: TStringList;
+begin
+  Screen.Cursor := crHourGlass;
+  tmp := TStringList.Create;
+  allparts := TStringList.Create;
+  try
+    b := CheckBox1.Checked;
+    num := atoi(Edit4.Text);
+    if num < 1 then
+      num := 1;
+    for i := 1 to num do
+    begin
+      newparts := db.QryPartsFromBricklink(
+        'https://' + BL_NET + '/catalogList.asp?pg=' + itoa(i) + '&itemInvUserID=0&sortBy=D&sortAsc=D&itemBrand=1000&catType=G',
+        'catalogitem.page?G=');
+      MergeSList(allparts, newparts);
+      newparts.Free;
+    end;
+    dbUpieces := TStringList.Create;
+    dbUpieces.AddStrings(db.AllPieces);
+    dbUpieces.Text := UpperCase(dbUpieces.Text);
+    allparts.Sorted := false;
+    for i := allparts.Count - 1 downto 0 do
+    begin
+      if db.AllPieces.IndexOf(allparts.Strings[i]) >= 0 then
+        allparts.Delete(i)
+      else if db.AllPieces.IndexOf(db.RebrickablePart(allparts.Strings[i])) >= 0 then
+        allparts.Delete(i)
+      else if dbUpieces.IndexOf(UpperCase(allparts.Strings[i])) >= 0 then
+        allparts.Delete(i)
+      else if dbUpieces.IndexOf(UpperCase(db.RebrickablePart(allparts.Strings[i]))) >= 0 then
+        allparts.Delete(i)
+    end;
+    dbUpieces.Free;
+
+    for i := 0 to allparts.Count - 1 do
+    begin
+      tmp.Add('refreshgearfrombricklinknorefresh/' + allparts.Strings[i]);
+      if b then
+        tmp.Add('spiece/' + allparts.Strings[i]);
+      if (tmp.Count > 200) or ((tmp.Count > 30) and (random > 0.6)) then
+      begin
+        stmp := tmp.Strings[tmp.Count - 1];
+        tmp.Delete(tmp.Count - 1);
+        Memo1.Lines.AddStrings(tmp);
+        Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+        Label7.Update;
+        Memo1.Lines.Add(stmp);
+        Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+        Label7.Update;
+        tmp.Clear;
+      end;
+    end;
+    if tmp.Count > 0 then
+    begin
+      stmp := tmp.Strings[tmp.Count - 1];
+      tmp.Delete(tmp.Count - 1);
+      if tmp.Count > 0 then
+        Memo1.Lines.AddStrings(tmp);
+      Memo1.Lines.Add(stmp);
+      Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+      Label7.Update;
+    end;
+  finally
+    tmp.Free;
+    allparts.Free;
+    Screen.Cursor := crDefault;
+  end;
+end;
+
+procedure TTUpdateNewPartsFromBLForm.Button7Click(Sender: TObject);
+var
+  i: integer;
+  b: boolean;
+  tmp: TStringList;
+  stmp: string;
+  num: integer;
+  newparts: TStringList;
+  allparts: TStringList;
+  dbUpieces: TStringList;
+begin
+  Screen.Cursor := crHourGlass;
+  tmp := TStringList.Create;
+  allparts := TStringList.Create;
+  try
+    b := CheckBox1.Checked;
+    num := atoi(Edit5.Text);
+    if num < 1 then
+      num := 1;
+    for i := 1 to num do
+    begin
+      newparts := db.QryPartsFromBricklink(
+        'https://' + BL_NET + '/catalogList.asp?pg=' + itoa(i) + '&itemInvUserID=0&sortBy=D&sortAsc=D&itemBrand=1000&catType=B',
+        'catalogitem.page?B=');
+      MergeSList(allparts, newparts);
+      newparts.Free;
+    end;
+    dbUpieces := TStringList.Create;
+    dbUpieces.AddStrings(db.AllPieces);
+    dbUpieces.Text := UpperCase(dbUpieces.Text);
+    allparts.Sorted := false;
+    for i := allparts.Count - 1 downto 0 do
+    begin
+      if db.AllPieces.IndexOf(allparts.Strings[i]) >= 0 then
+        allparts.Delete(i)
+      else if db.AllPieces.IndexOf(db.RebrickablePart(allparts.Strings[i])) >= 0 then
+        allparts.Delete(i)
+      else if dbUpieces.IndexOf(UpperCase(allparts.Strings[i])) >= 0 then
+        allparts.Delete(i)
+      else if dbUpieces.IndexOf(UpperCase(db.RebrickablePart(allparts.Strings[i]))) >= 0 then
+        allparts.Delete(i)
+    end;
+    dbUpieces.Free;
+
+    for i := 0 to allparts.Count - 1 do
+    begin
+      tmp.Add('refreshbookfrombricklinknorefresh/' + allparts.Strings[i]);
+      if b then
+        tmp.Add('spiece/' + allparts.Strings[i]);
+      if (tmp.Count > 200) or ((tmp.Count > 30) and (random > 0.6)) then
+      begin
+        stmp := tmp.Strings[tmp.Count - 1];
+        tmp.Delete(tmp.Count - 1);
+        Memo1.Lines.AddStrings(tmp);
+        Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+        Label7.Update;
+        Memo1.Lines.Add(stmp);
+        Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+        Label7.Update;
+        tmp.Clear;
+      end;
+    end;
+    if tmp.Count > 0 then
+    begin
+      stmp := tmp.Strings[tmp.Count - 1];
+      tmp.Delete(tmp.Count - 1);
+      if tmp.Count > 0 then
+        Memo1.Lines.AddStrings(tmp);
+      Memo1.Lines.Add(stmp);
+      Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+      Label7.Update;
+    end;
+  finally
+    tmp.Free;
+    allparts.Free;
     Screen.Cursor := crDefault;
   end;
 end;

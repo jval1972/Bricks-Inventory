@@ -1,6 +1,6 @@
 object EditSetAsTextForm: TEditSetAsTextForm
-  Left = 380
-  Top = 263
+  Left = 65
+  Top = 92
   Width = 620
   Height = 386
   BorderIcons = [biSystemMenu, biMaximize]
@@ -614,8 +614,9 @@ object EditSetAsTextForm: TEditSetAsTextForm
         ScrollBars = ssBoth
         TabOrder = 0
         WordWrap = False
+        OnChange = Memo1Change
       end
-      object Panel2: TPanel
+      object EditPanel: TPanel
         Left = 0
         Top = 213
         Width = 596

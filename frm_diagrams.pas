@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -37,9 +37,9 @@ uses
 
 type
   TDiagramForm = class(TForm)
-    Label1: TLabel;
-    Label4: TLabel;
-    Panel1: TPanel;
+    DescLabel: TLabel;
+    ColorLabel: TLabel;
+    ColorPanel: TPanel;
     Label2: TLabel;
     Edit1: TEdit;
     Notebook1: TNotebook;
@@ -572,9 +572,19 @@ begin
         for i := 0 to s.Count - 1 do
         begin
           splitstring(s.Strings[i], s1, s2, ',');
-          if Trim(s2) = '' then
-            s2 := s1;
-          AddExclude(Trim(s1), Trim(s2));
+          s1 := Trim(s1);
+          s2 := Trim(s2);
+          if s2 = '' then
+          begin
+            if Length(s1) = 8 then
+              s2 := s1
+            else if IsIntegerInRange(atoi(s1), 2014, 2050) then
+            begin
+              s2 := s1 + '1231';
+              s1 := s1 + '0101';
+            end;
+          end;
+          AddExclude(s1, s2);
         end;
       end;
     finally
@@ -1328,7 +1338,7 @@ begin
       try
         f := TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
       except
-        sleep(50);
+        sleep(100);
         f := TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
       end;
       if f.Size = 160 then
@@ -1357,7 +1367,7 @@ begin
       try
         f := TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
       except
-        sleep(50);
+        sleep(100);
         f := TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
       end;
       if f.Size = 160 then
@@ -1365,7 +1375,8 @@ begin
         f.Read(A[num].priceguide, SizeOf(priceguide_t));
         f.Read(A[num].availability, SizeOf(availability_t));
         A[num].date := EXTRA[i].date;
-        inc(num);
+        if num < Asize then
+          inc(num);
       end
       else if f.Size mod SizeOf(parecdate_t) = 0 then
       begin
@@ -1386,7 +1397,8 @@ begin
             if A[num].date < EXTRA[i].date then
               A[num].date := EXTRA[i].date
           end;
-          inc(num);
+          if num < Asize then
+            inc(num);
         end;
       end;
       f.free;
@@ -1502,22 +1514,22 @@ begin
   try
     f.UpdateSpeedButton1.Visible := True;
     f.Notebook1.ActivePage := f.Notebook1.Pages[1];
-    f.Label1.Caption := db.PieceDesc(part);
+    f.DescLabel.Caption := db.PieceDesc(part);
     hasinv := (color = -1) and (db.GetSetInventory(part) <> nil);
     if hasinv then
     begin
-      if f.Label1.Caption = '' then
-        f.Label1.Caption := db.SetDesc(part);
-      f.Label4.Visible := false;
+      if f.DescLabel.Caption = '' then
+        f.DescLabel.Caption := db.SetDesc(part);
+      f.ColorLabel.Visible := false;
       f.Button28.Visible := true;
       f.Button29.Visible := true;
     end
     else
     begin
       if color = -1 then
-        f.Label4.Caption := '(Not Applicable)'
+        f.ColorLabel.Caption := '(Not Applicable)'
       else
-        f.Label4.Caption := db.colors(color).name;
+        f.ColorLabel.Caption := db.colors(color).name;
 
       if db.PieceInfo(part).hasinventory and (color <> 9996) and (color <> 9997) and (color <> 9998) then
       begin
@@ -1530,36 +1542,36 @@ begin
         f.Button29.Visible := false;
       end;
     end;
-    if f.Label1.Caption <> '' then
-      f.Label1.Caption := part + ' - ' + f.Label1.Caption
+    if f.DescLabel.Caption <> '' then
+      f.DescLabel.Caption := part + ' - ' + f.DescLabel.Caption
     else
-      f.Label1.Caption := part;
+      f.DescLabel.Caption := part;
     pci := db.PieceColorInfo(part, color);
     PieceToImage(f.Image1, part, color);
     if pci <> nil then
     begin
-      f.Panel1.Caption := '';
-      f.Panel1.Color := RGBInvert(db.colors(color).RGB);
+      f.ColorPanel.Caption := '';
+      f.ColorPanel.Color := RGBInvert(db.colors(color).RGB);
       if hasinv then
       begin
         inventory.GetSetInfo(part, @st);
         f.Edit1.Text := itoa(st.num) + ' builded - ' + itoa(st.dismantaled) + ' dismantaled';
         f.Label2.Caption := 'Num sets:';
-        f.Panel1.Visible := false;
+        f.ColorPanel.Visible := false;
       end
       else
       begin
         f.Edit1.Text := itoa(inventory.LoosePartCount(part, color));
         f.Label2.Caption := 'Num pieces:';
         if color = BOXCOLORINDEX then
-          f.Panel1.Caption := 'B'
+          f.ColorPanel.Caption := 'B'
         else if color = INSTRUCTIONCOLORINDEX then
-          f.Panel1.Caption := 'I'
+          f.ColorPanel.Caption := 'I'
         else if color = CATALOGCOLORINDEX then
-          f.Panel1.Caption := 'C'
+          f.ColorPanel.Caption := 'C'
         else if color = -1 then
-          f.Panel1.Caption := '-';
-        f.Panel1.Visible := true;
+          f.ColorPanel.Caption := '-';
+        f.ColorPanel.Visible := true;
       end;
       f.piece := part;
       f.color := color;
@@ -1581,11 +1593,11 @@ begin
   try
     f.UpdateSpeedButton1.Visible := False;
     f.Notebook1.ActivePage := f.Notebook1.Pages[0];
-    f.Label1.Caption := storage;
-    f.Label4.Visible := false;
+    f.DescLabel.Caption := storage;
+    f.ColorLabel.Visible := false;
     f.Edit1.Visible := false;
     f.Label2.Visible := false;
-    f.Panel1.Visible := false;
+    f.ColorPanel.Visible := false;
     f.piece := storage;
     f.color := -1;
     Screen.Cursor := crHourglass;
@@ -1605,11 +1617,11 @@ begin
   try
     f.UpdateSpeedButton1.Visible := False;
     f.Notebook1.ActivePage := f.Notebook1.Pages[2];
-    f.Label1.Caption := 'Order #' + order;
-    f.Label4.Visible := false;
+    f.DescLabel.Caption := 'Order #' + order;
+    f.ColorLabel.Visible := false;
     f.Edit1.Visible := false;
     f.Label2.Visible := false;
-    f.Panel1.Visible := false;
+    f.ColorPanel.Visible := false;
     f.Width := f.Width - f.Notebook1.Width;
     f.Notebook1.Width := 0;
     f.piece := order;

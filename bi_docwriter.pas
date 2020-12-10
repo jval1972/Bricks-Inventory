@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -37,8 +37,8 @@ type
   TDocument = class(TObject)
   private
     buffer: string;
-    capacity: integer;
-    size: integer;
+    fcapacity: integer;
+    fsize: integer;
     hview: THTMLViewer;
     multipage: boolean;
     key: string;
@@ -51,6 +51,7 @@ type
     _sectionstart: string;
     _sectionnavigate: string;
     _sectionbeforepages: string;
+    _sectionafterpages: string;
     function GenerateNavigation(const pg: integer): string;
   protected
     procedure SetSavePath(const value: string);
@@ -69,15 +70,18 @@ type
     procedure title(const s: string); overload;
     procedure title(const Fmt: string; const Args: array of const); overload;
     procedure BlancColorCell(const RGB: LongWord; const width: integer);
-    procedure SaveBufferToFile(const fname: string);
+    procedure SaveBufferToFile(const aname: string);
     procedure FlashMultiPageDocument(const akey: string; const pg: integer);
     procedure Flash;
     procedure NewMultiPageDocument(const key1, key2: string);
     procedure StartNavigateSection;
     procedure StartItemId(const id: integer);
     procedure EndNavigateSection;
+    procedure MarkBottomNavigateSection;
+    procedure PredictAdditionalSize(const sz: integer);
     property savepath: string read fsavepath write SetSavePath;
     property needsidletime: boolean read fneedsidletime;
+    property size: integer read fsize;
   end;
 
 implementation
@@ -90,8 +94,8 @@ begin
   inherited Create;
   hview := aview;
   buffer := '';
-  capacity := 0;
-  size := 0;
+  fcapacity := 0;
+  fsize := 0;
   multipage := False;
   navigatepos := 0;
   currentpage := 0;
@@ -100,6 +104,7 @@ begin
   _sectionstart := '';
   _sectionnavigate := '';
   _sectionbeforepages := '';
+  _sectionafterpages := '';
   fneedsidletime := False;
   fdivisionscache := TStringList.Create;
   fdivisionscache.CaseSensitive := False;
@@ -166,6 +171,15 @@ begin
   fneedsidletime := True;
 end;
 
+procedure TDocument.PredictAdditionalSize(const sz: integer);
+begin
+  if fsize + sz <= fcapacity then
+    Exit;
+
+  fcapacity := (sz + fsize + 1024) and not 1023;
+  SetLength(buffer, fcapacity);
+end;
+
 procedure TDocument.write(const i: integer);
 begin
   write(IntToStr(i));
@@ -177,23 +191,23 @@ var
   growstep: integer;
 begin
   len := Length(s);
-  if capacity < len + size then
+  if fcapacity < len + fsize then
   begin
-    if capacity > $200000 then
+    if fcapacity > $200000 then
       growstep := $40000
-    else if capacity > $100000 then
+    else if fcapacity > $100000 then
       growstep := $20000
-    else if capacity > $40000 then
+    else if fcapacity > $40000 then
       growstep := $10000
-    else if capacity > $20000 then
+    else if fcapacity > $20000 then
       growstep := 8192 * 4
     else
       growstep := 8192;
-    capacity := (len + size + growstep) and not 1023;
-    SetLength(buffer, capacity);
+    fcapacity := (len + fsize + growstep) and not 1023;
+    SetLength(buffer, fcapacity);
   end;
-  memmove(@buffer[size + 1], @s[1], len);
-  size := size + len;
+  memmove(@buffer[fsize + 1], @s[1], len);
+  fsize := fsize + len;
 end;
 
 procedure TDocument.write(const Fmt: string; const Args: array of const);
@@ -271,13 +285,13 @@ begin
     Exit;
   if navigatepos > 0 then
     I_Error('TDocument.StartNavigateSection(): Already called within the current document');
-  navigatepos := size;
-  SetLength(buffer, size);
+  navigatepos := fsize;
+  SetLength(buffer, fsize);
   _sectionstart := buffer;
   DoSaveString(fsavepath + key + '\' + key + '_1_S.html', _sectionstart);
   buffer := '';
-  size := 0;
-  capacity := 0;
+  fsize := 0;
+  fcapacity := 0;
 end;
 
 procedure TDocument.StartItemId(const id: integer);
@@ -289,21 +303,23 @@ begin
   
   if id = 1 then
   begin
-    SetLength(buffer, size);
+    SetLength(buffer, fsize);
+    fcapacity := fsize;
     _sectionbeforepages := buffer;
     DoSaveString(fsavepath + key + '\' + key + '_3_B.html', _sectionbeforepages);
-    buffer := '';
-    size := 0;
-    capacity := 0;
+//    buffer := '';
+    fsize := 0;
+//    fcapacity := 0;
   end
   else if id mod dpagesize = 1 then
   begin
     inc(currentpage);
-    SetLength(buffer, size);
+    SetLength(buffer, fsize);
+    fcapacity := fsize;
     DoSaveString(fsavepath + key + '\' + key + '_4_P' + IntToStrzFill(4, currentpage) + '.html', buffer);
-    buffer := '';
-    size := 0;
-    capacity := 0;
+//    buffer := '';
+    fsize := 0;
+//    fcapacity := 0;
   end;
 end;
 
@@ -331,7 +347,7 @@ begin
     Result := '';
     exit;
   end;
-  
+
   if pg = 1 then
     prevstr := '[Previous]'
   else
@@ -359,11 +375,11 @@ begin
     Exit;
 
   inc(currentpage);
-  SetLength(buffer, size);
+  SetLength(buffer, fsize);
   DoSaveString(fsavepath + key + '\' + key + '_4_P' + IntToStrzFill(4, currentpage) + '.html', buffer);
   buffer := '';
-  size := 0;
-  capacity := 0;
+  fsize := 0;
+  fcapacity := 0;
 
   _sectionnavigate := GenerateNavigation(1);
   DoSaveString(fsavepath + key + '\' + key + '_2_N' + IntToStrzFill(4, 1) + '.html', _sectionnavigate);
@@ -371,19 +387,38 @@ begin
     DoSaveString(fsavepath + key + '\' + key + '_2_N' + IntToStrzFill(4, i) + '.html', GenerateNavigation(i));
 end;
 
+procedure TDocument.MarkBottomNavigateSection;
+begin
+  if not multipage then
+    Exit;
+
+  SetLength(buffer, fsize);
+  _sectionafterpages := buffer;
+  DoSaveString(fsavepath + key + '\' + key + '_5_A.html', buffer);
+  buffer := '';
+  fsize := 0;
+  fcapacity := 0;
+end;
+
 procedure TDocument.FlashMultiPageDocument(const akey: string; const pg: integer);
+var
+  navstr: string;
 begin
   key := akey;
+  navstr := DoLoadString(fsavepath + key + '\' + key + '_2_N' + IntToStrzFill(4, pg) + '.html');
   hview.LoadHtmlFromString(
     DoLoadString(fsavepath + key + '\' + key + '_1_S.html') +
-    DoLoadString(fsavepath + key + '\' + key + '_2_N' + IntToStrzFill(4, pg) + '.html') +
+    navstr +
     DoLoadString(fsavepath + key + '\' + key + '_3_B.html') +
     DoLoadString(fsavepath + key + '\' + key + '_4_P' + IntToStrzFill(4, pg) + '.html') +
-    DoLoadString(fsavepath + key + '\' + key + '_5_E' + '.html'));
+    DoLoadString(fsavepath + key + '\' + key + '_5_A' + '.html') +
+    navstr +
+    DoLoadString(fsavepath + key + '\' + key + '_6_E' + '.html')
+  );
   key := '';
   buffer := '';
-  size := 0;
-  capacity := 0;
+  fsize := 0;
+  fcapacity := 0;
   multipage := False;
   navigatepos := 0;
   currentpage := 0;
@@ -391,13 +426,14 @@ begin
   _sectionstart := '';
   _sectionnavigate := '';
   _sectionbeforepages := '';
+  _sectionafterpages := '';
   fneedsidletime := True;
 end;
 
 procedure TDocument.Flash;
 begin
-  SetLength(buffer, size);
-  capacity := size;
+  SetLength(buffer, fsize);
+  fcapacity := fsize;
   if multipage then
   begin
     hview.LoadHtmlFromString(
@@ -405,15 +441,18 @@ begin
       _sectionnavigate +
       _sectionbeforepages +
       DoLoadString(fsavepath + key + '\' + key + '_4_P' + IntToStrzFill(4, 1) + '.html') +
-      buffer);
-    DoSaveString(fsavepath + key + '\' + key + '_5_E' + '.html', buffer);
+      _sectionafterpages +
+      _sectionnavigate +
+      buffer
+    );
+    DoSaveString(fsavepath + key + '\' + key + '_6_E' + '.html', buffer);
   end
   else
     hview.LoadHtmlFromString(buffer);
   key := '';
   buffer := '';
-  size := 0;
-  capacity := 0;
+  fsize := 0;
+  fcapacity := 0;
   multipage := False;
   navigatepos := 0;
   currentpage := 0;
@@ -421,16 +460,29 @@ begin
   _sectionstart := '';
   _sectionnavigate := '';
   _sectionbeforepages := '';
+  _sectionafterpages := '';
   fneedsidletime := True;
 end;
 
-procedure TDocument.SaveBufferToFile(const fname: string);
+procedure TDocument.SaveBufferToFile(const aname: string);
 var
   t: TextFile;
   i: integer;
+  fname: string;
 begin
-  if fname = '' then
+  if aname = '' then
     exit;
+
+  fname := '';
+  for i := 1 to Length(aname) do
+  begin
+    if aname[i] = '?' then
+      fname := fname + '_#QUEST#_'
+    else if aname[i] = '*' then
+      fname := fname + '_#STAR#_'
+    else
+      fname := fname + aname[i];
+  end;
 
   assignFile(t, fname);
   rewrite(t);
@@ -441,9 +493,10 @@ begin
     writeln(t, _sectionbeforepages);
     for i := 1 to currentpage do
       writeln(t, DoLoadString(fsavepath + key + '\' + key + '_4_P' + IntToStrzFill(4, i) + '.html'));
+    writeln(t, _sectionafterpages);
   end;
-  SetLength(buffer, size);
-  capacity := size;
+  SetLength(buffer, fsize);
+  fcapacity := fsize;
   writeln(t, buffer);
 
   CloseFile(t);

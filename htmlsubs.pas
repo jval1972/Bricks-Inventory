@@ -4051,12 +4051,13 @@ procedure TCellBasic.MinMaxWidth(Canvas: TCanvas; var Min, Max: integer);
 var
   I, Mn, Mx: integer;
 begin
-Max := 0; Min := 0;
-for I := 0 to Count-1 do
+  Max := 0;
+  Min := 0;
+  for I := 0 to Count - 1 do
   begin
-  TSectionBase(Items[I]).MinMaxWidth(Canvas, Mn, Mx);
-  Max := IntMax(Max, Mx);
-  Min := IntMax(Min, Mn);    
+    TSectionBase(Items[I]).MinMaxWidth(Canvas, Mn, Mx);
+    Max := IntMax(Max, Mx);
+    Min := IntMax(Min, Mn);
   end;
 end;
 
@@ -10188,14 +10189,14 @@ var
 
   function FindTextWidthB(Canvas: TCanvas; Start: PWideChar; N: integer; RemoveSpaces: boolean): integer;
   begin
-  Result := FindTextWidth(Canvas, Start, N, RemoveSpaces);
-  if (Start = Buff) then
-    if (FLPercent = 0) then   {not a percent}
-      Inc(Result, FirstLineIndent)
-    else
-      Result := (100 * Result) div (100 - FLPercent);
-  if SoftHyphen then      
-    Result := Result + Canvas.TextWidth('-');
+    Result := FindTextWidth(Canvas, Start, N, RemoveSpaces);
+    if (Start = Buff) then
+      if (FLPercent = 0) then   {not a percent}
+        Inc(Result, FirstLineIndent)
+      else
+        Result := (100 * Result) div (100 - FLPercent);
+    if SoftHyphen then      
+      Result := Result + Canvas.TextWidth('-');
   end;
 
 begin

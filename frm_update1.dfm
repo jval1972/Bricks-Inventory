@@ -1,11 +1,11 @@
 object UpdateForm1: TUpdateForm1
-  Left = 543
-  Top = 118
+  Left = 472
+  Top = 133
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Update Sets (bricklink.com)'
-  ClientHeight = 485
-  ClientWidth = 370
+  ClientHeight = 516
+  ClientWidth = 391
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -549,8 +549,8 @@ object UpdateForm1: TUpdateForm1
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 417
-    Width = 370
+    Top = 448
+    Width = 391
     Height = 68
     Align = alBottom
     BevelOuter = bvNone
@@ -586,7 +586,7 @@ object UpdateForm1: TUpdateForm1
   object Panel2: TPanel
     Left = 0
     Top = 0
-    Width = 370
+    Width = 391
     Height = 177
     Align = alTop
     BevelOuter = bvNone
@@ -816,8 +816,8 @@ object UpdateForm1: TUpdateForm1
   object Panel3: TPanel
     Left = 0
     Top = 177
-    Width = 370
-    Height = 240
+    Width = 391
+    Height = 271
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 8
@@ -826,8 +826,8 @@ object UpdateForm1: TUpdateForm1
     object Memo1: TMemo
       Left = 8
       Top = 33
-      Width = 354
-      Height = 199
+      Width = 375
+      Height = 230
       Align = alClient
       ScrollBars = ssBoth
       TabOrder = 0
@@ -836,7 +836,7 @@ object UpdateForm1: TUpdateForm1
     object Panel4: TPanel
       Left = 8
       Top = 8
-      Width = 354
+      Width = 375
       Height = 25
       Align = alTop
       BevelOuter = bvNone

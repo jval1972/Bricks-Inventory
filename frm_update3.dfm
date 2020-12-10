@@ -1,5 +1,5 @@
 object TUpdatePartColorBLForm: TTUpdatePartColorBLForm
-  Left = 755
+  Left = 723
   Top = 254
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog

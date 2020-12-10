@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -32,7 +32,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls;
+  Dialogs, StdCtrls, ExtCtrls;
 
 type
   TMultipleSetsForm = class(TForm)
@@ -43,9 +43,15 @@ type
     AddButton: TButton;
     RemoveButton: TButton;
     Button3: TButton;
+    OpenDialog1: TOpenDialog;
+    SaveDialog1: TSaveDialog;
+    OpenList1: TButton;
+    SaveList1: TButton;
     procedure AddButtonClick(Sender: TObject);
     procedure RemoveButtonClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure OpenList1Click(Sender: TObject);
+    procedure SaveList1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -57,7 +63,7 @@ function GetMultipleSetsList(const l: TStringList): Boolean;
 implementation
 
 uses
-  searchset;
+  bi_utils, searchset;
 
 {$R *.dfm}
 
@@ -98,6 +104,21 @@ end;
 procedure TMultipleSetsForm.Button3Click(Sender: TObject);
 begin
   ListBox1.Items.Clear;
+end;
+
+procedure TMultipleSetsForm.OpenList1Click(Sender: TObject);
+begin
+  if OpenDialog1.Execute then
+    ListBox1.Items.LoadFromFile(OpenDialog1.FileName);
+end;
+
+procedure TMultipleSetsForm.SaveList1Click(Sender: TObject);
+begin
+  if SaveDialog1.Execute then
+  begin
+    backupfile(SaveDialog1.FileName);
+    ListBox1.Items.SaveToFile(SaveDialog1.FileName);
+  end;
 end;
 
 end.

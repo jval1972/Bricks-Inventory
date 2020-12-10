@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -64,6 +64,7 @@ type
     Label1: TLabel;
     NewNameEdit: TEdit;
     Label5: TLabel;
+    ColorAssetsLabel: TLabel;
     procedure AutodetectButtonClick(Sender: TObject);
     procedure Image1DblClick(Sender: TObject);
     procedure CheckListBox1Click(Sender: TObject);
@@ -100,13 +101,13 @@ var
   initialalias: string;
   initnewname: string;
   kc: TDNumberList;
-  firstcolor: integer;
   i: integer;
   idxcat: string;
   idx: integer;
   cc: integer;
   catcheck: string;
   part: string;
+  pi: TPieceInfo;
 
   procedure PanelCaption(const p: TPanel; const c: integer);
   begin
@@ -129,20 +130,18 @@ begin
     part := db.RebrickablePart(apart);
     kc := db.GetMoldKnownColors(part);
     f.Panel1.Visible := false;
-    f.Panel2.Visible := false;                                   
+    f.Panel2.Visible := false;
     f.Panel3.Visible := false;
     f.Panel4.Visible := false;
     f.Panel5.Visible := false;
     f.Panel6.Visible := false;
     f.Panel7.Visible := false;
-    firstcolor := -1;
     if kc.Count > 0 then
     begin
       f.Panel1.Visible := true;
       f.Panel1.Color := RGBInvert(db.Colors(kc.Numbers[0]).RGB);
       f.Panel1.Hint := db.Colors(kc.Numbers[0]).name;
       PanelCaption(f.Panel1, kc.Numbers[0]);
-      firstcolor := kc.Numbers[0];
       if kc.Count > 1 then
       begin
         f.Panel2.Visible := true;
@@ -195,7 +194,6 @@ begin
         end;
       end;
     end;
-    kc.Free;
 
     f.CheckListBox1.Items.Clear;
     f.CheckListBox1.Sorted := True;
@@ -230,9 +228,18 @@ begin
       if db.categories[i].knownpieces <> nil then
       begin
         f.ComboBox1.Items.Add(db.categories[i].name);
-        if db.categories[i].knownpieces.IndexOf(part) >= 0 then
-          idxcat := db.categories[i].name;
+        if idxcat = '' then
+          if db.categories[i].knownpieces.IndexOf(part) >= 0 then
+            idxcat := db.categories[i].name;
       end;
+    end;
+    if idxcat = '' then
+    begin
+      pi := db.PieceInfo(part);
+      if pi <> nil then
+        if pi.category >= 0 then
+          if pi.category < MAXCATEGORIES then
+            idxcat := db.categories[pi.category].name;
     end;
     if idxcat <> '' then
     begin
@@ -258,36 +265,44 @@ begin
     f.Edit2.Text := part;
     initialalias := f.AliasEdit.Text;
     initnewname := f.NewNameEdit.Text;
-    PieceToImage(f.Image1, part, firstcolor);
+
+    for i := 0 to kc.Count - 1 do
+      if PieceToImage(f.Image1, part, kc.Numbers[i]) then
+        Break;
+        
+    kc.Free;
 
     f.ShowModal;
     if f.ModalResult = mrOK then
     begin
       Screen.Cursor := crHourglass;
-      result := true;
-      db.SetMoldName(part, f.Edit1.Text);
-      if strupper(strtrim(f.AliasEdit.Text)) <> strupper(strtrim(initialalias)) then
-        db.AddPieceAlias(f.AliasEdit.Text, part);
-      if strupper(strtrim(f.NewNameEdit.Text)) <> strupper(strtrim(initnewname)) then
-        db.SetNewPieceName(part, strtrim(f.NewNameEdit.Text));
-      catcheck := UpperCase(Trim(f.ComboBox1.Text));
-      for i := 0 to MAXCATEGORIES - 1 do
-      begin
-        if db.categories[i].knownpieces <> nil then
+      try
+        result := true;
+        db.SetMoldName(part, f.Edit1.Text);
+        if strupper(strtrim(f.AliasEdit.Text)) <> strupper(strtrim(initialalias)) then
+          db.AddPieceAlias(f.AliasEdit.Text, part);
+        if strupper(strtrim(f.NewNameEdit.Text)) <> strupper(strtrim(initnewname)) then
+          db.SetNewPieceName(part, strtrim(f.NewNameEdit.Text));
+        catcheck := UpperCase(Trim(f.ComboBox1.Text));
+        for i := 0 to MAXCATEGORIES - 1 do
         begin
-          if UpperCase(Trim(db.categories[i].name)) = catcheck then
+          if db.categories[i].knownpieces <> nil then
           begin
-            db.SetPartCategory(part, i);
-            break;
+            if UpperCase(Trim(db.categories[i].name)) = catcheck then
+            begin
+              db.SetPartCategory(part, i);
+              break;
+            end;
           end;
         end;
+        for i := 0 to f.CheckListBox1.Items.Count - 1 do
+          if f.CheckListBox1.Checked[i] then
+            if db.GetColorIdFromName(f.CheckListBox1.Items.Strings[i], cc) then
+              db.AddMoldColor(part, cc);
+        db.UpdatePartWeight(part, atof(f.WeightEdit.Text));
+      finally
+        Screen.Cursor := crDefault;
       end;
-      for i := 0 to f.CheckListBox1.Items.Count - 1 do
-        if f.CheckListBox1.Checked[i] then
-          if db.GetColorIdFromName(f.CheckListBox1.Items.Strings[i], cc) then
-            db.AddMoldColor(part, cc);
-      db.UpdatePartWeight(part, atof(f.WeightEdit.Text));
-      Screen.Cursor := crDefault;
     end;
   finally
     f.Free;
@@ -305,7 +320,10 @@ begin
   Screen.Cursor := crDefault;
   if s = '' then
     if NewNameEdit.Text <> '' then
-      exit;
+      Exit;
+  if s = 'Not Listed' then
+    Exit;
+
   NewNameEdit.Text := s;
 end;
 
@@ -360,13 +378,27 @@ var
   tmpweight: double;
   tmpcat: integer;
   parttyp: char;
+  stmp: string;
+  ok: boolean;
 begin
   tmpweight := -1.0;
   tmpcat := -2;
 
+  NewNameEdit.Text := Trim(NewNameEdit.Text);
+  AliasEdit.Text := Trim(AliasEdit.Text);
+  
   Screen.Cursor := crHourglass;
   try
-    NET_GetBricklinkCategory(db.BrickLinkPart(Edit2.Text), tmpcat, tmpweight, parttyp);
+    stmp := db.BrickLinkPart(Edit2.Text);
+    ok := NET_GetBricklinkCategory(stmp, tmpcat, tmpweight, parttyp);
+    if not ok then
+    begin
+      if (stmp <> NewNameEdit.Text) and (NewNameEdit.Text <> '') then
+        ok := NET_GetBricklinkCategory(NewNameEdit.Text, tmpcat, tmpweight, parttyp);
+      if not ok then
+        if (stmp <> AliasEdit.Text) and (AliasEdit.Text <> '') and (AliasEdit.Text <> NewNameEdit.Text) then
+          NET_GetBricklinkCategory(AliasEdit.Text, tmpcat, tmpweight, parttyp);
+    end;
   finally
     Screen.Cursor := crDefault;
   end;

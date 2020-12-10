@@ -653,6 +653,14 @@ object OptionsForm: TOptionsForm
         Caption = 'Generate thumbnails on demand'
         TabOrder = 3
       end
+      object CheckBox6: TCheckBox
+        Left = 8
+        Top = 120
+        Width = 273
+        Height = 17
+        Caption = 'Silent warnings'
+        TabOrder = 4
+      end
     end
     object TabSheet2: TTabSheet
       Caption = 'Html Multipage'

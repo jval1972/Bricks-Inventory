@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -48,7 +48,7 @@ type
     Label2: TLabel;
     Edit2: TEdit;
     CheckBox1: TCheckBox;
-    Panel2: TPanel;
+    EditPanel: TPanel;
     Label3: TLabel;
     txtPart: TEdit;
     SpeedButton1: TSpeedButton;
@@ -66,6 +66,7 @@ type
     procedure ModifyButtonClick(Sender: TObject);
     procedure txtNumKeyPress(Sender: TObject; var Key: Char);
     procedure ImportButtonClick(Sender: TObject);
+    procedure Memo1Change(Sender: TObject);
   private
     { Private declarations }
     procedure PopulateColors;
@@ -183,18 +184,19 @@ end;
 procedure TEditSetAsTextForm.ModifyButtonClick(Sender: TObject);
 var
   spart, scolor, snum: string;
-  stmp: string;
+  stmp, stmpU: string;
   i: integer;
   idx: integer;
 begin
   if GetEditLineInfo(spart, scolor, snum) then
   begin
     stmp := spart + ',' + scolor + ',';
+    stmpU := UpperCase(stmp);
     idx := 0;
-    
+
     for i := 1 to Memo1.Lines.Count - 1 do
     begin
-      if Pos(UpperCase(stmp), UpperCase(Memo1.Lines.Strings[i])) = 1 then
+      if Pos(stmpU, UpperCase(Memo1.Lines.Strings[i])) = 1 then
       begin
         idx := i;
         break;
@@ -246,6 +248,20 @@ begin
       data.Free;
     end;
   end;
+end;
+
+procedure TEditSetAsTextForm.Memo1Change(Sender: TObject);
+var
+  s1: string;
+begin
+  if Memo1.Lines.Count = 0 then
+  begin
+    EditPanel.Visible := True;
+    Exit;
+  end;
+
+  s1 := Trim(Memo1.Lines.Strings[0]);
+  EditPanel.Visible := Pos('Code,Num', s1) < 1;
 end;
 
 end.

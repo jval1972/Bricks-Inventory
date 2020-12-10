@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -42,6 +42,8 @@ type
   TLugBulk2017 = class(TObject)
   private
     fList: TStringList;
+    fyear: integer;
+    procedure yearfromfilename(const fn: string);
     function GetPart(index: integer): string;
     function GetColor(index: integer): integer;
   public
@@ -49,7 +51,11 @@ type
     destructor Destroy; override;
     procedure LoadFromStream(const strm: TStream);
     procedure LoadFromFile(const fname: String);
+    procedure SaveToStream(const strm: TStream);
+    procedure SaveToFile(const fname: String);
     function ItemCost(const part: string; const color: integer): double;
+    procedure SetItemCost(const part: string; const color: integer; const cost: double);
+    property year: integer read fyear;
     property Part[Index: Integer]: string read GetPart;
     property Color[Index: Integer]: integer read GetColor;
     property List: TStringList read fList;
@@ -67,6 +73,7 @@ constructor TLugBulk2017.Create;
 begin
   fList := TStringList.Create;
   fList.CaseSensitive := False;
+  fyear := 0;
   inherited;
 end;
 
@@ -76,11 +83,48 @@ begin
   inherited;
 end;
 
+procedure TLugBulk2017.yearfromfilename(const fn: string);
+var
+  i, p1, p2: integer;
+  syear: string;
+  ayear: integer;
+begin
+  p1 := -1;
+  for i := Length(fn) downto 1 do
+    if fn[i] = '.' then
+    begin
+      p1 := i;
+      break;
+    end;
+
+  p2 := -1;
+  for i := Length(fn) downto 1 do
+    if fn[i] in ['/', '\'] then
+    begin
+      p2 := i;
+      break;
+    end;
+
+  if p2 > 0 then
+    if p1 > p2 then
+    begin
+      syear := '';
+      for i := p2 + 1 to p1 - 1 do
+        syear := syear + fn[i];
+      ayear := atoi(syear);
+      if ayear >= 2000 then
+        if ayear < 2050 then
+          fyear := ayear;
+    end;
+end;
+
 procedure TLugBulk2017.LoadFromStream(const strm: TStream);
 var
   lst: TStringList;
   tdbl: TLugBulkDouble;
-  spart, scolor, scost: string;
+  spart, scolor, scost, scode: string;
+  docodes: boolean;
+  cc: integer;
   i, j: integer;
 begin
   lst := TStringList.Create;
@@ -93,26 +137,37 @@ begin
 
   fList.Clear;
   fList.Sorted := false;
-  if lst.Strings[0] = 'Part,Color,Cost' then
+  docodes := lst.Strings[0] = 'Code,Cost';
+  if (lst.Strings[0] = 'Part,Color,Cost') or (lst.Strings[0] = 'Code,Cost') then
   begin
     for i := 1 to lst.Count - 1 do
     begin
-      splitstring(lst.Strings[i], spart, scolor, scost, ',');
-
-      if Pos('BL ', spart) = 1 then
-        spart := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
-      else
-        spart := db.RebrickablePart(spart);
-
-      if Pos('BL ', scolor) = 1 then
+      if docodes then
       begin
-        scolor := Copy(scolor, 4, Length(scolor) - 3);
-        scolor := IntToStr(db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0)));
+        splitstring(lst.Strings[i], scode, scost, ',');
+        if not db.GetPieceColorFromCode(scode, spart, cc) then
+          Continue;
+        scolor := itoa(cc);
       end
-      else if Pos('BL', scolor) = 1 then
+      else
       begin
-        scolor := Copy(scolor, 3, Length(scolor) - 2);
-        scolor := IntToStr(db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0)));
+        splitstring(lst.Strings[i], spart, scolor, scost, ',');
+
+        if Pos('BL ', spart) = 1 then
+          spart := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
+        else
+          spart := db.RebrickablePart(spart);
+
+        if Pos('BL ', scolor) = 1 then
+        begin
+          scolor := Copy(scolor, 4, Length(scolor) - 3);
+          scolor := IntToStr(db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0)));
+        end
+        else if Pos('BL', scolor) = 1 then
+        begin
+          scolor := Copy(scolor, 3, Length(scolor) - 2);
+          scolor := IntToStr(db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0)));
+        end;
       end;
 
       tdbl := TLugBulkDouble.Create;
@@ -134,6 +189,36 @@ begin
   fs := TFileStream.Create(fname, fmOpenRead);
   try
     LoadFromStream(fs);
+    yearfromfilename(fname);
+  finally
+    fs.Free;
+  end;
+end;
+
+procedure TLugBulk2017.SaveToStream(const strm: TStream);
+var
+  sL: TStringList;
+  i: integer;
+begin
+  sL := TStringList.Create;
+  try
+    sL.Add('Part,Color,Cost');
+    for i := 0 to fList.Count - 1 do
+      sL.Add(Format('%s,%2.4f', [fList.Strings[i], (fList.Objects[i] as TLugBulkDouble).value]));
+    sL.SaveToStream(strm);
+  finally
+    sL.Free;
+  end;
+end;
+
+procedure TLugBulk2017.SaveToFile(const fname: String);
+var
+  fs: TFileStream;
+begin
+  fs := TFileStream.Create(fname, fmCreate);
+  try
+    SaveToStream(fs);
+    yearfromfilename(fname);
   finally
     fs.Free;
   end;
@@ -148,10 +233,24 @@ begin
   idx := fList.IndexOf(srch);
   if idx < 0 then
   begin
-    result := -1.0;
+    Result := -1.0;
     Exit;
   end;
-  result := (fList.Objects[idx] as TLugBulkDouble).value;
+  Result := (fList.Objects[idx] as TLugBulkDouble).value;
+end;
+
+procedure TLugBulk2017.SetItemCost(const part: string; const color: integer; const cost: double);
+var
+  srch: string;
+  idx: integer;
+begin
+  srch := UpperCase(part) + ',' + IntToStr(color);
+  idx := fList.IndexOf(srch);
+  if idx < 0 then
+    idx := fList.AddObject(part + ',' + IntToStr(color), TLugBulkDouble.Create);
+
+  if idx >= 0 then
+    (fList.Objects[idx] as TLugBulkDouble).value := cost;
 end;
 
 function TLugBulk2017.GetPart(index: integer): string;
@@ -160,16 +259,16 @@ var
 begin
   if index < 0 then
   begin
-    result := '';
-    exit;
+    Result := '';
+    Exit;
   end;
   if index >= fList.Count then
   begin
-    result := '';
-    exit;
+    Result := '';
+    Exit;
   end;
   splitstring(fList.Strings[index], spart, scolor, ',');
-  result := spart;
+  Result := spart;
 end;
 
 function TLugBulk2017.GetColor(index: integer): integer;
@@ -178,16 +277,16 @@ var
 begin
   if index < 0 then
   begin
-    result := -1;
-    exit;
+    Result := -1;
+    Exit;
   end;
   if index >= fList.Count then
   begin
-    result := -1;
-    exit;
+    Result := -1;
+    Exit;
   end;
   splitstring(fList.Strings[index], spart, scolor, ',');
-  result := StrToIntDef(scolor, -1);
+  Result := StrToIntDef(scolor, -1);
 end;
 
 end.

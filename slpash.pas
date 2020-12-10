@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -58,6 +58,16 @@ implementation
 
 {$R *.dfm}
 
+procedure SplashMessageScan;
+var
+  msg: TMsg;
+begin
+  while PeekMessage(msg, 0, 0, 0, PM_REMOVE) do
+    if (msg.message = WM_SETCURSOR) or
+       (msg.message = WM_PAINT) then
+      DispatchMessage(msg)
+end;
+
 procedure ShowSplash;
 begin
   SplashForm.Label1.Caption := '';
@@ -65,11 +75,13 @@ begin
   SplashForm.Show;
   SplashForm.BringToFront;
   SplashForm.Repaint;
+  SplashMessageScan;
 end;
 
 procedure HideSplash;
 begin
   SplashForm.Hide;
+  SplashMessageScan;
 end;
 
 procedure SplashProgress(const msg: string; d: Double);
@@ -88,11 +100,13 @@ begin
   begin
     SplashForm.Label1.Caption := msg;
     SplashForm.Repaint;
+    SplashMessageScan;
   end;
   SplashForm.ProgressBar1.Position := Round(d * 100);
   SplashForm.Label2.Caption := Format('%2.2f%s', [d * 100, '%']);
   SplashForm.Label2.Font.Color := RGB(makec(1.0 - d), makec(d), 0);
   SplashForm.Repaint;
+  SplashMessageScan;
 end;
 
 end.

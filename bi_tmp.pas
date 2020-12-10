@@ -77,7 +77,8 @@ end;
 
 function I_DeclareTempFile(const fname: string): string;
 begin
-  tempfiles.Add(result);
+  tempfiles.Add(fname);
+  Result := fname;
 end;
 
 end.

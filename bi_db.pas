@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -53,7 +53,9 @@ type
     color: integer;
     num: integer;
     pci: TObject;
+    {$IFNDEF CRAWLER}
     sortvalue: double;
+    {$ENDIF}
   end;
 
   sortbrickpool_p = ^sortbrickpool_t;
@@ -89,7 +91,9 @@ const
   C_HASHSIZE = $FFFF;
 
 const
-  MAXCATEGORIES = 1024;
+  MAXCATEGORIES = 2000;
+  CATEGORYLUGBULK = 1998;
+  CATEGORYCUSTOMMINIFIGS = 1999;
 
 type
   categorysum_t = array[-1..MAXCATEGORIES - 1] of integer;
@@ -183,6 +187,7 @@ type
     procedure AddLoosePart(const part: string; color: integer; const num: integer; const pci: TObject = nil);
     procedure AddLoosePartFast(const part: string; color: integer; const num: integer; const pci: TObject = nil);
     function RemoveLoosePart(const part: string; color: integer; num: integer): boolean;
+    procedure RemoveAllSets;
     function LoosePartCount(const part: string; color: integer): integer;
     procedure AddSet(const setid: string; dismantaled: boolean);
     procedure GetSetInfo(const setid: string; const s: set_p);
@@ -198,10 +203,13 @@ type
     function Minifigures: TBrickInventory;
     function InventoryForMissingToBuildSet(const setid: string; const nsets: integer = 1): TBrickInventory;
     function InventoryForMissingToBuildSetLegacyIgnore(const setid: string; const nsets: integer = 1): TBrickInventory;
+    {$IFNDEF CRAWLER}
     function InventoryForExpensiveLotsNew(const nlots: integer = 1): TBrickInventory;
     function InventoryForExpensiveLotsUsed(const nlots: integer = 1): TBrickInventory;
     function InventoryForExpensivePartsNew(const nlots: integer = 1): TBrickInventory;
     function InventoryForExpensivePartsUsed(const nlots: integer = 1): TBrickInventory;
+    {$ENDIF}
+    function InventoryForBigLots(const nitems: integer = 1): TBrickInventory;
     function CanBuildInventory(const inv: TBrickInventory): boolean;
     function CanBuildInventoryLegacyIgnore(const inv: TBrickInventory): boolean;
     function MissingToBuildInventory(const inv: TBrickInventory): integer;
@@ -255,9 +263,11 @@ type
     procedure StoreHistoryEvalRec(const fn: string; const pl: integer = 0);
     function GetPieceInventoryStatsRec(const piece: string; const color: integer): pieceinventoryhistory_t;
     procedure StorePieceInventoryStatsRec(const fn: string; const piece: string; const color: integer; const pl: integer = 0);
+    {$IFNDEF CRAWLER}
     procedure SortPieces;
     procedure SortPiecesByPriceNew;
     procedure SortPiecesByPriceUsed;
+    {$ENDIF}
     property numlooseparts: integer read fnumlooseparts;
     property looseparts: brickpool_pa read flooseparts;
     property numsets: integer read fnumsets;
@@ -316,12 +326,16 @@ type
   private
     fname: string;
     flname: string;
+    {$IFNDEF CRAWLER}
     fdesc: string;
+    {$ENDIF}
     fcategory: integer;
     fweight: Double;
+    {$IFNDEF CRAWLER}
     fdimentionx: Double;
     fdimentiony: Double;
     fdimentionz: Double;
+    {$ENDIF}
     finventoryfound: boolean;
     fpartsinventoriesvalidcount: integer;
     finventoryname: string;
@@ -331,12 +345,16 @@ type
     function Inventory(const color: integer): TBrickInventory;
     property name: string read fname write fname;
     property lname: string read flname write flname;
+    {$IFNDEF CRAWLER}
     property desc: string read fdesc write fdesc;
+    {$ENDIF}
     property category: integer read fcategory write fcategory;
     property weight: Double read fweight write fweight;
+    {$IFNDEF CRAWLER}
     property dimentionx: Double read fdimentionx write fdimentionx;
     property dimentiony: Double read fdimentiony write fdimentiony;
     property dimentionz: Double read fdimentionz write fdimentionz;
+    {$ENDIF}
     property inventoryfound: boolean read finventoryfound write finventoryfound;
     property inventoryname: string read finventoryname write finventoryname;
   end;
@@ -345,20 +363,22 @@ type
   TSetExtraInfo = class(TObject)
   public
     moc: boolean;
+    hasinstructions: boolean;
+    hasoriginalbox: boolean;
+    {$IFNDEF CRAWLER}
     text: string;
     year: integer;
-    hasinstructions: boolean;
     fixedinstructions: boolean;
     instructionsdimentionx: double;
     instructionsdimentiony: double;
     instructionsdimentionz: double;
     instructionsweight: double;
-    hasoriginalbox: boolean;
     fixedoriginalbox: boolean;
     originalboxinstructionx: double;
     originalboxinstructiony: double;
     originalboxinstructionz: double;
     originalboxweight: double;
+    {$ENDIF}
     constructor Create; virtual;
   end;
 
@@ -467,13 +487,18 @@ type
     fpartmostnum: integer;
     fcacheread: boolean;
     fcode: string;
+    {$IFNDEF CRAWLER}
     ffirstsetyear, flastsetyear, fyear: integer;
+    fcanedityear: boolean;
+    {$ENDIF}
     fparttype: integer;
     fsparttype: char;
     flastinternetupdate: double;
     fpieceinfo: TObject;
   protected
+    {$IFNDEF CRAWLER}
     procedure SetYear(const y: integer);
+    {$ENDIF}
     procedure SetSPartType(const t: char);
   public
     constructor Create(const apiece: string; const acolor: integer); virtual;
@@ -495,11 +520,16 @@ type
     function EvaluatePriceUsed: double;
     function EvaluatePriceUsedAvg: double;
     function dbExportStringPG: string;
+    {$IFNDEF CRAWLER}
     function dbExportStringDB: string;
+    {$ENDIF}
     function nDemand: double;
     function uDemand: double;
     function ItemType: string;
+    {$IFNDEF CRAWLER}
     procedure UpdateSetYears(const setid: string; const y: integer = -1);
+    procedure UpdatePartYears(const y: integer = -1);
+    {$ENDIF}
     property priceguide: priceguide_t read fpriceguide;
     property availability: availability_t read favailability;
     property appearsinsets: integer read fappearsinsets;
@@ -520,14 +550,18 @@ type
     property partmost: string read fpartmost;
     property partmostnum: integer read fpartmostnum;
     property cacheread: boolean read fcacheread;
+    {$IFNDEF CRAWLER}
     property firstsetyear: integer read ffirstsetyear;
     property lastsetyear: integer read flastsetyear;
     property year: integer read fyear write SetYear;
+    property canedityear: boolean read fcanedityear write fcanedityear;
+    {$ENDIF}
     function invalid: boolean;
     property code: string read fcode write fcode;
     property parttype: integer read fparttype write fparttype;
     property sparttype: char read fsparttype write SetSPartType;
     property pieceinfo: TObject read fpieceinfo write fpieceinfo;
+    property date: TDateTime read fdate;
   end;
 
 const
@@ -545,7 +579,7 @@ function PartTypeToPartTypeName(const pt: char): string;
 function PartTypeNameToPartType(const pn: string): char;
 
 const
-  CACHEDBHASHSIZE = $30000;
+  CACHEDBHASHSIZE = $40000;
   CACHEDBSTRINGSIZE = 16;
 
 type
@@ -579,12 +613,14 @@ type
     fname: string;
     fstream: TFileStream;
     waitlist: TDNumberList;
+    {$IFNDEF CRAWLER}
     st_pcihitcnt: int64;
     st_pcihitlevel: int64;
+    {$ENDIF}
     function OpenDB1(const mode: char): TFileStream;
   protected
     parecs: cachedbparec_p;
-    function TryOpenDB(const mode: char; const maxretry: integer = 10000): TFileStream; virtual;
+    function TryOpenDB(const mode: char; const maxretry: integer = 100): TFileStream;
     function apart(const it: cachedbitem_p): string;
     procedure Flash; virtual;
     procedure FlashAll; virtual;
@@ -596,7 +632,9 @@ type
     function LoadPCI(const p: TPieceColorInfo): boolean; virtual;
     function SavePCI(const p: TPieceColorInfo): boolean; virtual;
     procedure Reorganize;
+    {$IFNDEF CRAWLER}
     function GetHitLevel: double;
+    {$ENDIF}
   end;
 
 
@@ -631,6 +669,7 @@ type
     flastcrawlpiece: string;
     {$IFNDEF CRAWLER}
     fstorage: TStringList;
+    fbasemolds: TStringList;
     {$ENDIF}
     fstubpieceinfo: TPieceInfo;
     fcurrencies: TCurrency;
@@ -654,6 +693,10 @@ type
     procedure InitColors;
     procedure InitCategories;
     procedure InitWeightTable;
+    {$IFNDEF CRAWLER}
+    procedure InitYearTable;
+    procedure InitBaseMolds;
+    {$ENDIF}
     procedure InitPieces;
     procedure InitPiecesAlias;
     procedure InitNewNames;
@@ -669,6 +712,9 @@ type
     procedure MarkInventoriedPart(const pcs: string); overload;
     procedure MarkInventoriedPart(const pi: TPieceInfo; const pcs: string); overload;
     procedure LoadPieceCodes;
+    {$IFNDEF CRAWLER}
+    procedure SavePieceCodes;
+    {$ENDIF}
     function smallparsepartname(const p: string; const data: string): string;
     procedure TmpSaveCrawler;
     procedure RemoveDoublesFromList1(const lst: TStringList); overload;
@@ -693,20 +739,35 @@ type
     function GetBLNetPieceName(const pcs: string): string;
     function GetNewPieceName(const pcs: string): string;
     procedure SetNewPieceName(const pcs: string; const newname: string);
+    procedure UnSetNewPieceName(const pcs: string; const newname: string);
+    {$IFNDEF CRAWLER}
+    procedure SetPieceCode(const pci: TPieceColorInfo; const newcode: string);
     function GetUnknownPiecesFromCache: TStringList;
     function RemoveUnknownPiecesFromCache: integer;
+    {$ENDIF}
     procedure GetCacheHashEfficiency(var hits, total: integer);
     function Colors(const i: Integer): colorinfo_p;
-    function PieceDesc(const s: string): string;
+    {$IFNDEF CRAWLER}
+    function PieceDesc(const s: string): string; overload;
+    function PieceDesc(const pi: TPieceInfo): string; overload;
+    {$ENDIF}
     function BrickLinkPart(const s: string): string;
     function BrickLinkColorToRebrickableColor(const c: integer): integer;
     function RebrickablePart(const s: string): string;
+    {$IFNDEF CRAWLER}
     function SetDesc(const s: string): string;
     function SetYear(const s: string): integer;
+    {$ENDIF}
     function IsMoc(const s: string): boolean;
+    {$IFNDEF CRAWLER}
     function SetListAtYear(const y: integer): TStringList;
+    {$ENDIF}
+    function SetListWithInvLotsBetween(const a, b: integer): TStringList;
+    function SetListWithInvPartsBetween(const a, b: integer): TStringList;
     function PieceListForSets(const slist: TStringList): TStringList;
+    {$IFNDEF CRAWLER}
     function PieceListForYear(const y: integer): TStringList;
+    {$ENDIF}
     function PieceInfo(const piece: string): TPieceInfo; overload;
     function PieceInfo(const pci: TPieceColorInfo): TPieceInfo; overload;
     function PieceInfo(const brick: brickpool_p): TPieceInfo; overload;
@@ -724,7 +785,10 @@ type
     procedure CrawlerPriorityPartColor(const cpiece: string);
     procedure ExportPriceGuide(const fname: string);
     procedure ExportPartOutGuide(const fname: string);
+    {$IFNDEF CRAWLER}
     procedure ExportDatabase(const fname: string);
+    procedure ExportPartColor(const fname: string);
+    {$ENDIF}
     procedure Crawler(const rlevel: integer = 0);
     {$IFNDEF CRAWLER}
     procedure SaveStorage;
@@ -738,12 +802,21 @@ type
     function InventoryForAllStorageBins: TBrickInventory;
     procedure SetPieceStorage(const piece: string; const color: integer; const st: TStringList);
     {$ENDIF}
+    {$IFNDEF CRAWLER}
+    function BaseMold(const pcs: string): string;
+    function ChildMolds(const pcs: string): TStringList;
+    function FamilyMolds(const pcs: string): TStringList;
+    {$ENDIF}
+    {$IFNDEF CRAWLER}
     procedure RefreshAllSetsYears;
+    {$ENDIF}
     procedure RefreshAllSetsAssets;
+    {$IFNDEF CRAWLER}
     procedure RefreshSetYears(const setid: string);
+    function RefreshPart(const s: string): boolean;
+    {$ENDIF}
     function RefreshInv(const inv: TBrickInventory): boolean;
     function RefreshSet(const s: string; const lite: boolean = False): boolean;
-    function RefreshPart(const s: string): boolean;
     function SetPartCategory(const s: string; const newcat: integer): boolean;
     function RefreshPartCategory(const s: string): boolean;
     procedure RefreshPartsCategory(const L: TStringList);
@@ -751,31 +824,52 @@ type
     function RefreshPartWeight(const s: string): boolean;
     function RefreshMinifigWeight(const s: string): boolean;
     function ParseKnownPiecesFromHTML(const shtml: string): TStringList;
+    {$IFNDEF CRAWLER}
     procedure AddKnownPieces(const sl: TStringList);
-    function AddKnownPiece(const spart: string; const color: integer; const desc: string): boolean;
+    function AddKnownPiece(const spart: string; const color: integer; const desc: string): boolean; overload;
+    function AddKnownPiece(const spart: string; const color: integer; const desc: string; var pci: TPieceColorInfo): boolean; overload;
+    function AddKnownPiecePINV(const spart: string; const color: integer; const desc: string): boolean;
+    {$ENDIF}
     procedure LoadKnownPieces;
     procedure LoadKnownPiece(const spart: string; const color: integer; const desc: string);
+    {$IFNDEF CRAWLER}
     function UpdateNameFromRebrickable(const pid: string): boolean;
     function UpdatePartNameFromRebrickable(const pid: string): boolean;
     function UpdateSetNameFromRebrickable(const pid: string): boolean;
-    function SetMoldName(const spart: string; const desc: string): boolean;
+    function SetMoldName(const spart: string; const adesc: string): boolean;
     function AddMoldColor(const spart: string; const color: integer): boolean;
     function AddMoldSet(const spart: string): boolean;
+    {$ENDIF}
     function GetMoldKnownColors(const spart: string): TDNumberList;
     function GetMoldNumColors(const spart: string): integer;
+    function GetMoldNumNormalPartColors(const spart: string): integer;
+    function HasSetColorsOnly(const spart: string): boolean;
     function GetMoldColorsFlags(const spart: string): integer;
     function MoldHasNoColors(const spart: string): boolean;
     procedure SetSetIsGear(const sid: string; const value: boolean);
+    {$IFNDEF CRAWLER}
     procedure SetSetIsBook(const sid: string);
+    {$ENDIF}
     function IsGear(const sid: string): boolean;
+    function IsMinifigure(const mid: string): boolean;
+    {$IFNDEF CRAWLER}
     function DownloadPartInventory(const s: string): boolean;
     function UpdatePartInventory(const s: string; const forcedownload: boolean): boolean;
     function DownloadSetFromBricklinkNew(const s: string): boolean;
     function DownloadSetAlternatesFromBricklinkNew(const s: string): boolean;
     function DownloadSetAssetsFromBricklink(const s: string; const typ: string; const def: integer): setasset_t;
-    function UpdatePartKnownColorsFromBricklink(const pid: string): boolean;
+    function UpdatePartKnownColorsFromBricklink(const pid: string; const donet: boolean = True): boolean;
+    function UpdateGearKnownColorsFromBricklink(const pid: string; const donet: boolean = True): boolean;
+    function UpdateBookKnownColorsFromBricklink(const pid: string; const donet: boolean = True): boolean;
+    function UpdateItemYearFromDiskCache(const pid: string): boolean;
+    function UpdateSetYearFromNet(const pid: string): boolean;
+    function UpdateSetYearFromDiskCache(const pid: string; const fname: string): boolean;
+    function GetSetYearFromDiskCache(const fname: string): integer;
+    function UpdateYearForAllColors(const pid: string; const yearnum: integer): boolean;
+    procedure SaveItemYearInfo(const pid: string; const cl: integer; const yyyy: integer);
+    procedure SetItemYear(const pci: TPieceColorInfo; const yyyy: integer);
     function UpdateCatalogFromBricklink(const pid: string): boolean;
-    function UpdateSetAsPartFromBricklink(const pid: string): boolean;
+    function UpdateSetAsPartFromBricklink(const pid: string; const donet: boolean = True): boolean;
     function QryNewInventoriesFromBricklink(const path: string; const check: string): TStringList;
     function QryNewSetAsPartFromBricklink(const path: string; const check: string): TStringList;
     function QryNewCatalogsFromBricklink(const path: string; const check: string): TStringList;
@@ -787,11 +881,13 @@ type
     function UpdateSet(const s: string; const data: string = ''): boolean;
     function UpdateSetInfo(const s: string; const desc: string; const year: integer; const ismoc: boolean): boolean;
     function UpdateSetInfoEx(const s: string; const desc: string; const year: integer; const ismoc: boolean; const hasI, hasB: boolean): boolean;
+    {$ENDIF}
     function IsBook(const s: string): boolean;
     function GetPieceColorFromCode(const code: string; var spiece: string; var scolor: integer): boolean;
     function GetCodeFromPieceColor(const spiece: string; const scolor: integer): string;
     function GetColorIdFromName(const cs: string; var cc: integer): boolean;
-    function UpdatePartWeight(const pcs: string; const w: double): boolean;
+    function UpdatePartWeight(const pcs: string; const w: double): boolean; overload;
+    function UpdatePartWeight(const pi: TPieceInfo; const w: double): boolean; overload;
     function GetPartWeight(const pcs: string): double;
     procedure SaveCrawlerData;
     function SearchGlobalPieceAlias(const pcs: string): TStringList;
@@ -816,6 +912,12 @@ type
     property partsinventories: TStringList read fpartsinventories;
     property partsinventoriesvalidcount: integer read fpartsinventoriesvalidcount;
     property maximumcolors: integer read fmaximumcolors;
+    {$IFNDEF CRAWLER}
+    property basemolds: TStringList read fbasemolds;
+    {$ENDIF}
+    {$IFDEF CRAWLER}
+    property crawlerpriority: TStringList read fcrawlerpriority;
+    {$ENDIF}
   end;
 
 function PieceColorCacheDir(const piece, color: string): string;
@@ -825,9 +927,12 @@ function PieceColorCacheFName3(const piece, color: string): string;
 
 var
   basedefault: string = '';
+  sbricklink: string = 'https://www.bricklink.com/';
 
 function F_nDemand(const favailability: availability_t; const fpriceguide: priceguide_t): double;
 function F_uDemand(const favailability: availability_t; const fpriceguide: priceguide_t): double;
+
+function fixpartname(const spart: string): string;
 
 implementation
 
@@ -837,17 +942,107 @@ uses
 
 function fixpartname(const spart: string): string;
 var
-  i: integer;
+  i, k: integer;
 begin
   Result := '';
-  for i := 1 to Length(spart) do
+  k := 1;
+
+  if Length(spart) > 3 then
+    if spart[3] = ' ' then
+      if spart[1] in ['B', 'b'] then
+        if spart[2] in ['L', 'l'] then
+        begin
+          Result := 'BL ';
+          k := 4;
+        end;
+
+  for i := k to Length(spart) do
     if not (spart[i] in [' ', Chr(160), Chr($A0), #13, #10]) then
       Result := Result + spart[i];
+
   if Result = '6141' then
     Result := '4073'
   else if Pos('Mx', Result) = 1 then
-    Result := LowerCase(Result);
-end;                          
+    Result := LowerCase(Result)
+  else if Result = '10830pat0001pr0001' then
+    Result := '10830pat01pr01'
+  else if Result = 'ClermontFerrand-1' then
+    Result := 'Ferrand-1'
+  else if Result = 'ISBN1338112120-1' then
+    Result := 'ISBN1338112120'
+  else if Pos('scalaupn00', Result) = 1 then
+  begin
+    if Result = 'scalaupn0024pr0001' then Result := 'scalaupn024pr01'
+    else if Result = 'scalaupn0022pr0001' then Result := 'scalaupn022pr01'
+    else if Result = 'scalaupn0027pr0001' then Result := 'scalaupn027pr01'
+    else if Result = 'scalaupn0023pr0001' then Result := 'scalaupn023pr01'
+    else if Result = 'scalaupn0024pr0001' then Result := 'scalaupn024pr01'
+    else if Result = 'scalaupn0024pr0001' then Result := 'scalaupn024pr01';
+  end
+  else if Pos('dupupn00', Result) = 1 then
+  begin
+    if Result = 'dupupn0013c02pr0001a' then Result := 'dupupn13c02pr1a'
+    else if Result = 'dupupn0049c01pr0001' then Result := 'dupupn49c01pr01'
+    else if Result = 'dupupn0013c02pr0001' then Result := 'dupupn13c02pr01'
+    else if Result = 'dupupn0049c07pr0002' then Result := 'dupupn49c07pr02'
+    else if Result = 'dupupn0049c07pr0001' then Result := 'dupupn49c07pr01'
+    else if Result = 'dupupn0049c03pr0001' then Result := 'dupupn49c03pr01'
+    else if Result = 'dupupn0027c02pr0001' then Result := 'dupupn27c02pr01'
+    else if Result = 'dupupn0049c01pr0002' then Result := 'dupupn49c01pr02'
+    else if Result = 'dupupn0049c03pr0002' then Result := 'dupupn49c03pr02'
+    else if Result = 'dupupn0028c02pr0001' then Result := 'dupupn28c02pr01'
+    else if Result = 'dupupn0013c01pr0001' then Result := 'dupupn13c01pr01'
+    else if Result = 'dupupn0013c03pr0001' then Result := 'dupupn13c03pr01'
+    else if Result = 'dupupn0013c01pr0001' then Result := 'dupupn13c01pr01'
+    else if Result = 'dupupn0013c02pr0001' then Result := 'dupupn13c02pr01'
+    else if Result = 'dupupn0013c03pr0001' then Result := 'dupupn13c03pr01'
+    else if Result = 'dupupn0049c02pr0001' then Result := 'dupupn49c02pr01'
+    else if Result = 'dupupn0028c03pr0001' then Result := 'dupupn28c03pr01'
+    else if Result = 'dupupn0049c02pr0002' then Result := 'dupupn49c02pr02'
+    else if Result = 'dupupn0049c02pr0002' then Result := 'dupupn49c02pr02'
+    else if Result = 'dupupn0027c01pr0001' then Result := 'dupupn27c01pr01'
+    else if Result = 'dupupn0027c02pr0001' then Result := 'dupupn27c02pr01'
+    else if Result = 'dupupn0049c02pr0001' then Result := 'dupupn49c02pr01'
+    else if Result = 'dupupn0002pr0001' then Result := 'dupupn02pr01'
+    else if Result = 'dupupn0017pr0003' then Result := 'dupupn17pr03'
+    else if Result = 'dupupn0071pr0001' then Result := 'dupupn71pr01'
+    else if Result = 'dupupn0019pr0001' then Result := 'dupupn19pr01'
+    else if Result = 'dupupn0071pr0002' then Result := 'dupupn71pr02'
+    else if Result = 'dupupn0063pr0001' then Result := 'dupupn63pr01'
+    else if Result = 'dupupn0028pr0001' then Result := 'dupupn28pr01'
+    else if Result = 'dupupn0017pr0001' then Result := 'dupupn17pr01'
+    else if Result = 'dupupn0028pr0001' then Result := 'dupupn28pr01'
+    else if Result = 'dupupn0028pr0001' then Result := 'dupupn28pr01'
+    else if Result = 'dupupn0088pr0001' then Result := 'dupupn88pr01'
+    else if Result = 'dupupn0021pr0001' then Result := 'dupupn21pr01'
+    else if Result = 'dupupn0022pr0001' then Result := 'dupupn22pr01'
+    else if Result = 'dupupn0008pr0002' then Result := 'dupupn08pr02'
+    else if Result = 'dupupn0022pr0002' then Result := 'dupupn22pr02'
+    else if Result = 'dupupn0016pr0002' then Result := 'dupupn16pr02'
+    else if Result = 'dupupn0028pr0001' then Result := 'dupupn28pr01'
+    else if Result = 'dupupn0022pr0003' then Result := 'dupupn22pr03'
+    else if Result = 'dupupn0017pr0001' then Result := 'dupupn17pr01'
+    else if Result = 'dupupn0008pr0007' then Result := 'dupupn08pr07'
+    else if Result = 'dupupn0017pr0002' then Result := 'dupupn17pr02'
+    else if Result = 'dupupn0018pr0001' then Result := 'dupupn18pr01'
+    else if Result = 'dupupn0028pr0003' then Result := 'dupupn28pr03'
+    else if Result = 'dupupn0086pr0001' then Result := 'dupupn86pr01'
+    else if Result = 'dupupn0033pr0001' then Result := 'dupupn33pr01'
+    else if Result = 'dupupn0073pr0001' then Result := 'dupupn73pr01'
+    else if Result = 'dupupn0087pr0001' then Result := 'dupupn87pr01'
+    else if Result = 'dupupn0087pr0002' then Result := 'dupupn87pr02'
+    else if Result = 'dupupn0028pr0002' then Result := 'dupupn28pr02'
+    else if Result = 'dupupn0008pr0001' then Result := 'dupupn08pr01'
+    else if Result = 'dupupn0008pr0003' then Result := 'dupupn08pr03'
+    else if Result = 'dupupn0016pr0002' then Result := 'dupupn16pr02'
+    else if Result = 'dupupn0016pr0001' then Result := 'dupupn16pr01'
+    else if Result = 'dupupn0008pr0006' then Result := 'dupupn08pr06'
+    else if Result = 'dupupn0008pr0004' then Result := 'dupupn08pr04'
+    else if Result = 'dupupn0008pr0004' then Result := 'dupupn08pr04'
+    else if Result = 'dupupn0008pr0005' then Result := 'dupupn08pr05'
+    else if Result = 'dupupn0008pr0007' then Result := 'dupupn08pr07';
+  end;
+end;
 
 function fixdescname(const spart: string): string;
 var
@@ -859,6 +1054,7 @@ begin
       Result := Result + spart[i];
 end;
 
+{$IFNDEF CRAWLER}
 procedure QSortBrickPool(const A: sortbrickpool_pa; const Len: integer);
 
   procedure QuickSortBP(iLo, iHi: Integer);
@@ -890,6 +1086,7 @@ begin
   if Len > 1 then
     QuickSortBP(0, Len - 1);
 end;
+{$ENDIF}
 
 function MkBHash(const part: string; color: integer): Longword;
 var
@@ -990,9 +1187,9 @@ var
 begin
   if fnumlooseparts >= frealnumlooseparts then
   begin
-    if frealnumlooseparts < 16 then
+    if frealnumlooseparts < 32 then
       delta := 4
-    else if frealnumlooseparts < 64 then
+    else if frealnumlooseparts < 128 then
       delta := 8
     else
       delta := 16;
@@ -1018,6 +1215,14 @@ begin
   Inherited;
 end;
 
+procedure TBrickInventory.RemoveAllSets;
+begin
+  fnumsets := 0;
+  frealnumsets := 0;
+  ReallocMem(fsets, 0);
+  fsets := nil;
+end;
+
 procedure TBrickInventory.CreateExtentedHashTable;
 var
   i: integer;
@@ -1036,7 +1241,7 @@ var
   check: string;
 begin
   Result := False;
-  if not FileExists(fname) then
+  if not fexists(fname) then
     Exit;
 
   check := '';
@@ -1051,41 +1256,78 @@ begin
 
   if (check = 'Set Number,Quantity') or (check = 'Set,Num,Dismantaled') then
     Result := LoadSets(fname)
-  else if (check = 'Part,Color,Num') or (check = 'Part,Color,Num,Cost') or (check = 'Part,Color,Quantity') then
+  else if (check = 'Part,Color,Num') or (check = 'Part,Color,Num,Cost') or (check = 'Part,Color,Quantity') or (check = 'Code,Num') then
     Result := LoadLooseParts(fname);
 end;
 
 function TBrickInventory.LoadLooseParts(const S: TStringList): boolean;
 var
   i: integer;
-  spart, scolor, snum, scost: string;
-  np: integer;
+  spart, scolor, snum, scost, scode: string;
+  cc, np: integer;
+
+  procedure _load_one_item;
+  begin
+    np := StrToIntDef(snum, 0);
+    if Pos('BL ', spart) = 1 then
+      spart := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
+    else
+      spart := db.RebrickablePart(spart);
+    if Pos('BL', scolor) = 1 then
+    begin
+      scolor := Copy(scolor, 3, Length(scolor) - 2);
+
+      if np > 0 then
+        AddLoosePartFast(spart, db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0)), np)
+      else
+        AddLoosePart(spart, db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0)), np);
+    end
+    else
+    begin
+      if np > 0 then
+        AddLoosePartFast(spart, StrToIntDef(scolor, 0), np)
+      else
+        AddLoosePart(spart, StrToIntDef(scolor, 0), np);
+    end;
+  end;
+
 begin
-  if (s.Strings[0] = 'Part,Color,Num') or (s.Strings[0] = 'Part,Color,Num,Cost') or (s.Strings[0] = 'Part,Color,Quantity') then
+  if s.Count = 0 then
+  begin
+    Result := False;
+    Exit;
+  end;
+
+  if (s.Strings[0] = 'Part,Color,Num') or (s.Strings[0] = 'Part,Color,Quantity') then
+  begin
+    scost := '0';
+    for i := 1 to s.Count - 1 do
+    begin
+      splitstring(s.Strings[i], spart, scolor, snum, ',');
+      _load_one_item;
+    end;
+    Reorganize;
+    Result := True;
+  end
+  else if s.Strings[0] = 'Part,Color,Num,Cost' then
   begin
     for i := 1 to s.Count - 1 do
     begin
       splitstring(s.Strings[i], spart, scolor, snum, scost, ',');
-      np := StrToIntDef(snum, 0);
-      if Pos('BL ', spart) = 1 then
-        spart := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
-      else
-        spart := db.RebrickablePart(spart);
-      if Pos('BL', scolor) = 1 then
+      _load_one_item;
+    end;
+    Reorganize;
+    Result := True;
+  end
+  else if s.Strings[0] = 'Code,Num' then
+  begin
+    for i := 1 to s.Count - 1 do
+    begin
+      splitstring(s.Strings[i], scode, snum, ',');
+      if db.GetPieceColorFromCode(scode, spart, cc) then
       begin
-        scolor := Copy(scolor, 3, Length(scolor) - 2);
-
-        if np > 0 then
-          AddLoosePartFast(spart, db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0)), np)
-        else
-          AddLoosePart(spart, db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0)), np);
-      end
-      else
-      begin
-        if np > 0 then
-          AddLoosePartFast(spart, StrToIntDef(scolor, 0), np)
-        else
-          AddLoosePart(spart, StrToIntDef(scolor, 0), np);
+        scolor := itoa(cc);
+        _load_one_item;
       end;
     end;
     Reorganize;
@@ -1121,7 +1363,7 @@ var
   sset, snum, sdismantaled: string;
 begin
   Result := False;
-  if not FileExists(fname) then
+  if not fexists(fname) then
     Exit;
 
   s := TStringList.Create;
@@ -1187,12 +1429,305 @@ begin
     bp := @flooseparts[i];
     sinv := nil;
     if (bp.color = -1) or (bp.color = 9999) or (bp.color = 89) then
+    begin
       sinv := db.GetSetInventory(bp.part);
+      if sinv = nil then
+        if bp.pci <> nil then
+          if (bp.pci as TPieceColorInfo).pieceinfo as TPieceInfo <> nil then
+            if ((bp.pci as TPieceColorInfo).pieceinfo as TPieceInfo).category = CATEGORYCUSTOMMINIFIGS then
+              Continue;
+    end;
     if sinv <> nil then
     begin
       for j := 0 to bp.num - 1 do
         sinv.GetLoosePartsInStringList(s);
     end
+    else if bp.part = '14518c01pb01' then
+    begin
+      s.Add(Format('%s,%d,%d', ['14518', bp.color, bp.num]));
+      s.Add(Format('%s,%d,%d', ['87587pr0001', bp.color, bp.num]));
+    end
+    else if bp.part = '15068pb046' then
+    begin
+      s.Add(Format('%s,%d,%d', ['15068pr0015', bp.color, bp.num]));
+    end
+    else if bp.part = '44658c01' then
+    begin
+      s.Add(Format('%s,%d,%d', ['37', bp.color, 2 * bp.num]));
+    end
+    else if bp.part = '4465c02' then
+    begin
+      s.Add(Format('%s,%d,%d', ['4465body', bp.color, bp.num]));
+      s.Add(Format('%s,%d,%d', ['30456', bp.color, bp.num]));
+      s.Add(Format('%s,%d,%d', ['30460', bp.color, bp.num]));
+      s.Add(Format('%s,%d,%d', ['30462', 484, bp.num]));
+      s.Add(Format('%s,%d,%d', ['87695', 15, bp.num]));
+    end
+    else if bp.part = '4624c05' then
+    begin
+      s.Add(Format('%s,%d,%d', ['4624', bp.color, bp.num]));
+      s.Add(Format('%s,%d,%d', ['59895', 0, bp.num]));
+    end
+    else if bp.part = '6246c01' then
+    begin
+      s.Add(Format('%s,%d,%d', ['55295', bp.color, bp.num]));
+      s.Add(Format('%s,%d,%d', ['55296', bp.color, bp.num]));
+      s.Add(Format('%s,%d,%d', ['55297', bp.color, bp.num]));
+      s.Add(Format('%s,%d,%d', ['55298', bp.color, bp.num]));
+      s.Add(Format('%s,%d,%d', ['55299', bp.color, bp.num]));
+      s.Add(Format('%s,%d,%d', ['55300', bp.color, bp.num]));
+    end
+    else if bp.part = '93594c01' then
+    begin
+      s.Add(Format('%s,%d,%d', ['93594', bp.color, bp.num]));
+      s.Add(Format('%s,%d,%d', ['50951', 0, bp.num]));
+    end
+    else if (bp.part = '970c00pr0400') and (bp.color = 379) then
+    begin
+      s.Add(Format('%s,%d,%d', ['970c23pr0400', 326, bp.num]));
+    end
+    else if (bp.part = '970c00pr0476') and (bp.color = 71) then
+    begin
+      s.Add(Format('%s,%d,%d', ['970x194pr0476', 25, bp.num]));
+    end
+    else if bp.part = '2599' then
+    begin
+      s.Add(Format('%s,%d,%d', ['59275', bp.color, bp.num]));
+    end
+    else if bp.part = '15625pb018' then
+    begin
+      s.Add(Format('%s,%d,%d', ['15625pr0008', bp.color, bp.num]));
+    end
+    else if bp.part = '15625pb019' then
+    begin
+      s.Add(Format('%s,%d,%d', ['15625pr0013', bp.color, bp.num]));
+    end
+    else if bp.part = '15714' then
+    begin
+      s.Add(Format('%s,%d,%d', ['4865b', bp.color, bp.num]));
+    end
+    else if bp.part = '18052pb002' then
+    begin
+      s.Add(Format('%s,%d,%d', ['18052pr0002', bp.color, bp.num]));
+    end
+    else if bp.part = '2431pb415' then
+    begin
+      s.Add(Format('%s,%d,%d', ['2431pr0081', bp.color, bp.num]));
+    end
+    else if bp.part = '2431pb477' then
+    begin
+      s.Add(Format('%s,%d,%d', ['2431pr0099', bp.color, bp.num]));
+    end
+    else if bp.part = '2431pb478' then
+    begin
+      s.Add(Format('%s,%d,%d', ['2431pr0098', bp.color, bp.num]));
+    end
+    else if bp.part = '2431pb484' then
+    begin
+      s.Add(Format('%s,%d,%d', ['2431pr0092', bp.color, bp.num]));
+    end
+    else if bp.part = '2436a' then
+    begin
+      s.Add(Format('%s,%d,%d', ['2436', bp.color, bp.num]));
+    end
+    else if bp.part = '2546p02' then
+    begin
+      s.Add(Format('%s,%d,%d', ['2546pat0001', bp.color, bp.num]));
+    end
+    else if bp.part = '26603pb004' then
+    begin
+      s.Add(Format('%s,%d,%d', ['26603pr0003', bp.color, bp.num]));
+    end
+    else if bp.part = '3004pb159' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3004pr0024', bp.color, bp.num]));
+    end
+    else if bp.part = '3010pb009' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3010p70', bp.color, bp.num]));
+    end
+    else if bp.part = '30261pb034' then
+    begin
+      s.Add(Format('%s,%d,%d', ['30261pr0002', bp.color, bp.num]));
+    end
+    else if bp.part = '30387p02' then
+    begin
+      s.Add(Format('%s,%d,%d', ['30387pr0002', bp.color, bp.num]));
+    end
+    else if bp.part = '3068bpb0381' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3068bpr0137', bp.color, bp.num]));
+    end
+    else if bp.part = '3068bpb0408' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3068bpr0197', bp.color, bp.num]));
+    end
+    else if bp.part = '3068bpb0819' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3068bpr0225', bp.color, bp.num]));
+    end
+    else if bp.part = '3068bpb0933' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3068bpr0255', bp.color, bp.num]));
+    end
+    else if bp.part = '3068bpb1102' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3068bpr0333', bp.color, bp.num]));
+    end
+    else if bp.part = '30839pb001' then
+    begin
+      s.Add(Format('%s,%d,%d', ['30839pr0001', bp.color, bp.num]));
+    end
+    else if bp.part = '30841pb02' then
+    begin
+      s.Add(Format('%s,%d,%d', ['30841pr0008', bp.color, bp.num]));
+    end
+    else if bp.part = '30841pb03' then
+    begin
+      s.Add(Format('%s,%d,%d', ['30841pr0009', bp.color, bp.num]));
+    end
+    else if bp.part = '30925pb02' then
+    begin
+      s.Add(Format('%s,%d,%d', ['30925pr0003', bp.color, bp.num]));
+    end
+    else if bp.part = '3626bpb0121' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3626bpr0387', bp.color, bp.num]));
+    end
+    else if bp.part = '3626bpb479' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3626bpr0680', bp.color, bp.num]));
+    end
+    else if bp.part = '3626cpb0273' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3626cpr0498', bp.color, bp.num]));
+    end
+    else if bp.part = '3626cpb0652' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3626cpr0929', bp.color, bp.num]));
+    end
+    else if bp.part = '3626cpb0803' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3626cpr0955', bp.color, bp.num]));
+    end
+    else if bp.part = '3626cpb1132' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3626cpr1441', bp.color, bp.num]));
+    end
+    else if bp.part = '3626cpb1314' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3626cpr1769', bp.color, bp.num]));
+    end
+    else if bp.part = '3626cpb1535' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3626cpr1849', bp.color, bp.num]));
+    end
+    else if bp.part = '3626cpb1746' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3626cpr2113', bp.color, bp.num]));
+    end
+    else if bp.part = '3678bpb103' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3678bpr0059', bp.color, bp.num]));
+    end
+    else if bp.part = '4162p06' then
+    begin
+      s.Add(Format('%s,%d,%d', ['4162pr0012', bp.color, bp.num]));
+    end
+    else if bp.part = '4162p07' then
+    begin
+      s.Add(Format('%s,%d,%d', ['4162pr0014', bp.color, bp.num]));
+    end
+    else if bp.part = '60017stk01' then
+    begin
+      s.Add(Format('%s,%d,%d', ['11846', bp.color, bp.num]));
+    end
+    else if bp.part = '60054stk01a' then
+    begin
+      s.Add(Format('%s,%d,%d', ['16535', bp.color, bp.num]));
+    end
+    else if bp.part = '60059stk01a' then
+    begin
+      s.Add(Format('%s,%d,%d', ['17105', bp.color, bp.num]));
+    end
+    else if bp.part = '60119stk01a' then
+    begin
+      s.Add(Format('%s,%d,%d', ['60119stk01', bp.color, bp.num]));
+    end
+    else if bp.part = '60119stk01b' then begin s.Add(Format('%s,%d,%d', ['60119stk01', bp.color, bp.num])); end
+    else if bp.part = '60147stk01a' then begin s.Add(Format('%s,%d,%d', ['29462', bp.color, bp.num])); end
+    else if bp.part = '60147stk01b' then begin s.Add(Format('%s,%d,%d', ['29462', bp.color, bp.num])); end
+    else if bp.part = '60581pb081' then begin s.Add(Format('%s,%d,%d', ['60581pr0003', bp.color, bp.num])); end
+    else if bp.part = '60581pb082' then begin s.Add(Format('%s,%d,%d', ['60581pr0001', bp.color, bp.num])); end
+    else if bp.part = '60581pb083' then begin s.Add(Format('%s,%d,%d', ['60581pr0005', bp.color, bp.num])); end
+    else if bp.part = '60581pb084' then begin s.Add(Format('%s,%d,%d', ['60581pr0006', bp.color, bp.num])); end
+    else if bp.part = '60581pb086' then begin s.Add(Format('%s,%d,%d', ['60581pr0004', bp.color, bp.num])); end
+    else if bp.part = '75049stk01a' then begin s.Add(Format('%s,%d,%d', ['17620', bp.color, bp.num])); end
+    else if bp.part = '75049stk01b' then begin s.Add(Format('%s,%d,%d', ['17620', bp.color, bp.num])); end
+    else if bp.part = '83784' then begin s.Add(Format('%s,%d,%d', ['30370ps3', bp.color, bp.num])); end
+    else if bp.part = '85984pb100' then begin s.Add(Format('%s,%d,%d', ['85984pr0143', bp.color, bp.num])); end
+    else if bp.part = '87079pb193' then begin s.Add(Format('%s,%d,%d', ['87079pr0073', bp.color, bp.num])); end
+    else if bp.part = '87079pb194' then begin s.Add(Format('%s,%d,%d', ['87079pr0074', bp.color, bp.num])); end
+    else if bp.part = '87079pb195' then begin s.Add(Format('%s,%d,%d', ['87079pr0075', bp.color, bp.num])); end
+    else if bp.part = '87079pb422l' then begin s.Add(Format('%s,%d,%d', ['87079pr0119', bp.color, bp.num])); end
+    else if bp.part = '87079pb422L' then begin s.Add(Format('%s,%d,%d', ['87079pr0119', bp.color, bp.num])); end
+    else if bp.part = '87079pb422r' then begin s.Add(Format('%s,%d,%d', ['87079pr0120', bp.color, bp.num])); end
+    else if bp.part = '87079pb422R' then begin s.Add(Format('%s,%d,%d', ['87079pr0120', bp.color, bp.num])); end
+    else if bp.part = '87079pb423l' then begin s.Add(Format('%s,%d,%d', ['87079pr0117', bp.color, bp.num])); end
+    else if bp.part = '87079pb423L' then begin s.Add(Format('%s,%d,%d', ['87079pr0117', bp.color, bp.num])); end
+    else if bp.part = '87079pb423r' then begin s.Add(Format('%s,%d,%d', ['87079pr0118', bp.color, bp.num])); end
+    else if bp.part = '87079pb423R' then begin s.Add(Format('%s,%d,%d', ['87079pr0118', bp.color, bp.num])); end
+    else if bp.part = '87079pb426' then begin s.Add(Format('%s,%d,%d', ['87079pr0123', bp.color, bp.num])); end
+    else if bp.part = '87079pb431l' then begin s.Add(Format('%s,%d,%d', ['87079pr0128', bp.color, bp.num])); end
+    else if bp.part = '87079pb431L' then begin s.Add(Format('%s,%d,%d', ['87079pr0128', bp.color, bp.num])); end
+    else if bp.part = '87079pb431r' then begin s.Add(Format('%s,%d,%d', ['87079pr0129', bp.color, bp.num])); end
+    else if bp.part = '87079pb431R' then begin s.Add(Format('%s,%d,%d', ['87079pr0129', bp.color, bp.num])); end
+    else if bp.part = '87079pb432' then begin s.Add(Format('%s,%d,%d', ['87079pr0125', bp.color, bp.num])); end
+    else if bp.part = '87079pb433' then begin s.Add(Format('%s,%d,%d', ['87079pr0127', bp.color, bp.num])); end
+    else if bp.part = '90463c01' then begin s.Add(Format('%s,%d,%d', ['90463', bp.color, bp.num])); end
+    else if bp.part = '91599' then begin s.Add(Format('%s,%d,%d', ['30370pr04', bp.color, bp.num])); end
+    else if bp.part = '93273pb066' then begin s.Add(Format('%s,%d,%d', ['93273pr0009', bp.color, bp.num])); end
+    else if bp.part = '93273pb067' then begin s.Add(Format('%s,%d,%d', ['93273pr0010', bp.color, bp.num])); end
+    else if bp.part = '93273pb074' then begin s.Add(Format('%s,%d,%d', ['93273pr0011', bp.color, bp.num])); end
+    else if bp.part = '93273pb075' then begin s.Add(Format('%s,%d,%d', ['93273pr0012', bp.color, bp.num])); end
+    else if bp.part = '93552pb01' then begin s.Add(Format('%s,%d,%d', ['93552pr0001', bp.color, bp.num])); end
+    else if bp.part = '93587pb11' then begin s.Add(Format('%s,%d,%d', ['93587pr0009', bp.color, bp.num])); end
+    else if bp.part = '93587pb12' then begin s.Add(Format('%s,%d,%d', ['93587pr0010', bp.color, bp.num])); end
+    else if bp.part = '93587pb13' then begin s.Add(Format('%s,%d,%d', ['93587pr0011', bp.color, bp.num])); end
+    else if bp.part = '93587pb14' then begin s.Add(Format('%s,%d,%d', ['93587pr0012', bp.color, bp.num])); end
+    else if bp.part = '93591pb18' then begin s.Add(Format('%s,%d,%d', ['93591pr0021', bp.color, bp.num])); end
+    else if bp.part = '93591pb19' then begin s.Add(Format('%s,%d,%d', ['93591pr0023', bp.color, bp.num])); end
+    else if bp.part = '93598pb08' then begin s.Add(Format('%s,%d,%d', ['93598pr0011', bp.color, bp.num])); end
+    else if bp.part = '93598pb09' then begin s.Add(Format('%s,%d,%d', ['93598pr0009', bp.color, bp.num])); end
+    else if bp.part = '93598pb10' then begin s.Add(Format('%s,%d,%d', ['93598pr0010', bp.color, bp.num])); end
+    else if bp.part = '970c00pb625' then begin s.Add(Format('%s,%d,%d', ['970cpr1207', bp.color, bp.num])); end
+    else if bp.part = '970c09' then begin s.Add(Format('%s,%d,%d', ['970x021', bp.color, bp.num])); end
+    else if bp.part = '973pb0086c01' then begin s.Add(Format('%s,%d,%d', ['973pr1163c01', bp.color, bp.num])); end
+    else if bp.part = '973pb0263c02' then begin s.Add(Format('%s,%d,%d', ['973pr1182c01', bp.color, bp.num])); end
+    else if bp.part = '973pb0278c01' then begin s.Add(Format('%s,%d,%d', ['973pr1183c01', bp.color, bp.num])); end
+    else if bp.part = '973pb0410c01' then begin s.Add(Format('%s,%d,%d', ['973pr1244c01', bp.color, bp.num])); end
+    else if bp.part = '973pb0549c01' then begin s.Add(Format('%s,%d,%d', ['973pr1479c01', bp.color, bp.num])); end
+    else if bp.part = '973pb0631c01' then begin s.Add(Format('%s,%d,%d', ['973pr1573c01', bp.color, bp.num])); end
+    else if bp.part = '973pb0638c01' then begin s.Add(Format('%s,%d,%d', ['973pr1585c01', bp.color, bp.num])); end
+    else if bp.part = '973pb0649c01' then begin s.Add(Format('%s,%d,%d', ['973pr1580c01', bp.color, bp.num])); end
+    else if bp.part = '973pb0708c01' then begin s.Add(Format('%s,%d,%d', ['973pr1617c01', bp.color, bp.num])); end
+    else if bp.part = '973pb0997c01' then begin s.Add(Format('%s,%d,%d', ['973pr1720c01', bp.color, bp.num])); end
+    else if bp.part = '973pb1978c01' then begin s.Add(Format('%s,%d,%d', ['973pr2923c01', bp.color, bp.num])); end
+    else if bp.part = '973pb2017c01' then begin s.Add(Format('%s,%d,%d', ['973pr2998c01', bp.color, bp.num])); end
+    else if bp.part = '973pb2060c01' then begin s.Add(Format('%s,%d,%d', ['973pr3018c01a', bp.color, bp.num])); end
+    else if bp.part = '973pb2346c01' then begin s.Add(Format('%s,%d,%d', ['973pr3431c01', bp.color, bp.num])); end
+    else if bp.part = '973pb2367c01' then begin s.Add(Format('%s,%d,%d', ['973pr3370c01', bp.color, bp.num])); end
+    else if bp.part = '973pb2600c01' then begin s.Add(Format('%s,%d,%d', ['973pr3627', bp.color, bp.num])); end
+    else if bp.part = '973pb2601c01' then begin s.Add(Format('%s,%d,%d', ['973pr3700', bp.color, bp.num])); end
+    else if bp.part = '973pb2607c01' then begin s.Add(Format('%s,%d,%d', ['973pr3655c01', bp.color, bp.num])); end
+    else if bp.part = '973pb2663c01' then begin s.Add(Format('%s,%d,%d', ['973pr3699c01', bp.color, bp.num])); end
+    else if bp.part = '973pb2664c01' then begin s.Add(Format('%s,%d,%d', ['973pr3732', bp.color, bp.num])); end
+    else if bp.part = '973pr0270c01' then begin s.Add(Format('%s,%d,%d', ['973pr2189c01', bp.color, bp.num])); end
+    else if bp.part = '98603pb009' then begin s.Add(Format('%s,%d,%d', ['98603s01pr0006', bp.color, bp.num])); end
+    else if bp.part = '98613c01' then begin s.Add(Format('%s,%d,%d', ['74261', bp.color, bp.num])); end
+    else if bp.part = 'ftfpb037c01' then begin s.Add(Format('%s,%d,%d', ['92456pr0036c01', bp.color, bp.num])); end
+    else if bp.part = 'bb564c01pb01' then begin s.Add(Format('%s,%d,%d', ['98611pr01', bp.color, bp.num])); end
+    else if bp.part = '60470' then begin s.Add(Format('%s,%d,%d', ['60470a', bp.color, bp.num])); end
     else if bp.part = '30027bc01' then
     begin
       s.Add(Format('%s,%d,%d', ['30027b', bp.color, bp.num]));
@@ -1293,6 +1828,10 @@ begin
     else if bp.part = '19995' then
     begin
       s.Add(Format('%s,%d,%d', ['12888pr0001', bp.color, bp.num]));
+    end
+    else if bp.part = '2335' then
+    begin
+      s.Add(Format('%s,%d,%d', ['11055', bp.color, bp.num]));
     end
     else if bp.part = '2335pb107' then
     begin
@@ -1683,9 +2222,103 @@ begin
     begin
       s.Add(Format('%s,%d,%d', ['92851', bp.color, bp.num]));
     end
+    else if (bp.part = '87079pb029r') or (bp.part = '87079pb029R') then
+    begin
+      s.Add(Format('%s,%d,%d', ['87079pr0017', bp.color, bp.num]));
+    end
+    else if (bp.part = '87079pb029l') or (bp.part = '87079pb029L') then
+    begin
+      s.Add(Format('%s,%d,%d', ['87079pr0018', bp.color, bp.num]));
+    end
+    else if (bp.part = '87079pb031l') or (bp.part = '87079pb031L') then
+    begin
+      s.Add(Format('%s,%d,%d', ['87079pr0020', bp.color, bp.num]));
+    end
+    else if (bp.part = '87079pb031r') or (bp.part = '87079pb031R') then
+    begin
+      s.Add(Format('%s,%d,%d', ['87079pr0019', bp.color, bp.num]));
+    end
+    else if (bp.part = '87079pb052l') or (bp.part = '87079pb052L') then
+    begin
+      s.Add(Format('%s,%d,%d', ['87079pr0035', bp.color, bp.num]));
+    end
+    else if (bp.part = '87079pb052r') or (bp.part = '87079pb052R') then
+    begin
+      s.Add(Format('%s,%d,%d', ['87079pr0034', bp.color, bp.num]));
+    end
+    else if bp.part = '2437pb04' then
+    begin
+      s.Add(Format('%s,%d,%d', ['2437pr0004', bp.color, bp.num]));
+    end
+    else if bp.part = '3060bpr0117' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3069bpr0117', bp.color, bp.num]));
+    end
+    else if bp.part = '87079pb400' then
+    begin
+      s.Add(Format('%s,%d,%d', ['87079pr0097', bp.color, bp.num]));
+    end
+    else if bp.part = '93587pb01' then
+    begin
+      s.Add(Format('%s,%d,%d', ['93587pr0004', bp.color, bp.num]));
+    end
+    else if bp.part = '93591pb01' then
+    begin
+      s.Add(Format('%s,%d,%d', ['93591pr0002', bp.color, bp.num]));
+    end
+    else if bp.part = '93593c01' then
+    begin
+      s.Add(Format('%s,%d,%d', ['93593', bp.color, bp.num]));
+      s.Add(Format('%s,%d,%d', ['50951', 0, bp.num]));
+    end
+    else if bp.part = '93595c01' then
+    begin
+      s.Add(Format('%s,%d,%d', ['93595', bp.color, bp.num]));
+      s.Add(Format('%s,%d,%d', ['50951', 0, bp.num]));
+    end
     else if bp.part = '973pr0655c01' then
     begin
       s.Add(Format('%s,%d,%d', ['973pr1192c01', bp.color, bp.num]));
+    end
+    else if bp.part = '3678bpb030' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3678bpr0014a', bp.color, bp.num]));
+    end
+    else if bp.part = '3678bpb031' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3678bpr0023a', bp.color, bp.num]));
+    end
+    else if bp.part = '93587pb06' then
+    begin
+      s.Add(Format('%s,%d,%d', ['93587pr0001', bp.color, bp.num]));
+    end
+    else if (bp.part = '87079pb187r') or (bp.part = '87079pb187R') then
+    begin
+      s.Add(Format('%s,%d,%d', ['87079pr0014', bp.color, bp.num]));
+    end
+    else if (bp.part = '87079pb187l') or (bp.part = '87079pb187L') then
+    begin
+      s.Add(Format('%s,%d,%d', ['87079pr0015', bp.color, bp.num]));
+    end
+    else if bp.part = '2431pb162' then
+    begin
+      s.Add(Format('%s,%d,%d', ['2431pr0033', bp.color, bp.num]));
+    end
+    else if (bp.part = '3678bpb032l') or (bp.part = '3678bpb032L') then
+    begin
+      s.Add(Format('%s,%d,%d', ['3678bpr0020', bp.color, bp.num]));
+    end
+    else if (bp.part = '3678bpb032r') or (bp.part = '3678bpb032R') then
+    begin
+      s.Add(Format('%s,%d,%d', ['3678bpr0016a', bp.color, bp.num]));
+    end
+    else if bp.part = '3678bpb044' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3678bpr0027a', bp.color, bp.num]));
+    end
+    else if bp.part = '46220' then
+    begin
+      s.Add(Format('%s,%d,%d', ['46224c01', bp.color, bp.num]));
     end
     else if bp.part = '4738ac01' then
     begin
@@ -1696,6 +2329,71 @@ begin
     begin
       s.Add(Format('%s,%d,%d', ['60474', bp.color, bp.num]));
       s.Add(Format('%s,%d,%d', ['61485', bp.color, bp.num]));
+    end
+    else if bp.part = '10174stk01' then
+    begin
+      s.Add(Format('%s,%d,%d', ['56143', bp.color, bp.num]));
+    end
+    else if bp.part = '85777pb01' then
+    begin
+      s.Add(Format('%s,%d,%d', ['85777', bp.color, bp.num]));
+    end
+    else if bp.part = '93597pb001' then
+    begin
+      s.Add(Format('%s,%d,%d', ['93597pr0001', bp.color, bp.num]));
+    end
+    else if bp.part = '93597pb002' then
+    begin
+      s.Add(Format('%s,%d,%d', ['93597pr0002', bp.color, bp.num]));
+    end
+    else if bp.part = '93597pb004' then
+    begin
+      s.Add(Format('%s,%d,%d', ['93597pr0007', bp.color, bp.num]));
+    end
+    else if (bp.part = '93606pb001r') or (bp.part = '93606pb001R') then
+    begin
+      s.Add(Format('%s,%d,%d', ['93606pr0001', bp.color, bp.num]));
+    end
+    else if (bp.part = '93606pb001l') or (bp.part = '93606pb001L') then
+    begin
+      s.Add(Format('%s,%d,%d', ['93606pr0002', bp.color, bp.num]));
+    end
+    else if bp.part = '973pb2740c01' then
+    begin
+      s.Add(Format('%s,%d,%d', ['973pr3809c01', bp.color, bp.num]));
+    end
+    else if bp.part = '98834pb01a' then
+    begin
+      s.Add(Format('%s,%d,%d', ['98834pr0002', bp.color, bp.num]));
+    end
+    else if bp.part = '98835pb002' then
+    begin
+      s.Add(Format('%s,%d,%d', ['98835pr0002', bp.color, bp.num]));
+    end
+    else if bp.part = '98835pb003' then
+    begin
+      s.Add(Format('%s,%d,%d', ['98835pr0001', bp.color, bp.num]));
+    end
+    else if bp.part = 'bb661' then
+    begin
+      s.Add(Format('%s,%d,%d', ['71965', bp.color, bp.num]));
+    end
+    else if bp.part = '12247' then
+    begin
+      s.Add(Format('%s,%d,%d', ['54094pr01', bp.color, bp.num]));
+    end
+    else if bp.part = '3678bpb032l' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3678bpr0020', bp.color, bp.num]));
+    end
+    else if bp.part = '3678bpb032r' then
+    begin
+      s.Add(Format('%s,%d,%d', ['3678bpr0016a', bp.color, bp.num]));
+    end
+    else if bp.part = '93595pb02c01' then
+    begin
+      s.Add(Format('%s,%d,%d', ['93595pr0001', bp.color, bp.num]));
+      s.Add(Format('%s,%d,%d', ['50951', 0, bp.num]));
     end
     else
       s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
@@ -1708,7 +2406,7 @@ var
 begin
   s := TStringList.Create;
   try
-    s.Add('Part,Color,Num');
+    s.Add('Part,Color,Quantity');
     try
       GetLoosePartsInStringList(s);
       backupfile(fname);
@@ -2441,6 +3139,7 @@ begin
   end;
 end;
 
+{$IFNDEF CRAWLER}
 procedure TBrickInventory.SortPieces;
 
   procedure QuickSortN(const A: brickpool_pa; iLo, iHi: Integer);
@@ -2473,7 +3172,9 @@ begin
   if fnumlooseparts > 0 then
     QuickSortN(flooseparts, 0, fnumlooseparts - 1);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 procedure TBrickInventory.SortPiecesByPriceNew;
 
   function sortvalue_price_new(const b: brickpool_p): double;
@@ -2517,7 +3218,9 @@ begin
   if fnumlooseparts > 0 then
     QuickSortPN(flooseparts, 0, fnumlooseparts - 1);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 procedure TBrickInventory.SortPiecesByPriceUsed;
 
   function sortvalue_price_used(const b: brickpool_p): double;
@@ -2561,6 +3264,7 @@ begin
   if fnumlooseparts > 0 then
     QuickSortPU(flooseparts, 0, fnumlooseparts - 1);
 end;
+{$ENDIF}
 
 procedure TBrickInventory.AddLoosePartFast(const part: string; color: integer;
   const num: integer; const pci: TObject = nil);
@@ -3113,6 +3817,7 @@ begin
   cloneinv.Free;
 end;
 
+{$IFNDEF CRAWLER}
 function TBrickInventory.InventoryForExpensiveLotsNew(const nlots: integer = 1): TBrickInventory;
 var
   allocsize1: integer;
@@ -3154,7 +3859,9 @@ begin
 
   memfree(pointer(sortpool), allocsize1);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TBrickInventory.InventoryForExpensiveLotsUsed(const nlots: integer = 1): TBrickInventory;
 var
   allocsize1: integer;
@@ -3195,7 +3902,9 @@ begin
 
   memfree(pointer(sortpool), allocsize1);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TBrickInventory.InventoryForExpensivePartsNew(const nlots: integer = 1): TBrickInventory;
 var
   allocsize1: integer;
@@ -3237,7 +3946,9 @@ begin
 
   memfree(pointer(sortpool), allocsize1);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TBrickInventory.InventoryForExpensivePartsUsed(const nlots: integer = 1): TBrickInventory;
 var
   allocsize1: integer;
@@ -3278,6 +3989,18 @@ begin
   end;
 
   memfree(pointer(sortpool), allocsize1);
+end;
+{$ENDIF}
+
+function TBrickInventory.InventoryForBigLots(const nitems: integer = 1): TBrickInventory;
+var
+  i: integer;
+begin
+  Reorganize;
+  Result := TBrickInventory.Create;
+  for i := 0 to fnumlooseparts - 1 do
+    if flooseparts[i].num >= nitems then
+      Result.AddLoosePart(flooseparts[i].part, flooseparts[i].color, flooseparts[i].num, flooseparts[i].pci);
 end;
 
 function TBrickInventory.CanBuildInventory(const inv: TBrickInventory): boolean;
@@ -4279,8 +5002,10 @@ var
   h: LongWord;
   spart: string;
 begin
+  {$IFNDEF CRAWLER}
   st_pcihitcnt := 0;
   st_pcihitlevel := 0;
+  {$ENDIF}
   waitlist := TDNumberList.Create;
   parecs := malloc(SizeOf(cachedbparec_t));
   fname := aname;
@@ -4295,6 +5020,8 @@ begin
         MT_ZeroMemory(parecs, SizeOf(cachedbparec_t));
         for i := 0 to fstream.Size div SizeOf(cachedbitem_t) - 1 do
         begin
+          if i = CACHEDBHASHSIZE then
+            break;
           fstream.Read(item, SizeOf(cachedbitem_t));
           spart := Trim(apart(@item));
           if spart <> '' then
@@ -4407,6 +5134,7 @@ begin
   CloseDB;
 end;
 
+{$IFNDEF CRAWLER}
 function TCacheDB.GetHitLevel: double;
 begin
   if st_pcihitcnt = 0 then
@@ -4414,6 +5142,7 @@ begin
   else
     Result := st_pcihitlevel / st_pcihitcnt;
 end;
+{$ENDIF}
 
 function TCacheDB.apart(const it: cachedbitem_p): string;
 var
@@ -4470,7 +5199,7 @@ begin
     Result := nil;
 end;
 
-function TCacheDB.TryOpenDB(const mode: char; const maxretry: integer = 10000): TFileStream;
+function TCacheDB.TryOpenDB(const mode: char; const maxretry: integer = 100): TFileStream;
 var
   i: integer;
   limit: integer;
@@ -4483,9 +5212,9 @@ begin
     if Result <> nil then
       Exit;
     if i >= limit then
-      Sleep(10)
+      Sleep(1000)
     else
-      Sleep(1);
+      Sleep(100);
   end;
 end;
 
@@ -4520,8 +5249,10 @@ begin
         p.Assign(pc.parec.priceguide);
         p.Assign(pc.parec.availability);
         p.fdate := pc.parec.date;
+        {$IFNDEF CRAWLER}
         inc(st_pcihitcnt);
         inc(st_pcihitlevel, i - idx + 1);
+        {$ENDIF}
         Result := True;
         Exit;
       end;
@@ -4536,6 +5267,8 @@ var
   i, len: integer;
   spiece: string;
 begin
+  Result := False;
+
   idx := p.Hash;
   idx2 := idx;
   spiece := p.piece;
@@ -4560,7 +5293,8 @@ begin
 
   len := length(spiece);
   if len > CACHEDBSTRINGSIZE then
-    len := CACHEDBSTRINGSIZE;
+    Exit;
+
   for i := 1 to len do
     pc.partid[i - 1] := spiece[i];
   for i := len to CACHEDBSTRINGSIZE - 1 do
@@ -4625,6 +5359,7 @@ begin
   fCrawlerCache := TStringList.Create;
   {$IFNDEF CRAWLER}
   fStorageBinsCache := TStringList.Create;
+  fbasemolds := TStringList.Create;
   {$ENDIF}
   ffixedblcolors := TStringList.Create;
   ffixedblcolors.Add('Aqua');
@@ -4637,6 +5372,7 @@ begin
   ffixedblcolors.Add('Bright Light Yellow');
   ffixedblcolors.Add('Bright Pink');
   ffixedblcolors.Add('Brown');
+  ffixedblcolors.Add('Coral');
   ffixedblcolors.Add('Dark Azure');
   ffixedblcolors.Add('Dark Blue');
   ffixedblcolors.Add('Dark Blue-Violet');
@@ -4808,6 +5544,7 @@ begin
   s := TStringList.Create;
   try
     S_LoadFromFile(s, fname);
+    RemoveBlancLines(s);
     if s.Count > 1 then
       if s.Strings[0] = 'Part,Color,Desc' then
       begin
@@ -4837,6 +5574,7 @@ begin
               s.Add(ts.text);
             end;
             backupfile(fname);
+            RemoveBlancLines(s);
             S_SaveToFile(s, fname);
           end;
         finally
@@ -4870,7 +5608,7 @@ begin
   FixKnownPieces;
 
   fCacheDB := TCacheDB.Create(basedefault + 'cache\cache.db');
-  fbinarysets := TBinarySetCollection.Create(basedefault + 'db\sets.db');
+  fbinarysets := TBinarySetCollection.Create(basedefault + 'db\sets1.db', basedefault + 'db\sets2.db', basedefault + 'db\sets3.db');
   fbinaryparts := TBinaryPartCollection.Create(basedefault + 'db\parts.db');
 
   InitPiecesInventories;
@@ -4880,7 +5618,9 @@ begin
 
   ZeroMemory(@fbricklinkcolortorebricablecolor, SizeOf(fbricklinkcolortorebricablecolor));
   fstubpieceinfo := TPieceInfo.Create;
+  {$IFNDEF CRAWLER}
   fstubpieceinfo.desc := '(Unknown)';
+  {$ENDIF}
   floaded := False;
   fallsets := THashStringList.Create;
   fallsetswithoutextra := THashStringList.Create;
@@ -5028,6 +5768,80 @@ begin
   color := acolor;
 end;
 
+{$IFNDEF CRAWLER}
+procedure TSetsDatabase.SetPieceCode(const pci: TPieceColorInfo; const newcode: string);
+var
+  i: integer;
+  ccode: TCodePieceInfo;
+begin
+  if pci.code = newcode then
+    Exit;
+
+  if pci.code = '' then
+  begin
+    pci.code := newcode;
+    fpiececodes.Sorted := False;
+    fpiececodes.AddObject(newcode, TCodePieceInfo.Create(pci.piece, pci.color));
+    fpiececodes.Sorted := True;
+    SavePieceCodes;
+    Exit;
+  end;
+
+  for i := 0 to fpiececodes.Count - 1 do
+  begin
+    ccode := fpiececodes.Objects[i] as TCodePieceInfo;
+    if ccode.piece = pci.piece then
+      if ccode.color = pci.color then
+      begin
+        fpiececodes.Sorted := False;
+        if newcode = '' then
+        begin
+          fpiececodes.Delete(i);
+          pci.code := '';
+        end
+        else
+        begin
+          fpiececodes.Strings[i] := newcode;
+          pci.code := newcode;
+        end;
+        fpiececodes.Sorted := True;
+        SavePieceCodes;
+        Exit;
+      end;
+  end;
+
+  pci.code := newcode;
+  fpiececodes.Sorted := False;
+  fpiececodes.AddObject(newcode, TCodePieceInfo.Create(pci.piece, pci.color));
+  fpiececodes.Sorted := True;
+  SavePieceCodes;
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+procedure TSetsDatabase.SavePieceCodes;
+var
+  sl: TStringList;
+  i: integer;
+  ccode: TCodePieceInfo;
+  fname: string;
+begin
+  sl := TStringList.Create;
+  sl.Add('Part,Color,Code');
+
+  for i := 0 to fpiececodes.Count - 1 do
+  begin
+    ccode := fpiececodes.Objects[i] as TCodePieceInfo;
+    sl.Add(ccode.piece + ',' + itoa(ccode.color) + ',' + fpiececodes.Strings[i]);
+  end;
+
+  fname := basedefault + 'db\db_codes.txt';
+  backupfile(fname);
+  S_SaveToFile(sl, fname);
+  sl.Free;
+end;
+{$ENDIF}
+
 procedure TSetsDatabase.LoadPieceCodes;
 var
   sl: TStringList;
@@ -5041,6 +5855,7 @@ var
   progressstring: string;
 begin
   progressstring := 'Initializing codes...';
+  fpiececodes.Sorted := False;
   for i := 0 to fpiececodes.Count - 1 do
     fpiececodes.Objects[i].Free;
   fpiececodes.Clear;
@@ -5098,12 +5913,16 @@ end;
 procedure TSetsDatabase.InitCategories;
 var
   sl: TStringList;
-  s, s1, s2: string;
+  s: string;
+  s1, s2: string;
   idx: integer;
   i: integer;
   pinf: TPieceInfo;
+  tmpcat: integer;
   scat, spiece, sname, syear, sweight, sdim: string;
+  {$IFNDEF CRAWLER}
   sdimx, sdimy, sdimz: string;
+  {$ENDIF}
 begin
   MT_ZeroMemory(@fcategories, SizeOf(categoryinfoarray_t));
   for i := 0 to MAXCATEGORIES - 1 do
@@ -5111,8 +5930,7 @@ begin
   for i := 1 to MAXCATEGORIES - 1 do
     fcategories[i].name := 'Category #' + itoa(i);
 
-  {$IFNDEF CRAWLER}
-  if FileExists(basedefault + 'db\db_categories.txt') then
+  if fexists(basedefault + 'db\db_categories.txt') then
   begin
     sl := TStringList.Create;
     S_LoadFromFile(sl, basedefault + 'db\db_categories.txt');
@@ -5126,14 +5944,15 @@ begin
           if (idx >= 0) and (idx < MAXCATEGORIES) then
           begin
             fcategories[idx].name := s2;
+            {$IFNDEF CRAWLER}
             fcategories[idx].fetched := True;
+            {$ENDIF}
           end;
         end;
     sl.Free;
   end;
-  {$ENDIF}
 
-  if FileExists(basedefault + 'db\db_pieces_bl.txt') then
+  if fexists(basedefault + 'db\db_pieces_bl.txt') then
   begin
     sl := TStringList.Create;
     S_LoadFromFile(sl, basedefault + 'db\db_pieces_bl.txt');
@@ -5144,31 +5963,35 @@ begin
           s := sl.Strings[i];
           splitstring(s, scat, spiece, sweight, sdim, ',');
           spiece := fixpartname(spiece);
+          {$IFNDEF CRAWLER}
           splitstring(sdim, sdimx, sdimy, sdimz, 'x');
           sdimx := Trim(sdimx);
           sdimy := Trim(sdimy);
           sdimz := Trim(sdimz);
+          {$ENDIF}
           spiece := RebrickablePart(spiece);
           idx := IndexOfString(fpieceshash, spiece);
           if idx > -1 then
           begin
             pinf := fpieces.Objects[idx] as TPieceInfo;
             pinf.weight := atof(sweight, 0.0);
+            {$IFNDEF CRAWLER}
             pinf.dimentionx := atof(sdimx, 0.0);
             pinf.dimentiony := atof(sdimy, 0.0);
             pinf.dimentionz := atof(sdimz, 0.0);
+            {$ENDIF}
             idx := StrToIntDef(scat, 0);
             if (idx >= 0) and (idx < MAXCATEGORIES) then
             begin
               pinf.category := idx;
-              fcategories[idx].knownpieces.AddObject(spiece, pinf);
+//              fcategories[idx].knownpieces.AddObject(pinf.name, pinf);
             end;
           end;
         end;
     sl.Free;
   end;
 
-  if FileExists(basedefault + 'db\db_pieces_categories.txt') then
+  if fexists(basedefault + 'db\db_pieces_categories.txt') then
   begin
     sl := TStringList.Create;
     S_LoadFromFile(sl, basedefault + 'db\db_pieces_categories.txt');
@@ -5184,16 +6007,17 @@ begin
           if idx > -1 then
           begin
             pinf := fpieces.Objects[idx] as TPieceInfo;
-            if pinf.category <= 0 then
+            idx := StrToIntDef(scat, 0);
+            if (idx >= 0) and (idx < MAXCATEGORIES) then
             begin
-              idx := StrToIntDef(scat, 0);
-              if (idx >= 0) and (idx < MAXCATEGORIES) then
+              tmpcat := pinf.category;
+              if tmpcat <> idx then
               begin
                 pinf.category := idx;
-                fcategories[idx].knownpieces.AddObject(spiece, pinf);
-                idx := fcategories[0].knownpieces.IndexOf(spiece);
-                if idx >= 0 then
-                  fcategories[0].knownpieces.Delete(idx);
+//                fcategories[idx].knownpieces.AddObject(pinf.name, pinf);
+//                idx := fcategories[oldcat].knownpieces.IndexOf(pinf.name);
+//                if idx >= oldcat then
+//                  fcategories[oldcat].knownpieces.Delete(idx);
               end;
             end;
           end;
@@ -5201,7 +6025,7 @@ begin
     sl.Free;
   end;
 
-  if FileExists(basedefault + 'db\db_catalogs.txt') then
+  if fexists(basedefault + 'db\db_catalogs.txt') then
   begin
     sl := TStringList.Create;
     S_LoadFromFile(sl, basedefault + 'db\db_catalogs.txt');
@@ -5223,15 +6047,23 @@ begin
               if (idx >= 0) and (idx < MAXCATEGORIES) then
               begin
                 pinf.category := idx;
-                fcategories[idx].knownpieces.AddObject(spiece, pinf);
-                idx := fcategories[0].knownpieces.IndexOf(spiece);
-                if idx >= 0 then
-                  fcategories[0].knownpieces.Delete(idx);
+//                fcategories[idx].knownpieces.AddObject(pinf.name, pinf);
+//                idx := fcategories[0].knownpieces.IndexOf(pinf.name);
+//                if idx >= 0 then
+//                  fcategories[0].knownpieces.Delete(idx);
               end;
             end;
           end;
         end;
     sl.Free;
+  end;
+
+  for i := 0 to fpieces.Count - 1 do
+  begin
+    pinf := fpieces.Objects[i] as TPieceInfo;
+    tmpcat := pinf.category;
+    if (tmpcat >= 0) and (tmpcat < MAXCATEGORIES) then
+      fcategories[tmpcat].knownpieces.AddObject(pinf.name, pinf);
   end;
 
 end;
@@ -5245,7 +6077,7 @@ var
   pinf: TPieceInfo;
   spiece, sweight: string;
 begin
-  if FileExists(basedefault + 'db\db_pieces_weight.txt') then
+  if fexists(basedefault + 'db\db_pieces_weight.txt') then
   begin
     sl := TStringList.Create;
     S_LoadFromFile(sl, basedefault + 'db\db_pieces_weight.txt');
@@ -5269,6 +6101,197 @@ begin
   end;
 end;
 
+{$IFNDEF CRAWLER}
+procedure TSetsDatabase.InitYearTable;
+var
+  sl: TStringList;
+  s: string;
+  i: integer;
+  pci: TPieceColorInfo;
+  spiece, scolor, syear: string;
+  cl: integer;
+  idx: integer;
+  yyyy: integer;
+  se: TSetExtraInfo;
+begin
+  if fexists(basedefault + 'db\db_pieces_years.txt') then
+  begin
+    sl := TStringList.Create;
+    S_LoadFromFile(sl, basedefault + 'db\db_pieces_years.txt');
+    if sl.Count > 0 then
+      if sl.Strings[0] = 'Part,Color,Year' then
+        for i := 1 to sl.Count - 1 do
+        begin
+          s := sl.Strings[i];
+          splitstring(s, spiece, scolor, syear, ',');
+
+          yyyy := atoi(syear);
+          if (yyyy > 1931) and (yyyy <= 2050) then
+          begin
+            spiece := fixpartname(spiece);
+            spiece := RebrickablePart(spiece);
+
+            if Pos('BL', scolor) = 1 then
+            begin
+              scolor := Copy(scolor, 3, Length(scolor) - 2);
+              cl := db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0));
+            end
+            else
+              cl := atoi(scolor);
+
+            pci := PieceColorInfo(spiece, cl);
+            if pci <> nil then
+              if pci.year = 0 then
+              begin
+                pci.year := yyyy;
+                pci.canedityear := True;
+                pci.UpdatePartYears;
+              end;
+              
+            if cl = -1 then
+            begin
+              idx := fsets.IndexOf(spiece);
+              if idx >= 0 then
+              begin
+                se := (fsets.Objects[idx] as TSetExtraInfo);
+                if se.year = 0 then
+                  se.year := yyyy;
+              end;
+            end;
+          end;
+        end;
+    sl.Free;
+  end;
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+procedure TSetsDatabase.InitBaseMolds;
+var
+  sl, sall: TStringList;
+  i, j, len: integer;
+  base, check, stmp: string;
+begin
+  fbasemolds.Sorted := False;
+  ClearList(fbasemolds);
+  fbasemolds.AddObject('', TStringList.Create);
+
+  sall := TStringList.Create;
+  try
+    for i := 0 to fpieces.Count - 1 do
+    begin
+      check := fpieces.Strings[i];
+      if check <> '' then
+        if IsNumericC(check[1]) then
+          if Pos('-', check) <= 0 then
+            if Pos('stk', check) <= 0 then
+              sall.Add(fpieces.Strings[i]);
+    end;
+
+    sall.Sort;
+
+    for i := 0 to sall.Count - 1 do
+    begin
+      stmp := sall.Strings[i];
+      base := '';
+      for j := 1 to Length(stmp) do
+        if IsNumericC(stmp[j]) then
+          base := base + stmp[j]
+        else
+          Break;
+
+      if base = '' then
+        Continue;
+
+      if fbasemolds.Strings[fbasemolds.Count - 1] <> base then
+      begin
+        sl := TStringList.Create;
+        sl.Add(stmp);
+        fbasemolds.AddObject(base, sl);
+      end
+      else
+        Continue;
+
+      len := Length(base);
+      for j := i + 1 to sall.Count - 1 do
+      begin
+        check := sall.Strings[j];
+        if not IsNumeric(check) then
+          if Pos(base, check) = 1 then
+            if len < Length(check) then
+              if not IsNumericC(check[len + 1]) then
+              begin
+                sl := fbasemolds.Objects[basemolds.Count - 1] as TStringList;
+                sl.Add(check);
+                Continue;
+              end;
+        Break;
+      end;
+    end;
+  finally
+    sall.Free;
+  end;
+
+  fbasemolds.Objects[0].Free;
+  fbasemolds.Delete(0);
+  for i := fbasemolds.Count - 1 downto 0 do
+  begin
+    sl := fbasemolds.Objects[i] as TStringList;
+    if sl.Count <= 1 then
+    begin
+      sl.Free;
+      fbasemolds.Delete(i);
+    end;
+  end;
+
+  fbasemolds.Sorted := True;
+end;
+
+function TSetsDatabase.BaseMold(const pcs: string): string;
+var
+  i: integer;
+begin
+  Result := '';
+  for i := 1 to Length(pcs) do
+    if IsNumericC(pcs[i]) then
+      Result := Result + pcs[i]
+    else
+      Break;
+  if fbasemolds.IndexOf(Result) < 0 then
+    Result := '';
+end;
+
+function TSetsDatabase.ChildMolds(const pcs: string): TStringList;
+var
+  idx: integer;
+begin
+  idx := fbasemolds.IndexOf(pcs);
+  if idx < 0 then
+  begin
+    idx := fbasemolds.IndexOf(RebrickablePart(pcs));
+    if idx < 0 then
+      idx := fbasemolds.IndexOf(BricklinkPart(pcs));
+  end;
+  if idx >= 0 then
+    Result := fbasemolds.Objects[idx] as TStringList
+  else
+    Result := nil;
+end;
+
+function TSetsDatabase.FamilyMolds(const pcs: string): TStringList;
+var
+  base: string;
+begin
+  base := BaseMold(pcs);
+  if base = '' then
+  begin
+    Result := nil;
+    Exit;
+  end;
+  Result := ChildMolds(base);
+end;
+{$ENDIF}
+
 function TSetsDatabase.Colors(const i: Integer): colorinfo_p;
 begin
   if (i >= 0) and (i <= MAXINFOCOLOR) then
@@ -5280,20 +6303,22 @@ end;
 constructor TSetExtraInfo.Create;
 begin
   moc := False;
+  hasinstructions := False;
+  hasoriginalbox := False;
+  {$IFNDEF CRAWLER}
   text := '';
   year := 0;
-  hasinstructions := False;
   fixedinstructions := False;
   instructionsdimentionx := 0.0;
   instructionsdimentiony := 0.0;
   instructionsdimentionz := 0.0;
   instructionsweight := 0.0;
-  hasoriginalbox := False;
   fixedoriginalbox := False;
   originalboxinstructionx := 0.0;
   originalboxinstructiony := 0.0;
   originalboxinstructionz := 0.0;
   originalboxweight := 0.0;
+  {$ENDIF}
   Inherited;
 end;
 
@@ -5309,14 +6334,17 @@ var
     ss: TSetExtraInfo;
     stmp: string;
     stmp2: string;
-    i, p, idx: integer;
+    i, p: integer;
+    {$IFNDEF CRAWLER}
+    idx: integer;
     tx: string;
     tx2: string;
     year: integer;
+    {$ENDIF}
     sname: string;
     progressstring: string;
   begin
-    if not FileExists(fn) then
+    if not fexists(fn) then
       Exit;
 
     if ismoc then
@@ -5362,11 +6390,15 @@ var
             begin
               ss := TSetExtraInfo.Create;
               ss.Moc := ismoc;
+              {$IFNDEF CRAWLER}
               splitstring(Trim(Copy(stmp, p + 1, Length(stmp) - p)), tx, tx2, ',');
               year := atoi(tx2);
               idx := fsets.AddObject(sname, ss);
               (fsets.Objects[idx] as TSetExtraInfo).Text := tx;
               (fsets.Objects[idx] as TSetExtraInfo).Year := year;
+              {$ELSE}
+              fsets.AddObject(sname, ss);
+              {$ENDIF}
             end;
           end;
         end;
@@ -5390,12 +6422,14 @@ var
     sYear: string;
     sWeight: string;
     sDimentions: string;
+    {$IFNDEF CRAWLER}
     sDimentionx: string;
     sDimentiony: string;
     sDimentionz: string;
+    {$ENDIF}
     progressstring: string;
   begin
-    if not FileExists(fn) then
+    if not fexists(fn) then
       Exit;
 
     if colorcode = INSTRUCTIONCOLORINDEX then
@@ -5434,28 +6468,34 @@ var
           if idx >= 0 then
           begin
             ss := fsets.Objects[idx] as TSetExtraInfo;
+            {$IFNDEF CRAWLER}
             if ss.year = 0 then
               ss.year := atoi(sYear);
             if ss.text = sNumber then
               ss.text := sName;
             splitstring(sDimentions, sDimentionx, sDimentiony, sDimentionz, 'x');
+            {$ENDIF}
             if colorcode = INSTRUCTIONCOLORINDEX then
             begin
               ss.hasinstructions := True;
+              {$IFNDEF CRAWLER}
               ss.fixedinstructions := True;
               ss.instructionsdimentionx := atof(sDimentionx);
               ss.instructionsdimentiony := atof(sDimentiony);
               ss.instructionsdimentionz := atof(sDimentionz);
               ss.instructionsweight := atof(sWeight);
+              {$ENDIF}
             end
             else if colorcode = BOXCOLORINDEX then
             begin
               ss.hasoriginalbox := True;
+              {$IFNDEF CRAWLER}
               ss.fixedoriginalbox := True;
               ss.originalboxinstructionx := atof(sDimentionx);
               ss.originalboxinstructiony := atof(sDimentiony);
               ss.originalboxinstructionz := atof(sDimentionz);
               ss.originalboxweight := atof(sWeight);
+              {$ENDIF}
             end;
           end;
         end;
@@ -5477,7 +6517,7 @@ var
     sAsset: string;
     progressstring: string;
   begin
-    if not FileExists(fn) then
+    if not fexists(fn) then
       Exit;
 
     progressstring := 'Initializing extra assets...';
@@ -5579,7 +6619,7 @@ var
   pci: TPieceColorInfo;
 begin
   fname := basedefault + 'db\db_gears.txt';
-  if FileExists(fname) then
+  if fexists(fname) then
   begin
     s := TStringList.Create;
     try
@@ -5605,7 +6645,9 @@ var
   sbook: string;
   pci: TPieceColorInfo;
   pi: TPieceInfo;
+  {$IFNDEF CRAWLER}
   yyyy: integer;
+  {$ENDIF}
   dosave: boolean;
   tmplist: THashStringList;
   idx: integer;
@@ -5613,7 +6655,7 @@ var
   progressstring: string;
 begin
   fname := basedefault + 'db\db_books.txt';
-  if not FileExists(fname) then
+  if not fexists(fname) then
     Exit;
 
   progressstring := 'Loading Books...';
@@ -5694,8 +6736,10 @@ begin
               pci := TPieceColorInfo.Create(sbook, -1);
               pci.pieceinfo := pi;
               pci.parttype := TYPE_BOOK;
+              {$IFNDEF CRAWLER}
               yyyy := atoi(s3);
               pci.year := yyyy;
+              {$ENDIF}
 
               if fColors[-1].knownpieces = nil then
                 fColors[-1].knownpieces := THashStringList.Create;
@@ -5723,11 +6767,13 @@ var
   scatalog: string;
   pci: TPieceColorInfo;
   pi: TPieceInfo;
+  {$IFNDEF CRAWLER}
   yyyy: integer;
+  {$ENDIF}
   progressstring: string;
 begin
   fname := basedefault + 'db\db_catalogs.txt';
-  if not FileExists(fname) then
+  if not fexists(fname) then
     Exit;
 
   progressstring := 'Loading Catalogs...';
@@ -5759,8 +6805,10 @@ begin
               pci := TPieceColorInfo.Create(scatalog, CATALOGCOLORINDEX);
             pci.pieceinfo := pi;
             pci.parttype := TYPE_CATALOG;
+            {$IFNDEF CRAWLER}
             yyyy := atoi(s4);
             pci.year := yyyy;
+            {$ENDIF}
 
             if fColors[CATALOGCOLORINDEX].knownpieces = nil then
               fColors[CATALOGCOLORINDEX].knownpieces := THashStringList.Create;
@@ -5821,13 +6869,13 @@ var
 begin
   fpartsinventories := TStringList.Create;
   fname := basedefault + 'db\db_pieces_inventories.txt';
-  if FileExists(fname) then
+  if fexists(fname) then
   begin
     stmp := TStringList.Create;
     try
       S_LoadFromFile(stmp, fname);
       for i := 0 to stmp.Count - 1 do
-        fpartsinventories.Add(stmp.Strings[i]);
+        fpartsinventories.Add(fixpartname(stmp.Strings[i]));
     finally
       stmp.Free;
     end;
@@ -5896,7 +6944,7 @@ begin
             end;
           end;
         end
-        else if FileExists(basedefault + 'db\sets\' + sset + '.txt') then
+        else if fexists(basedefault + 'db\sets\' + sset + '.txt') then
         begin
          // numrecs := 0;
           S_LoadFromFile(s, basedefault + 'db\sets\' + sset + '.txt');
@@ -5966,7 +7014,10 @@ var
   s: TStringList;
   sBooks: TStringList;
   sCatalogs: TStringList;
-  sp, sp2: TPieceInfo;
+  sp: TPieceInfo;
+  {$IFNDEF CRAWLER}
+  sp2: TPieceInfo;
+  {$ENDIF}
   stmp: string;
   stmp2: string;
   i, p: integer;
@@ -5981,11 +7032,12 @@ begin
 
   s := TStringList.Create;
   S_LoadFromFile(s, basedefault + 'db\db_pieces.txt');
-  if FileExists(basedefault + 'db\db_pieces.extra.txt') then
+  if fexists(basedefault + 'db\db_pieces.extra.txt') then
   begin
     sextra := TStringList.Create;
     try
       S_LoadFromFile(sextra, basedefault + 'db\db_pieces.extra.txt');
+      RemoveBlancLines(sextra);
       sextra.Sort;
       needsave := False;
       for i := sextra.Count - 1 downto 1 do
@@ -6072,7 +7124,9 @@ begin
           sp := TPieceInfo.Create;
           sp.name := fixpartname(Trim(Copy(stmp, 1, p - 1)));
           sp.lname := LowerCase(sp.name);
+          {$IFNDEF CRAWLER}
           sp.desc := fixdescname(Trim(Copy(stmp, p + 1, Length(stmp) - p)));
+          {$ENDIF}
           fpieces.AddObject(sp.name, sp);
         end;
       end;
@@ -6097,6 +7151,7 @@ begin
   end;     }
 
   fpieces.Sort;
+  {$IFNDEF CRAWLER}
   for i := fpieces.Count - 1 downto 1 do
     if fpieces.Strings[i] = fpieces.Strings[i - 1] then
     begin
@@ -6112,6 +7167,14 @@ begin
         fpieces.Delete(i);
       end;
     end;
+  {$ELSE}
+  for i := fpieces.Count - 1 downto 1 do
+    if fpieces.Strings[i] = fpieces.Strings[i - 1] then
+    begin
+      fpieces.Objects[i].Free;
+      fpieces.Delete(i);
+    end;
+  {$ENDIF}
   for i := 0 to fpieces.Count - 1 do
   begin
     sp := (fpieces.Objects[i] as TPieceInfo);
@@ -6311,6 +7374,34 @@ begin
   SaveNewNames;
 end;
 
+procedure TSetsDatabase.UnSetNewPieceName(const pcs: string; const newname: string);
+var
+  check: string;
+  idx: integer;
+  ts: TString;
+begin
+  if (newname = '') or (newname = pcs) then
+    Exit;
+
+  check := UpperCase(pcs);
+  idx := fpiecenewnames.IndexOf(check);
+  if idx < 0 then
+  begin
+    check := UpperCase(RebrickablePart(pcs));
+    idx := fpiecenewnames.IndexOf(check);
+    if idx < 0 then
+      Exit;
+  end;
+
+  ts := fpiecenewnames.Objects[idx] as TString;
+  if ts.text <> newname then
+    Exit;
+
+  ts.Free;
+  fpiecenewnames.Delete(idx);
+  SaveNewNames;
+end;
+
 procedure TSetsDatabase.SaveNewNames;
 var
   fnname: string;
@@ -6375,7 +7466,7 @@ begin
       S_LoadFromFile(s, basedefault + 'db\db_pieces_alias.txt');
     except
       ok := False;
-      Sleep(50);
+      Sleep(100);
     end;
     if ok then
       break;
@@ -6467,7 +7558,7 @@ begin
       S_LoadFromFile(s, basedefault + 'db\db_pieces_alias.txt');
     except
       ok := False;
-      Sleep(50);
+      Sleep(100);
     end;
     if ok then
       break;
@@ -6624,6 +7715,7 @@ begin
   end;
 end;
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.SetDesc(const s: string): string;
 var
   idx: integer;
@@ -6645,7 +7737,9 @@ begin
       Result := '';
   end;
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.SetYear(const s: string): integer;
 var
   idx: integer;
@@ -6667,6 +7761,7 @@ begin
       Result := 0;
   end;
 end;
+{$ENDIF}
 
 function TSetsDatabase.IsMoc(const s: string): boolean;
 var
@@ -6690,6 +7785,7 @@ begin
   end;
 end;
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.SetListAtYear(const y: integer): TStringList;
 var
   i: integer;
@@ -6699,6 +7795,67 @@ begin
     if not IsMoc(AllSets.Strings[i]) then
       if SetYear(AllSets.Strings[i]) = y then
         Result.Add(AllSets.Strings[i]);
+end;
+{$ENDIF}
+
+function TSetsDatabase.SetListWithInvLotsBetween(const a, b: integer): TStringList;
+var
+  i: integer;
+  inv: TBrickInventory;
+  a1, b1: integer;
+  n: integer;
+begin
+  if a <= b then
+  begin
+    a1 := a;
+    b1 := b;
+  end
+  else
+  begin
+    a1 := b;
+    b1 := a;
+  end;
+  Result := TStringList.Create;
+  for i := 0 to AllSets.Count - 1 do
+  begin
+    inv := GetSetInventory(AllSets.Strings[i]);
+    if inv <> nil then
+    begin
+      n := inv.numlooseparts;
+      if (n >= a1) and (n <= b1) then
+        Result.Add(AllSets.Strings[i]);
+    end;
+  end;
+end;
+
+function TSetsDatabase.SetListWithInvPartsBetween(const a, b: integer): TStringList;
+var
+  i: integer;
+  inv: TBrickInventory;
+  a1, b1: integer;
+  n: integer;
+begin
+  if a <= b then
+  begin
+    a1 := a;
+    b1 := b;
+  end
+  else
+  begin
+    a1 := b;
+    b1 := a;
+  end;
+  Result := TStringList.Create;
+  for i := 0 to AllSets.Count - 1 do
+  begin
+    inv := GetSetInventory(AllSets.Strings[i]);
+    if inv <> nil then
+    begin
+      n := inv.totallooseparts;
+      if (n >= a1) and (n <= b1) then
+        Result.Add(AllSets.Strings[i]);
+    end;
+  end;
 end;
 
 function TSetsDatabase.PieceListForSets(const slist: TStringList): TStringList;
@@ -6716,6 +7873,7 @@ begin
   tmpinv.Free;
 end;
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.PieceListForYear(const y: integer): TStringList;
 var
   l: TStringList;
@@ -6724,7 +7882,9 @@ begin
   Result := PieceListForSets(l);
   l.Free;
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.PieceDesc(const s: string): string;
 var
   idx: integer;
@@ -6745,6 +7905,19 @@ begin
   end;
   Result := RemoveSpecialTagsFromString((fpieces.Objects[idx] as TPieceInfo).desc);
 end;
+
+function TSetsDatabase.PieceDesc(const pi: TPieceInfo): string;
+begin
+  if pi = nil then
+  begin
+    Result := '';
+    Exit;
+  end;
+
+  Result := RemoveSpecialTagsFromString(pi.desc);
+end;
+
+{$ENDIF}
 
 destructor TSetsDatabase.Destroy;
 var
@@ -6776,6 +7949,9 @@ begin
   FreeHashList(fallbooks);
   FreeList(fpieces);
   FreeList(fpiececodes);
+  {$IFNDEF CRAWLER}
+  FreeList(fbasemolds);
+  {$ENDIF}
   fpieceshash.Free;
   fsetshash.Free;
   fcolorpieces.Free;
@@ -6837,7 +8013,7 @@ var
 begin
   fstorage.Clear;
   fstorage.Add('Part,Color,Storage');
-  if not FileExists(basedefault + 'db\db_storage.txt') then
+  if not fexists(basedefault + 'db\db_storage.txt') then
     Exit;
   s1 := TStringList.Create;
   S_LoadFromFile(s1, basedefault + 'db\db_storage.txt');
@@ -6903,7 +8079,7 @@ var
   idx: integer;
 begin
   Result := TStringList.Create;
-  if not FileExists(basedefault + 'db\db_storage.txt') then
+  if not fexists(basedefault + 'db\db_storage.txt') then
     Exit;
 
   s := TStringList.Create;
@@ -6945,7 +8121,7 @@ var
   s_Storage, s_Num, s_Remarks, stmp: string;
 begin
   Result := TStringList.Create;
-  if not FileExists(basedefault + 'db\db_storage.txt') then
+  if not fexists(basedefault + 'db\db_storage.txt') then
     Exit;
   s1 := TStringList.Create;
   S_LoadFromFile(s1, basedefault + 'db\db_storage.txt');
@@ -6982,7 +8158,7 @@ var
   check: string;
 begin
   Result := TStringList.Create;
-  if not FileExists(basedefault + 'db\db_storage.txt') then
+  if not fexists(basedefault + 'db\db_storage.txt') then
     Exit;
   s1 := TStringList.Create;
   S_LoadFromFile(s1, basedefault + 'db\db_storage.txt');
@@ -7027,7 +8203,7 @@ var
   ss: string;
 begin
   Result := TBrickInventory.Create;
-  if not FileExists(basedefault + 'db\db_storage.txt') then
+  if not fexists(basedefault + 'db\db_storage.txt') then
     Exit;
   s1 := TStringList.Create;
   S_LoadFromFile(s1, basedefault + 'db\db_storage.txt');
@@ -7085,7 +8261,7 @@ end;
 procedure TSetsDatabase.FetchStorageBinsCache;
 begin
   fStorageBinsCache.Clear;
-  if not FileExists(basedefault + 'db\db_storage.txt') then
+  if not fexists(basedefault + 'db\db_storage.txt') then
     Exit;
   S_LoadFromFile(fStorageBinsCache, basedefault + 'db\db_storage.txt');
 end;
@@ -7098,7 +8274,7 @@ var
   ss: string;
 begin
   Result := TBrickInventory.Create;
-  if not FileExists(basedefault + 'db\db_storage.txt') then
+  if not fexists(basedefault + 'db\db_storage.txt') then
     Exit;
   s1 := TStringList.Create;
   S_LoadFromFile(s1, basedefault + 'db\db_storage.txt');
@@ -7161,6 +8337,8 @@ begin
   end;
 end;
 {$ENDIF}
+
+{$IFNDEF CRAWLER}
 procedure TSetsDatabase.RefreshAllSetsYears;
 var
   i: integer;
@@ -7168,6 +8346,7 @@ begin
   for i := 0 to fallsets.Count - 1 do
     RefreshSetYears(fallsets.Strings[i]);
 end;
+{$ENDIF}
 
 procedure TSetsDatabase.RefreshAllSetsAssets;
 var
@@ -7186,6 +8365,7 @@ begin
   end;
 end;
 
+{$IFNDEF CRAWLER}
 procedure TSetsDatabase.RefreshSetYears(const setid: string);
 var
   inv: TBrickInventory;
@@ -7216,6 +8396,7 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
 function TSetsDatabase.RefreshInv(const inv: TBrickInventory): boolean;
 var
@@ -7293,7 +8474,7 @@ begin
   if inv = nil then
     Exit;
 
-  if FileExists(basedefault + 'db\sets\' + s + '.txt') then
+  if fexists(basedefault + 'db\sets\' + s + '.txt') then
   begin
     inv.Clear;
     inv.LoadLooseParts(basedefault + 'db\sets\' + s + '.txt');
@@ -7324,11 +8505,12 @@ begin
 
 end;
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.RefreshPart(const s: string): boolean;
 var
   inv: TBrickInventory;
   i: integer;
-  ret1, ret2: boolean;
+  ret1, ret2, ret3: boolean;
 begin
   inv := TBrickInventory.Create;
   for i := -1 to MAXINFOCOLOR do
@@ -7341,8 +8523,11 @@ begin
 
   ret2 := RefreshPartCategory(s);
 
-  Result := ret1 or ret2;
+  ret3 := UpdatePartInventory(s, False);
+
+  Result := ret1 or ret2 or ret3;
 end;
+{$ENDIF}
 
 function TSetsDatabase.SetPartCategory(const s: string; const newcat: integer): boolean;
 var
@@ -7374,31 +8559,31 @@ begin
   if fcategories[tmpcat].knownpieces = nil then
     fcategories[tmpcat].knownpieces := THashStringList.Create;
 
-  idx := fcategories[tmpcat].knownpieces.IndexOf(spiece);
+  idx := fcategories[tmpcat].knownpieces.IndexOf(pinf.name);
   if idx >= 0 then
     Exit;
 
   pinf.category := tmpcat;
 
-  fcategories[tmpcat].knownpieces.AddObject(spiece, pinf);
-  idx := fcategories[oldcat].knownpieces.IndexOf(spiece);
+  fcategories[tmpcat].knownpieces.AddObject(pinf.name, pinf);
+  idx := fcategories[oldcat].knownpieces.IndexOf(pinf.name);
   if idx >= 0 then
     fcategories[oldcat].knownpieces.Delete(idx);
 
   sl := TStringList.Create;
   try
     fname := basedefault + 'db\db_pieces_categories.txt';
-    if FileExists(fname) then
+    if fexists(fname) then
       S_LoadFromFile(sl, fname)
     else
       sl.Add('Category,Part');
 
-    idx := sl.IndexOf(itoa(oldcat) + ',' + spiece);
+    idx := sl.IndexOf(itoa(oldcat) + ',' + pinf.name);
     if idx < 0 then
-      idx := sl.IndexOf(itoa(oldcat) + ',BL ' + BricklinkPart(spiece));
+      idx := sl.IndexOf(itoa(oldcat) + ',BL ' + BricklinkPart(pinf.name));
     if idx >= 0 then
       sl.Delete(idx);
-    sl.Add(itoa(tmpcat) + ',' + spiece);
+    sl.Add(itoa(tmpcat) + ',' + pinf.name);
     backupfile(fname);
     S_SaveToFile(sl, fname);
   finally
@@ -7429,7 +8614,7 @@ begin
   fname := basedefault + 'db\db_pieces_categories.txt';
   sl := TStringList.Create;
   try
-    if FileExists(fname) then
+    if fexists(fname) then
       S_LoadFromFile(sl, fname)
     else
       sl.Add('Category,Part');
@@ -7461,19 +8646,18 @@ begin
       if fcategories[tmpcat].knownpieces = nil then
         fcategories[tmpcat].knownpieces := THashStringList.Create;
 
-      idx := fcategories[tmpcat].knownpieces.IndexOf(spiece);
+      idx := fcategories[tmpcat].knownpieces.IndexOf(pinf.name);
       if idx >= 0 then
         continue;
 
       pinf.category := tmpcat;
 
-      fcategories[tmpcat].knownpieces.AddObject(spiece, pinf);
-      idx := fcategories[oldcategory].knownpieces.IndexOf(spiece);
+      fcategories[tmpcat].knownpieces.AddObject(pinf.name, pinf);
+      idx := fcategories[oldcategory].knownpieces.IndexOf(pinf.name);
       if idx >= 0 then
         fcategories[oldcategory].knownpieces.Delete(idx);
 
-
-      sl.Add(itoa(tmpcat) + ',' + spiece);
+      sl.Add(itoa(tmpcat) + ',' + pinf.name);
     end;
 
     backupfile(fname);
@@ -7493,6 +8677,7 @@ var
   fname: string;
   tmpweight: double;
   parttyp: char;
+  oldcat: integer;
 begin
   Result := False;
 
@@ -7519,30 +8704,37 @@ begin
   if fcategories[tmpcat].knownpieces = nil then
     fcategories[tmpcat].knownpieces := THashStringList.Create;
 
-  idx := fcategories[tmpcat].knownpieces.IndexOf(spiece);
+  idx := fcategories[tmpcat].knownpieces.IndexOf(pinf.name);
   if idx >= 0 then
     Exit;
 
-  pinf.category := tmpcat;
+  oldcat := pinf.category;
+  if oldcat <> tmpcat then
+  begin
+    pinf.category := tmpcat;
 
-  fcategories[tmpcat].knownpieces.AddObject(spiece, pinf);
-  idx := fcategories[0].knownpieces.IndexOf(spiece);
-  if idx >= 0 then
-    fcategories[0].knownpieces.Delete(idx);
+    fcategories[tmpcat].knownpieces.AddObject(pinf.name, pinf);
+    idx := fcategories[oldcat].knownpieces.IndexOf(pinf.name);
+    if idx >= 0 then
+      fcategories[oldcat].knownpieces.Delete(idx);
 
-  sl := TStringList.Create;
-  try
-    fname := basedefault + 'db\db_pieces_categories.txt';
-    if FileExists(fname) then
-      S_LoadFromFile(sl, fname)
-    else
-      sl.Add('Category,Part');
+    sl := TStringList.Create;
+    try
+      fname := basedefault + 'db\db_pieces_categories.txt';
+      if fexists(fname) then
+        S_LoadFromFile(sl, fname)
+      else
+        sl.Add('Category,Part');
 
-    sl.Add(itoa(tmpcat) + ',' + spiece);
-    backupfile(fname);
-    S_SaveToFile(sl, fname);
-  finally
-    sl.Free;
+      idx := sl.IndexOf(itoa(oldcat) + ',' + pinf.name);
+      if idx > 0 then
+        sl.Delete(idx);
+      sl.Add(itoa(tmpcat) + ',' + pinf.name);
+      backupfile(fname);
+      S_SaveToFile(sl, fname);
+    finally
+      sl.Free;
+    end;
   end;
 
   Result := True;
@@ -7568,6 +8760,7 @@ begin
   pinf := fpieces.Objects[idx] as TPieceInfo;
   if pinf = nil then
     Exit;
+
   if pinf.category > 0 then
     Exit;
 
@@ -7583,26 +8776,29 @@ begin
   if fcategories[tmpcat].knownpieces = nil then
     fcategories[tmpcat].knownpieces := THashStringList.Create;
 
-  idx := fcategories[tmpcat].knownpieces.IndexOf(spiece);
+  idx := fcategories[tmpcat].knownpieces.IndexOf(pinf.name);
   if idx >= 0 then
     Exit;
 
   pinf.category := tmpcat;
 
-  fcategories[tmpcat].knownpieces.AddObject(spiece, pinf);
-  idx := fcategories[0].knownpieces.IndexOf(spiece);
+  fcategories[tmpcat].knownpieces.AddObject(pinf.name, pinf);
+  idx := fcategories[0].knownpieces.IndexOf(pinf.name);
   if idx >= 0 then
     fcategories[0].knownpieces.Delete(idx);
 
   sl := TStringList.Create;
   try
     fname := basedefault + 'db\db_pieces_categories.txt';
-    if FileExists(fname) then
+    if fexists(fname) then
       S_LoadFromFile(sl, fname)
     else
       sl.Add('Category,Part');
 
-    sl.Add(itoa(tmpcat) + ',' + spiece);
+    idx := sl.IndexOf('0,' + pinf.name);
+    if idx > 0 then
+      sl.Delete(idx);
+    sl.Add(itoa(tmpcat) + ',' + pinf.name);
     backupfile(fname);
     S_SaveToFile(sl, fname);
   finally
@@ -7689,6 +8885,7 @@ begin
   Result := stringreplace(pname, ',', '', [rfReplaceAll, rfIgnoreCase])
 end;
 
+{$IFNDEF CRAWLER}
 procedure TSetsDatabase.UpdateSetAssetsFromBricklink(const s: string);
 var
   desc: string;
@@ -7711,7 +8908,9 @@ begin
     desc := s;
   UpdateSetInfoEx(s, desc, asset.year, False, asset.hasinstructions, asset.hasoriginalbox);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.DownloadSetAssetsFromBricklink(const s: string; const typ: string; const def: integer): setasset_t;
 var
   tmpname: string;
@@ -7728,15 +8927,15 @@ begin
   tmpname := I_NewTempFile('tmpsetyear_' + Trim(s));
   try
     if typ = 'S' then
-      urlstr := 'https://www.bricklink.com/v2/catalog/catalogitem.page?S=' + GetBLNetPieceName(Trim(s)) + '#T=S&O={}'
+      urlstr := sbricklink + 'v2/catalog/catalogitem.page?S=' + GetBLNetPieceName(Trim(s)) + '#T=S&O={}'
     else if typ = 'M' then
-      urlstr := 'https://www.bricklink.com/v2/catalog/catalogitem.page?M=' + GetBLNetPieceName(Trim(s)) + '#T=S&O={}'
+      urlstr := sbricklink + 'v2/catalog/catalogitem.page?M=' + GetBLNetPieceName(Trim(s)) + '#T=S&O={}'
     else if typ = 'G' then
-      urlstr := 'https://www.bricklink.com/v2/catalog/catalogitem.page?G=' + GetBLNetPieceName(Trim(s)) + '#T=S&O={}'
+      urlstr := sbricklink + 'v2/catalog/catalogitem.page?G=' + GetBLNetPieceName(Trim(s)) + '#T=S&O={}'
     else if typ = 'B' then
-      urlstr := 'https://www.bricklink.com/v2/catalog/catalogitem.page?B=' + GetBLNetPieceName(Trim(s)) + '#T=S&O={}'
+      urlstr := sbricklink + 'v2/catalog/catalogitem.page?B=' + GetBLNetPieceName(Trim(s)) + '#T=S&O={}'
     else
-      urlstr := 'https://www.bricklink.com/v2/catalog/catalogitem.page?P=' + GetBLNetPieceName(Trim(s)) + '#T=S&O={}';
+      urlstr := sbricklink + 'v2/catalog/catalogitem.page?P=' + GetBLNetPieceName(Trim(s)) + '#T=S&O={}';
     ret := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
     if not ret then
     begin
@@ -7820,7 +9019,9 @@ begin
 
   RefreshSetYears(s);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.QryNewInventoriesFromBricklink(const path: string; const check: string): TStringList;
 var
   fname: string;
@@ -7863,7 +9064,9 @@ begin
   end;
   deletefile(fname);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.QryNewSetAsPartFromBricklink(const path: string; const check: string): TStringList;
 var
   fname: string;
@@ -7908,7 +9111,9 @@ begin
   end;
   deletefile(fname);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.QryNewCatalogsFromBricklink(const path: string; const check: string): TStringList;
 var
   fname: string;
@@ -7953,7 +9158,9 @@ begin
   end;
   deletefile(fname);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.QryPartsFromBricklink(const path: string; const check: string): TStringList;
 var
   fname: string;
@@ -7996,7 +9203,9 @@ begin
   end;
   deletefile(fname);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.QryNewPartsFromFile(const fname: string; const check: string): TStringList;
 var
   stmp: string;
@@ -8035,7 +9244,9 @@ begin
     htm1 := UpperCase(htm);
   end;
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.QryNewPartsFromBricklink(const path: string; const check: string; const savelink: string = ''): TStringList;
 var
   fname: string;
@@ -8064,8 +9275,10 @@ begin
   if savelink = '' then
     deletefile(fname);
 end;
+{$ENDIF}
 
-function TSetsDatabase.UpdateSetAsPartFromBricklink(const pid: string): boolean;
+{$IFNDEF CRAWLER}
+function TSetsDatabase.UpdateSetAsPartFromBricklink(const pid: string; const donet: boolean = True): boolean;
 var
   fname: string;
   SL: TStringList;
@@ -8080,8 +9293,15 @@ begin
   if spart = '' then
     Exit;
   fname := basedefault + 'db\molds\' + spart + '.htm';
-  urlstr := 'https://www.bricklink.com/catalogItemInv.asp?S=' + GetBLNetPieceName(Trim(spart)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
-  if UrlDownloadToFile(nil, PChar(urlstr), PChar(fname), 0, nil) <> 0 then
+
+  if donet then
+  begin
+    urlstr := sbricklink + 'catalogItemInv.asp?S=' + GetBLNetPieceName(Trim(spart)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+    if UrlDownloadToFile(nil, PChar(urlstr), PChar(fname), 0, nil) <> 0 then
+      Exit;
+  end;
+
+  if not fexists(fname) then
     Exit;
 
   SL := TStringList.Create;
@@ -8101,13 +9321,16 @@ begin
     newsetname := RemoveSpecialTagsFromString(newsetname);
     SetMoldName(spart, newsetname);
     AddMoldColor(spart, -1);
+    UpdateSetYearFromDiskCache(spart, fname);
     RefreshPartCategory(spart);
     Result := True;
   end;
   SL.Free;
 end;
+{$ENDIF}
 
-function TSetsDatabase.UpdatePartKnownColorsFromBricklink(const pid: string): boolean;
+{$IFNDEF CRAWLER}
+function TSetsDatabase.UpdatePartKnownColorsFromBricklink(const pid: string; const donet: boolean = True): boolean;
 var
   fname: string;
   SL: TStringList;
@@ -8119,22 +9342,34 @@ var
   snum: string;
   N: TDNumberList;
   p, num: integer;
+  w: double;
+  pi: TPieceInfo;
 begin
   Result := False;
   spart := Trim(pid);
   if spart = '' then
     Exit;
   fname := basedefault + 'db\molds\' + spart + '.htm';
-  urlstr := 'https://www.bricklink.com/v2/catalog/catalogitem.page?P=' + GetBLNetPieceName(spart);
-  if UrlDownloadToFile(nil, PChar(urlstr), PChar(fname), 0, nil) <> 0 then
+
+  if donet then
+  begin
+    urlstr := sbricklink + 'v2/catalog/catalogitem.page?P=' + GetBLNetPieceName(spart);
+    if UrlDownloadToFile(nil, PChar(urlstr), PChar(fname), 0, nil) <> 0 then
+      if not fexists(fname) then
+        Exit;
+  end;
+
+  if not fexists(fname) then
     Exit;
 
   SL := TStringList.Create;
   sCheck := TStringList.Create;
   N := TDNumberList.Create;
   try
-    sCheck.Add('http://www.bricklink.com/catalogPG.asp?P=' + GetBLNetPieceName(spart) + '&colorID=');
-    sCheck.Add('http://www.bricklink.com/catalogItemIn.asp?P=' + GetBLNetPieceName(spart) + '&colorID=');
+    sCheck.Add('http://' + BL_NET + '/catalogPG.asp?P=' + GetBLNetPieceName(spart) + '&colorID=');
+    sCheck.Add('http://' + BL_NET + '/catalogItemIn.asp?P=' + GetBLNetPieceName(spart) + '&colorID=');
+    sCheck.Add('//img.bricklink.com/ItemImage/PN/');
+    sCheck.Add('onclick="showInventoryWithColor( ');
     S_LoadFromFile(SL, fname);
     for i := 0 to SL.Count - 1 do
     begin
@@ -8153,9 +9388,13 @@ begin
             else
               break;
           end;
-          num := atoi(snum);
-          if N.IndexOf(num) < 0 then
-            N.Add(num);
+          if snum <> '' then
+          begin
+            num := atoi(snum);
+            if num >= 0 then
+              if N.IndexOf(num) < 0 then
+                N.Add(num);
+          end;
         end;
       end;
     end;
@@ -8184,6 +9423,17 @@ begin
       end;
       for i := 0 to N.Count - 1 do
         AddKnownPiece(spart, BrickLinkColorToRebrickableColor(N.Numbers[i]), desc);
+      UpdateItemYearFromDiskCache(spart);
+      pi := PieceInfo(spart);
+      if pi <> nil then
+        if pi <> fstubpieceinfo then
+        begin
+          w := -1.0;
+          if NET_GetItemWeightFromDisk(spart, w) then
+            if w > 0 then
+              if pi.weight <> w then
+                UpdatePartWeight(pi, w);
+        end;
       Result := True;
     end;
   finally
@@ -8192,9 +9442,590 @@ begin
     N.Free;
   end;
   if not Result then
-    Result := UpdateSetAsPartFromBricklink(pid);
+    if donet then
+      Result := UpdateSetAsPartFromBricklink(pid);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
+function TSetsDatabase.UpdateGearKnownColorsFromBricklink(const pid: string; const donet: boolean = True): boolean;
+var
+  fname: string;
+  SL: TStringList;
+  desc: string;
+  i, j, k: integer;
+  s, check: string;
+  urlstr, spart: string;
+  sCheck: TStringList;
+  snum: string;
+  N: TDNumberList;
+  p, num: integer;
+  checkyear: string;
+  yearnum: integer;
+  pci: TPieceColorInfo;
+  cl: integer;
+begin
+  Result := False;
+  spart := Trim(pid);
+  if spart = '' then
+    Exit;
+  fname := basedefault + 'db\molds\' + spart + '.htm';
+
+  if donet then
+  begin
+    urlstr := sbricklink + 'v2/catalog/catalogitem.page?G=' + GetBLNetPieceName(spart);
+    if UrlDownloadToFile(nil, PChar(urlstr), PChar(fname), 0, nil) <> 0 then
+      if not fexists(fname) then
+        Exit;
+  end;
+
+  if not fexists(fname) then
+    Exit;
+
+  yearnum := 0;
+  SL := TStringList.Create;
+  sCheck := TStringList.Create;
+  N := TDNumberList.Create;
+  try
+    sCheck.Add('http://' + BL_NET + '/catalogPG.asp?G=' + GetBLNetPieceName(spart) + '&colorID=');
+    sCheck.Add('http://' + BL_NET + '/catalogItemIn.asp?G=' + GetBLNetPieceName(spart) + '&colorID=');
+    sCheck.Add('//img.bricklink.com/ItemImage/GN/');
+    checkyear := 'catType=G&itemYear=';
+    S_LoadFromFile(SL, fname);
+    for i := 0 to SL.Count - 1 do
+    begin
+      s := Trim(SL.Strings[i]);
+
+      if yearnum = 0 then
+      begin
+        p := Pos(checkyear, s);
+        if p > 0 then
+        begin
+          snum := '';
+          for k := p + length(checkyear) to length(s) do
+          begin
+            if s[k] in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'] then
+              snum := snum + s[k]
+            else
+              break;
+          end;
+          yearnum := atoi(snum);
+        end;
+      end;
+
+      for j := 0 to sCheck.Count - 1 do
+      begin
+        check := sCheck.Strings[j];
+        p := Pos(check, s);
+        if p > 0 then
+        begin
+          snum := '';
+          for k := p + length(check) to length(s) do
+          begin
+            if s[k] in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'] then
+              snum := snum + s[k]
+            else
+              break;
+          end;
+          num := atoi(snum);
+          if num >= 0 then
+            if N.IndexOf(num) < 0 then
+              N.Add(num);
+        end;
+      end;
+    end;
+    if N.Count > 0 then
+    begin
+      desc := PieceDesc(spart);
+      if (desc = '') or (desc = spart) or (desc = GetBLNetPieceName(spart)) then
+      begin
+        check := 'class=pciItemNameLink><b>[%strColorString%]';
+        s := SL.Text;
+        p := Pos(check, s);
+        desc := '';
+        for i := p + length(check) to length(s) do
+        begin
+          if s[i] = '<' then
+            break
+          else
+          begin
+            if s[i] = ',' then
+              s[i] := ' ';
+            desc := desc + s[i];
+          end;
+        end;
+        if desc <> '' then
+          SetMoldName(spart, desc);
+      end;
+      if N.Count > 0 then
+      begin
+        for i := 0 to N.Count - 1 do
+        begin
+          pci := nil;
+          cl := BrickLinkColorToRebrickableColor(N.Numbers[i]);
+          AddKnownPiece(spart, cl, desc, pci);
+          if pci <> nil then
+            if (yearnum >= 1932) and (yearnum <= 2050) then
+              SetItemYear(pci, yearnum);
+          SetPartType(spart, BrickLinkColorToRebrickableColor(N.Numbers[i]), 'G');
+        end;
+        Result := True;
+      end;
+    end;
+  finally
+    SL.Free;
+    sCheck.Free;
+    N.Free;
+  end;
+
+//  if not Result then
+//    Result := UpdateSetAsPartFromBricklink(pid);
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+function TSetsDatabase.UpdateBookKnownColorsFromBricklink(const pid: string; const donet: boolean = True): boolean;
+var
+  fname: string;
+  SL: TStringList;
+  desc: string;
+  i, j, k: integer;
+  s, check: string;
+  urlstr, spart: string;
+  sCheck: TStringList;
+  snum: string;
+  N: TDNumberList;
+  p, num: integer;
+  checkyear: string;
+  yearnum: integer;
+  pci: TPieceColorInfo;
+  cl: integer;
+  tmpweight, oldweight: double;
+begin
+  Result := False;
+  spart := Trim(pid);
+  if spart = '' then
+    Exit;
+  fname := basedefault + 'db\molds\' + spart + '.htm';
+
+  if donet then
+  begin
+    urlstr := sbricklink + 'v2/catalog/catalogitem.page?B=' + GetBLNetPieceName(spart);
+    if UrlDownloadToFile(nil, PChar(urlstr), PChar(fname), 0, nil) <> 0 then
+      if not fexists(fname) then
+        Exit;
+  end;
+
+  if not fexists(fname) then
+    Exit;
+
+  yearnum := 0;
+  SL := TStringList.Create;
+  sCheck := TStringList.Create;
+  N := TDNumberList.Create;
+  try
+    sCheck.Add('http://' + BL_NET + '/catalogPG.asp?B=' + GetBLNetPieceName(spart) + '&colorID=');
+    sCheck.Add('http://' + BL_NET + '/catalogItemIn.asp?B=' + GetBLNetPieceName(spart) + '&colorID=');
+    sCheck.Add('//img.bricklink.com/ItemImage/BN/');
+    checkyear := 'catType=B&itemYear=';
+    S_LoadFromFile(SL, fname);
+    for i := 0 to SL.Count - 1 do
+    begin
+      s := Trim(SL.Strings[i]);
+
+      if yearnum = 0 then
+      begin
+        p := Pos(checkyear, s);
+        if p > 0 then
+        begin
+          snum := '';
+          for k := p + length(checkyear) to length(s) do
+          begin
+            if s[k] in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'] then
+              snum := snum + s[k]
+            else
+              break;
+          end;
+          yearnum := atoi(snum);
+        end;
+      end;
+
+      for j := 0 to sCheck.Count - 1 do
+      begin
+        check := sCheck.Strings[j];
+        p := Pos(check, s);
+        if p > 0 then
+        begin
+          snum := '';
+          for k := p + length(check) to length(s) do
+          begin
+            if s[k] in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'] then
+              snum := snum + s[k]
+            else
+              break;
+          end;
+          num := atoi(snum);
+          if num >= 0 then
+            if N.IndexOf(num) < 0 then
+              N.Add(num);
+        end;
+      end;
+    end;
+    if N.Count > 0 then
+    begin
+      desc := PieceDesc(spart);
+      if (desc = '') or (desc = spart) or (desc = GetBLNetPieceName(spart)) then
+      begin
+        check := 'class=pciItemNameLink><b>[%strColorString%]';
+        s := SL.Text;
+        p := Pos(check, s);
+        desc := '';
+        for i := p + length(check) to length(s) do
+        begin
+          if s[i] = '<' then
+            break
+          else
+          begin
+            if s[i] = ',' then
+              s[i] := ' ';
+            desc := desc + s[i];
+          end;
+        end;
+        if desc <> '' then
+          SetMoldName(spart, desc);
+      end;
+      if N.Count > 0 then
+      begin
+        for i := 0 to N.Count - 1 do
+        begin
+          pci := nil;
+          cl := BrickLinkColorToRebrickableColor(N.Numbers[i]);
+          AddKnownPiece(spart, cl, desc, pci);
+          if pci <> nil then
+            if (yearnum >= 1932) and (yearnum <= 2050) then
+              SetItemYear(pci, yearnum);
+          SetPartType(spart, BrickLinkColorToRebrickableColor(N.Numbers[i]), 'B');
+        end;
+
+        tmpweight := -1.0;
+        oldweight := -2.0;
+        if pci.pieceinfo <> nil then
+          oldweight := (pci.pieceinfo as TPieceInfo).weight;
+
+        if NET_GetItemWeightFromText(spart, SL.Text, tmpweight) then
+          if tmpweight > 0.0 then
+            if tmpweight <> oldweight then
+              UpdatePartWeight(spart, tmpweight);
+
+        Result := True;
+      end;
+    end;
+  finally
+    SL.Free;
+    sCheck.Free;
+    N.Free;
+  end;
+
+//  if not Result then
+//    Result := UpdateSetAsPartFromBricklink(pid);
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+function TSetsDatabase.UpdateItemYearFromDiskCache(const pid: string): boolean;
+var
+  fname: string;
+  SL: TStringList;
+  i, j, k: integer;
+  s: string;
+  spart: string;
+  snum: string;
+  p: integer;
+  checkyear: string;
+  checkyear1: string;
+  checkyear2: string;
+  yearnum: integer;
+  pci: TPieceColorInfo;
+  N: TDNumberList;
+  minyear: integer;
+begin
+  Result := False;
+  spart := Trim(pid);
+  if spart = '' then
+    Exit;
+  fname := basedefault + 'db\molds\' + spart + '.htm';
+  if not fexists(fname) then
+  begin
+    if HasSetColorsOnly(spart) then
+      Result := UpdateSetYearFromDiskCache(spart, basedefault + 'db\setmolds\' + spart + '.htm');
+    Exit;
+  end;
+
+  yearnum := 0;
+  SL := TStringList.Create;
+  checkyear := '';
+  try
+    checkyear1 := 'catType=G&itemYear=';
+    checkyear2 := '<span id="yearReleasedSec">';
+    S_LoadFromFile(SL, fname);
+    for i := 0 to SL.Count - 1 do
+    begin
+      s := Trim(SL.Strings[i]);
+
+      p := Pos(checkyear1, s);
+      if p > 0 then
+        checkyear := checkyear1
+      else
+      begin
+        p := Pos(checkyear2, s);
+        if p > 0 then
+          checkyear := checkyear2;
+      end;
+
+      if p > 0 then
+      begin
+        snum := '';
+        for k := p + length(checkyear) to length(s) do
+        begin
+          if s[k] in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'] then
+            snum := snum + s[k]
+          else
+            break;
+        end;
+        yearnum := atoi(snum);
+        if (yearnum >= 1932) and (yearnum <= 2050) then
+          break;
+      end;
+    end;
+
+    if (yearnum >= 1932) and (yearnum <= 2050) then
+    begin
+      N := GetMoldKnownColors(spart);
+      for i := 0 to N.Count - 1 do
+      begin
+        pci := PieceColorInfo(spart, N.Numbers[i]);
+        if pci <> nil then
+          if pci.year = 0 then
+          begin
+            if (pci.sparttype = 'G') or (N.Count = 1) then
+              SetItemYear(pci, yearnum)
+            else if (pci.sparttype = 'P') and (N.Count = 2) then
+            begin
+              minyear := MAXINFOCOLOR + 1;
+              for j := 0 to N.Count - 1 do
+                if N.Numbers[j] < minyear then
+                  minyear := N.Numbers[j];
+              if minyear = -1 then
+                if N.Numbers[i] > -1 then
+                  SetItemYear(pci, yearnum)
+            end;
+          end;
+      end;
+      N.Free;
+      Result := True;
+    end;
+  finally
+    SL.Free;
+  end;
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+function TSetsDatabase.UpdateSetYearFromNet(const pid: string): boolean;
+  function _do_update_year(const typ: char): boolean;
+  var
+    fname: string;
+    urlstr: string;
+    stmpfn: string;
+  begin
+    Result := False;
+    stmpfn := I_NewTempFile(Trim(pid));
+
+    urlstr := sbricklink + 'v2/catalog/catalogitem.page?' + typ + '=' + GetBLNetPieceName(Trim(pid));
+    if UrlDownloadToFile(nil, PChar(urlstr), PChar(stmpfn), 0, nil) <> 0 then
+      if not fexists(stmpfn) then
+        Exit;
+
+    Result := UpdateSetYearFromDiskCache(Trim(pid), stmpfn);
+
+    if Result then
+    begin
+      fname := basedefault + 'db\setmolds\' + Trim(pid) + '.htm';
+      CopyFile(stmpfn,fname);
+    end;
+    DeleteFile(stmpfn);
+  end;
+var
+  i: integer;
+  SS: string;
+begin
+  Result := False;
+
+  if not HasSetColorsOnly(pid) then
+    Exit;
+
+  SS := 'SGB';
+  for i := 1 to Length(SS) do
+  begin
+    Result := _do_update_year(SS[i]);
+    if Result then
+      Exit;
+  end;
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+function TSetsDatabase.UpdateYearForAllColors(const pid: string; const yearnum: integer): boolean;
+var
+  N: TDNumberList;
+  i: integer;
+  pci: TPieceColorInfo;
+  spart: string;
+begin
+  Result := False;
+  spart := trim(pid);
+  if spart = '' then
+    Exit;
+
+  if (yearnum < 1932) or (yearnum > 2050) then
+    Exit;
+
+  N := GetMoldKnownColors(spart);
+  for i := 0 to N.Count - 1 do
+  begin
+    pci := PieceColorInfo(spart, N.Numbers[i]);
+    if pci <> nil then
+      if (pci.year = 0) or (pci.canedityear) then
+      begin
+        SetItemYear(pci, yearnum);
+        Result := True;
+      end;
+  end;
+  N.Free;
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+function TSetsDatabase.GetSetYearFromDiskCache(const fname: string): integer;
+var
+  s, snum: string;
+  yearnum: integer;
+  SL: TStringList;
+  i, p: integer;
+  checkyear: string;
+begin
+  Result := 0;
+
+  if not fexists(fname) then
+    Exit;
+
+  SL := TStringList.Create;
+  S_LoadFromFile(SL, fname);
+  s := Trim(SL.Text);
+  SL.Free;
+
+  checkyear := 'itemYear=';
+  p := Pos(checkyear, s);
+  if p > 0 then
+  begin
+    snum := '';
+    for i := p + length(checkyear) to Length(s) do
+    begin
+      if s[i] in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'] then
+        snum := snum + s[i]
+      else
+        break;
+    end;
+    yearnum := atoi(snum);
+    if (yearnum >= 1932) and (yearnum <= 2050) then
+      Result := yearnum;
+  end;
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+function TSetsDatabase.UpdateSetYearFromDiskCache(const pid: string; const fname: string): boolean;
+var
+  yearnum: integer;
+  spart: string;
+begin
+  Result := False;
+
+  spart := Trim(pid);
+  if spart = '' then
+    Exit;
+
+  if not HasSetColorsOnly(spart) then
+    Exit;
+
+
+  yearnum := GetSetYearFromDiskCache(fname);
+  if (yearnum >= 1932) and (yearnum <= 2050) then
+    Result := UpdateYearForAllColors(spart, yearnum);
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+procedure TSetsDatabase.SetItemYear(const pci: TPieceColorInfo; const yyyy: integer);
+begin
+  if pci = nil then
+    Exit;
+  if (yyyy < 1932) or (yyyy > 2050) then
+    Exit;
+  if pci.year <> yyyy then
+  begin
+    pci.canedityear := True;
+    SaveItemYearInfo(pci.piece, pci.color, yyyy);
+    pci.year := yyyy;
+    pci.UpdatePartYears;
+  end;
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+procedure TSetsDatabase.SaveItemYearInfo(const pid: string; const cl: integer; const yyyy: integer);
+var
+  gy: TStringList;
+  fname: string;
+  newrec: string;
+  i: integer;
+  check, checkU: string;
+begin
+  if (yyyy < 1932) or (yyyy > 2050) then
+    Exit;
+
+  gy := TStringList.Create;
+  fname := basedefault + 'db\db_pieces_years.txt';
+  if fexists(fname) then
+    S_LoadFromFile(gy, fname);
+  if gy.Count = 0 then
+    gy.Add('Part,Color,Year');
+  if gy.Strings[0] <> 'Part,Color,Year' then
+    gy.Insert(0, 'Part,Color,Year');
+  check := Trim(pid) + ',' + itoa(cl) + ',';
+  newrec := check + itoa(yyyy);
+  checkU := UpperCase(check);
+  for i := 1 to gy.Count - 1 do
+    if Pos(checkU, UpperCase(gy.Strings[i])) = 1 then
+    begin
+      gy.Strings[i] := newrec;
+      backupfile(fname);
+      S_SaveToFile(gy, fname);
+      gy.Free;
+      Exit;
+    end;
+
+  if gy.IndexOf(newrec) < 0 then
+  begin
+    gy.Add(newrec);
+    backupfile(fname);
+    S_SaveToFile(gy, fname);
+  end;
+  gy.Free;
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
 function TSetsDatabase.UpdateCatalogFromBricklink(const pid: string): boolean;
 var
   fname: string;
@@ -8218,7 +10049,7 @@ begin
   if not DirectoryExists(basedefault + 'db\catalogs\') then
     MkDir(basedefault + 'db\catalogs\');
   fname := basedefault + 'db\catalogs\' + spart + '.htm';
-  urlstr := 'https://www.bricklink.com/v2/catalog/catalogitem.page?C=' + GetBLNetPieceName(spart);
+  urlstr := sbricklink + 'v2/catalog/catalogitem.page?C=' + GetBLNetPieceName(spart);
   if UrlDownloadToFile(nil, PChar(urlstr), PChar(fname), 0, nil) <> 0 then
     Exit;
 
@@ -8320,8 +10151,8 @@ begin
         backupfile(basedefault + 'db\db_catalogs.txt');
         AppendLineToFile(basedefault + 'db\db_catalogs.txt', stmp);
 
-        db.SetPartType(pci, 'C');
-        
+        SetPartType(pci, 'C');
+
         Result := True;
       end;
     end;
@@ -8330,6 +10161,7 @@ begin
     SL.Free;
   end;
 end;
+{$ENDIF}
 
 function TSetsDatabase.ParseKnownPiecesFromHTML(const shtml: string): TStringList;
 var
@@ -8438,6 +10270,7 @@ begin
     end;
 end;
 
+{$IFNDEF CRAWLER}
 procedure TSetsDatabase.AddKnownPieces(const sl: TStringList);
 var
   i: integer;
@@ -8465,6 +10298,7 @@ begin
     AddKnownPiece(spart, ncolor, Trim(sdesc));
   end;
 end;
+{$ENDIF}
 
 procedure TSetsDatabase.RemoveDoublesFromList1(const fname1: string);
 var
@@ -8566,10 +10400,20 @@ begin
   Result := len <> lst.Count;
 end;
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.AddKnownPiece(const spart: string; const color: integer; const desc: string): boolean;
 var
-  newname: string;
   pci: TPieceColorInfo;
+begin
+  pci := nil;
+  Result := AddKnownPiece(spart, color, desc, pci);
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+function TSetsDatabase.AddKnownPiece(const spart: string; const color: integer; const desc: string; var pci: TPieceColorInfo): boolean;
+var
+  newname: string;
   pi: TPieceInfo;
   pcolor: colorinfo_p;
   tmppartname: string;
@@ -8593,12 +10437,13 @@ begin
       pcolor.knownpieces.AddObject(newname, pci);
       stmp1 := TStringList.Create;
       kpfile := basedefault + 'db\db_knownpieces.txt';
-      if FileExists(kpfile) then
+      if fexists(kpfile) then
         S_LoadFromFile(stmp1, kpfile)
       else
         stmp1.Add('Part,Color,Desc');
       stmp1.Add(newname + ',' + itoa(color) + ',' + desc);
       backupfile(kpfile);
+      RemoveBlancLines(stmp1);
       S_SaveToFile(stmp1, kpfile);
       stmp1.Free;
       Result := True;
@@ -8642,7 +10487,10 @@ begin
     end;
     stmp2 := TStringList.Create;
     if fexists(basedefault + 'db\db_pieces.extra.txt') then
+    begin
       S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+      RemoveBlancLines(stmp2);
+    end;
     if checkname <> '' then
     begin
       idx2 := stmp2.IndexOf(checkname);
@@ -8664,13 +10512,136 @@ begin
     begin
       stmp2.Add(spart + ',' + pi.desc);
       backupfile(basedefault + 'db\db_pieces.extra.txt');
+      RemoveBlancLines(stmp2);
       S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
     end;
     stmp2.Free;
   end;
   RefreshPartCategory(spart);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
+function TSetsDatabase.AddKnownPiecePINV(const spart: string; const color: integer; const desc: string): boolean;
+var
+  newname: string;
+  pci: TPieceColorInfo;
+  pi: TPieceInfo;
+  pcolor: colorinfo_p;
+  tmppartname: string;
+  checkname: string;
+  idx2: integer;
+  stmp1, stmp2: TStringList;
+  kpfile: string;
+begin
+  if color < -1 then
+  begin
+    Result := False;
+    Exit;
+  end;
+
+  newname := fixpartname(spart);
+  Result := AddKnownPiece(newname, color, desc);
+  if Result then
+    Exit;
+
+  if fcolorpieces.IndexOf(itoa(color) + ',' + newname) < 0 then
+  begin
+    pci := PieceColorInfo(newname, color);
+    if pci = nil then
+    begin
+      pci := TPieceColorInfo.Create(newname, color);
+      pcolor := Colors(color);
+      if pcolor.knownpieces = nil then
+        pcolor.knownpieces := THashStringList.Create;
+      pcolor.knownpieces.AddObject(newname, pci);
+    end;
+    stmp1 := TStringList.Create;
+    kpfile := basedefault + 'db\db_knownpieces.txt';
+    if fexists(kpfile) then
+      S_LoadFromFile(stmp1, kpfile)
+    else
+      stmp1.Add('Part,Color,Desc');
+    stmp1.Add(newname + ',' + itoa(color) + ',' + desc);
+    backupfile(kpfile);
+    RemoveBlancLines(stmp1);
+    S_SaveToFile(stmp1, kpfile);
+    stmp1.Free;
+    Result := True;
+  end;
+
+  tmppartname := Trim(stringreplace(newname, ',', '', [rfReplaceAll, rfIgnoreCase]));
+  if (PieceDesc(spart) = '') or
+     (UpperCase(PieceDesc(newname)) = UpperCase(newname)) or
+     (UpperCase(PieceDesc(newname)) = UpperCase(tmppartname)) then
+  begin
+    pi := PieceInfo(newname);
+    if pi = nil then
+    begin
+      pi := TPieceInfo.Create;
+      if desc = '' then
+        pi.desc := spart
+      else
+        pi.desc := desc;
+      pi.name := newname;
+      pi.lname := LowerCase(newname);
+      fpieces.AddObject(newname, pi);
+      checkname := '';
+    end
+    else if pi = fstubpieceinfo then
+    begin
+      pi := TPieceInfo.Create;
+      if desc = '' then
+        pi.desc := spart
+      else
+        pi.desc := desc;
+      pi.name := newname;
+      pi.lname := LowerCase(newname);
+      fpieces.AddObject(newname, pi);
+      checkname := '';
+    end
+    else
+    begin
+      checkname := spart + ',' + tmppartname;
+      pi.desc := desc;
+    end;
+    stmp2 := TStringList.Create;
+    if fexists(basedefault + 'db\db_pieces.extra.txt') then
+    begin
+      S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+      RemoveBlancLines(stmp2);
+    end;
+    if checkname <> '' then
+    begin
+      idx2 := stmp2.IndexOf(checkname);
+      if idx2 < 0 then
+      begin
+        checkname := spart + ',' + itoa(color);
+        idx2 := stmp2.IndexOf(checkname);
+        if idx2 < 0 then
+        begin
+          checkname := spart + ',' + '(Unknown)';
+          idx2 := stmp2.IndexOf(checkname);
+        end;
+      end;
+      if idx2 >= 0 then
+        stmp2.Delete(idx2);
+    end;
+    checkname := spart + ',' + pi.desc;
+    if stmp2.IndexOf(checkname) < 0 then
+    begin
+      stmp2.Add(spart + ',' + pi.desc);
+      backupfile(basedefault + 'db\db_pieces.extra.txt');
+      RemoveBlancLines(stmp2);
+      S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+    end;
+    stmp2.Free;
+  end;
+  RefreshPartCategory(spart);
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
 function TSetsDatabase.UpdateNameFromRebrickable(const pid: string): boolean;
 begin
   if Pos('-', pid) > 0 then
@@ -8686,7 +10657,9 @@ begin
       Result := UpdateSetNameFromRebrickable(pid);
   end;
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.UpdatePartNameFromRebrickable(const pid: string): boolean;
 var
   fname: string;
@@ -8737,7 +10710,9 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.UpdateSetNameFromRebrickable(const pid: string): boolean;
 var
   fname: string;
@@ -8788,17 +10763,70 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
-function TSetsDatabase.SetMoldName(const spart: string; const desc: string): boolean;
+{$IFNDEF CRAWLER}
+function TSetsDatabase.SetMoldName(const spart: string; const adesc: string): boolean;
 var
   pi: TPieceInfo;
   doadd, dosave: boolean;
   stmp2: TStringList;
   i: integer;
-  s_part, s_desc, s_color: string;
+  s_part, s_desc, s_color, s_year: string;
   newname: string;
+  desc: string;
+  ss: TSetExtraInfo;
+  idx: integer;
+
+  procedure _update_set_desc(const fname: string);
+  var
+    sl: TStringList;
+    dosave: boolean;
+    ii: integer;
+  begin
+    if not fexists(fname) then
+      Exit;
+    dosave := false;
+    sl := TStringList.Create;
+    if S_LoadFromFile(sl, fname) then
+      if sl.Count > 0 then
+        if sl.Strings[0] = 'set_id,descr,year' then
+        begin
+          for ii := 1 to sl.Count - 1 do
+          begin
+            splitstring(sl.Strings[ii], s_part, s_desc, s_year, ',');
+            if s_part = newname then
+              if s_desc <> desc then
+              begin
+                sl.Strings[ii] := spart + ',' + desc + ',' + s_year;
+                dosave := true;
+                break;
+              end;
+          end;
+        end;
+    if dosave then
+    begin
+      backupfile(fname);
+      S_SaveToFile(sl, fname);
+    end;
+    sl.Free;
+  end;
+
 begin
   Result := False;
+  desc := '';
+  for i := 1 to Length(adesc) do
+  begin
+    if adesc[i] <> ',' then
+      desc := desc + adesc[i]
+    else
+    begin
+      if i < Length(adesc) then
+        if adesc[i + 1] = ' ' then
+          desc := desc + ' -';
+    end;
+  end;
+
   newname := fixpartname(spart);
   pi := PieceInfo(newname);
   if pi = nil then
@@ -8842,9 +10870,13 @@ begin
   begin
     stmp2 := TStringList.Create;
     if fexists(basedefault + 'db\db_pieces.extra.txt') then
+    begin
       S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+      RemoveBlancLines(stmp2);
+    end;
     stmp2.Add(newname + ',' + pi.desc);
     backupfile(basedefault + 'db\db_pieces.extra.txt');
+    RemoveBlancLines(stmp2);
     S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
     stmp2.Free;
   end
@@ -8855,6 +10887,7 @@ begin
     begin
       dosave := False;
       S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.txt');
+      RemoveBlancLines(stmp2);
       if stmp2.Count > 1 then
         if stmp2.Strings[0] = 'piece_id,descr' then
         begin
@@ -8870,6 +10903,7 @@ begin
           if dosave then
           begin
             backupfile(basedefault + 'db\db_pieces.txt');
+            RemoveBlancLines(stmp2);
             S_SaveToFile(stmp2, basedefault + 'db\db_pieces.txt');
           end;
         end;
@@ -8879,7 +10913,8 @@ begin
     begin
       dosave := False;
       S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
-      for i := 1 to stmp2.Count - 1 do
+      RemoveBlancLines(stmp2);
+      for i := 0 to stmp2.Count - 1 do
       begin
         splitstring(stmp2.Strings[i], s_part, s_desc, ',');
         if fixpartname(s_part) = newname then
@@ -8891,6 +10926,7 @@ begin
       if dosave then
       begin
         backupfile(basedefault + 'db\db_pieces.extra.txt');
+        RemoveBlancLines(stmp2);
         S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
       end;
     end;
@@ -8899,6 +10935,7 @@ begin
     begin
       dosave := False;
       S_LoadFromFile(stmp2, basedefault + 'db\db_knownpieces.txt');
+      RemoveBlancLines(stmp2);
       if stmp2.Count > 1 then
         if stmp2.Strings[0] = 'Part,Color,Desc' then
         begin
@@ -8915,14 +10952,25 @@ begin
           if dosave then
           begin
             backupfile(basedefault + 'db\db_knownpieces.txt');
+            RemoveBlancLines(stmp2);
             S_SaveToFile(stmp2, basedefault + 'db\db_knownpieces.txt');
           end;
         end;
     end;
     stmp2.Free;
   end;
+  idx := fsets.IndexOf(newname);
+  if idx >= 0 then
+  begin
+    ss := fsets.Objects[idx] as TSetExtraInfo;
+    ss.Text := desc;
+    _update_set_desc(basedefault + 'db\db_sets.txt');
+    _update_set_desc(basedefault + 'db\db_mocs.txt');
+  end;
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.AddMoldSet(const spart: string): boolean;
 var
   i: integer;
@@ -8935,7 +10983,7 @@ begin
   desc := SetDesc(spart);
   stmp1 := TStringList.Create;
   kpfile := basedefault + 'db\db_knownpieces.txt';
-  if FileExists(kpfile) then
+  if fexists(kpfile) then
     S_LoadFromFile(stmp1, kpfile)
   else
     stmp1.Add('Part,Color,Desc');
@@ -8948,6 +10996,7 @@ begin
       begin
         stmp1.Strings[i] := s1 + ',-1,' + desc;
         backupfile(kpfile);
+        RemoveBlancLines(stmp1);
         S_SaveToFile(stmp1, kpfile);
         stmp1.Free;
         Exit;
@@ -8958,7 +11007,9 @@ begin
   S_SaveToFile(stmp1, kpfile);
   stmp1.Free;
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.AddMoldColor(const spart: string; const color: integer): boolean;
 var
   newname: string;
@@ -8991,7 +11042,7 @@ begin
     pcolor.knownpieces.AddObject(newname, pci);
     stmp1 := TStringList.Create;
     kpfile := basedefault + 'db\db_knownpieces.txt';
-    if FileExists(kpfile) then
+    if fexists(kpfile) then
       S_LoadFromFile(stmp1, kpfile)
     else
       stmp1.Add('Part,Color,Desc');
@@ -9001,6 +11052,7 @@ begin
     begin
       stmp1.Add(lineadd);
       backupfile(kpfile);
+      RemoveBlancLines(stmp1);
       S_SaveToFile(stmp1, kpfile);
     end;
 
@@ -9029,6 +11081,7 @@ begin
   end;
   pci.pieceinfo := pi;
 end;
+{$ENDIF}
 
 function TSetsDatabase.GetMoldKnownColors(const spart: string): TDNumberList;
 var
@@ -9062,6 +11115,70 @@ begin
       if fcolors[i].knownpieces <> nil then
         if fcolors[i].knownpieces.IndexOfUCS(stmp) >= 0 then
           inc(Result);
+end;
+
+function TSetsDatabase.GetMoldNumNormalPartColors(const spart: string): integer;
+var
+  i: integer;
+  stmp: string;
+begin
+  Result := 0;
+  if Pos('BL ', spart) = 1 then
+    stmp := fixpartname(RebrickablePart(Copy(spart, 4, Length(spart) - 3)))
+  else
+    stmp := fixpartname(RebrickablePart(spart));
+  for i := 0 to LASTNORMALCOLORINDEX do
+    if fcolors[i].id = i then
+      if fcolors[i].knownpieces <> nil then
+        if fcolors[i].knownpieces.IndexOfUCS(stmp) >= 0 then
+          inc(Result);
+end;
+
+function TSetsDatabase.HasSetColorsOnly(const spart: string): boolean;
+var
+  i, idx: integer;
+  stmp: string;
+  pci: TPieceColorInfo;
+begin
+  Result := False;
+  if Pos('BL ', spart) = 1 then
+    stmp := fixpartname(RebrickablePart(Copy(spart, 4, Length(spart) - 3)))
+  else
+    stmp := fixpartname(RebrickablePart(spart));
+  for i := 0 to LASTNORMALCOLORINDEX do
+    if fcolors[i].id = i then
+      if fcolors[i].knownpieces <> nil then
+        if fcolors[i].knownpieces.IndexOfUCS(stmp) >= 0 then
+          Exit;
+
+  idx := -1;
+  if fcolors[-1].knownpieces <> nil then
+  begin
+    idx := fcolors[-1].knownpieces.IndexOfUCS(stmp);
+    if idx < 0 then
+      Exit;
+  end;
+
+  if fcolors[INSTRUCTIONCOLORINDEX].knownpieces <> nil then
+    if fcolors[INSTRUCTIONCOLORINDEX].knownpieces.IndexOfUCS(stmp) >= 0 then
+    begin
+      Result := True;
+      Exit;
+    end;
+
+  if fcolors[BOXCOLORINDEX].knownpieces <> nil then
+    if fcolors[BOXCOLORINDEX].knownpieces.IndexOfUCS(stmp) >= 0 then
+    begin
+      Result := True;
+      Exit;
+    end;
+
+  if idx >= 0 then
+  begin
+    pci := fcolors[-1].knownpieces.Objects[idx] as TPieceColorInfo;
+    Result := (pci.sparttype = 'S') or (pci.parttype = TYPE_SET);
+  end;
+
 end;
 
 function TSetsDatabase.GetMoldColorsFlags(const spart: string): integer;
@@ -9118,11 +11235,12 @@ var
   kpfile: string;
 begin
   kpfile := basedefault + 'db\db_knownpieces.txt';
-  if not FileExists(kpfile) then
+  if not fexists(kpfile) then
     Exit;
 
   sl := TStringList.Create;
   S_LoadFromFile(sl, kpfile);
+  RemoveBlancLines(sl);
   for i := 1 to sl.Count - 1 do
   begin
     stmp := sl.Strings[i];
@@ -9149,11 +11267,13 @@ var
   pci: TPieceColorInfo;
   pi: TPieceInfo;
   pcolor: colorinfo_p;
+  {$IFNDEF CRAWLER}
   tmppartname: string;
   checkname: string;
   idx2: integer;
   stmp2: TStringList;
   needssave: boolean;
+  {$ENDIF}
 begin
   newname := fixpartname(spart);
   pci := PieceColorInfo(newname, color);
@@ -9167,6 +11287,16 @@ begin
     CrawlerPriorityPart(newname, color);
   end;
 
+  {$IFDEF CRAWLER}
+  pi := PieceInfo(newname);
+  if (pi = nil) or (pi = fstubpieceinfo) then
+  begin
+    pi := TPieceInfo.Create;
+    pi.name := newname;
+    pi.lname := LowerCase(newname);
+    fpieces.AddObject(newname, pi);
+  end;
+  {$ELSE}
   tmppartname := Trim(stringreplace(newname, ',', '', [rfReplaceAll, rfIgnoreCase]));
   if (PieceDesc(newname) = '') or
      (UpperCase(PieceDesc(newname)) = UpperCase(newname)) or
@@ -9214,7 +11344,10 @@ begin
     begin
       stmp2 := TStringList.Create;
       if fexists(basedefault + 'db\db_pieces.extra.txt') then
+      begin
         S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+        RemoveBlancLines(stmp2);
+      end;
       if checkname <> '' then
       begin
         idx2 := stmp2.IndexOf(checkname);
@@ -9233,10 +11366,12 @@ begin
       end;
       stmp2.Add(newname + ',' + pi.desc);
       backupfile(basedefault + 'db\db_pieces.extra.txt');
+      RemoveBlancLines(stmp2);
       S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
       stmp2.Free;
     end;
   end;
+  {$ENDIF}
 end;
 
 procedure TSetsDatabase.SetSetIsGear(const sid: string; const value: boolean);
@@ -9288,11 +11423,25 @@ begin
   s.Free;
 end;
 
+function TSetsDatabase.IsMinifigure(const mid: string): boolean;
+var
+  pci: TPieceColorInfo;
+begin
+  Result := False;
+  pci := PieceColorInfo(mid, -1);
+  if pci <> nil then
+    if pci.sparttype = 'M' then
+      Result := True;
+end;
+
+{$IFNDEF CRAWLER}
 function TSetsDatabase.DownloadPartInventory(const s: string): boolean;
 begin
   Result := UpdatePartInventory(s, True);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.UpdatePartInventory(const s: string; const forcedownload: boolean): boolean;
 var
   fname: string;
@@ -9334,7 +11483,7 @@ begin
   fname := basedefault + 'db\parts\' + blname + '.htm';
   if forcedownload then
   begin
-    urlstr := 'https://www.bricklink.com/catalogItemInv.asp?P=' + blname + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+    urlstr := sbricklink + 'catalogItemInv.asp?P=' + blname + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
     if UrlDownloadToFile(nil, PChar(urlstr), PChar(fname), 0, nil) <> 0 then
     begin
       Result := False;
@@ -9343,9 +11492,9 @@ begin
   end
   else
   begin
-    if not FileExists(fname) then
+    if not fexists(fname) then
     begin
-      urlstr := 'https://www.bricklink.com/catalogItemInv.asp?P=' + blname + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+      urlstr := sbricklink + 'catalogItemInv.asp?P=' + blname + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
       if UrlDownloadToFile(nil, PChar(urlstr), PChar(fname), 0, nil) <> 0 then
       begin
         Result := False;
@@ -9593,7 +11742,10 @@ begin
                   end;
                   stmp2 := TStringList.Create;
                   if fexists(basedefault + 'db\db_pieces.extra.txt') then
+                  begin
                     S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+                    RemoveBlancLines(stmp2);
+                  end;
                   if checkname <> '' then
                   begin
                     idx2 := stmp2.IndexOf(checkname);
@@ -9616,6 +11768,7 @@ begin
                   else
                     extra3.Add(bl_part + ',' + pi.desc);
                   backupfile(basedefault + 'db\db_pieces.extra.txt');
+                  RemoveBlancLines(stmp2);
                   S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
                   stmp2.Free;
                   RefreshPartCategory(bl_part);
@@ -9636,17 +11789,20 @@ begin
     extra1.Free;
     AddKnownPieces(extra2);
     extra2.Free;
-    kc := GetMoldKnownColors(Trim(s));
-    if kc <> nil then
+    if extra3.Count > 0 then
     begin
-      for i := 0 to extra3.Count - 1 do
+      kc := GetMoldKnownColors(Trim(s));
+      if kc <> nil then
       begin
-        splitstring(extra3.Strings[i], s_part, s_desc, ',');
-        s_part := RebrickablePart(s_part);
-        for j := 0 to kc.Count - 1 do
-          AddKnownPiece(s_part, kc.Numbers[j], s_desc);
+        for i := 0 to extra3.Count - 1 do
+        begin
+          splitstring(extra3.Strings[i], s_part, s_desc, ',');
+          s_part := RebrickablePart(s_part);
+          for j := 0 to kc.Count - 1 do
+            AddKnownPiece(s_part, kc.Numbers[j], s_desc);
+        end;
+        kc.Free;
       end;
-      kc.Free;
     end;
     extra3.Free;
   finally
@@ -9674,8 +11830,9 @@ begin
 
   Result := True;
 end;
+{$ENDIF}
 
-
+{$IFNDEF CRAWLER}
 function TSetsDatabase.DownloadSetFromBricklinkNew(const s: string): boolean;
 var
   tmpname: string;
@@ -9730,28 +11887,28 @@ begin
     if pi <> nil then
       if pi.category = 961 then
       begin
-        urlstr := 'https://www.bricklink.com/catalogItemInv.asp?P=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+        urlstr := sbricklink + 'catalogItemInv.asp?P=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
         typ := 'P';
         Result := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
         didP := True;
       end;
     if not Result then
     begin
-      urlstr := 'https://www.bricklink.com/catalogItemInv.asp?S=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+      urlstr := sbricklink + 'catalogItemInv.asp?S=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
       typ := 'S';
       Result := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
       didS := True;
     end;
     if not Result then
     begin
-      urlstr := 'https://www.bricklink.com/catalogItemInv.asp?B=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+      urlstr := sbricklink + 'catalogItemInv.asp?B=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
       typ := 'B';
       Result := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
       didB := True;
     end;
     if not Result then
     begin
-      urlstr := 'https://www.bricklink.com/catalogItemInv.asp?M=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+      urlstr := sbricklink + 'catalogItemInv.asp?M=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
       typ := 'M';
       Result := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
       didM := True;
@@ -9759,7 +11916,7 @@ begin
     if not Result then
       if not didP then
       begin
-        urlstr := 'https://www.bricklink.com/catalogItemInv.asp?P=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+        urlstr := sbricklink + 'catalogItemInv.asp?P=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
         typ := 'P';
         Result := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
         didP := True;
@@ -9788,7 +11945,7 @@ begin
     begin
       if not didM then
       begin
-        urlstr := 'https://www.bricklink.com/catalogItemInv.asp?M=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+        urlstr := sbricklink + 'catalogItemInv.asp?M=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
         typ := 'M';
         Result := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
         if Result then
@@ -9802,7 +11959,7 @@ begin
       begin
         if not didP then
         begin
-          urlstr := 'https://www.bricklink.com/catalogItemInv.asp?P=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+          urlstr := sbricklink + 'catalogItemInv.asp?P=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
           typ := 'P';
           Result := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
           if Result then
@@ -9817,7 +11974,7 @@ begin
       begin
         if not didS then
         begin
-          urlstr := 'https://www.bricklink.com/catalogItemInv.asp?S=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+          urlstr := sbricklink + 'catalogItemInv.asp?S=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
           typ := 'S';
           Result := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
           if Result then
@@ -9830,7 +11987,7 @@ begin
       end;
       if p1 = 0 then
       begin
-        urlstr := 'https://www.bricklink.com/catalogItemInv.asp?G=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+        urlstr := sbricklink + 'catalogItemInv.asp?G=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
         typ := 'G';
         Result := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
         if Result then
@@ -9843,7 +12000,7 @@ begin
       end;
       if p1 = 0 then
       begin
-        urlstr := 'https://www.bricklink.com/catalogItemInv.asp?B=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+        urlstr := sbricklink + 'catalogItemInv.asp?B=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
         typ := 'B';
         Result := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
         if Result then
@@ -10087,7 +12244,10 @@ begin
                   end;
                   stmp2 := TStringList.Create;
                   if fexists(basedefault + 'db\db_pieces.extra.txt') then
+                  begin
                     S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+                    RemoveBlancLines(stmp2);
+                  end;
                   if checkname <> '' then
                   begin
                     idx2 := stmp2.IndexOf(checkname);
@@ -10106,6 +12266,7 @@ begin
                   end;
                   stmp2.Add(bl_part + ',' + pi.desc);
                   backupfile(basedefault + 'db\db_pieces.extra.txt');
+                  RemoveBlancLines(stmp2);
                   S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
                   stmp2.Free;
                   RefreshPartCategory(bl_part);
@@ -10183,7 +12344,9 @@ begin
       db.SetPartType(s, -1, typ[1]);
   end;
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.DownloadSetAlternatesFromBricklinkNew(const s: string): boolean;
 var
   tmpname: string;
@@ -10196,12 +12359,12 @@ var
 begin
   tmpname := I_NewTempFile('tmpsetalt_' + Trim(s));
   try
-    urlstr := 'https://www.bricklink.com/catalogItemInv.asp?S=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+    urlstr := sbricklink + 'catalogItemInv.asp?S=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
     typ := 'S';
     Result := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
     if not Result then
     begin
-      urlstr := 'https://www.bricklink.com/catalogItemInv.asp?M=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+      urlstr := sbricklink + 'catalogItemInv.asp?M=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
       typ := 'M';
       Result := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
     end;
@@ -10223,7 +12386,7 @@ begin
     p1 := Pos('SIZE="+0"><B>', tmp1);
     if p1 = 0 then
     begin
-      urlstr := 'https://www.bricklink.com/catalogItemInv.asp?M=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+      urlstr := sbricklink + 'catalogItemInv.asp?M=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
       typ := 'M';
       Result := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
       if Result then
@@ -10235,7 +12398,7 @@ begin
     p1 := Pos('SIZE="+0"><B>', tmp1);
     if p1 = 0 then
     begin
-      urlstr := 'https://www.bricklink.com/catalogItemInv.asp?G=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
+      urlstr := sbricklink + 'catalogItemInv.asp?G=' + GetBLNetPieceName(Trim(s)) + '&viewType=P&bt=0&sortBy=0&sortAsc=A';
       typ := 'G';
       Result := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
       if Result then
@@ -10259,7 +12422,9 @@ begin
   end;
   DeleteFile(tmpname);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.DownloadSetFromBricklink(const s: string; const typ: string = ''): boolean;
 var
   i: integer;
@@ -10277,12 +12442,12 @@ begin
   fname := I_NewTempFile(s);
   if typ = '' then
   begin
-    if not DownloadFile('http://www.bricklink.com/catalogDownload.asp?itemType=S&viewType=4&itemTypeInv=S&itemNo=' + GetBLNetPieceName(s) + '&downloadType=T', fname) then
+    if not DownloadFile('http://' + BL_NET + '/catalogDownload.asp?itemType=S&viewType=4&itemTypeInv=S&itemNo=' + GetBLNetPieceName(s) + '&downloadType=T', fname) then
       Exit;
   end
   else
   begin
-    if not DownloadFile('http://www.bricklink.com/catalogDownload.asp?itemType=M&viewType=4&itemTypeInv=' + typ + '&itemNo=' + GetBLNetPieceName(s) + '&downloadType=T', fname) then
+    if not DownloadFile('http://' + BL_NET + '/catalogDownload.asp?itemType=M&viewType=4&itemTypeInv=' + typ + '&itemNo=' + GetBLNetPieceName(s) + '&downloadType=T', fname) then
       Exit;
   end;
   if not fexists(fname) then
@@ -10334,9 +12499,13 @@ begin
               idx := fpieces.AddObject(pi.name, pi);
               stmp2 := TStringList.Create;
               if fexists(basedefault + 'db\db_pieces.extra.txt') then
+              begin
                 S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+                RemoveBlancLines(stmp2);
+              end;
               stmp2.Add(fpieces.Strings[idx] + ',' + (fpieces.Objects[idx] as TPieceInfo).desc);
               backupfile(basedefault + 'db\db_pieces.extra.txt');
+              RemoveBlancLines(stmp2);
               S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
               stmp2.Free;
             end;
@@ -10368,18 +12537,21 @@ begin
 
   RefreshSetYears(s);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.UpdateSet(const s: string; const data: string = ''): boolean;
 var
   i: integer;
   slist: TStringList;
   sout: TStringList;
-  spiece, scolor, snum, scost: string;
+  spiece, scolor, snum, scode, scost: string;
   color: integer;
   stmp2: TStringList;
   pci: TPieceColorInfo;
   pi: TPieceInfo;
   pcolor: colorinfo_p;
+  docodes: boolean;
 begin
   slist := TStringList.Create;
   slist.Text := data;
@@ -10393,32 +12565,62 @@ begin
   sout := TStringList.Create;
   sout.Add('Part,Color,Num');
 
+  docodes := Pos('Code,Num', slist.Strings[0]) = 1;
+
   for i := 1 to slist.Count - 1 do
   begin
-    splitstring(slist.Strings[i], spiece, scolor, snum, scost, ',');
-    if spiece = '' then
-      Continue;
-    if spiece = '6141' then
-      spiece := '4073'
-    else if Pos('Mx', spiece) = 1 then
-      spiece[1] := 'm';
-    spiece := fixpartname(spiece);
-
-    sout.Add(spiece + ',' + scolor + ',' + snum);
-
-    if Pos('BL ', spiece) = 1 then
-      spiece := RebrickablePart(Copy(spiece, 4, Length(spiece) - 3))
-    else
-      spiece := RebrickablePart(spiece);
-
-    if Pos('BL', scolor) = 1 then
+    if docodes then
     begin
-      scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
+      splitstring(slist.Strings[i], scode, snum, scost, ',');
+      if GetPieceColorFromCode(scode, spiece, color) then
+      begin
+        if spiece = '' then
+          Continue;
+        if spiece = '6141' then
+          spiece := '4073'
+        else if Pos('Mx', spiece) = 1 then
+          spiece[1] := 'm';
+        spiece := fixpartname(spiece);
 
-      color := BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0))
+        if Pos('BL ', spiece) = 1 then
+          spiece := RebrickablePart(Copy(spiece, 4, Length(spiece) - 3))
+        else
+          spiece := RebrickablePart(spiece);
+
+        scolor := itoa(color);
+        sout.Add(spiece + ',' + scolor + ',' + snum);
+
+      end
+      else
+        I_Warning('TSetsDatabase.UpdateSet(): Unknown part code %s'#13#10, [scode]);
     end
     else
-      color := StrToIntDef(scolor, 0);
+    begin
+      splitstring(slist.Strings[i], spiece, scolor, snum, scost, ',');
+      if spiece = '' then
+        Continue;
+      if spiece = '6141' then
+        spiece := '4073'
+      else if Pos('Mx', spiece) = 1 then
+        spiece[1] := 'm';
+      spiece := fixpartname(spiece);
+
+      sout.Add(spiece + ',' + scolor + ',' + snum);
+
+      if Pos('BL ', spiece) = 1 then
+        spiece := RebrickablePart(Copy(spiece, 4, Length(spiece) - 3))
+      else
+        spiece := RebrickablePart(spiece);
+
+      if Pos('BL', scolor) = 1 then
+      begin
+        scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
+
+        color := BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0))
+      end
+      else
+        color := StrToIntDef(scolor, 0);
+    end;
 
     pci := PieceColorInfo(spiece, color);
     if pci = nil then
@@ -10439,9 +12641,13 @@ begin
       pci.pieceinfo := pi;
       stmp2 := TStringList.Create;
       if fexists(basedefault + 'db\db_pieces.extra.txt') then
+      begin
         S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+        RemoveBlancLines(stmp2);
+      end;
       stmp2.Add(spiece + ',' + spiece);
       backupfile(basedefault + 'db\db_pieces.extra.txt');
+      RemoveBlancLines(stmp2);
       S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
       stmp2.Free;
     end;
@@ -10470,7 +12676,9 @@ begin
     fcolors[-1].knownpieces.AddObject(s, TPieceColorInfo.Create(s, -1));
   RefreshSet(s, True);
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.UpdateSetInfo(const s: string; const desc: string; const year: integer; const ismoc: boolean): boolean;
 var
   ss: TSetExtraInfo;
@@ -10491,16 +12699,16 @@ begin
       ss.year := year;
     txt := desc;
     for i := 1 to length(txt) do
-      if txt = ',' then
-        txt := ' ';
+      if txt[i] = ',' then
+        txt[i] := ' ';
     ss.text := txt;
   end;
+  {$I-}
   backupfile(basedefault + 'db\db_sets.txt');
   AssignFile(t1, basedefault + 'db\db_sets.txt');
   rewrite(t1);
   writeln(t1, 'set_id,descr,year');
 
-  {$I-}
   backupfile(basedefault + 'db\db_mocs.txt');
   AssignFile(t2, basedefault + 'db\db_mocs.txt');
   rewrite(t2);
@@ -10521,7 +12729,9 @@ begin
   {$I+}
   Result := IOResult = 0;
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.UpdateSetInfoEx(const s: string; const desc: string; const year: integer; const ismoc: boolean; const hasI, hasB: boolean): boolean;
 var
   ss: TSetExtraInfo;
@@ -10577,7 +12787,7 @@ begin
       SA := TStringList.Create;
       try
         dosave := False;
-        if FileExists(basedefault + 'db\db_set_assets.txt') then
+        if fexists(basedefault + 'db\db_set_assets.txt') then
           S_LoadFromFile(SA, basedefault + 'db\db_set_assets.txt');
         if SA.Count = 0 then
         begin
@@ -10641,7 +12851,9 @@ begin
   {$I+}
   Result := IOResult = 0;
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 procedure TSetsDatabase.SetSetIsBook(const sid: string);
 var
   lst: TStringList;
@@ -10671,6 +12883,7 @@ begin
   end;
   lst.Free;
 end;
+{$ENDIF}
 
 function TSetsDatabase.IsBook(const s: string): boolean;
 begin
@@ -10682,10 +12895,12 @@ var
   idx: integer;
   cpi: TCodePieceInfo;
 begin
-  Result := False;
   idx := fpiececodes.IndexOf(Trim(code));
   if idx < 0 then
+  begin
+    Result := False;
     Exit;
+  end;
   cpi := fpiececodes.Objects[idx] as TCodePieceInfo;
   spiece := cpi.piece;
   scolor := cpi.color;
@@ -10708,7 +12923,7 @@ var
   check, foo: string;
   i: integer;
 begin
-  check := Trim(UpperCase(cs));
+  check := UpperCase(Trim(cs));
   if check = '(NOT APPLICABLE)' then
   begin
     Result := True;
@@ -10717,7 +12932,7 @@ begin
   end;
   for i := -1 to MAXINFOCOLOR do
     if fcolors[i].id = i then
-      if Trim(UpperCase(fcolors[i].name)) = check then
+      if UpperCase(Trim(fcolors[i].name)) = check then
       begin
         Result := True;
         cc := i;
@@ -10725,10 +12940,10 @@ begin
       end;
 
   splitstring(cs, check, foo, '(');
-  check := Trim(UpperCase(check));
+  check := UpperCase(Trim(check));
   for i := -1 to MAXINFOCOLOR do
     if fcolors[i].id = i then
-      if Trim(UpperCase(fcolors[i].name)) = check then
+      if UpperCase(Trim(fcolors[i].name)) = check then
       begin
         Result := True;
         cc := i;
@@ -10736,6 +12951,61 @@ begin
       end;
 
   Result := False;
+end;
+
+function TSetsDatabase.UpdatePartWeight(const pi: TPieceInfo; const w: double): boolean;
+var
+  sl: TStringList;
+  i: integer;
+  check, sweight: string;
+begin
+  Result := False;
+
+  if pi = nil then
+    Exit;
+
+  if pi = fstubpieceinfo then
+    Exit;
+
+  if pi.weight = w then
+    Exit;
+
+  Result := True;
+  pi.weight := w;
+
+  sl := TStringList.Create;
+  if fexists(basedefault + 'db\db_pieces_weight.txt') then
+    S_LoadFromFile(sl, basedefault + 'db\db_pieces_weight.txt')
+  else
+    sl.Add('Part,Weight');
+  if sl.Count < 1 then
+  begin
+    sl.Free;
+    Exit;
+  end;
+  if sl.Strings[0] <> 'Part,Weight' then
+  begin
+    sl.Free;
+    Exit;
+  end;
+
+  for i := 1 to sl.Count - 1 do
+  begin
+    splitstring(sl.Strings[i], check, sweight, ',');
+    if check = pi.name then
+    begin
+      sl.Strings[i] := pi.name + ',' + Format('%2.4f', [w]);
+      backupfile(basedefault + 'db\db_pieces_weight.txt');
+      S_SaveToFile(sl, basedefault + 'db\db_pieces_weight.txt');
+      sl.Free;
+      Exit;
+    end;
+  end;
+
+  sl.Add(pi.name + ',' + Format('%2.4f', [w]));
+  backupfile(basedefault + 'db\db_pieces_weight.txt');
+  S_SaveToFile(sl, basedefault + 'db\db_pieces_weight.txt');
+  sl.Free;
 end;
 
 function TSetsDatabase.UpdatePartWeight(const pcs: string; const w: double): boolean;
@@ -10779,7 +13049,7 @@ begin
   (fpieces.Objects[idx] as TPieceInfo).weight := w;
 
   sl := TStringList.Create;
-  if FileExists(basedefault + 'db\db_pieces_weight.txt') then
+  if fexists(basedefault + 'db\db_pieces_weight.txt') then
     S_LoadFromFile(sl, basedefault + 'db\db_pieces_weight.txt')
   else
     sl.Add('Part,Weight');
@@ -11552,6 +13822,7 @@ begin
   AllowInternetAccess := True;
 end;
 
+{$IFNDEF CRAWLER}
 procedure TSetsDatabase.ExportDatabase(const fname: string);
 var
   s: TStringList;
@@ -11600,16 +13871,74 @@ begin
   if Assigned(progressfunc) then
     progressfunc(progressstring, 1.0);
 end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+procedure TSetsDatabase.ExportPartColor(const fname: string);
+var
+  s: TStringList;
+  i, j: integer;
+  k, tot: integer;
+  progressstring: string;
+  pci: TPieceColorInfo;
+begin
+  progressstring := 'Export piece/color data...';
+  if Assigned(progressfunc) then
+    progressfunc(progressstring, 0.0);
+
+  printf('TSetsDatabase.ExportPartColor(' + fname + ')'#13#10);
+
+  s := TStringList.Create;
+  s.Add('Name;Color');
+
+  tot := 0;
+  for i := -1 to MAXINFOCOLOR do
+    if (fcolors[i].id = i) or (i = -1) then
+      if fcolors[i].knownpieces <> nil then
+        Inc(tot, fcolors[i].knownpieces.Count);
+
+  k := 0;
+  for i := -1 to MAXINFOCOLOR do
+    if (fcolors[i].id = i) or (i = -1) then
+    begin
+      if fcolors[i].knownpieces <> nil then
+      begin
+        for j := 0 to fcolors[i].knownpieces.Count - 1 do
+        begin
+          if j mod 500 = 0 then
+            if Assigned(progressfunc) then
+              progressfunc(progressstring, (k + j) / tot);
+          pci := fcolors[i].knownpieces.Objects[j] as TPieceColorInfo;
+          s.Add(Format('%s;%d', [pci.piece, pci.color]));
+        end;
+        inc(k, fcolors[i].knownpieces.Count);
+        if Assigned(progressfunc) then
+          progressfunc(progressstring, k / tot);
+      end;
+    end;
+
+  backupfile(fname);
+  S_SaveToFile(s, fname);
+  s.Free;
+
+  if Assigned(progressfunc) then
+    progressfunc(progressstring, 1.0);
+end;
+{$ENDIF}
 
 constructor TPieceInfo.Create;
 begin
   fname := '';
+  {$IFNDEF CRAWLER}
   fdesc := '';
+  {$ENDIF}
   fcategory := 0;
   fweight := 0;
+  {$IFNDEF CRAWLER}
   fdimentionx := 0;
   fdimentiony := 0;
   fdimentionz := 0;
+  {$ENDIF}
   finventoryfound := False;
   fpartsinventoriesvalidcount := 0;
   finventoryname := '';
@@ -11672,8 +14001,13 @@ begin
     Exit;
   end;
 
-  Result := TbrickInventory.Create;
+  Result := TBrickInventory.Create;
   Result.LoadLooseParts(slist);
+  {$IFNDEF CRAWLER}
+  for i := 0 to Result.numlooseparts - 1 do
+    db.AddKnownPiecePINV(Result.looseparts[i].part, Result.looseparts[i].color, db.PieceDesc(Result.looseparts[i].part));
+  {$ENDIF}
+
   slist.Free;
 end;
 
@@ -11805,9 +14139,12 @@ begin
   fneedssave := False;
   fhasloaded := False;
   fdate := Now;
+  {$IFNDEF CRAWLER}
+  fcanedityear := False;
   ffirstsetyear := 9999;
   flastsetyear := 0;
   fyear := 0;
+  {$ENDIF}
   inherited Create;
 end;
 
@@ -11848,12 +14185,12 @@ begin
   end;
   Result := False;
   fname := PieceColorCacheFName(fpiece, fcolorstr);
-  if FileExists(fname) then
+  if fexists(fname) then
   begin
     try
       f := TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
     except
-      Sleep(50);
+      Sleep(100);
       try
         f := TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
       except
@@ -11933,12 +14270,12 @@ begin
     ForceDirectories(fdir);
   fname := PieceColorCacheFName(fpiece, fcolorstr);
 
-  if not FileExists(fname) then
+  if not fexists(fname) then
   begin
     try
       f := TFileStream.Create(fname, fmCreate or fmShareDenyWrite);
     except
-      Sleep(50);
+      Sleep(100);
       try
         f := TFileStream.Create(fname, fmCreate or fmShareDenyWrite);
       except
@@ -11992,7 +14329,7 @@ var
   tmpdate: double;
 begin
   tmpdate := Now;
-  if tmpdate - flastinternetupdate < 1/(24*60*12) then // 5 seconds
+  if tmpdate - flastinternetupdate < 1 / (24 * 60 * 12) then // 5 seconds
     Exit;
   flastinternetupdate := tmpdate;
   fdir := PieceColorCacheDir(fpiece, fcolorstr);
@@ -12007,7 +14344,7 @@ begin
     Assign(av);
     SaveToDisk;
   end
-  else if not FileExists(PieceColorCacheFName(fpiece, fcolorstr)) then
+  else if not fexists(PieceColorCacheFName(fpiece, fcolorstr)) then
   begin
     FillChar(pg, SizeOf(priceguide_t), 0);
     FillChar(av, SizeOf(availability_t), 0);
@@ -12057,6 +14394,36 @@ begin
   end;
 end;
 
+{$IFNDEF CRAWLER}
+procedure TPieceColorInfo.UpdatePartYears(const y: integer = -1);
+var
+  yyyy: integer;
+begin
+{  if db.IsMoc(setid) then
+    Exit;}
+  if y = -1 then
+    yyyy := fyear
+  else
+    yyyy := y;
+  if (yyyy < 1932) or (yyyy > 2050) then
+    Exit;
+
+  if yyyy < ffirstsetyear then
+  begin
+    ffirstsetyear := yyyy;
+    if (ffirstsetyear < fyear) or (fyear = 0) then
+      fyear := yyyy;
+  end;
+  if yyyy > flastsetyear then
+  begin
+    flastsetyear := yyyy;
+    if fyear = 0 then
+      fyear := flastsetyear;
+  end;
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
 procedure TPieceColorInfo.UpdateSetYears(const setid: string; const y: integer = -1);
 var
   yyyy: integer;
@@ -12082,7 +14449,9 @@ begin
       fyear := flastsetyear;
   end;
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 procedure TPieceColorInfo.SetYear(const y: integer);
 begin
   if (y < 1932) or (y > 2050) then
@@ -12092,6 +14461,7 @@ begin
   else
     fyear := y;
 end;
+{$ENDIF}
 
 procedure TPieceColorInfo.UpdateSetReference(const aset: string; const numpieces: integer);
 begin
@@ -12132,7 +14502,6 @@ end;
 function TPieceColorInfo.Check: boolean;
 const
   MAXPRICE = 250000.00;
-
 begin
   Result := True;
 
@@ -12391,6 +14760,7 @@ begin
       ]);
 end;
 
+{$IFNDEF CRAWLER}
 function TPieceColorInfo.dbExportStringDB: string;
 var
   pi: TPieceInfo;
@@ -12453,7 +14823,7 @@ begin
     begin
       desc := db.PieceDesc(fpiece);
       ayear := fyear;
-      if pi.category = 999 then
+      if pi.category = CATEGORYCUSTOMMINIFIGS then
         customstr := '1';
     end;
   end;
@@ -12476,6 +14846,7 @@ begin
         desc
       ]);
 end;
+{$ENDIF}
 
 function F_nDemand(const favailability: availability_t; const fpriceguide: priceguide_t): double;
 begin
@@ -12491,7 +14862,7 @@ begin
   if Result > 10.0 then
     Result := 10.0;
 end;
-
+                                     
 function TPieceColorInfo.nDemand: double;
 begin
   if not fhasloaded then
@@ -12659,7 +15030,9 @@ begin
       if spiece = '6141' then
         spiece := '4073'
       else if Pos('Mx', spiece) = 1 then
-        spiece[1] := 'm';
+        spiece[1] := 'm'
+      else
+        spiece := fixpartname(spiece);
 
       while k < len do
       begin
@@ -12760,7 +15133,7 @@ begin
     end;
   end;
 
-  if FileExists(basedefault + 'cache\' + fcrawlerfilename) then
+  if fexists(basedefault + 'cache\' + fcrawlerfilename) then
   begin
     S_LoadFromFile(fcrawlerpriority, basedefault + 'cache\' + fcrawlerfilename);
 
@@ -12771,11 +15144,15 @@ begin
       if spiece = '6141' then
         spiece := '4073'
       else if Pos('Mx', spiece) = 1 then
-        spiece[1] := 'm';
+        spiece[1] := 'm'
+      else
+        spiece := fixpartname(spiece);
 
       cc := StrToIntDef(sc, 0);
       if (cc >= -1) and (cc <= MAXINFOCOLOR) then
       begin
+        if fcolors[cc].knownpieces = nil then
+          fcolors[cc].knownpieces := THashStringList.Create;
         idx := fcolors[cc].knownpieces.Indexof(spiece);
         if idx < 0 then
         begin
@@ -12833,9 +15210,16 @@ begin
   {$IFNDEF CRAWLER}
   LoadStorage;
   {$ENDIF}
+  {$IFNDEF CRAWLER}
   RefreshAllSetsYears;
+  {$ENDIF}
   RefreshAllSetsAssets;
   InitPartTypes;
+
+  {$IFNDEF CRAWLER}
+  InitYearTable;
+  InitBaseMolds;
+  {$ENDIF}
 
   Result := True;
   AllowInternetAccess := True;
@@ -12897,21 +15281,21 @@ begin
   idx := fallsets.IndexOf(setid);
   if idx < 0 then
   begin
-    if FileExists(basedefault + 'db\sets\' + setid + '.txt') then
+    if fexists(basedefault + 'db\sets\' + setid + '.txt') then
     begin
       idx := fallsets.Add(setid);
       fallsets.Objects[idx] := TBrickInventory.Create;
       (fallsets.Objects[idx] as TBrickInventory).LoadLooseParts(basedefault + 'db\sets\' + setid + '.txt');
       Result := (fallsets.Objects[idx] as TBrickInventory);
     end
-    else if FileExists(basedefault + 'mosaic\' + setid + '.txt') then
+    else if fexists(basedefault + 'mosaic\' + setid + '.txt') then
     begin
       idx := fallsets.Add(setid);
       fallsets.Objects[idx] := TBrickInventory.Create;
       (fallsets.Objects[idx] as TBrickInventory).LoadLooseParts(basedefault + 'mosaic\' + setid + '.txt');
       Result := (fallsets.Objects[idx] as TBrickInventory);
     end
-    else if FileExists(basedefault + 'out\' + setid + '\' + setid + '.txt') then
+    else if fexists(basedefault + 'out\' + setid + '\' + setid + '.txt') then
     begin
       idx := fallsets.Add(setid);
       fallsets.Objects[idx] := TBrickInventory.Create;
@@ -12924,7 +15308,7 @@ begin
   end
   else if Pos('mosaic_', setid) = 1 then
   begin
-    if FileExists(basedefault + 'mosaic\' + setid + '.txt') then
+    if fexists(basedefault + 'mosaic\' + setid + '.txt') then
     begin
       (fallsets.Objects[idx] as TBrickInventory).Clear;
       (fallsets.Objects[idx] as TBrickInventory).LoadLooseParts(basedefault + 'mosaic\' + setid + '.txt');
@@ -12946,7 +15330,7 @@ begin
   idx := fallsetswithoutextra.IndexOf(setid);
   if idx < 0 then
   begin
-    if FileExists(basedefault + 'db\sets\' + setid + '.txt') then
+    if fexists(basedefault + 'db\sets\' + setid + '.txt') then
     begin
       idx := fallsetswithoutextra.Add(setid);
       fallsetswithoutextra.Objects[idx] := TBrickInventory.Create;
@@ -13003,9 +15387,9 @@ begin
 
  if assigned(progressfunc) then
    progressfunc(progressstring, 1.0);
-
 end;
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.GetUnknownPiecesFromCache: TStringList;
 var
   i: integer;
@@ -13043,7 +15427,9 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
+{$IFNDEF CRAWLER}
 function TSetsDatabase.RemoveUnknownPiecesFromCache: integer;
 var
   i: integer;
@@ -13081,18 +15467,22 @@ begin
   end;
   cachedb.FlashAll;
 end;
+{$ENDIF}
 
 procedure TSetsDatabase.GetCacheHashEfficiency(var hits, total: integer);
 var
   i, j: integer;
   k, mx: integer;
   pci: TPieceColorInfo;
-  A: array[0..CACHEDBHASHSIZE - 1] of integer;
+  A: PIntegerArray;
+  kp: THashStringList;
 begin
- if assigned(progressfunc) then
-   progressfunc('Calculating...', 0.0);
+  GetMem(A, CACHEDBHASHSIZE * SizeOf(integer));
 
-  MT_ZeroMemory(@A, SizeOf(A));
+  if assigned(progressfunc) then
+    progressfunc('Calculating...', 0.0);
+
+  MT_ZeroMemory(A, CACHEDBHASHSIZE * SizeOf(integer));
   hits := 0;
   total := 0;
 
@@ -13112,12 +15502,15 @@ begin
         if assigned(progressfunc) then
           progressfunc('Calculating...', k / mx);
         if fcolors[i].knownpieces <> nil then
-          for j := 0 to fcolors[i].knownpieces.Count - 1 do
+        begin
+          kp := fcolors[i].knownpieces;
+          for j := 0 to kp.Count - 1 do
           begin
-            pci := fcolors[i].knownpieces.Objects[j] as TPieceColorInfo;
+            pci := kp.Objects[j] as TPieceColorInfo;
             inc(A[MkPCIHash(pci.piece, pci.color)]);
             inc(total);
           end;
+        end;
       end;
     end;
   end;
@@ -13128,6 +15521,8 @@ begin
 
  if assigned(progressfunc) then
    progressfunc('Calculating...', 1.0);
+
+  FreeMem(A, CACHEDBHASHSIZE * SizeOf(integer));
 end;
 
 procedure TSetsDatabase.InitPartTypes;
@@ -13141,8 +15536,10 @@ var
   i: integer;
   pci: TPieceColorInfo;
   progressstring: string;
+{$IFNDEF CRAWLER}
   spci: TStringList;
   needsave: boolean;
+{$ENDIF}
 begin
   fname := basedefault + 'db\db_parttypes.txt';
   if not fexists(fname) then
@@ -13151,7 +15548,9 @@ begin
   progressstring := 'Initializing part types...';
 
   sl := TStringList.Create;
+{$IFNDEF CRAWLER}
   spci := TStringList.Create;
+{$ENDIF}  
   try
     S_LoadFromFile(sl, fname);
     if sl.Count > 0 then
@@ -13189,7 +15588,9 @@ begin
             if pci <> nil then
             begin
               pci.sparttype := s3[1];
+              {$IFNDEF CRAWLER}
               spci.Add(itoa(integer(pci)));
+              {$ENDIF}
             end;
           end;
         end;
@@ -13199,6 +15600,7 @@ begin
   finally
     sl.Free;
   end;
+{$IFNDEF CRAWLER}
   spci.Sort;
   needsave := False;
   for i := spci.Count - 1 downto 1 do
@@ -13225,6 +15627,7 @@ begin
     end;
   end;
   spci.Free;
+{$ENDIF}
 end;
 
 procedure TSetsDatabase.FlashPartTypes;
@@ -13283,7 +15686,7 @@ begin
         AppendLineToFile(fname, 'Part,Color,Type');
       ss := pci.piece + ',' + itoa(pci.color) + ',' + pt;
       fPartTypeList.Add(ss);
-      if fPartTypeList.Count > 1000 then
+      if fPartTypeList.Count >= 100 then
         FlashPartTypes;
       Result := True;
     end;
@@ -13312,6 +15715,8 @@ begin
         AppendLineToFile(fname, 'Part,Color,Type');
       ss := pcs + ',' + itoa(cl) + ',' + pt;
       fPartTypeList.Add(ss);
+      if fPartTypeList.Count >= 100 then
+        FlashPartTypes;
       Result := True;
     end;
   end;

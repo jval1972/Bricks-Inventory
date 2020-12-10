@@ -160,7 +160,7 @@ begin
   try
     for i := 1 to num do
     begin
-      lnk := 'https://www.bricklink.com/catalogList.asp?pg=' + itoa(i) + '&viewInv=Y&sortBy=D&sortAsc=D&itemBrand=1000&catType=S';
+      lnk := 'https://' + BL_NET + '/catalogList.asp?pg=' + itoa(i) + '&viewInv=Y&sortBy=D&sortAsc=D&itemBrand=1000&catType=S';
       lst := db.QryNewInventoriesFromBricklink(lnk, '<a href="catalogItemInv.asp?S=');
       for j := 0 to lst.Count - 1 do
         AddInvSetRec(lst.Strings[j]);
@@ -188,7 +188,7 @@ begin
   try
     for i := 1 to num do
     begin
-      lnk := 'https://www.bricklink.com/catalogList.asp?pg=' + itoa(i) + '&viewInv=Y&sortBy=D&sortAsc=D&itemBrand=1000&catType=M';
+      lnk := 'https://' + BL_NET + '/catalogList.asp?pg=' + itoa(i) + '&viewInv=Y&sortBy=D&sortAsc=D&itemBrand=1000&catType=M';
       lst := db.QryNewInventoriesFromBricklink(lnk, '<a href="catalogItemInv.asp?M=');
       for j := 0 to lst.Count - 1 do
         AddInvSetRec(lst.Strings[j]);
@@ -216,7 +216,7 @@ begin
   try
     for i := 1 to num do
     begin
-      lnk := 'https://www.bricklink.com/catalogList.asp?pg=' + itoa(i) + '&viewInv=Y&sortBy=D&sortAsc=D&itemBrand=1000&catType=B';
+      lnk := 'https://' + BL_NET + '/catalogList.asp?pg=' + itoa(i) + '&viewInv=Y&sortBy=D&sortAsc=D&itemBrand=1000&catType=B';
       lst := db.QryNewInventoriesFromBricklink(lnk, '<a href="catalogItemInv.asp?B=');
       for j := 0 to lst.Count - 1 do
         AddInvSetRec(lst.Strings[j]);
@@ -244,7 +244,7 @@ begin
   try
     for i := 1 to num do
     begin
-      lnk := 'https://www.bricklink.com/catalogList.asp?pg=' + itoa(i) + '&viewInv=Y&sortBy=D&sortAsc=D&itemBrand=1000&catType=G';
+      lnk := 'https://' + BL_NET + '/catalogList.asp?pg=' + itoa(i) + '&viewInv=Y&sortBy=D&sortAsc=D&itemBrand=1000&catType=G';
       lst := db.QryNewInventoriesFromBricklink(lnk, '<a href="catalogItemInv.asp?G=');
       for j := 0 to lst.Count - 1 do
         AddInvSetRec(lst.Strings[j]);
@@ -272,7 +272,7 @@ begin
   try
     for i := 1 to num do
     begin
-      lnk := 'https://www.bricklink.com/catalogList.asp?v=1&pg=' + itoa(i) + '&itemInvUserID=0&sortBy=D&sortAsc=D&itemBrand=1000&catType=S';
+      lnk := 'https://' + BL_NET + '/catalogList.asp?v=1&pg=' + itoa(i) + '&itemInvUserID=0&sortBy=D&sortAsc=D&itemBrand=1000&catType=S';
       lst := db.QryNewSetAsPartFromBricklink(lnk, '<a href="/v2/catalog/catalogitem.page?S=');
       for j := 0 to lst.Count - 1 do
         AddNoInvSetRec(lst.Strings[j]);

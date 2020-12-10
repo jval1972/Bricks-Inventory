@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -50,6 +50,10 @@ function NET_GetPriceGuideForElement(const pci: TPieceColorInfo; id: string; con
 function NET_GetBricklinkAlias(const id: string): string;
 
 function NET_GetBricklinkCategory(const id: string; var fcat: integer; var fweight: double; var parttype: char): boolean;
+
+function NET_GetItemWeightFromDisk(const id: string; var fweight: double): boolean;
+
+function NET_GetItemWeightFromText(const id: string; const txt: string; var fweight: double): boolean;
 
 function NET_GetBricklinkMinifigCategory(const id: string; var fcat: integer; var fweight: double): boolean;
 
@@ -263,7 +267,7 @@ var
 begin
   if useUSDvalues and not useVATValues then
   begin
-    Result := 'https://www.bricklink.com/priceguide.asp?' +
+    Result := 'https://' + BL_NET + '/priceguide.asp?' +
                 'a=' + typ +
                 '&itemid=' + itemid +
                 '&colorID=' + itoa(blcolor) +
@@ -281,7 +285,7 @@ begin
   else
     cV := 'n';
 
-  Result := 'http://www.bricklink.com/priceGuideSummary.asp?' +
+  Result := 'http://' + BL_NET + '/priceGuideSummary.asp?' +
               'vcID=' + cI +
               '&vatInc=' + cV +
               '&a=' + typ +
@@ -607,7 +611,12 @@ begin
         typ := 'G';
         blcolor := 0
       end
-      else  // minifigure
+      else if db.GetMoldNumNormalPartColors(id) > 0 then
+      begin
+        typ := 'P';
+        blcolor := 0
+      end
+      else // minifigure
       begin
         typ := 'M';
         blcolor := 0;
@@ -849,18 +858,19 @@ var
   typ: string;
 begin
   Result := false;
+  cc := -1000;
   decimalseparator := '.';
   if color = '-1' then
   begin
     if db.IsMoc(id) then
     begin
-      {$IFDEF CRAWLER}            
+      {$IFDEF CRAWLER}
       FAILwarning := True;
       {$ENDIF}
       Exit;
     end;
   end;
-  if db.pieceinfo(pci).category = 999 then
+  if db.pieceinfo(pci).category = 9999 then
   begin
     {$IFDEF CRAWLER}
     FAILwarning := True;
@@ -1219,53 +1229,53 @@ begin
     id := db.BrickLinkPart(id);
     if (color = '89') or (color = '') or ((color = '-1') and (Pos('-', id) > 0))  then // set
     begin
-      link := 'http://www.bricklink.com/catalogPG.asp?S=' + db.GetBLNetPieceName(id) + '--&colorID=0&v=D&viewExclude=Y&cID=Y&prDec=6';
+      link := 'http://' + BL_NET + '/catalogPG.asp?S=' + db.GetBLNetPieceName(id) + '--&colorID=0&v=D&viewExclude=Y&cID=Y&prDec=6';
       tryparttype := 'S';
     end
     else if color = '-1' then // minifigure - sticker
     begin
       if issticker(id) then // sticker
       begin
-        link := 'https://www.bricklink.com/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6';
+        link := 'https://' + BL_NET + '/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6';
         tryparttype := 'P';
       end
       else if db.isbook(id) then  // book
       begin
-        link := 'https://www.bricklink.com/catalogPG.asp?B=' + db.GetBLNetPieceName(id) + '&prdec=6';
+        link := 'https://' + BL_NET + '/catalogPG.asp?B=' + db.GetBLNetPieceName(id) + '&prdec=6';
         didbook := true;
         tryparttype := 'B';
       end
       else if db.IsGear(id) then
       begin
-        link := 'https://www.bricklink.com/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&prDec=6';
+        link := 'https://' + BL_NET + '/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&prDec=6';
         didgear := true;
         tryparttype := 'G';
       end
       else  // minifigure
       begin
-        link := 'https://www.bricklink.com/catalogPG.asp?M=' + db.GetBLNetPieceName(id) + '&prDec=6';
+        link := 'https://' + BL_NET + '/catalogPG.asp?M=' + db.GetBLNetPieceName(id) + '&prDec=6';
         tryparttype := 'M';
       end
     end
     else if atoi(color) = CATALOGCOLORINDEX then // Catalogs
     begin
-      link := 'https://www.bricklink.com/catalogPG.asp?C=' + db.GetBLNetPieceName(id) + '&ColorID=0&prDec=6'
+      link := 'https://' + BL_NET + '/catalogPG.asp?C=' + db.GetBLNetPieceName(id) + '&ColorID=0&prDec=6'
     end
     else if atoi(color) = INSTRUCTIONCOLORINDEX then // INstructions
     begin
-      link := 'https://www.bricklink.com/catalogPG.asp?I=' + db.GetBLNetPieceName(id) + '&ColorID=0&prDec=6'
+      link := 'https://' + BL_NET + '/catalogPG.asp?I=' + db.GetBLNetPieceName(id) + '&ColorID=0&prDec=6'
     end
     else if atoi(color) = BOXCOLORINDEX then // Original box
     begin
-      link := 'https://www.bricklink.com/catalogPG.asp?O=' + db.GetBLNetPieceName(id) + '&ColorID=0&prDec=6'
+      link := 'https://' + BL_NET + '/catalogPG.asp?O=' + db.GetBLNetPieceName(id) + '&ColorID=0&prDec=6'
     end
     else // part
     begin
       cc := StrToIntDef(color, -2);
       if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
-        link := 'https://www.bricklink.com/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6'
+        link := 'https://' + BL_NET + '/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6'
       else
-        link := 'https://www.bricklink.com/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+        link := 'https://' + BL_NET + '/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
       tryparttype := 'P';
     end;
   end;
@@ -1300,9 +1310,9 @@ begin
       id := '3068bpb0' + id[8] + id[9] + id[10];
       cc := StrToIntDef(color, -2);
       if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
-        link := 'https://www.bricklink.com/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6'
+        link := 'https://' + BL_NET + '/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6'
       else
-        link := 'https://www.bricklink.com/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+        link := 'https://' + BL_NET + '/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
       tryparttype := 'P';
       savelink := true;
       loadedfromcache := false;
@@ -1312,7 +1322,7 @@ begin
     end
     else if color = '9999' then
     begin
-      link := 'https://www.bricklink.com/catalogPG.asp?M=' + db.GetBLNetPieceName(id) + '&prDec=6';
+      link := 'https://' + BL_NET + '/catalogPG.asp?M=' + db.GetBLNetPieceName(id) + '&prDec=6';
       tryparttype := 'M';
       savelink := true;
       loadedfromcache := false;
@@ -1324,9 +1334,9 @@ begin
     begin
       cc := StrToIntDef(color, -2);
       if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
-        link := 'https://www.bricklink.com/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6'
+        link := 'https://' + BL_NET + '/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6'
       else
-        link := 'https://www.bricklink.com/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+        link := 'https://' + BL_NET + '/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
       tryparttype := 'G';
       savelink := true;
       loadedfromcache := false;
@@ -1342,15 +1352,15 @@ begin
     cc := StrToIntDef(color, -2);
     if (cc < -1) or (cc > MAXINFOCOLOR) then
     begin
-      link := 'https://www.bricklink.com/catalogPriceGuide.asp?S=' + db.GetBLNetPieceName(id) + '&prDec=6';
+      link := 'https://' + BL_NET + '/catalogPriceGuide.asp?S=' + db.GetBLNetPieceName(id) + '&prDec=6';
       tryparttype := 'S';
     end
     else
     begin
       if cc > LASTNORMALCOLORINDEX then
-        link := 'https://www.bricklink.com/catalogPriceGuide.asp?P=' + db.GetBLNetPieceName(id) + '&colorid=0&prDec=6'
+        link := 'https://' + BL_NET + '/catalogPriceGuide.asp?P=' + db.GetBLNetPieceName(id) + '&colorid=0&prDec=6'
       else
-        link := 'https://www.bricklink.com/catalogPriceGuide.asp?P=' + db.GetBLNetPieceName(id) + '&colorid=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+        link := 'https://' + BL_NET + '/catalogPriceGuide.asp?P=' + db.GetBLNetPieceName(id) + '&colorid=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
       tryparttype := 'P';
     end;
     savelink := false;
@@ -1367,7 +1377,7 @@ begin
     if color = '9999' then
     begin
       isdollar := False;
-      link := 'https://www.bricklink.com/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&prDec=6';
+      link := 'https://' + BL_NET + '/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&prDec=6';
       tryparttype := 'G';
       savelink := true;
       loadedfromcache := false;
@@ -1384,7 +1394,7 @@ begin
       if not didbook then
       begin
         isdollar := False;
-        link := 'https://www.bricklink.com/catalogPG.asp?B=' + db.GetBLNetPieceName(id) + '&prDec=6';
+        link := 'https://' + BL_NET + '/catalogPG.asp?B=' + db.GetBLNetPieceName(id) + '&prDec=6';
         tryparttype := 'B';
         savelink := true;
         loadedfromcache := false;
@@ -1599,21 +1609,30 @@ var
   s1: string;
   p: integer;
   i: integer;
+  id1: string;
 begin
   result := '';
-  if UpperCase(id) = '44302A' then
+  id1 := strtrim(id);
+  if UpperCase(id1) = '44302A' then
     Exit;
-  if UpperCase(id) = '44302' then
+  if UpperCase(id1) = '44302' then
     Exit;
-  s := GetURLString('https://rebrickable.com/parts/' + strtrim(id));
-  s1 := 'www.bricklink.com/v2/search.page?q=';
+  s := GetURLString('https://rebrickable.com/parts/' + id1);
+  s1 := '' + BL_NET + '/v2/search.page?q=';
   p := Pos(s1, s);
+  if p <= 0 then
+  begin
+    s := GetURLString('https://rebrickable.com/sets/' + id1);
+    s1 := '' + BL_NET + '/v2/search.page?q=';
+    p := Pos(s1, s);
+  end;
   if p > 0 then
   begin
+    SaveStringToFile(basedefault + 'db\rmolds\' + id1 + '.htm', s);
     p := p + Length(s1);
     for i := p to length(s) do
     begin
-      if (s[i] = '''') or (s[i] = '&') then
+      if (s[i] = '''') or (s[i] = '&') or (s[i] = '<') or (s[i] = '>') then
         break
       else
         result := result + s[i];
@@ -1621,7 +1640,140 @@ begin
   end;
 end;
 
-function NET_GetBricklinkCategory(const id: string; var fcat: integer; var fweight: double; var parttype: char): boolean;
+function NET_GetItemWeightFromText(const id: string; const txt: string; var fweight: double): boolean;
+var
+  s: string;
+  s1: string;
+  p: integer;
+  i: integer;
+  sweight: string;
+  dotcnt, gcnt: integer;
+  tmpweight: double;
+begin
+  Result := False;
+  fweight := 0.0;
+
+  s := txt;
+  if s = '' then
+    Exit;
+
+  s1 := '<span id="item-weight-info">';
+  p := Pos(s1, s);
+  if p > 0 then
+  begin
+    Result := True;
+    p := p + Length(s1);
+    sweight := '';
+    dotcnt := 0;
+    gcnt := 0;
+    for i := p to length(s) do
+    begin
+      if not (s[i] in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', 'g']) then
+        break;
+      if s[i] = 'g' then
+        inc(gcnt);
+      if gcnt > 1 then
+        break;
+      if s[i] = '.' then
+        inc(dotcnt);
+      if dotcnt > 1 then
+        break;
+      sweight := sweight + s[i];
+    end;
+    sweight := Trim(sweight);
+    if sweight <> '' then
+      if dotcnt <= 1 then
+        if gcnt = 1 then
+          if sweight[length(sweight)] = 'g' then
+          begin
+            SetLength(sweight, length(sweight) - 1);
+            sweight := Trim(sweight);
+            if sweight <> '' then
+            begin
+              if sweight[1] = '.' then
+                sweight := '0' + sweight;
+              if sweight[length(sweight)] = '.' then
+                sweight := sweight + '0';
+              tmpweight := atof(sweight, -1.0);
+              if tmpweight > 0.0 then
+                fweight := tmpweight;
+            end;
+          end;
+  end;
+end;
+
+function NET_GetItemWeightFromDisk(const id: string; var fweight: double): boolean;
+var
+  s: string;
+  s1: string;
+  p: integer;
+  i: integer;
+  sweight: string;
+  dotcnt, gcnt: integer;
+  tmpweight: double;
+  SL: TStringList;
+begin
+  Result := False;
+  fweight := 0.0;
+
+  if not fexists(basedefault + 'db\molds\' + id + '.htm') then
+    Exit;
+
+  SL := TStringList.Create;
+  S_LoadFromFile(SL, basedefault + 'db\molds\' + id + '.htm');
+  s := SL.Text;
+  SL.Free;
+
+  if s = '' then
+    Exit;
+
+  s1 := '<span id="item-weight-info">';
+  p := Pos(s1, s);
+  if p > 0 then
+  begin
+    Result := True;
+    p := p + Length(s1);
+    sweight := '';
+    dotcnt := 0;
+    gcnt := 0;
+    for i := p to length(s) do
+    begin
+      if not (s[i] in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', 'g']) then
+        break;
+      if s[i] = 'g' then
+        inc(gcnt);
+      if gcnt > 1 then
+        break;
+      if s[i] = '.' then
+        inc(dotcnt);
+      if dotcnt > 1 then
+        break;
+      sweight := sweight + s[i];
+    end;
+    sweight := Trim(sweight);
+    if sweight <> '' then
+      if dotcnt <= 1 then
+        if gcnt = 1 then
+          if sweight[length(sweight)] = 'g' then
+          begin
+            SetLength(sweight, length(sweight) - 1);
+            sweight := Trim(sweight);
+            if sweight <> '' then
+            begin
+              if sweight[1] = '.' then
+                sweight := '0' + sweight;
+              if sweight[length(sweight)] = '.' then
+                sweight := sweight + '0';
+              tmpweight := atof(sweight, -1.0);
+              if tmpweight > 0.0 then
+                fweight := tmpweight;
+            end;
+          end;
+  end;
+end;
+
+function NET_GetBricklinkCategory(const id: string; var fcat: integer;
+  var fweight: double; var parttype: char): boolean;
 var
   s: string;
   s1: string;
@@ -1644,19 +1796,19 @@ begin
     Exit;
   if db.IsBook(id) then
   begin
-    s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?B=' + db.GetBLNetPieceName(strtrim(id)));
+    s := GetURLString('https://' + BL_NET + '/v2/catalog/catalogitem.page?B=' + db.GetBLNetPieceName(strtrim(id)));
     ptype := 'B';
     didset := true;
   end
   else if Pos('-', id) > 0 then
   begin
-    s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?S=' + db.GetBLNetPieceName(strtrim(id)));
+    s := GetURLString('https://' + BL_NET + '/v2/catalog/catalogitem.page?S=' + db.GetBLNetPieceName(strtrim(id)));
     ptype := 'S';
     didset := true;
   end
   else
   begin
-    s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?P=' + db.GetBLNetPieceName(strtrim(id)));
+    s := GetURLString('https://' + BL_NET + '/v2/catalog/catalogitem.page?P=' + db.GetBLNetPieceName(strtrim(id)));
     ptype := 'P';
     didset := false;
   end;
@@ -1666,23 +1818,23 @@ begin
   begin
     if not didset then
     begin
-      s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?S=' + db.GetBLNetPieceName(strtrim(id)));
+      s := GetURLString('https://' + BL_NET + '/v2/catalog/catalogitem.page?S=' + db.GetBLNetPieceName(strtrim(id)));
       ptype := 'S';
       p := Pos(s1, s);
     end;
     if p <= 0 then
     begin
-      s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?M=' + db.GetBLNetPieceName(strtrim(id)));
+      s := GetURLString('https://' + BL_NET + '/v2/catalog/catalogitem.page?M=' + db.GetBLNetPieceName(strtrim(id)));
       ptype := 'M';
       p := Pos(s1, s);
       if p <= 0 then
       begin
-        s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?G=' + db.GetBLNetPieceName(strtrim(id)));
+        s := GetURLString('https://' + BL_NET + '/v2/catalog/catalogitem.page?G=' + db.GetBLNetPieceName(strtrim(id)));
         ptype := 'G';
         p := Pos(s1, s);
         if p <= 0 then
         begin
-          s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?B=' + db.GetBLNetPieceName(strtrim(id)));
+          s := GetURLString('https://' + BL_NET + '/v2/catalog/catalogitem.page?B=' + db.GetBLNetPieceName(strtrim(id)));
           ptype := 'B';
           p := Pos(s1, s);
         end;
@@ -1772,7 +1924,7 @@ var
   tmpcat: integer;
 begin
   result := false;
-  s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?M=' + db.GetBLNetPieceName(strtrim(id)));
+  s := GetURLString('https://' + BL_NET + '/v2/catalog/catalogitem.page?M=' + db.GetBLNetPieceName(strtrim(id)));
   s1 := 'catString=';
   p := Pos(s1, s);
   if p > 0 then
@@ -1810,7 +1962,7 @@ begin
     Exit;
   if UpperCase(id) = '44302' then
     Exit;
-  s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?M=' + db.GetBLNetPieceName(strtrim(id)));
+  s := GetURLString('https://' + BL_NET + '/v2/catalog/catalogitem.page?M=' + db.GetBLNetPieceName(strtrim(id)));
   s1 := '<span id="item-weight-info">';
   p := Pos(s1, s);
   if p > 0 then

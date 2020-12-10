@@ -1,8 +1,8 @@
 object MainForm: TMainForm
-  Left = 226
-  Top = 199
-  Width = 1140
-  Height = 481
+  Left = 147
+  Top = 118
+  Width = 652
+  Height = 437
   Caption = 'Bricks Inventory'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -556,8 +556,8 @@ object MainForm: TMainForm
   TextHeight = 12
   object Splitter1: TSplitter
     Left = 0
-    Top = 346
-    Width = 1124
+    Top = 302
+    Width = 636
     Height = 3
     Cursor = crVSplit
     Align = alBottom
@@ -565,15 +565,15 @@ object MainForm: TMainForm
   object Bevel1: TBevel
     Left = 0
     Top = 0
-    Width = 1124
+    Width = 636
     Height = 1
     Align = alTop
     Shape = bsTopLine
   end
   object Panel1: TPanel
     Left = 0
-    Top = 349
-    Width = 1124
+    Top = 305
+    Width = 636
     Height = 73
     Align = alBottom
     BevelOuter = bvNone
@@ -582,7 +582,7 @@ object MainForm: TMainForm
     object OutputMemo: TMemo
       Left = 0
       Top = 0
-      Width = 1124
+      Width = 636
       Height = 73
       Align = alClient
       Color = 12648447
@@ -595,7 +595,7 @@ object MainForm: TMainForm
   object Panel2: TPanel
     Left = 0
     Top = 1
-    Width = 1124
+    Width = 636
     Height = 27
     Align = alTop
     Caption = ' '
@@ -914,8 +914,8 @@ object MainForm: TMainForm
   object TabControl1: TTabControl
     Left = 0
     Top = 28
-    Width = 1124
-    Height = 318
+    Width = 636
+    Height = 274
     Align = alClient
     TabOrder = 2
     OnChange = TabControl1Change
@@ -923,8 +923,8 @@ object MainForm: TMainForm
     object HTML: THTMLViewer
       Left = 4
       Top = 6
-      Width = 1116
-      Height = 308
+      Width = 628
+      Height = 264
       OnHotSpotClick = HTMLHotSpotClick
       OnImageRequest = HTMLImageRequest
       OnProgress = HTMLProgress
@@ -961,6 +961,13 @@ object MainForm: TMainForm
     Top = 41
     object File1: TMenuItem
       Caption = 'File'
+      object NewTab1: TMenuItem
+        Caption = 'New Tab'
+        OnClick = NewTab1Click
+      end
+      object N42: TMenuItem
+        Caption = '-'
+      end
       object Import1: TMenuItem
         Caption = 'Import Inventory'
         object BricklinkOrder1: TMenuItem
@@ -999,6 +1006,10 @@ object MainForm: TMainForm
         object Allitems1: TMenuItem
           Caption = 'All items'
           OnClick = Allitems1Click
+        end
+        object ExportPartsColors1: TMenuItem
+          Caption = 'Parts and Colors'
+          OnClick = ExportPartsColors1Click
         end
         object N15: TMenuItem
           Caption = '-'
@@ -1071,21 +1082,9 @@ object MainForm: TMainForm
         Caption = 'Search Storage'
         OnClick = Storage1Click
       end
-      object N2: TMenuItem
-        Caption = '-'
-      end
-      object Missingformultiplesets1: TMenuItem
-        Caption = 'Missing for multiple sets'
-        OnClick = Missingformultiplesets1Click
-      end
-      object Missingfordismandaledsets1: TMenuItem
-        Caption = 'Missing for dismandaled sets'
-        OnClick = Missingfordismandaledsets1Click
-      end
     end
     object Queries1: TMenuItem
       Caption = 'Tools'
-      OnClick = Queries1Click
       object Update1: TMenuItem
         Caption = 'Update'
         object Sets3: TMenuItem
@@ -1314,28 +1313,6 @@ object MainForm: TMainForm
           Caption = 'Used pieces with price greater than 50 euro (Evaluated)'
           OnClick = Usedpieceswithpricegreaterthan50eurosoldandavailable1Click
         end
-        object N24: TMenuItem
-          Caption = '-'
-        end
-        object MostexpensivelotsofmyNEWparts1: TMenuItem
-          Caption = 'Most expensive lots of my inventory (NEW)'
-          OnClick = MostexpensivelotsofmyNEWparts1Click
-        end
-        object MostexpensivelotsofmyUSEDparts1: TMenuItem
-          Caption = 'Most expensive lots of my inventory (USED)'
-          OnClick = MostexpensivelotsofmyUSEDparts1Click
-        end
-        object N27: TMenuItem
-          Caption = '-'
-        end
-        object MostexpensiveofmypartsNEW1: TMenuItem
-          Caption = 'Most expensive parts of my inventory (NEW)'
-          OnClick = MostexpensiveofmypartsNEW1Click
-        end
-        object MostexpensiveofmypartsUSED1: TMenuItem
-          Caption = 'Most expensive parts of my inventory (USED)'
-          OnClick = MostexpensiveofmypartsUSED1Click
-        end
       end
       object Piecequeries1: TMenuItem
         Caption = 'Piece queries'
@@ -1370,8 +1347,19 @@ object MainForm: TMainForm
           OnClick = DiscontinuedMinifigureparts1Click
         end
       end
+      object MoldQueries1: TMenuItem
+        Caption = 'Mold Queries'
+        object MoldsFirstAppeared1: TMenuItem
+          Caption = 'First appeared molds '
+          OnClick = MoldsFirstAppeared1Click
+        end
+        object Moldsdiscontinuedatyear1: TMenuItem
+          Caption = 'Discontinued molds'
+          OnClick = Moldsdiscontinuedatyear1Click
+        end
+      end
       object ColorQueries1: TMenuItem
-        Caption = 'Color Queries'
+        Caption = 'Color queries'
         object Pieceswithmorethan30colors1: TMenuItem
           Caption = 'Molds with more than 30 colors '
           OnClick = Pieceswithmorethan30colors1Click
@@ -1379,6 +1367,125 @@ object MainForm: TMainForm
         object Nameswithbothpartandsetcolorindexes1: TMenuItem
           Caption = 'Names with both part and set color indexes'
           OnClick = Nameswithbothpartandsetcolorindexes1Click
+        end
+      end
+      object Datequeries1: TMenuItem
+        Caption = 'Date queries'
+        object Pieceswithoutupdatethelast10days1: TMenuItem
+          Caption = 'Pieces without update the last 10 days'
+          OnClick = Pieceswithoutupdatethelast10days1Click
+        end
+        object Pieceswithoutupdatethelast30days1: TMenuItem
+          Caption = 'Pieces without update the last 30 days'
+          OnClick = Pieceswithoutupdatethelast30days1Click
+        end
+        object Pieceswithoutupdatethelast90days1: TMenuItem
+          Caption = 'Pieces without update the last 90 days'
+          OnClick = Pieceswithoutupdatethelast90days1Click
+        end
+        object Pieceswithoutupdatethelast365days1: TMenuItem
+          Caption = 'Pieces without update the last 365 days '
+          OnClick = Pieceswithoutupdatethelast365days1Click
+        end
+        object N36: TMenuItem
+          Caption = '-'
+        end
+        object Pieceswithoutupdateinrange1: TMenuItem
+          Caption = 'Pieces without update in range'
+          OnClick = Pieceswithoutupdateinrange1Click
+        end
+      end
+      object Marketqueries2: TMenuItem
+        Caption = 'Market queries'
+        object Parts1: TMenuItem
+          Caption = 'Parts'
+          object MostitemssoldNew1: TMenuItem
+            Caption = 'Most parts sold (New)'
+            OnClick = MostitemssoldNew1Click
+          end
+          object MostitemssoldUsed1: TMenuItem
+            Caption = 'Most parts sold (Used)'
+            OnClick = MostitemssoldUsed1Click
+          end
+          object MostitemssoldNewUsed1: TMenuItem
+            Caption = 'Most parts sold (New + Used)'
+            OnClick = MostitemssoldNewUsed1Click
+          end
+          object N38: TMenuItem
+            Caption = '-'
+          end
+          object MoreitemsavailableNew1: TMenuItem
+            Caption = 'More parts available (New)'
+            OnClick = MoreitemsavailableNew1Click
+          end
+          object MoreitemsavailableUsed1: TMenuItem
+            Caption = 'More parts available (Used)'
+            OnClick = MoreitemsavailableUsed1Click
+          end
+          object MoreitemsavailableNewUsed1: TMenuItem
+            Caption = 'More parts available (New + Used)'
+            OnClick = MoreitemsavailableNewUsed1Click
+          end
+        end
+        object MarketQueriesSets1: TMenuItem
+          Caption = 'Sets'
+          object MostsetssoldNew1: TMenuItem
+            Caption = 'Most sets sold (New)'
+            OnClick = MostsetssoldNew1Click
+          end
+          object MostsetssoldUsed1: TMenuItem
+            Caption = 'Most sets sold (Used)'
+            OnClick = MostsetssoldUsed1Click
+          end
+          object MostsetssoldNewUsed1: TMenuItem
+            Caption = 'Most sets sold (New + Used)'
+            OnClick = MostsetssoldNewUsed1Click
+          end
+          object N40: TMenuItem
+            Caption = '-'
+          end
+          object MoresetsavailableNew1: TMenuItem
+            Caption = 'More sets available (New)'
+            OnClick = MoresetsavailableNew1Click
+          end
+          object MoresetsavailableUsed1: TMenuItem
+            Caption = 'More sets available (Used)'
+            OnClick = MoresetsavailableUsed1Click
+          end
+          object MoresetsavailableNewUsed1: TMenuItem
+            Caption = 'More sets available (New + Used)'
+            OnClick = MoresetsavailableNewUsed1Click
+          end
+        end
+        object Minifigs1: TMenuItem
+          Caption = 'Minifigs'
+          object MostminifigssoldNew1: TMenuItem
+            Caption = 'Most minifigs sold (New)'
+            OnClick = MostminifigssoldNew1Click
+          end
+          object MostminifigssoldUsed1: TMenuItem
+            Caption = 'Most minifigs sold (Used)'
+            OnClick = MostminifigssoldUsed1Click
+          end
+          object MostminifigssoldNewUsed1: TMenuItem
+            Caption = 'Most minifigs sold (New + Used)'
+            OnClick = MostminifigssoldNewUsed1Click
+          end
+          object N39: TMenuItem
+            Caption = '-'
+          end
+          object MoreminifigsavailableNew1: TMenuItem
+            Caption = 'More minifigs available (New)'
+            OnClick = MoreminifigsavailableNew1Click
+          end
+          object MoreminifigsavailableUsed1: TMenuItem
+            Caption = 'More minifigs available (Used)'
+            OnClick = MoreminifigsavailableUsed1Click
+          end
+          object MoreminifigsavailableNewUsed1: TMenuItem
+            Caption = 'More minifigs available (New + Used)'
+            OnClick = MoreminifigsavailableNewUsed1Click
+          end
         end
       end
       object N30: TMenuItem
@@ -1422,9 +1529,35 @@ object MainForm: TMainForm
         object N5: TMenuItem
           Caption = '-'
         end
+        object Comparesets1: TMenuItem
+          Caption = 'Compare sets'
+          OnClick = Comparesets1Click
+        end
         object Compare2sets1: TMenuItem
-          Caption = 'Compare 2 sets'
+          Caption = 'Compare inventory of 2 sets'
           OnClick = Compare2sets1Click
+        end
+        object N33: TMenuItem
+          Caption = '-'
+        end
+        object Setsbynumpieces1: TMenuItem
+          Caption = 'Sets by num pieces'
+          OnClick = Setsbynumpieces1Click
+        end
+        object Setsbynumlots1: TMenuItem
+          Caption = 'Sets by num lots'
+          OnClick = Setsbynumlots1Click
+        end
+        object N2: TMenuItem
+          Caption = '-'
+        end
+        object Missingformultiplesets1: TMenuItem
+          Caption = 'Missing for multiple sets'
+          OnClick = Missingformultiplesets1Click
+        end
+        object Missingfordismandaledsets1: TMenuItem
+          Caption = 'Missing for dismandaled sets'
+          OnClick = Missingfordismandaledsets1Click
         end
       end
       object MosaicMenuItem1: TMenuItem
@@ -1478,6 +1611,13 @@ object MainForm: TMainForm
       end
       object N20171: TMenuItem
         Caption = '2017'
+        object Lugbulk2017items1: TMenuItem
+          Caption = 'Lugbulk 2017 items'
+          OnClick = Lugbulk2017items1Click
+        end
+        object N43: TMenuItem
+          Caption = '-'
+        end
         object LugBulk20171: TMenuItem
           Caption = 'LugBulk 2017 Cheap Parts'
           OnClick = LugBulk20171Click
@@ -1508,6 +1648,13 @@ object MainForm: TMainForm
       end
       object N20181: TMenuItem
         Caption = '2018'
+        object Lugbulk2018items1: TMenuItem
+          Caption = 'Lugbulk 2018 items'
+          OnClick = Lugbulk2018items1Click
+        end
+        object N44: TMenuItem
+          Caption = '-'
+        end
         object LugBulk2018CheapParts1: TMenuItem
           Caption = 'LugBulk 2018 Cheap Parts'
           OnClick = LugBulk2018CheapParts1Click
@@ -1536,6 +1683,43 @@ object MainForm: TMainForm
           OnClick = LugBulk2018CheapInvertedSlopes1Click
         end
       end
+      object N20191: TMenuItem
+        Caption = '2019'
+        object Lugbulk2019items1: TMenuItem
+          Caption = 'Lugbulk 2019 items'
+          OnClick = Lugbulk2019items1Click
+        end
+        object N45: TMenuItem
+          Caption = '-'
+        end
+        object LugBulk2019CheapParts1: TMenuItem
+          Caption = 'LugBulk 2019 Cheap Parts'
+          OnClick = LugBulk2019CheapParts1Click
+        end
+        object N37: TMenuItem
+          Caption = '-'
+        end
+        object LugBulk2019CheapBricks1: TMenuItem
+          Caption = 'LugBulk 2019 Cheap Bricks'
+          OnClick = LugBulk2019CheapBricks1Click
+        end
+        object LugBulk2019CheapPlates1: TMenuItem
+          Caption = 'LugBulk 2019 Cheap Plates'
+          OnClick = LugBulk2019CheapPlates1Click
+        end
+        object LugBulk2019CheapTiles1: TMenuItem
+          Caption = 'LugBulk 2019 Cheap Tiles'
+          OnClick = LugBulk2019CheapTiles1Click
+        end
+        object LugBulk2019CheapSlopes1: TMenuItem
+          Caption = 'LugBulk 2019 Cheap Slopes'
+          OnClick = LugBulk2019CheapSlopes1Click
+        end
+        object LugBulk2019CheapInvertedSlopes1: TMenuItem
+          Caption = 'LugBulk 2019 Cheap Inverted Slopes'
+          OnClick = LugBulk2019CheapInvertedSlopes1Click
+        end
+      end
     end
     object Inventory1: TMenuItem
       Caption = 'Inventory'
@@ -1549,6 +1733,9 @@ object MainForm: TMainForm
           Caption = 'Check storage bins for errors'
           OnClick = Checkstoragebinsreport1Click
         end
+      end
+      object N24: TMenuItem
+        Caption = '-'
       end
       object Rarepartsofmyinventory1: TMenuItem
         Caption = 'Rare parts of my inventory'
@@ -1565,7 +1752,59 @@ object MainForm: TMainForm
           OnClick = Appearsin3sets1Click
         end
       end
+      object Expensivepartsofmyinventory1: TMenuItem
+        Caption = 'Expensive parts of my inventory'
+        object MostexpensivelotsofmyNEWparts1: TMenuItem
+          Caption = 'Most expensive lots of my inventory (NEW)'
+          OnClick = MostexpensivelotsofmyNEWparts1Click
+        end
+        object MostexpensivelotsofmyUSEDparts1: TMenuItem
+          Caption = 'Most expensive lots of my inventory (USED)'
+          OnClick = MostexpensivelotsofmyUSEDparts1Click
+        end
+        object N27: TMenuItem
+          Caption = '-'
+        end
+        object MostexpensiveofmypartsNEW1: TMenuItem
+          Caption = 'Most expensive parts of my inventory (NEW)'
+          OnClick = MostexpensiveofmypartsNEW1Click
+        end
+        object MostexpensiveofmypartsUSED1: TMenuItem
+          Caption = 'Most expensive parts of my inventory (USED)'
+          OnClick = MostexpensiveofmypartsUSED1Click
+        end
+      end
+      object Biglotsofmyinventory1: TMenuItem
+        Caption = 'Big lots of my inventory'
+        object Lotswith10ormoreparts1: TMenuItem
+          Caption = 'Lots with 10 or more parts'
+          OnClick = Lotswith10ormoreparts1Click
+        end
+        object Lotswith50ormoreparts1: TMenuItem
+          Caption = 'Lots with 50 or more parts'
+          OnClick = Lotswith50ormoreparts1Click
+        end
+        object Lotswith100ormoreparts1: TMenuItem
+          Caption = 'Lots with 100 or more parts'
+          OnClick = Lotswith100ormoreparts1Click
+        end
+        object Lotswith500ormoreparts1: TMenuItem
+          Caption = 'Lots with 500 or more parts'
+          OnClick = Lotswith500ormoreparts1Click
+        end
+        object Lotswith1000ormoreparts1: TMenuItem
+          Caption = 'Lots with 1000 or more parts'
+          OnClick = Lotswith1000ormoreparts1Click
+        end
+      end
       object N3: TMenuItem
+        Caption = '-'
+      end
+      object CollectionValue1: TMenuItem
+        Caption = 'Collection Value'
+        OnClick = CollectionValue1Click
+      end
+      object N41: TMenuItem
         Caption = '-'
       end
       object Sets1: TMenuItem
@@ -1705,5 +1944,33 @@ object MainForm: TMainForm
       Caption = 'Close'
       OnClick = CloseTabClick
     end
+  end
+  object SaveDialogPriceGuide: TSaveDialog
+    DefaultExt = 'txt'
+    Filter = 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
+    Left = 356
+    Top = 50
+  end
+  object SaveDialogPartOut: TSaveDialog
+    DefaultExt = 'txt'
+    Filter = 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
+    Left = 356
+    Top = 98
+  end
+  object SaveDialogDatabase: TSaveDialog
+    DefaultExt = 'txt'
+    Filter = 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
+    Left = 356
+    Top = 154
+  end
+  object SaveDialogPartsColors: TSaveDialog
+    DefaultExt = 'txt'
+    Filter = 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
+    Left = 356
+    Top = 218
   end
 end

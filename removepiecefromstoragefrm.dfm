@@ -655,6 +655,7 @@ object RemovePieceFromStorageForm: TRemovePieceFromStorageForm
     ParentFont = False
     TabOrder = 2
     Text = '0'
+    OnKeyPress = Edit1KeyPress
   end
   object Panel1: TPanel
     Left = 136

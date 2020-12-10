@@ -111,7 +111,8 @@ uses
   frm_options in 'frm_options.pas' {OptionsForm},
   bi_defs in 'bi_defs.pas',
   frm_selectparttype in 'frm_selectparttype.pas' {SelectPartTypeForm},
-  bi_data in 'bi_data.pas';
+  bi_data in 'bi_data.pas',
+  frm_editlugbulkprice in 'frm_editlugbulkprice.pas' {EditLugbulkPriceForm};
 
 {$R *.res}
 

@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -82,7 +82,7 @@ type
 implementation
 
 uses
-  bi_globals, bi_utils;
+  bi_globals, bi_utils, bi_db;
 
 constructor TBinaryPartCollection.Create(const aname: string);
 var
@@ -132,10 +132,10 @@ var
   rec: TBinaryPartRecord;
   i, idx: integer;
 begin
-  result := 'Part,Color,Num';
+  Result := 'Part,Color,Num';
   idx := fparts.IndexOf(partname);
   if idx < 0 then
-    exit;
+    Exit;
 
   f.Position := (fparts.Objects[idx] as TRecordInfo).position;
   f.Read(rec, SizeOf(TBinaryPartRecord));
@@ -144,11 +144,14 @@ begin
     if rec.data[i].piece = '6141' then
       rec.data[i].piece := '4073'
     else if Pos('Mx', rec.data[i].piece) = 1 then
-      rec.data[i].piece[1] := 'm';
-    if rec.data[i].color = -2 then
-      result := result + #13#10 + rec.data[i].piece + ',' + itoa(color) + ',' + itoa(rec.data[i].num)
+      rec.data[i].piece[1] := 'm'
     else
-      result := result + #13#10 + rec.data[i].piece + ',' + itoa(rec.data[i].color) + ',' + itoa(rec.data[i].num);
+      rec.data[i].piece := fixpartname(rec.data[i].piece);
+
+    if rec.data[i].color = -2 then
+      Result := Result + #13#10 + rec.data[i].piece + ',' + itoa(color) + ',' + itoa(rec.data[i].num)
+    else
+      Result := Result + #13#10 + rec.data[i].piece + ',' + itoa(rec.data[i].color) + ',' + itoa(rec.data[i].num);
   end;
 end;
 
@@ -158,8 +161,8 @@ var
 begin
   if not fexists(aTextFileName) then
   begin
-    Result := false;
-    exit;
+    Result := False;
+    Exit;
   end;
   s := TStringList.Create;
   try
@@ -184,69 +187,70 @@ function TBinaryPartCollection.UpdatePartFromText(const apart: string; str: TStr
 var
   rec: TBinaryPartRecord;
   i, j, idx: integer;
-  spart, scolor, snum, scost: string;
+  spart, scolor, snum, scost, scode: string;
+  cc: integer;
   tmppart: string;
 begin
   {$IFDEF CRAWLER}
-  result := false;
+  Result := False;
   Exit;
   {$ENDIF}
   if str = nil then
   begin
-    result := false;
-    exit;
+    Result := False;
+    Exit;
   end;
   if str.count = 0 then
   begin
-    result := false;
-    exit;
+    Result := False;
+    Exit;
   end;
   if str.count > MAXPARTITEMS then
   begin
-    result := false;
-    exit;
+    Result := False;
+    Exit;
   end;
   if Length(apart) > RECPARTNAMESIZE then
   begin
-    result := false;
-    exit;
+    Result := False;
+    Exit;
   end;
   if fvoids.Count = 0 then
     if f.Size > 2147418112 - 2 * SizeOf(TBinaryPartRecord) then
     begin
-      result := false;
-      exit;
+      Result := False;
+      Exit;
     end;
 
-  result := true;
+  Result := True;
 
   ZeroMemory(@rec, SizeOf(TBinaryPartRecord));
   rec.name := apart;
   rec.numitems := 0;
-  rec.hasstubcolor := false;
+  rec.hasstubcolor := False;
   if (str.Strings[0] = 'Part,Color,Num') or (str.Strings[0] = 'Part,Color,Quantity') then
   begin
     j := 0;
     for i := 1 to str.count - 1 do
     begin
       splitstring(str.Strings[i], spart, scolor, snum, ',');
-      spart := Trim(spart);
+      spart := fixpartname(spart);
       scolor := Trim(scolor);
       if spart <> '' then
       begin
         if Pos('BL ', spart) = 1 then
-          tmppart := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
+          tmppart := db.RebrickablePart(Trim(Copy(spart, 4, Length(spart) - 3)))
         else
           tmppart := db.RebrickablePart(spart);
         rec.data[j].piece := tmppart;
         if length(tmppart) > RECPARTNAMESIZE then
-          result := false;
+          Result := False;
 
         if (scolor = 'BL 0') or (scolor = '-2') or (scolor = '') then
           rec.data[j].color := -2
         else if Pos('BL', scolor) = 1 then
         begin
-          scolor := Copy(scolor, 3, Length(scolor) - 2);
+          scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
           rec.data[j].color := db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0));
         end
@@ -255,12 +259,38 @@ begin
           rec.data[j].color := StrToIntDef(scolor, 0);
         end;
         if rec.data[j].color = -2 then
-          rec.hasstubcolor := true;
+          rec.hasstubcolor := True;
 
         rec.data[j].num := atoi(snum);
 
         rec.data[j].cost := 0.0;
         inc(j);
+      end;
+    end;
+    rec.numitems := j;
+  end;
+  if str.Strings[0] = 'Code,Num' then
+  begin
+    j := 0;
+    for i := 1 to str.count - 1 do
+    begin
+      splitstring(str.Strings[i], scode, snum, ',');
+      if db.GetPieceColorFromCode(scode, spart, cc) then
+      begin
+        spart := fixpartname(spart);
+        if spart <> '' then
+        begin
+          if Pos('BL ', spart) = 1 then
+            rec.data[j].piece := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
+          else
+            rec.data[j].piece := db.RebrickablePart(spart);
+
+          rec.data[j].color := cc;
+          rec.data[j].num := atoi(snum);
+
+          rec.data[j].cost := 0.0;
+          inc(j);
+        end;
       end;
     end;
     rec.numitems := j;
@@ -271,7 +301,7 @@ begin
     for i := 1 to str.count - 1 do
     begin
       splitstring(str.Strings[i], spart, scolor, snum, scost, ',');
-      spart := Trim(spart);
+      spart := fixpartname(spart);
       scolor := Trim(scolor);
       if spart <> '' then
       begin
@@ -281,7 +311,7 @@ begin
           tmppart := db.RebrickablePart(spart);
         rec.data[j].piece := tmppart;
         if length(tmppart) > RECPARTNAMESIZE then
-          result := false;
+          Result := False;
 
         if (scolor = 'BL 0') or (scolor = '-2') or (scolor = '') then
           rec.data[j].color := -2
@@ -296,7 +326,7 @@ begin
           rec.data[j].color := StrToIntDef(scolor, 0);
         end;
         if rec.data[j].color = -2 then
-          rec.hasstubcolor := true;
+          rec.hasstubcolor := True;
 
         rec.data[j].num := atoi(snum);
 
@@ -307,9 +337,9 @@ begin
     rec.numitems := j;
   end;
 
-  if result then
+  if Result then
   begin
-    idx := fparts.indexOf(apart);
+    idx := fparts.IndexOf(apart);
     if idx < 0 then
     begin
       if fvoids.Count > 0 then
@@ -332,11 +362,11 @@ var
   rec: TBinaryPartRecord;
   idx: integer;
 begin
-  idx := fparts.indexOf(apart);
+  idx := fparts.IndexOf(apart);
   if idx < 0 then
   begin
-    result := false;
-    exit;
+    Result := False;
+    Exit;
   end;
 
   ZeroMemory(@rec, RECPARTNAMESIZE * SizeOf(Char));
@@ -344,7 +374,7 @@ begin
   f.Write(rec, RECPARTNAMESIZE * SizeOf(Char));
   fparts.Delete(idx);
 //  fparts.RebuiltHash;
-  result := true;
+  Result := True;
 end;
 
 end.

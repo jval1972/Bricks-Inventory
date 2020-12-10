@@ -680,6 +680,21 @@ object EditMoldForm: TEditMoldForm
     Font.Style = []
     ParentFont = False
   end
+  object ColorAssetsLabel: TLabel
+    Left = 224
+    Top = 60
+    Width = 185
+    Height = 25
+    AutoSize = False
+    Caption = 'Colors/Assets: '
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -16
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+    WordWrap = True
+  end
   object Button1: TButton
     Left = 440
     Top = 520
@@ -744,6 +759,7 @@ object EditMoldForm: TEditMoldForm
     Top = 184
     Width = 137
     Height = 24
+    Color = clBtnFace
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
     Font.Height = -13

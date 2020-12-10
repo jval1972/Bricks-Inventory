@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -50,6 +50,7 @@ type
     CheckBox3: TCheckBox;
     CheckBox4: TCheckBox;
     CheckBox5: TCheckBox;
+    CheckBox6: TCheckBox;
     procedure Edit1KeyPress(Sender: TObject; var Key: Char);
     procedure FormCreate(Sender: TObject);
   private
@@ -82,6 +83,7 @@ begin
     f.CheckBox3.Checked := usemultithread;
     f.CheckBox4.Checked := savealwayspartinvinfo;
     f.CheckBox5.Checked := generatethumbnailsondemand;
+    f.CheckBox6.Checked := silentwarnings;
     f.ShowModal;
     if f.ModalResult = mrOK then
     begin
@@ -92,6 +94,7 @@ begin
       usemultithread := f.CheckBox3.Checked;
       savealwayspartinvinfo := f.CheckBox4.Checked;
       generatethumbnailsondemand := f.CheckBox5.Checked;
+      silentwarnings := f.CheckBox6.Checked;
     end;
   finally
     f.Free;

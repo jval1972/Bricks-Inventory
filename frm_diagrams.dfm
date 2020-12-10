@@ -1,8 +1,8 @@
 object DiagramForm: TDiagramForm
-  Left = 41
+  Left = 0
   Top = 36
-  Width = 1261
-  Height = 682
+  Width = 1254
+  Height = 676
   BorderIcons = [biSystemMenu]
   Caption = 'Diagrams'
   Color = clBtnFace
@@ -546,7 +546,7 @@ object DiagramForm: TDiagramForm
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 16
-  object Label1: TLabel
+  object DescLabel: TLabel
     Left = 240
     Top = 16
     Width = 625
@@ -561,7 +561,7 @@ object DiagramForm: TDiagramForm
     ParentFont = False
     WordWrap = True
   end
-  object Label4: TLabel
+  object ColorLabel: TLabel
     Left = 280
     Top = 104
     Width = 297
@@ -597,7 +597,7 @@ object DiagramForm: TDiagramForm
     Height = 16
     Caption = 'NumSamplesLabel'
   end
-  object Panel1: TPanel
+  object ColorPanel: TPanel
     Left = 240
     Top = 96
     Width = 33
@@ -647,7 +647,7 @@ object DiagramForm: TDiagramForm
         Caption = 'PG_nAvgPrice'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
@@ -662,7 +662,7 @@ object DiagramForm: TDiagramForm
         Caption = 'PG_nQtyAvgPrice'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
@@ -677,7 +677,7 @@ object DiagramForm: TDiagramForm
         Caption = 'PG_uAvgPrice'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
@@ -692,7 +692,7 @@ object DiagramForm: TDiagramForm
         Caption = 'PG_uQtyAvgPrice'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
@@ -707,7 +707,7 @@ object DiagramForm: TDiagramForm
         Caption = 'AV_nAvgPrice'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
@@ -722,7 +722,7 @@ object DiagramForm: TDiagramForm
         Caption = 'AV_nQtyAvgPrice'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
@@ -737,7 +737,7 @@ object DiagramForm: TDiagramForm
         Caption = 'AV_uAvgPrice'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
@@ -752,7 +752,7 @@ object DiagramForm: TDiagramForm
         Caption = 'AV_uQtyAvgPrice'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
@@ -767,7 +767,7 @@ object DiagramForm: TDiagramForm
         Caption = 'N_Demand'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
@@ -782,7 +782,7 @@ object DiagramForm: TDiagramForm
         Caption = 'U_Demand'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False

@@ -1,10 +1,10 @@
 object MultipleSetsForm: TMultipleSetsForm
-  Left = 718
-  Top = 114
+  Left = 665
+  Top = 99
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Multiple Sets List'
-  ClientHeight = 422
+  ClientHeight = 494
   ClientWidth = 236
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -549,7 +549,7 @@ object MultipleSetsForm: TMultipleSetsForm
   TextHeight = 12
   object Label1: TLabel
     Left = 18
-    Top = 6
+    Top = 14
     Width = 30
     Height = 16
     Caption = 'Sets:'
@@ -563,7 +563,7 @@ object MultipleSetsForm: TMultipleSetsForm
   end
   object ListBox1: TListBox
     Left = 18
-    Top = 30
+    Top = 38
     Width = 121
     Height = 323
     Font.Charset = DEFAULT_CHARSET
@@ -576,8 +576,8 @@ object MultipleSetsForm: TMultipleSetsForm
     TabOrder = 0
   end
   object Button1: TButton
-    Left = 40
-    Top = 372
+    Left = 24
+    Top = 452
     Width = 56
     Height = 29
     Caption = 'OK'
@@ -592,8 +592,8 @@ object MultipleSetsForm: TMultipleSetsForm
     TabOrder = 1
   end
   object Button2: TButton
-    Left = 118
-    Top = 372
+    Left = 102
+    Top = 452
     Width = 56
     Height = 29
     Cancel = True
@@ -609,7 +609,7 @@ object MultipleSetsForm: TMultipleSetsForm
   end
   object AddButton: TButton
     Left = 156
-    Top = 30
+    Top = 38
     Width = 61
     Height = 27
     Caption = 'Add...'
@@ -624,7 +624,7 @@ object MultipleSetsForm: TMultipleSetsForm
   end
   object RemoveButton: TButton
     Left = 156
-    Top = 62
+    Top = 70
     Width = 61
     Height = 27
     Caption = 'Remove'
@@ -639,7 +639,7 @@ object MultipleSetsForm: TMultipleSetsForm
   end
   object Button3: TButton
     Left = 156
-    Top = 94
+    Top = 102
     Width = 61
     Height = 27
     Caption = 'Clear'
@@ -651,5 +651,49 @@ object MultipleSetsForm: TMultipleSetsForm
     ParentFont = False
     TabOrder = 5
     OnClick = Button3Click
+  end
+  object OpenList1: TButton
+    Left = 16
+    Top = 366
+    Width = 129
+    Height = 27
+    Caption = 'Open List'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 6
+    OnClick = OpenList1Click
+  end
+  object SaveList1: TButton
+    Left = 16
+    Top = 398
+    Width = 129
+    Height = 27
+    Caption = 'Save List'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 7
+    OnClick = SaveList1Click
+  end
+  object OpenDialog1: TOpenDialog
+    DefaultExt = 'txt'
+    Filter = 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*'
+    Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
+    Left = 176
+    Top = 144
+  end
+  object SaveDialog1: TSaveDialog
+    DefaultExt = 'txt'
+    Filter = 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
+    Left = 176
+    Top = 208
   end
 end

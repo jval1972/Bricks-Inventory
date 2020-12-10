@@ -1,11 +1,12 @@
-object EditPieceForm: TEditPieceForm
-  Left = 430
-  Top = 172
+object EditLugbulkPriceForm: TEditLugbulkPriceForm
+  Left = 490
+  Top = 268
+  ActiveControl = Edit1
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
-  Caption = 'Edit Piece'
-  ClientHeight = 530
-  ClientWidth = 548
+  Caption = 'Lugbulk Price'
+  ClientHeight = 221
+  ClientWidth = 537
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -544,20 +545,66 @@ object EditPieceForm: TEditPieceForm
     0000000000000000000000000000000000000000000000000000000000000000
     000000000000000000000000000000000000000000000000000000000000}
   OldCreateOrder = False
-  Position = poScreenCenter
-  OnClose = FormClose
-  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
+  object Image1: TImage
+    Left = 16
+    Top = 8
+    Width = 105
+    Height = 105
+    AutoSize = True
+  end
+  object Label5: TLabel
+    Left = 16
+    Top = 144
+    Width = 55
+    Height = 16
+    Caption = 'Price ('#8364'): '
+    FocusControl = Edit1
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
+  object YearLabel: TLabel
+    Left = 80
+    Top = 176
+    Width = 54
+    Height = 16
+    Caption = '{YEAR}'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
   object Label1: TLabel
-    Left = 224
+    Left = 142
     Top = 16
-    Width = 297
+    Width = 355
     Height = 81
     AutoSize = False
     Caption = '       '
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+    WordWrap = True
+  end
+  object Label4: TLabel
+    Left = 176
+    Top = 96
+    Width = 313
+    Height = 25
+    AutoSize = False
+    Caption = '       '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
     Font.Height = -16
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
@@ -565,432 +612,79 @@ object EditPieceForm: TEditPieceForm
     WordWrap = True
   end
   object Label2: TLabel
-    Left = 24
-    Top = 312
-    Width = 76
-    Height = 16
-    Caption = 'Num Pieces:'
-    FocusControl = Edit1
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object SpeedButton1: TSpeedButton
-    Left = 248
-    Top = 312
-    Width = 23
-    Height = 22
-    Caption = '+'
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    OnClick = SpeedButton1Click
-  end
-  object SpeedButton2: TSpeedButton
-    Left = 272
-    Top = 312
-    Width = 23
-    Height = 22
-    Caption = '-'
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    OnClick = SpeedButton2Click
-  end
-  object Label3: TLabel
-    Left = 24
-    Top = 344
-    Width = 54
-    Height = 16
-    Caption = 'Storage: '
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object Label4: TLabel
-    Left = 272
-    Top = 100
-    Width = 257
-    Height = 25
-    AutoSize = False
-    Caption = '       '
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -16
-    Font.Name = 'MS Sans Serif'
-    Font.Style = [fsBold]
-    ParentFont = False
-    WordWrap = True
-  end
-  object AliasLabel: TLabel
-    Left = 24
-    Top = 216
-    Width = 89
-    Height = 16
-    Caption = 'Bricklink Alias: '
-    FocusControl = AliasEdit
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object Label5: TLabel
-    Left = 24
-    Top = 248
-    Width = 79
-    Height = 16
-    Caption = 'Bricklink link: '
-    FocusControl = LinkEdit
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object Label6: TLabel
-    Left = 24
-    Top = 184
-    Width = 43
-    Height = 16
-    Caption = 'Name: '
-    FocusControl = Edit2
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object Label7: TLabel
-    Left = 280
-    Top = 216
-    Width = 96
-    Height = 16
-    Caption = 'Bricklink Name: '
-    FocusControl = NewNameEdit
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object PartTypeLabel: TLabel
-    Left = 272
-    Top = 140
-    Width = 185
-    Height = 25
-    AutoSize = False
-    Caption = '(Default)'
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -16
-    Font.Name = 'MS Sans Serif'
-    Font.Style = [fsBold]
-    ParentFont = False
-    WordWrap = True
-  end
-  object SelectPartTypeSpeedButton: TSpeedButton
-    Left = 472
-    Top = 144
-    Width = 23
-    Height = 22
-    Caption = '...'
-    Flat = True
-    OnClick = SelectPartTypeSpeedButtonClick
-  end
-  object Label8: TLabel
-    Left = 24
-    Top = 280
+    Left = 16
+    Top = 176
     Width = 35
     Height = 16
     Caption = 'Year: '
-    FocusControl = YearEdit
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
+    FocusControl = Edit1
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ParentFont = False
-  end
-  object UpdateYearSpeedButton: TSpeedButton
-    Left = 256
-    Top = 280
-    Width = 23
-    Height = 22
-    Flat = True
-    Glyph.Data = {
-      36030000424D3603000000000000360000002800000010000000100000000100
-      1800000000000003000000000000000000000000000000000000FFFFFFFFFFFF
-      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      FFFFFFFFFFFFF8F8F8848484767676FFFFFFFFFFFF0606060606060606060606
-      06383838F8F8F8FFFFFFFFFFFFFFFFFFFFFFFFD6D6D6262626060606161616FF
-      FFFFFFFFFF060606060606060606383838F8F8F8FFFFFFFFFFFFFFFFFFFFFFFF
-      F8F8F8262626060606262626A8A8A8FFFFFFFFFFFF0606060606060606062626
-      26F8F8F8FFFFFFFFFFFFFFFFFFFFFFFF848484060606262626F8F8F8FFFFFFFF
-      FFFFFFFFFF060606666666262626060606848484FFFFFFFFFFFFFFFFFFFFFFFF
-      383838060606A8A8A8FFFFFFFFFFFFFFFFFFFFFFFF666666FFFFFFA8A8A80606
-      06383838FFFFFFFFFFFFFFFFFFFFFFFF060606060606FFFFFFFFFFFFFFFFFFFF
-      FFFFFFFFFFFFFFFFFFFFFFF8F8F8060606060606FFFFFFFFFFFFFFFFFFFFFFFF
-      060606060606FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0606
-      06060606FFFFFFFFFFFFFFFFFFFFFFFF383838060606A8A8A8F8F8F8383838FF
-      FFFFFFFFFFFFFFFFFFFFFFA8A8A8060606383838FFFFFFFFFFFFFFFFFFFFFFFF
-      848484060606262626383838060606FFFFFFFFFFFFFFFFFFF8F8F82626260606
-      06848484FFFFFFFFFFFFFFFFFFFFFFFFF8F8F8262626060606060606060606FF
-      FFFFFFFFFFA8A8A8262626060606262626F8F8F8FFFFFFFFFFFFFFFFFFFFFFFF
-      F8F8F8383838060606060606060606FFFFFFFFFFFF161616060606262626D6D6
-      D6FFFFFFFFFFFFFFFFFFFFFFFFF8F8F8383838060606060606060606060606FF
-      FFFFFFFFFF767676848484F8F8F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
-    OnClick = UpdateYearSpeedButtonClick
-  end
-  object Label9: TLabel
-    Left = 336
-    Top = 280
-    Width = 39
-    Height = 16
-    Caption = 'Code: '
-    FocusControl = PartCodeEdit
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object Edit1: TEdit
-    Left = 128
-    Top = 312
-    Width = 121
-    Height = 24
-    BiDiMode = bdLeftToRight
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentBiDiMode = False
-    ParentFont = False
-    TabOrder = 6
-    Text = '0'
-    OnKeyPress = Edit1KeyPress
-  end
-  object Memo1: TMemo
-    Left = 128
-    Top = 344
-    Width = 297
-    Height = 177
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    ScrollBars = ssBoth
-    TabOrder = 7
-    WordWrap = False
   end
   object Button1: TButton
-    Left = 448
-    Top = 464
+    Left = 420
+    Top = 176
     Width = 75
     Height = 25
     Caption = 'OK'
-    Default = True
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ModalResult = 1
     ParentFont = False
-    TabOrder = 8
+    TabOrder = 0
   end
   object Button2: TButton
-    Left = 448
-    Top = 496
+    Left = 332
+    Top = 176
     Width = 75
     Height = 25
     Cancel = True
     Caption = 'Cancel'
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ModalResult = 2
     ParentFont = False
-    TabOrder = 9
+    TabOrder = 1
+  end
+  object Edit1: TEdit
+    Left = 80
+    Top = 144
+    Width = 73
+    Height = 24
+    BiDiMode = bdLeftToRight
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentBiDiMode = False
+    ParentFont = False
+    TabOrder = 2
+    Text = '0'
+    OnKeyPress = Edit1KeyPress
   end
   object Panel1: TPanel
-    Left = 224
+    Left = 136
     Top = 96
     Width = 33
     Height = 33
     Caption = ' '
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clWhite
-    Font.Height = -16
-    Font.Name = 'MS Sans Serif'
-    Font.Style = [fsBold]
-    ParentFont = False
-    TabOrder = 10
-  end
-  object AliasEdit: TEdit
-    Left = 128
-    Top = 216
-    Width = 128
-    Height = 24
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 2
-  end
-  object Edit2: TEdit
-    Left = 128
-    Top = 184
-    Width = 128
-    Height = 24
-    Color = clBtnFace
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    ReadOnly = True
-    TabOrder = 0
-    Text = ' '
-  end
-  object AutodetectButton: TButton
-    Left = 320
-    Top = 176
-    Width = 201
-    Height = 25
-    Caption = 'Autodetect'
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 1
-    OnClick = AutodetectButtonClick
-  end
-  object LinkEdit: TEdit
-    Left = 128
-    Top = 248
-    Width = 393
-    Height = 24
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 4
-  end
-  object ScrollBox1: TScrollBox
-    Left = 24
-    Top = 8
-    Width = 185
-    Height = 169
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 11
-    object Image1: TImage
-      Left = 0
-      Top = 0
-      Width = 105
-      Height = 105
-      AutoSize = True
-      OnDblClick = Image1DblClick
-    end
-  end
-  object NewNameEdit: TEdit
-    Left = 384
-    Top = 216
-    Width = 137
-    Height = 24
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ParentFont = False
     TabOrder = 3
-  end
-  object PartTypePanel: TPanel
-    Left = 224
-    Top = 136
-    Width = 33
-    Height = 33
-    Caption = ' '
-    Color = clBlack
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clWhite
-    Font.Height = -16
-    Font.Name = 'MS Sans Serif'
-    Font.Style = [fsBold]
-    ParentFont = False
-    TabOrder = 12
-  end
-  object YearEdit: TEdit
-    Left = 128
-    Top = 280
-    Width = 121
-    Height = 24
-    BiDiMode = bdLeftToRight
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentBiDiMode = False
-    ParentFont = False
-    TabOrder = 5
-    Text = '0'
-    OnKeyPress = YearEditKeyPress
-  end
-  object PartCodeEdit: TEdit
-    Left = 384
-    Top = 280
-    Width = 137
-    Height = 24
-    BiDiMode = bdLeftToRight
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentBiDiMode = False
-    ParentFont = False
-    TabOrder = 13
   end
 end

@@ -91,7 +91,7 @@ var
   s1, s2: string;
 begin
   currencies := TStringList.Create;
-  if FileExists(afile) then
+  if fexists(afile) then
   begin
     s := TStringList.Create;
     try

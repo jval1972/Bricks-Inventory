@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -32,6 +32,12 @@ interface
 
 uses
   SysUtils, Classes, bi_db, bl_orderxml;
+
+type
+  ordercost_t = record
+    num: integer;
+    totcost: double;
+  end;
 
 type
   orders_t = array[0..1023] of IXMLORDERSType;
@@ -70,7 +76,8 @@ type
     procedure LoadFilesDirectory(dir: string);
     procedure LoadFile(fname: string);
     function ItemInfo(const part: string; const color: Integer): TStringList;
-    function ItemCost(const part: string; const color: Integer): double;
+    function ItemCost(const part: string; const color: Integer): ordercost_t;
+    function ItemCostDbl(const part: string; const color: Integer): double;
     function order(const index: integer): IXMLORDERType; overload;
     function order(const index: string): IXMLORDERType; overload;
     function OrderInventory(const orderid: integer): TBrickInventory; overload;
@@ -221,9 +228,14 @@ begin
   else if oinf.num >= tq1 then
     price := tp1
   else
-    price := atof(ii.PRICE) * (100 - atof(ii.sale, 0.0)) / 100;
+    price := atof(ii.PRICE);
+  price := price * (100 - atof(ii.sale, 0.0)) / 100;
   oinf.price := price;
   pricetot := price * atof(oo.BASEGRANDTOTAL) / atof(oo.ORDERTOTAL);
+  //*******************************************
+  oinf.price := atof(ii.PRICE);
+  pricetot := atof(ii.PRICE) * atof(oo.BASEGRANDTOTAL) / atof(oo.ORDERTOTAL);
+  //*******************************************
   oinf.pricetot := pricetot;
   oinf.currency := oo.BASECURRENCYCODE;
   lst.AddObject(oname, oinf);
@@ -285,7 +297,7 @@ begin
   Result := fpieceorderinfo.Objects[idx] as TStringList;
 end;
 
-function TOrders.ItemCost(const part: string; const color: Integer): double;
+function TOrders.ItemCost(const part: string; const color: Integer): ordercost_t;
 var
   oinf: TStringList;
   oitem: TOrderItemInfo;
@@ -298,13 +310,15 @@ begin
 
   if oinf = nil then
   begin
-    result := 0.0;
+    result.num := 0;
+    result.totcost := 0.0;
     exit;
   end;
 
   if oinf.Count = 0 then
   begin
-    result := 0.0;
+    result.num := 0;
+    result.totcost := 0.0;
     exit;
   end;
 
@@ -321,10 +335,19 @@ begin
     totprice := totprice + oitem.num * oitem.pricetot * curconv;
   end;
 
-  if totbricks = 0 then
+  result.num := totbricks;
+  result.totcost := totprice;
+end;
+
+function TOrders.ItemCostDbl(const part: string; const color: Integer): double;
+var
+  oret: ordercost_t;
+begin
+  oret := ItemCost(part, color);
+  if oret.num = 0 then
     Result := 0.0
   else
-    Result := totprice / totbricks;
+    Result := oret.totcost / oret.num;
 end;
 
 function TOrders.orderEvaluatedPrice(const index: integer): double;

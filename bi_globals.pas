@@ -37,6 +37,8 @@ var
   inventory: TBrickInventory = nil;
   BL_NET: string = 'www.bricklink.com';
 
+const
+  PARTNAMESIZE = 20;  
 
 implementation
 

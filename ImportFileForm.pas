@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -111,7 +111,7 @@ begin
         for l := 1 to f.csvDBL.Count - 1 do
         begin
           ExtractStrings([delimeter], [], PChar(f.csvDBL[l]), partData);
-          if (partData.Count = f.ComboBox1.Items.Count) then
+          if partData.Count = f.ComboBox1.Items.Count then
           begin
             partPrefix := '';
             partType := Trim(partData[f.ComboBox1.itemIndex]);

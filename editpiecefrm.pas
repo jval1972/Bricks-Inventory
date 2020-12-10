@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -61,6 +61,11 @@ type
     PartTypePanel: TPanel;
     PartTypeLabel: TLabel;
     SelectPartTypeSpeedButton: TSpeedButton;
+    Label8: TLabel;
+    YearEdit: TEdit;
+    UpdateYearSpeedButton: TSpeedButton;
+    Label9: TLabel;
+    PartCodeEdit: TEdit;
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -68,8 +73,13 @@ type
     procedure Image1DblClick(Sender: TObject);
     procedure Edit1KeyPress(Sender: TObject; var Key: Char);
     procedure SelectPartTypeSpeedButtonClick(Sender: TObject);
+    procedure YearEditKeyPress(Sender: TObject; var Key: Char);
+    procedure UpdateYearSpeedButtonClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
+  protected
+    parttype: char;
   public
     { Public declarations }
   end;
@@ -81,6 +91,7 @@ implementation
 {$R *.dfm}
 
 uses
+  urlmon,
   bi_db, bi_delphi, bi_utils, bi_crawler, bi_globals, frm_selectparttype;
 
 function EditPiece(const apart: string; const color: integer): boolean;
@@ -94,14 +105,23 @@ var
   initnewname: string;
   part: string;
   pt: string;
+  initialstorage: string;
+  initialyear: integer;
+  initialcode: string;
 begin
-  result := false;
+  Result := False;
   f := TEditPieceForm.Create(nil);
   try
     part := db.RebrickablePart(apart);
+    f.YearEdit.ReadOnly := True;
+    f.UpdateYearSpeedButton.Visible := False;
+    initialstorage := '';
+    initialcode := '';
     if (color = -1) and (Pos('-', part) > 0) then
     begin
       f.Label1.Caption := db.SetDesc(part);
+      if f.Label1.Caption = '' then
+        f.Label1.Caption := db.PieceDesc(part);
       f.Label3.Visible := false;
       f.Label4.Visible := false;
       f.Memo1.Visible := false;
@@ -151,37 +171,73 @@ begin
     PieceToImage(f.Image1, part, color);
     if pci <> nil then
     begin
+      initialcode := pci.code;
+      f.PartCodeEdit.Text := initialcode;
+
+      f.parttype := pci.sparttype;
+
+      f.YearEdit.ReadOnly := (pci.year <> 0) and not pci.canedityear;
+      initialyear := pci.year;
+      f.YearEdit.Text := itoa(initialyear);
+      if f.YearEdit.ReadOnly then
+        f.YearEdit.Color := clBtnFace;
+      if not f.YearEdit.ReadOnly then
+        f.UpdateYearSpeedButton.Visible := db.HasSetColorsOnly(pci.piece);
+
       f.Panel1.Color := RGBInvert(db.colors(color).RGB);
       f.PartTypePanel.Caption := pci.sparttype;
       f.PartTypeLabel.Caption := PartTypeToPartTypeName(pci.sparttype);
       if Trim(f.PartTypeLabel.Caption) = '' then
         f.PartTypeLabel.Caption := '(Default)';
-      f.Memo1.Lines.Text := pci.storage.Text;
+      initialstorage := pci.storage.Text;
+      f.Memo1.Lines.Text := initialstorage;
       num := inventory.LoosePartCount(part, color);
       f.Edit1.Text := itoa(num);
       f.ShowModal;
       if f.ModalResult = mrOK then
       begin
-        result := true;
-        if strupper(strtrim(f.AliasEdit.Text)) <> strupper(strtrim(initialalias)) then
-          db.AddPieceAlias(f.AliasEdit.Text, part);
-        if strupper(strtrim(f.NewNameEdit.Text)) <> strupper(strtrim(initnewname)) then
-          db.SetNewPieceName(part, strtrim(f.NewNameEdit.Text));
-        newnum := atoi(f.Edit1.Text);
-        inventory.AddLoosePart(part, color, newnum - num);
-        pt := f.PartTypePanel.Caption;
-        if Length(pt) = 1 then
-          if pci.sparttype <> pt then
+        Screen.Cursor := crHourglass;
+        try
+          result := true;
+          if initialyear <> atoi(f.YearEdit.Text) then
           begin
-            db.SetPartType(part, color, pt[1]);
-            db.FlashPartTypes;
+            if db.HasSetColorsOnly(pci.piece) then
+              db.UpdateYearForAllColors(pci.piece, atoi(f.YearEdit.Text))
+            else
+              db.SetItemYear(pci, atoi(f.YearEdit.Text));
           end;
-        s := TStringList.Create;
-        s.Text := f.Memo1.Lines.Text;
-        db.AddCrawlerLink(part, color, f.LinkEdit.Text);
-        db.SetPieceStorage(part, color, s);
-        db.CrawlerPriorityPart(part, color);
-        s.Free;
+          if strupper(strtrim(f.AliasEdit.Text)) <> strupper(strtrim(initialalias)) then
+            db.AddPieceAlias(f.AliasEdit.Text, part);
+          if strupper(strtrim(f.NewNameEdit.Text)) <> strupper(strtrim(initnewname)) then
+            db.SetNewPieceName(part, strtrim(f.NewNameEdit.Text));
+          newnum := atoi(f.Edit1.Text);
+          inventory.AddLoosePart(part, color, newnum - num);
+          pt := f.PartTypePanel.Caption;
+          if Length(pt) = 1 then
+            if pci.sparttype <> pt then
+            begin
+              db.SetPartType(part, color, pt[1]);
+              db.FlashPartTypes;
+            end;
+          db.AddCrawlerLink(part, color, f.LinkEdit.Text);
+
+          s := TStringList.Create;
+          try
+            s.Text := f.Memo1.Lines.Text;
+            if s.Text <> initialstorage then
+              db.SetPieceStorage(part, color, s);
+          finally
+            s.Free;
+          end;
+
+          f.PartCodeEdit.Text := Trim(f.PartCodeEdit.Text);
+          if f.PartCodeEdit.Text <> initialcode then
+            db.SetPieceCode(pci, f.PartCodeEdit.Text);
+
+          db.CrawlerPriorityPart(part, color);
+        finally
+          Screen.Cursor := crDefault;
+        end;
       end;
     end;
   finally
@@ -258,7 +314,10 @@ begin
   Screen.Cursor := crDefault;
   if s = '' then
     if NewNameEdit.Text <> '' then
-      exit;
+      Exit;
+  if s = 'Not Listed' then
+    Exit;
+
   NewNameEdit.Text := s;
 end;
 
@@ -302,6 +361,47 @@ begin
       PartTypeLabel.Caption := '(Default)';
     PartTypePanel.Caption := pt;
   end;
+end;
+
+procedure TEditPieceForm.YearEditKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in [#8, '0'..'9']) then
+  begin
+    Key := #0;
+    exit;
+  end;
+end;
+
+procedure TEditPieceForm.UpdateYearSpeedButtonClick(Sender: TObject);
+var
+  fname: string;
+  urlstr: string;
+  yearnum: integer;
+  ret: integer;
+begin
+  if not db.HasSetColorsOnly(Edit2.Text) then
+    Exit;
+
+  Screen.Cursor := crHourglass;
+
+  fname := basedefault + 'db\setmolds\' + Trim(Edit2.Text) + '.htm';
+  urlstr := sbricklink + 'v2/catalog/catalogitem.page?S=' + db.GetBLNetPieceName(Trim(Edit2.Text));
+  ret := UrlDownloadToFile(nil, PChar(urlstr), PChar(fname), 0, nil);
+
+  Screen.Cursor := crDefault;
+
+  if ret <> 0 then
+    if not fexists(fname) then
+      Exit;
+
+  yearnum := db.GetSetYearFromDiskCache(fname);
+  if (yearnum >= 1932) and (yearnum <= 2050) then
+    YearEdit.Text := itoa(yearnum);
+end;
+
+procedure TEditPieceForm.FormCreate(Sender: TObject);
+begin
+  parttype := 'P';
 end;
 
 end.

@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -122,7 +122,7 @@ function itoa(i: integer): string;
 
 function ftoa(f: double): string;
 
-function atoi(const s: string; const default: integer = 0): integer; 
+function atoi(const s: string; const default: integer = 0): integer;
 
 function atoui(const s: string): longword; overload;
 
@@ -519,6 +519,8 @@ function PascalText(src: PChar): string;
 
 function CopyFile(const sname, dname: string): boolean;
 
+function CacheReadFile(const fname: string): boolean;
+
 function HexToInt(const s: string): integer;
 
 function IsNumeric(const s: string): boolean;
@@ -537,7 +539,18 @@ type
     fvalue: double;
   public
     constructor Create(const avalue: double = 0.0); virtual;
+    procedure Add(const avalue: double);
     property value: double read fvalue write fvalue;
+  end;
+
+  TCInteger = class(TObject)
+  private
+    fvalue: integer;
+  public
+    constructor Create(const avalue: integer = 0); virtual;
+    procedure IncValue; virtual;
+    procedure Add(const avalue: integer);
+    property value: integer read fvalue write fvalue;
   end;
 
   TString = class(TObject)
@@ -559,6 +572,14 @@ function SaveStringToFile(const fname: string; const s: string): boolean;
 function LoadStringFromFile(const fname: string): string;
 
 function SaveDataToFile(const fname: string; const fdata: pointer; const size: integer): boolean;
+
+function IsIntegerInRange(const test, f1, f2: integer): boolean;
+
+function btoi(const b: boolean; const default: integer = 0): integer;
+
+function itob(const i: integer): boolean;
+
+function RemoveSpaces(const s: string): string;
 
 implementation
 
@@ -2988,6 +3009,35 @@ begin
   end;
 end;
 
+function CacheReadFile(const fname: string): boolean;
+var
+  f: file;
+  NumRead: Integer;
+  Buf: PByteArray;
+  sz: integer;
+begin
+  Result := False;
+
+  if Trim(fname) = '' then
+    Exit;
+
+  if fexists(fname) then
+  begin
+    sz := 4 * 1024 * 1024;
+    GetMem(Buf, sz);
+    {$I-}
+    AssignFile(f, fname);
+    Reset(f, 1);
+    repeat
+      BlockRead(f, Buf^, sz, NumRead);
+    until NumRead = 0;
+    CloseFile(f);
+    {$I+}
+    FreeMem(Buf, sz);
+    Result := IOResult = 0;
+  end;
+end;
+
 function HexToInt(const s: string): integer;
 var
   tmp: string;
@@ -3036,6 +3086,27 @@ constructor TDouble.Create(const avalue: double = 0.0);
 begin
   fvalue := avalue;
   Inherited Create;
+end;
+
+procedure TDouble.Add(const avalue: double);
+begin
+  fvalue := fvalue + avalue;
+end;
+
+constructor TCInteger.Create(const avalue: integer = 0);
+begin
+  fvalue := avalue;
+  Inherited Create;
+end;
+
+procedure TCInteger.Add(const avalue: integer);
+begin
+  fvalue := fvalue + avalue;
+end;
+
+procedure TCInteger.IncValue;
+begin
+  inc(fvalue);
 end;
 
 function string2stringlist(const s: string; const c: char): TStringList;
@@ -3142,7 +3213,7 @@ end;
 function LoadStringFromFile(const fname: string): string;
 var
   f: file;
-  NumRead: Integer;
+  NumRead: Integer;                               
   Buf: array[1..8192] of Char;
   i: integer;
 begin
@@ -3171,6 +3242,37 @@ begin
   CloseFile(f);
 {$I+}
   result := IOResult = 0;
+end;
+
+function IsIntegerInRange(const test, f1, f2: integer): boolean;
+begin
+  if f1 < f2 then
+    result := (test >= f1) and (test <= f2)
+  else
+    result := (test >= f2) and (test <= f1)
+end;
+
+function btoi(const b: boolean; const default: integer = 0): integer;
+begin
+  if b then
+    Result := 1
+  else
+    Result := 0;
+end;
+
+function itob(const i: integer): boolean;
+begin
+  Result := i <> 0;
+end;
+
+function RemoveSpaces(const s: string): string;
+var
+  i: integer;
+begin
+  Result := '';
+  for i := 1 to Length(s) do
+    if s[i] <> ' ' then
+      Result := Result + s[i];
 end;
 
 begin

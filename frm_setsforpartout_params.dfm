@@ -653,6 +653,7 @@ object QueryPartOutParametersForm: TQueryPartOutParametersForm
     Height = 24
     TabOrder = 1
     Text = '2000'
+    OnKeyPress = Edit1KeyPress
   end
   object Edit2: TEdit
     Left = 192
@@ -661,6 +662,7 @@ object QueryPartOutParametersForm: TQueryPartOutParametersForm
     Height = 24
     TabOrder = 2
     Text = '10'
+    OnKeyPress = Edit2KeyPress
   end
   object TrackBar1: TTrackBar
     Left = 32

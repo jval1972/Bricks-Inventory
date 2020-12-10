@@ -1,3 +1,31 @@
+//------------------------------------------------------------------------------
+//
+//  BrickInventory: A tool for managing your brick collection
+//  Copyright (C) 2014-2018 by Jim Valavanis
+//
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, inc., 59 Temple Place - Suite 330, Boston, MA
+//  02111-1307, USA.
+//
+// DESCRIPTION:
+//    Binary filesystem for set/minifig inventories
+//
+//------------------------------------------------------------------------------
+//  E-Mail: jvalavanis@gmail.com
+//  Site  : https://sourceforge.net/projects/brickinventory/
+//------------------------------------------------------------------------------
+
 unit bi_binaryset;
 
 interface
@@ -22,7 +50,7 @@ const
 
 type
   TBinarySetData = array[0..MAXSETITEMS - 1] of TBinarySetItem;
-  PBinarySetData = ^PBinarySetData;
+  PBinarySetData = ^TBinarySetData;
 
 type
   TBinarySetRecord = record
@@ -59,18 +87,6 @@ implementation
 
 uses
   bi_globals, bi_utils;
-
-type
-  TRecordInfo = class
-  public
-    position: Int64;
-    constructor Create(const apos: Int64);
-  end;
-
-constructor TRecordInfo.Create(const apos: Int64);
-begin
-  position := apos;
-end;
 
 constructor TBinarySetCollection.Create(const aname: string);
 var
@@ -133,7 +149,9 @@ begin
 
   for i := 0 to cache[cacheidx].numitems - 1 do
     if cache[cacheidx].data[i].piece = '6141' then
-      cache[cacheidx].data[i].piece := '4073';
+      cache[cacheidx].data[i].piece := '4073'
+    else if Pos('Mx', cache[cacheidx].data[i].piece) = 1 then
+      cache[cacheidx].data[i].piece[1] := 'm';
 
   Result := @cache[cacheidx];
   Inc(cacheidx);
@@ -156,7 +174,9 @@ begin
   for i := 0 to rec.numitems - 1 do
   begin
     if rec.data[i].piece = '6141' then
-      rec.data[i].piece := '4073';
+      rec.data[i].piece := '4073'
+    else if Pos('Mx', rec.data[i].piece) = 1 then
+      rec.data[i].piece[1] := 'm';
     result := result + #13#10 + rec.data[i].piece + ',' + itoa(rec.data[i].color) + ',' + itoa(rec.data[i].num);
   end;
 end;
@@ -171,9 +191,12 @@ begin
     exit;
   end;
   s := TStringList.Create;
-  s.LoadFromFile(aTextFileName);
-  Result := UpdateSetFromText(aset, s);
-  s.Free;
+  try
+    S_LoadFromFile(s, aTextFileName);
+    Result := UpdateSetFromText(aset, s);
+  finally
+    s.Free;
+  end;
 end;
 
 function TBinarySetCollection.UpdateSetFromText(const aset, aText: string): boolean;
@@ -181,20 +204,23 @@ var
   s: TStringList;
 begin
   s := TStringList.Create;
-  s.Text := aText;
-  Result := UpdateSetFromText(aset, s);
-  s.Free;
+  try
+    s.Text := aText;
+    Result := UpdateSetFromText(aset, s);
+  finally
+    s.Free;
+  end;
 end;
 
 function TBinarySetCollection.UpdateSetFromText(const aset: string; str: TStringList): boolean;
 var
   rec: TBinarySetRecord;
-  i, idx: integer;
+  i, j, idx: integer;
   spart, scolor, snum, scost: string;
 begin
   {$IFDEF CRAWLER}
   result := false;
-  Exit;                                  
+  Exit;
   {$ENDIF}
   if str = nil then
   begin
@@ -225,56 +251,72 @@ begin
 
   ZeroMemory(@rec, SizeOf(TBinarySetRecord));
   rec.name := aset;
-  rec.numitems := str.Count - 1;
-  if (str.Strings[0] = 'Part,Color,Num') then
+  rec.numitems := 0;
+  if (str.Strings[0] = 'Part,Color,Num') or (str.Strings[0] = 'Part,Color,Quantity') then
   begin
+    j := 0;
     for i := 1 to str.count - 1 do
     begin
       splitstring(str.Strings[i], spart, scolor, snum, ',');
-      if Pos('BL ', spart) = 1 then
-        rec.data[i - 1].piece := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
-      else
-        rec.data[i - 1].piece := db.RebrickablePart(spart);
-
-      if Pos('BL', scolor) = 1 then
+      spart := Trim(spart);
+      scolor := Trim(scolor);
+      if spart <> '' then
       begin
-        scolor := Copy(scolor, 3, Length(scolor) - 2);
+        if Pos('BL ', spart) = 1 then
+          rec.data[j].piece := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
+        else
+          rec.data[j].piece := db.RebrickablePart(spart);
 
-        rec.data[i - 1].color := db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0));
-      end
-      else
-      begin
-        rec.data[i - 1].color := StrToIntDef(scolor, 0);
+        if Pos('BL', scolor) = 1 then
+        begin
+          scolor := Copy(scolor, 3, Length(scolor) - 2);
+
+          rec.data[j].color := db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0));
+        end
+        else
+        begin
+          rec.data[j].color := StrToIntDef(scolor, 0);
+        end;
+        rec.data[j].num := atoi(snum);
+
+        rec.data[j].cost := 0.0;
+        inc(j);
       end;
-      rec.data[i - 1].num := atoi(snum);
-
-      rec.data[i - 1].cost := 0.0;
     end;
+    rec.numitems := j;
   end;
   if (str.Strings[0] = 'Part,Color,Num,Cost') then
   begin
+    j := 0;
     for i := 1 to str.count - 1 do
     begin
       splitstring(str.Strings[i], spart, scolor, snum, scost, ',');
-      if Pos('BL ', spart) = 1 then
-        rec.data[i - 1].piece := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
-      else
-        rec.data[i - 1].piece := db.RebrickablePart(spart);
-
-      if Pos('BL', scolor) = 1 then
+      spart := Trim(spart);
+      scolor := Trim(scolor);
+      if spart <> '' then
       begin
-        scolor := Copy(scolor, 3, Length(scolor) - 2);
+        if Pos('BL ', spart) = 1 then
+          rec.data[j].piece := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
+        else
+          rec.data[j].piece := db.RebrickablePart(spart);
 
-        rec.data[i - 1].color := db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0));
-      end
-      else
-      begin
-        rec.data[i - 1].color := StrToIntDef(scolor, 0);
+        if Pos('BL', scolor) = 1 then
+        begin
+          scolor := Copy(scolor, 3, Length(scolor) - 2);
+
+          rec.data[j].color := db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0));
+        end
+        else
+        begin
+          rec.data[j].color := StrToIntDef(scolor, 0);
+        end;
+        rec.data[j].num := atoi(snum);
+
+        rec.data[j].cost := atof(scost);
+        inc(j);
       end;
-      rec.data[i - 1].num := atoi(snum);
-
-      rec.data[i - 1].cost := atof(scost);
     end;
+    rec.numitems := j;
   end;
 
   idx := fsets.indexOf(aset);

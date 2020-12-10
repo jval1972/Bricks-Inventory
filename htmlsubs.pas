@@ -6746,14 +6746,14 @@ if BMName <> '' then
         if KindOfImage(Stream.Memory) in [GIF, Gif89] then
           Result := CreateAGifFromStream(NonAnimated, Stream);
         if Assigned(Result) then
-          begin
+        begin
           if NonAnimated then
-            begin     {else already have animated GIF}
+          begin     {else already have animated GIF}
             Tmp := TGifImage(Result);
             Result := TBitmap.Create;
             TBitmap(Result).Assign(Tmp.MaskedBitmap);
             if Tmp.IsTransparent then
-              begin
+            begin
               AMask := TBitmap.Create;
               AMask.Assign(Tmp.Mask);
               Transparent := TGif;
@@ -6761,17 +6761,17 @@ if BMName <> '' then
             else if Transparent = LLCorner then
               AMask := GetImageMask(TBitmap(Result), False, 0);
             Tmp.Free;
-            end;
-          end
+          end;
+        end
         else
           Result := GetImageAndMaskFromStream(Stream, Transparent, AMask);
-        end;
       end;
-    end
+    end;
+  end
   else
-    Result := LoadImageFromFile(BMName, AMask, Transparent);  
+    Result := LoadImageFromFile(BMName, AMask, Transparent);
   if Assigned(Result) then  {put in Image List for use later also}
-    try     
+    try
       if Assigned(AMask) then Tr := Transparent
         else Tr := NotTransp;
       Pair := TBitmapItem.Create(Result, AMask, Tr);
@@ -6794,16 +6794,16 @@ function TSectionList.FindSectionAtPosition(Pos: integer;
 var
   I: integer;
 begin
-with PositionList do
-  for I := Count-1 downto 0 do
-    if TSectionBase(Items[I]).YPosition <= Pos then
+  with PositionList do
+    for I := Count-1 downto 0 do
+      if TSectionBase(Items[I]).YPosition <= Pos then
       begin
-      Result := TSectionBase(Items[I]);
-      TopPos := Result.YPosition;
-      Index := I;
-      Exit;
+        Result := TSectionBase(Items[I]);
+        TopPos := Result.YPosition;
+        Index := I;
+        Exit;
       end;
-Result := Nil;
+  Result := Nil;
 end;
 
 procedure TSectionList.GetBackgroundBitmap;
@@ -6814,97 +6814,99 @@ var
   FromCache, Delay: boolean;
   Rslt: string;
 begin
-if ShowImages and not BitmapLoaded and (BitmapName <> '') then
+  if ShowImages and not BitmapLoaded and (BitmapName <> '') then
   begin
   if not Assigned(BackgroundBitmap) then
-    begin
+  begin
     Dummy1 := NotTransp;
     if not Assigned(GetBitmap) and not Assigned(GetImage) then
       BitmapName := (TheOwner as ThtmlViewer).HTMLExpandFilename(BitmapName)
     else if Assigned(ExpandName) then
-      begin
+    begin
       ExpandName(TheOwner, BitmapName, Rslt);
       BitmapName := Rslt;
-      end;
+    end;
     TmpResult := GetTheBitmap(BitmapName, Dummy1, Mask, FromCache, Delay); {might be Nil}
     if (TmpResult is TBitmap) or (TmpResult is TGpImage) then
-      begin
+    begin
       BackgroundBitmap := TmpResult;
       BackgroundMask := Mask;
-      end
+    end
     else if TmpResult is TGifImage then
-      begin
+    begin
       BackgroundBitmap := TGifImage(TmpResult).MaskedBitmap;
       BackgroundMask := TGifImage(TmpResult).Mask;
-      if TGifImage(TmpResult).IsAnimated and not IsCopy then     
-        begin
+      if TGifImage(TmpResult).IsAnimated and not IsCopy then
+      begin
         BackgroundAniGif := TGifImage(TmpResult);
         AGifList.Add(BackgroundAniGif);
         BackgroundAniGif.Animate := True;
-        end;
-      end
+      end;
+    end
     {$ifndef NoMetafile}
-    else if TmpResult is ThtMetaFile then   
-      begin
+    else if TmpResult is ThtMetaFile then
+    begin
       BackgroundBitmap := ThtMetaFile(TmpResult);
-      end
+    end
     {$endif}
     else
-      begin
+    begin
       BackgroundBitmap := Nil;
       if Delay then
         MissingImages.AddObject(BitmapName, Self);
-      end;
+    end;
     BitmapLoaded := True;
     end;
   end;
 end;
 
 {----------------TSectionList.GetFormcontrolData}
-function TSectionList.GetFormcontrolData: TFreeList;     
+function TSectionList.GetFormcontrolData: TFreeList;
 var
   I: integer;
 begin
-if htmlFormList.Count > 0 then
+  if htmlFormList.Count > 0 then
   begin
-  Result := TFreeList.Create;
-  for I := 0 to htmlFormList.Count-1 do
-    Result.Add(ThtmlForm(htmlFormList[I]).GetFormSubmission);
+    Result := TFreeList.Create;
+    for I := 0 to htmlFormList.Count-1 do
+      Result.Add(ThtmlForm(htmlFormList[I]).GetFormSubmission);
   end
-else Result := Nil;
+  else
+    Result := Nil;
 end;
 
-procedure TSectionList.SetFormcontrolData(T: TFreeList); 
+procedure TSectionList.SetFormcontrolData(T: TFreeList);
 var
   I: integer;
 begin
-try
-  for I := 0 to T.Count-1 do
-    if htmlFormList.Count > I then
-      ThtmlForm(htmlFormList[I]).SetFormData(TStringList(T[I]));
-except end;
+  try
+    for I := 0 to T.Count-1 do
+      if htmlFormList.Count > I then
+        ThtmlForm(htmlFormList[I]).SetFormData(TStringList(T[I]));
+  except
+  end;
 end;
 
 {----------------TSectionList.FindDocPos}
-function TSectionList.FindDocPos(SourcePos: integer; Prev: boolean): integer;   
+function TSectionList.FindDocPos(SourcePos: integer; Prev: boolean): integer;
 begin
-Result := inherited FindDocPos(SourcePos, Prev);
-if Result < 0 then    {if not found return 1 past last char}  
-  Result := Len;       
+  Result := inherited FindDocPos(SourcePos, Prev);
+  if Result < 0 then    {if not found return 1 past last char}
+    Result := Len;
 end;
 
 {----------------TSectionList.CursorToXY}
-function TSectionList.CursorToXY(Canvas: TCanvas; Cursor: integer; var X: integer; 
+function TSectionList.CursorToXY(Canvas: TCanvas; Cursor: integer; var X: integer;
              var Y: integer): boolean;
 var
   Beyond: boolean;
 begin
-Beyond := Cursor >= Len;
-if Beyond then
-  Cursor := Len-1;
-Result := inherited CursorToXY(Canvas, Cursor, X, Y);
-if Beyond then
-  X := X+15;
+  Beyond := Cursor >= Len;
+  if Beyond then
+    Cursor := Len - 1;
+  Result := inherited CursorToXY(Canvas, Cursor, X, Y);
+  if Beyond then
+    X := X + 15;
 end;
 
 procedure TSectionList.ProcessInlines(SIndex: integer; Prop: TProperties; Start: boolean);
@@ -6924,7 +6926,7 @@ with InlineList do
     InlineList.Add(IR);
     with IR do
       begin
-      StartBDoc := SIndex;  {Source index for border start}   
+      StartBDoc := SIndex;  {Source index for border start}
       IDB := Prop.ID;    {property ID}
       EndB := 999999;    {end isn't known yet}
       Prop.GetVMarginArray(MargArrayO);
@@ -6940,7 +6942,7 @@ with InlineList do
       IR := InlineRec(Items[I]);
       if Prop.ID = IR.IDB then     {check the ID to make sure}
         begin
-        IR.EndBDoc := SIndex; {the source position of the border end}   
+        IR.EndBDoc := SIndex; {the source position of the border end}
         Break;
         end;
       end;
@@ -7256,7 +7258,7 @@ try
     else
       try
         DoImageStuff(Canvas, Wd-CellSpacing, Ht-CellSpacing,
-             BGImage, PRec, TiledImage, TiledMask, NoMask);     
+             BGImage, PRec, TiledImage, TiledMask, NoMask);
         if Cell.MasterList.IsCopy and (TiledImage is TBitmap) then
           TBitmap(TiledImage).HandleType := bmDIB;
       except                   {bad image, get rid of it}
@@ -7281,7 +7283,7 @@ try
       FullBG.Canvas.Brush.Style := bsSolid;
       FullBG.Canvas.FillRect(Rect(0, 0, PR-PL, IH));
       end
-    else if BorderStyle = bssNone then     
+    else if BorderStyle = bssNone then
       if Border then           
         {slip under border to fill gap when printing}
         Canvas.FillRect(Rect(PL-1, FT-1, PR, FT+IH))   
@@ -7606,7 +7608,7 @@ end;
 
 {----------------TCellList.DrawLogic1}
 function TCellList.DrawLogic1(Canvas : TCanvas; const Widths : array of integer; Span,
-           CellSpacing, AHeight, Rows: integer; var Desired: integer; var Spec, More: boolean): integer; 
+           CellSpacing, AHeight, Rows: integer; var Desired: integer; var Spec, More: boolean): integer;
 {Find vertical size of each cell, Row height of this row.  But final Y position
  is not known at this time.
  Rows is number rows in table.
@@ -7681,7 +7683,7 @@ end;
 {----------------TCellList.Draw}
 function TCellList.Draw(Canvas: TCanvas; MasterList: TSectionList; const ARect: TRect;
      const Widths : array of integer; X: integer; Y, YOffset: integer;
-     CellSpacing : integer; Border: boolean; Light, Dark: TColor; 
+     CellSpacing : integer; Border: boolean; Light, Dark: TColor;
      MyRow: integer) : integer;  
 var
   I, Spacing: integer;

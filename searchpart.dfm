@@ -3,7 +3,7 @@ object SearchPartForm: TSearchPartForm
   Top = 126
   BorderStyle = bsDialog
   Caption = 'Seach part'
-  ClientHeight = 538
+  ClientHeight = 569
   ClientWidth = 231
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -13,6 +13,7 @@ object SearchPartForm: TSearchPartForm
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 12
@@ -60,7 +61,7 @@ object SearchPartForm: TSearchPartForm
   end
   object Panel1: TPanel
     Left = 0
-    Top = 470
+    Top = 501
     Width = 231
     Height = 68
     Align = alBottom
@@ -100,5 +101,27 @@ object SearchPartForm: TSearchPartForm
       ModalResult = 2
       TabOrder = 1
     end
+  end
+  object SaveListButton: TButton
+    Left = 16
+    Top = 472
+    Width = 193
+    Height = 25
+    Caption = 'Save List'
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 3
+    OnClick = SaveListButtonClick
+  end
+  object SaveDialog1: TSaveDialog
+    DefaultExt = 'txt'
+    Filter = 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
+    Left = 176
+    Top = 448
   end
 end

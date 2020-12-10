@@ -1,3 +1,31 @@
+//------------------------------------------------------------------------------
+//
+//  BrickInventory: A tool for managing your brick collection
+//  Copyright (C) 2014-2018 by Jim Valavanis
+//
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, inc., 59 Temple Place - Suite 330, Boston, MA
+//  02111-1307, USA.
+//
+// DESCRIPTION:
+//    Internet Crawler
+//
+//------------------------------------------------------------------------------
+//  E-Mail: jvalavanis@gmail.com
+//  Site  : https://sourceforge.net/projects/brickinventory/
+//------------------------------------------------------------------------------
+
 unit bi_crawler;
 
 interface
@@ -5,10 +33,31 @@ interface
 uses
   WinInet, SysUtils, Classes, bi_db;
 
-function NET_GetPriceGuideForElement(id: string; const color: string;
-  var ret1: priceguide_t; var ret2: availability_t; const cachefile: string): boolean;
+var
+  type1_pg_hits: integer = 0;
+  type2_pg_hits: integer = 0;
+  last_pg_hit: integer = 0;
+  allowtype1_hits: boolean = False;
+
+var
+  useUSDvalues: boolean = False;
+  useVATValues: boolean = True;
+
+function NET_GetPriceGuideForElement(const pci: TPieceColorInfo; id: string; const color: string;
+  var ret1: priceguide_t; var ret2: availability_t; const cachefile: string;
+  var clink: string): boolean;
 
 function NET_GetBricklinkAlias(const id: string): string;
+
+function NET_GetBricklinkCategory(const id: string; var fcat: integer; var fweight: double; var parttype: char): boolean;
+
+function NET_GetBricklinkMinifigCategory(const id: string; var fcat: integer; var fweight: double): boolean;
+
+function NET_GetBricklinkMinifigWeight(const id: string; var fweight: double): boolean;
+
+function NET_GetURLHeadByte(const URL: string; XXX: integer = 0): byte;
+
+function NET_GetURLString(const URL: string): string;
 
 var
   AllowInternetAccess: Boolean = True;
@@ -24,7 +73,7 @@ var
 implementation
 
 uses
-  Windows, bi_delphi, bi_script, bi_utils, bi_system, bi_globals;
+  Windows, bi_delphi, bi_script, bi_utils, bi_system, bi_globals, strutils;
 
 var
   hSession: HInternet;
@@ -48,6 +97,50 @@ const
   BUFFERSIZE = $4000;
   MAXRETRY = 3;
   DELAYR = 10;
+
+function NET_GetURLHeadByte(const URL: string; XXX: integer = 0): byte;
+var
+  hURL: HInternet;
+  Buffer: Byte;
+  BufferLen: Cardinal;
+begin
+  if XXX > MAXRETRY then
+  begin
+    result := 0;
+    exit;
+  end;
+
+  if XXX = MAXRETRY then
+  begin
+    CloseInetConnection;
+    OpenInetConnection;
+  end;
+
+  hURL := InternetOpenURL(
+                 hSession,          // Handle to current session
+                 PChar(URL),        // URL to read
+                 nil,               // HTTP headers to send to server
+                 0,                 // Header length
+                 0, 0);             // flags   (might want to add some like INTERNET_FLAG_RELOAD with forces a reload from server and not from cache)
+
+  if hURL = nil then
+  begin
+    inc(XXX);
+    sleep(DELAYR);
+    result := NET_GetURLHeadByte(URL, XXX);
+    exit;
+  end;
+
+  result := 0;
+
+  InternetReadFile(
+        hURL,                  // File URL
+        @Buffer,               // Buffer that receives data
+        SizeOf(Buffer),        // bytes to read
+        BufferLen);            // bytes read
+  if BufferLen > 0 then
+    result := Buffer;
+end;
 
 function GetURLString(const URL: string; XXX: integer = 0): string;
 var
@@ -108,6 +201,45 @@ begin
   until BufferLen = 0;
 end;
 
+function NET_GetURLString(const URL: string): string;
+var
+  hURL: HInternet;
+  Buffer: array[1..BUFFERSIZE] of Char;
+  BufferLen: Cardinal;
+  i: integer;
+  len: integer;
+begin
+  hURL := InternetOpenURL(
+                 hSession,          // Handle to current session
+                 PChar(URL),        // URL to read
+                 nil,               // HTTP headers to send to server
+                 0,                 // Header length
+                 0, 0);             // flags   (might want to add some like INTERNET_FLAG_RELOAD with forces a reload from server and not from cache)
+
+  if hURL = nil then
+  begin
+    result := '';
+    exit;
+  end;
+
+  result := '';
+
+  repeat
+    InternetReadFile(
+        hURL,                  // File URL
+        @Buffer,               // Buffer that receives data
+        SizeOf(Buffer),        // bytes to read
+        BufferLen);            // bytes read
+    if BufferLen > 0 then
+    begin
+      len := Length(Result);
+      SetLength(result, Length(Result) + BufferLen);
+      for i := 1 to BufferLen do
+        result[len + i] := Buffer[i];
+    end;
+  until BufferLen = 0;
+end;
+
 function issticker(const part: string): Boolean;
 var
   p: integer;
@@ -117,14 +249,577 @@ begin
     if IsNumericC(part[p - 1]) then
       if IsNumericC(part[p + 3]) then
       begin
-        result := true;
-        exit;
+        Result := True;
+        Exit;
       end;
-  result := false;
+  Result := False;
 end;
 
-function NET_GetPriceGuideForElement(id: string; const color: string;
-  var ret1: priceguide_t; var ret2: availability_t; const cachefile: string): boolean;
+function NET_MakePriceGuideLink2(const typ: string; const itemid: string;
+  const blcolor: integer; const dec: integer = 6): string;
+var
+  cI: char;
+  cV: char;
+begin
+  if useUSDvalues and not useVATValues then
+  begin
+    Result := 'https://www.bricklink.com/priceguide.asp?' +
+                'a=' + typ +
+                '&itemid=' + itemid +
+                '&colorID=' + itoa(blcolor) +
+                '&viewdec=' + itoa(dec);
+    if (typ = 's') or (typ = 'S') then
+      Result := Result + '&viewMy=&viewExclude=Y';
+    Exit;
+  end;
+  if useUSDValues then
+    cI := '1'
+  else
+    cI := '2';
+  if useVATValues then
+    cV := 'y'
+  else
+    cV := 'n';
+
+  Result := 'http://www.bricklink.com/priceGuideSummary.asp?' +
+              'vcID=' + cI +
+              '&vatInc=' + cV +
+              '&a=' + typ +
+              '&itemID=' + itemid +
+              '&colorID=' + itoa(blcolor) +
+              '&viewdec=' + itoa(dec);
+  if (typ = 's') or (typ = 'S') then
+    Result := Result + '&viewMy=&viewExclude=Y';
+end;
+
+function SaveParec2(const id: string; const color: string;
+  const ret1: priceguide_t; const ret2: availability_t; const currency: string;
+  const link: string): boolean;
+var
+  parec2: parecdate2_t;
+  directory: string;
+  filename2: string;
+  fs: TFileStream;
+  i: integer;
+  ok: boolean;
+begin
+  Result := False;
+  directory := PieceColorCacheDir(id, color);
+  if not DirectoryExists(directory) then
+    ForceDirectories(directory);
+  filename2 := PieceColorCacheFName2(id, color);
+
+  ZeroMemory(@parec2, SizeOf(parecdate2_t));
+  parec2.priceguide := ret1;
+  parec2.availability := ret2;
+  parec2.date := Now;
+  parec2.currency := currency;
+  parec2.url := link;
+
+  ok := True;
+  for i := 1 to 10 do
+  begin
+    try
+      if fexists(filename2) then
+      begin
+        fs := TFileStream.Create(filename2, fmOpenReadWrite);
+        fs.Position := fs.Size;
+      end
+      else
+        fs := TFileStream.Create(filename2, fmCreate);
+      try
+        fs.Write(parec2, SizeOf(parecdate2_t));
+      finally
+        fs.Free;
+      end;
+    except
+      ok := False;
+      Sleep(100);
+    end;
+    if ok then
+      Break;
+  end;
+end;
+
+function SaveParec3(const id: string; const color: string;
+  const ret1: priceguide_t; const ret2: availability_t; const currency: string;
+  const link: string; const vat: boolean): boolean;
+var
+  parec3: parecdate3_t;
+  directory: string;
+  filename3: string;
+  fs: TFileStream;
+  i: integer;
+  ok: boolean;
+  link1, link2: string;
+begin
+  Result := False;
+  directory := PieceColorCacheDir(id, color);
+  if not DirectoryExists(directory) then
+    ForceDirectories(directory);
+  filename3 := PieceColorCacheFName3(id, color);
+
+  ZeroMemory(@parec3, SizeOf(parecdate3_t));
+  parec3.priceguide := ret1;
+  parec3.availability := ret2;
+  parec3.date := Now;
+  parec3.currency := currency;
+  if Length(Trim(link)) > 127 then
+  begin
+    splitstring(Trim(link), link1, link2, ':');
+    if Pos('//', link2) = 1 then
+    begin
+      link2[1] := ' ';
+      link2[2] := ' ';
+      link2 := Trim(link2);
+      if Length(link2) > 127 then
+        parec3.url := RightStr(link2, 127)
+      else
+        parec3.url := link2;
+    end
+    else
+      parec3.url := RightStr(Trim(link), 127)
+  end
+  else
+    parec3.url := Trim(link);
+  parec3.vat := vat;
+
+  ok := True;
+  for i := 1 to 10 do
+  begin
+    try
+      if fexists(filename3) then
+      begin
+        fs := TFileStream.Create(filename3, fmOpenReadWrite);
+        fs.Position := fs.Size;
+      end
+      else
+        fs := TFileStream.Create(filename3, fmCreate);
+      try
+        fs.Write(parec3, SizeOf(parecdate3_t));
+      finally
+        fs.Free;
+      end;
+    except
+      ok := False;
+      Sleep(100);
+    end;
+    if ok then
+      Break;
+  end;
+end;
+
+function HTMLLinkParseParam(const htms: string; const QRY: string; const sdefault: string = ''): string;
+var
+  i: integer;
+  parmlist: TStringList;
+  sss1, sss2: string;
+  check: string;
+begin
+  Result := sdefault;
+  splitstring(htms, sss1, sss2, '?');
+  parmlist := string2stringlist(sss2, '&');
+  check := UpperCase(QRY);
+  for i := 0 to parmlist.Count - 1 do
+  begin
+    splitstring(parmlist.Strings[i], sss1, sss2, '=');
+    if UpperCase(sss1) = check then
+    begin
+      Result := sss2;
+      Break;
+    end;
+  end;
+  parmlist.Free;
+end;
+
+function NET_GetPriceGuideForElement2(const pci: TPieceColorInfo; const id: string;
+  const color: string; var ret1: priceguide_t; var ret2: availability_t;
+  const cachefile: string; var clink: string; const forcelink: string = ''): boolean;
+var
+  link: string;
+  htm: string;
+  typ: string;
+  itemid: string;
+  blcolor: integer;
+  cc: integer;
+  result_t: array[1..24] of Double;
+  i: integer;
+  SL: TStringList;
+  sLine: TStringList;
+  line: string;
+  group: integer;
+  idx: integer;
+  USDval: double;
+  skeep: string;
+  cstr: string;
+  savetyp: boolean;
+
+  function atofdollar(ss: string): double;
+  var
+    p1, p2: integer;
+    tmp: string;
+    ii: integer;
+  begin
+    ss := Trim(ss);
+    if ss = '' then
+    begin
+      Result := 0.0;
+      Exit;
+    end;
+    if ss[1] <> '$' then
+    begin
+      Result := 0.0;
+      Exit;
+    end;
+    ss[1] := ' ';
+    ss := Trim(ss);
+    if ss = '' then
+    begin
+      Result := 0.0;
+      Exit;
+    end;
+
+    p1 := Pos(',', ss);
+    p2 := Pos('.', ss);
+
+    if (p1 > 0) and (p2 > 0) then
+    begin
+      if p2 < p1 then
+        if decimalseparator <> '.' then
+        begin
+          ss[p1] :='.';
+          ss[p2] :=',';
+        end;
+      tmp := '';
+      for ii := 1 to Length(ss) do
+        if ss[ii] <> ',' then
+          tmp := tmp + ss[ii];
+      Result := atof(tmp);
+      Exit;
+    end;
+
+    if (p1 > 0) and (p2 = 0) then
+    begin
+      if ss[p1] <> decimalseparator then
+        ss[p1] := decimalseparator;
+    end
+    else if (p1 = 0) and (p2 > 0) then
+    begin
+      if ss[p2] <> decimalseparator then
+        ss[p2] := decimalseparator;
+    end;
+    Result := atof(ss);
+  end;
+
+  function atofeuro(ss: string): double;
+  var
+    p1, p2: integer;
+    tmp: string;
+    ii: integer;
+  begin
+    ss := Trim(ss);
+    if ss = '' then
+    begin
+      Result := 0.0;
+      Exit;
+    end;
+    if Pos('EUR ', ss) <> 1 then
+    begin
+      Result := 0.0;
+      Exit;
+    end;
+    ss[1] := ' ';
+    ss[2] := ' ';
+    ss[3] := ' ';
+    ss := Trim(ss);
+    if ss = '' then
+    begin
+      Result := 0.0;
+      Exit;
+    end;
+
+    p1 := Pos(',', ss);
+    p2 := Pos('.', ss);
+
+    if (p1 > 0) and (p2 > 0) then
+    begin
+      if p2 < p1 then
+        if decimalseparator <> '.' then
+        begin
+          ss[p1] :='.';
+          ss[p2] :=',';
+        end;
+      tmp := '';
+      for ii := 1 to Length(ss) do
+        if ss[ii] <> ',' then
+          tmp := tmp + ss[ii];
+      Result := atof(tmp);
+      Exit;
+    end;
+
+    if (p1 > 0) and (p2 = 0) then
+    begin
+      if ss[p1] <> decimalseparator then
+        ss[p1] := decimalseparator;
+    end
+    else if (p1 = 0) and (p2 > 0) then
+    begin
+      if ss[p2] <> decimalseparator then
+        ss[p2] := decimalseparator;
+    end;
+    Result := atof(ss);
+  end;
+
+begin
+  Result := False;
+  itemid := db.GetBLNetPieceName(id);
+  typ := pci.ItemType;
+  savetyp := typ <> pci.sparttype;
+  if (Length(typ) = 1) and (typ[1] in ['P', 'S', 'M', 'C', 'B', 'I', 'O', 'G']) then
+  begin
+    cc := StrToIntDef(color, -2);
+    if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
+      blcolor := 0
+    else
+      blcolor := db.colors(cc).BrickLingColor;
+  end
+  else
+  begin
+    if (color = '89') or (color = '') or ((color = '-1') and (Pos('-', id) > 0))  then // set
+    begin
+      typ := 'S';
+      blcolor := 0;
+    end
+    else if color = '-1' then
+    begin
+      if issticker(id) then // sticker
+      begin
+        typ := 'P';
+        blcolor := 0;
+      end
+      else if db.isbook(id) then  // book
+      begin
+        typ := 'B';
+        blcolor := 0;
+      end
+      else if db.IsGear(id) then
+      begin
+        typ := 'G';
+        blcolor := 0
+      end
+      else  // minifigure
+      begin
+        typ := 'M';
+        blcolor := 0;
+      end;
+    end
+    else if color = '9996' then // Catalog
+    begin
+      typ := 'C';
+      blcolor := 0;
+    end
+    else if color = '9997' then // Instructions
+    begin
+      typ := 'I';
+      blcolor := 0;
+    end
+    else if color = '9998' then // Original Box
+    begin
+      typ := 'O';
+      blcolor := 0;
+    end
+    else  // Part
+    begin
+      typ := 'P';
+      cc := StrToIntDef(color, -2);
+      if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
+        blcolor := 0
+      else
+        blcolor := db.colors(cc).BrickLingColor;
+    end;
+  end;
+
+  if forcelink <> '' then
+  begin
+    link := forcelink;
+    savetyp := false;
+  end
+  else
+    link := NET_MakePriceGuideLink2(typ, itemid, blcolor);
+  htm := GetURLString(link);
+  if Pos('This item has not been sold or listed for sale yet', htm) > 0 then
+    Exit;
+ // SaveStringToFile('e:\test1.htm', htm);
+  if Pos('(No Data)', htm) > 0 then
+    Exit;
+
+  htm := StringReplace(htm, '&nbsp;', ' ', [rfReplaceAll, rfIgnoreCase]);
+  htm := StringReplace(htm, #10, '', [rfReplaceAll, rfIgnoreCase]);
+  htm := StringReplace(htm, #13, '', [rfReplaceAll, rfIgnoreCase]);
+  htm := StringReplace(htm, '<tr>', #13#10'<tr>', [rfReplaceAll, rfIgnoreCase]);
+  htm := StringReplace(htm, '<TR ', #13#10'<TR ', [rfReplaceAll, rfIgnoreCase]);
+
+  skeep := htm;
+
+  FillChar(result_t, SizeOf(result_t), 0);
+
+  if useUSDvalues then
+  begin
+    USDval := db.ConvertCurrencyAt('USD', Now);
+    cstr := '$'
+  end
+  else
+  begin
+    USDval := 1.0;
+    cstr := 'EUR'
+  end;
+
+  group := 0;
+  SL := TStringList.Create;
+  sLine := TStringList.Create;
+  try
+    SL.Text := htm;
+    for i := 0 to SL.Count - 1 do
+    begin
+      if Pos(UpperCase('Past 6 Months Sales'), UpperCase(SL.Strings[i])) > 0 then
+        group := 1
+      else if Pos(UpperCase('Current Items for Sale'), UpperCase(SL.Strings[i])) > 0 then
+        group := 2
+      else if group > 0 then
+      begin
+        line := StringReplace(SL.Strings[i], '</td>', #13#10, [rfReplaceAll, rfIgnoreCase]);
+        sLine.Text := line;
+        if sLine.Count = 8 then
+        begin
+          sLine.Strings[0] := htmlstripstring(sLine.Strings[0]);
+          sLine.Strings[1] := Trim(htmlstripstring(sLine.Strings[1]));
+          sLine.Strings[2] := Trim(htmlstripstring(sLine.Strings[2]));
+          sLine.Strings[3] := Trim(htmlstripstring(sLine.Strings[3]));
+          sLine.Strings[4] := Trim(htmlstripstring(sLine.Strings[4]));
+          sLine.Strings[5] := Trim(htmlstripstring(sLine.Strings[5]));
+          sLine.Strings[6] := Trim(htmlstripstring(sLine.Strings[6]));
+          if (Pos(cstr, sLine.Strings[3]) = 1) and (Pos(cstr, sLine.Strings[4]) = 1) and
+             (Pos(cstr, sLine.Strings[5]) = 1) and (Pos(cstr, sLine.Strings[6]) = 1) then
+          begin
+            if Pos('NEW', UpperCase(sLine.Strings[0])) > 0 then
+            begin
+              if group = 1 then
+                idx := 1
+              else
+                idx := 13;
+            end
+            else if Pos('USED', UpperCase(sLine.Strings[0])) > 0 then
+            begin
+              if group = 1 then
+                idx := 7
+              else
+                idx := 19;
+            end
+            else
+            begin
+              idx := 0;
+              Continue;
+            end;
+            result_t[idx] := atoi(sLine.Strings[1]);
+            result_t[idx + 1] := atoi(sLine.Strings[2]);
+            if useUSDvalues then
+            begin
+              result_t[idx + 2] := atofdollar(sLine.Strings[3]);
+              result_t[idx + 3] := atofdollar(sLine.Strings[4]);
+              result_t[idx + 4] := atofdollar(sLine.Strings[5]);
+              result_t[idx + 5] := atofdollar(sLine.Strings[6]);
+            end
+            else
+            begin
+              result_t[idx + 2] := atofeuro(sLine.Strings[3]);
+              result_t[idx + 3] := atofeuro(sLine.Strings[4]);
+              result_t[idx + 4] := atofeuro(sLine.Strings[5]);
+              result_t[idx + 5] := atofeuro(sLine.Strings[6]);
+            end;
+            Result := Result or
+              ((result_t[idx] <> 0) and (result_t[idx + 1] <> 0) and
+               (result_t[idx + 2] <> 0.0) and (result_t[idx + 3] <> 0.0) and
+               (result_t[idx + 4] <> 0.0) and (result_t[idx + 5] <> 0.0));
+          end;
+        end;
+      end;
+    end;
+  finally
+    SL.Free;
+    sLine.Free;
+  end;
+
+  if Result then
+  begin
+    ret1.nTimesSold := Round(result_t[1]);
+    ret1.nTotalQty := Round(result_t[2]);
+    ret1.nMinPrice := result_t[3];
+    ret1.nAvgPrice := result_t[4];
+    ret1.nQtyAvgPrice := result_t[5];
+    ret1.nMaxPrice := result_t[6];
+    ret1.uTimesSold := Round(result_t[7]);
+    ret1.uTotalQty := Round(result_t[8]);
+    ret1.uMinPrice := result_t[9];
+    ret1.uAvgPrice := result_t[10];
+    ret1.uQtyAvgPrice := result_t[11];
+    ret1.uMaxPrice := result_t[12];
+
+    ret2.nTotalLots := Round(result_t[12 + 1]);
+    ret2.nTotalQty := Round(result_t[12 + 2]);
+    ret2.nMinPrice := result_t[12 + 3];
+    ret2.nAvgPrice := result_t[12 + 4];
+    ret2.nQtyAvgPrice := result_t[12 + 5];
+    ret2.nMaxPrice := result_t[12 + 6];
+    ret2.uTotalLots := Round(result_t[12 + 7]);
+    ret2.uTotalQty := Round(result_t[12 + 8]);
+    ret2.uMinPrice := result_t[12 + 9];
+    ret2.uAvgPrice := result_t[12 + 10];
+    ret2.uQtyAvgPrice := result_t[12 + 11];
+    ret2.uMaxPrice := result_t[12 + 12];
+
+    if useUSDvalues then
+    begin
+      SaveParec3(id, color, ret1, ret2, 'USD', link, useVATValues);
+
+      ret1.nMinPrice := result_t[3] * USDVal;
+      ret1.nAvgPrice := result_t[4] * USDVal;
+      ret1.nQtyAvgPrice := result_t[5] * USDVal;
+      ret1.nMaxPrice := result_t[6] * USDVal;
+      ret1.uMinPrice := result_t[9] * USDVal;
+      ret1.uAvgPrice := result_t[10] * USDVal;
+      ret1.uQtyAvgPrice := result_t[11] * USDVal;
+      ret1.uMaxPrice := result_t[12] * USDVal;
+
+      ret2.nMinPrice := result_t[12 + 3] * USDVal;
+      ret2.nAvgPrice := result_t[12 + 4] * USDVal;
+      ret2.nQtyAvgPrice := result_t[12 + 5] * USDVal;
+      ret2.nMaxPrice := result_t[12 + 6] * USDVal;
+      ret2.uMinPrice := result_t[12 + 9] * USDVal;
+      ret2.uAvgPrice := result_t[12 + 10] * USDVal;
+      ret2.uQtyAvgPrice := result_t[12 + 11] * USDVal;
+      ret2.uMaxPrice := result_t[12 + 12] * USDVal;
+    end
+    else
+      SaveParec3(id, color, ret1, ret2, 'EUR', link, useVATValues);
+
+    clink := link;
+    SL := TStringList.Create;
+    try
+      SL.Text := skeep;
+      S_SaveToFile(SL, cachefile + 'l');
+    finally
+      SL.Free;
+    end;
+
+    if savetyp then
+      if Length(typ) = 1 then
+        db.SetPartType(pci, typ[1]);
+  end;
+end;
+
+function NET_GetPriceGuideForElement(const pci: TPieceColorInfo; id: string; const color: string;
+  var ret1: priceguide_t; var ret2: availability_t; const cachefile: string;
+  var clink: string): boolean;
 var
   link: string;
   cc: integer;
@@ -142,37 +837,436 @@ var
   loadedfromcache: boolean;
   isdollar: Boolean;
   USDval: Double;
+  didbook: boolean;
+  didgear: boolean;
+  savelink: boolean;
+  fixlink: boolean;
+  slist: TStringList;
+  doabort: boolean;
+  tryparttype: char;
+  forcelink: string;
+  sRETRY: string;
+  typ: string;
 begin
   Result := false;
+  decimalseparator := '.';
+  if color = '-1' then
+  begin
+    if db.IsMoc(id) then
+    begin
+      {$IFDEF CRAWLER}            
+      FAILwarning := True;
+      {$ENDIF}
+      Exit;
+    end;
+  end;
+  if db.pieceinfo(pci).category = 999 then
+  begin
+    {$IFDEF CRAWLER}
+    FAILwarning := True;
+    {$ENDIF}
+    Exit;
+  end;
+
+  tryparttype := ' ';
+  didbook := false;
+  didgear := false;
   isdollar := false;
+  savelink := false;
 {$IFDEF CRAWLER}
   USDwarning := false;
   FAILwarning := false;
-{$ENDIF}  
+{$ENDIF}
   FillChar(ret1, SizeOf(priceguide_t), 0);
   FillChar(ret2, SizeOf(availability_t), 0);
   link := db.CrawlerLink(id, atoi(color));
+  if (link = '') or (Pos('catalogPriceGuide.asp', link) > 0) then
+  begin
+    if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink) then
+    begin
+      Result := True;
+      inc(type2_pg_hits);
+      last_pg_hit := 2;
+      if Pos('catalogPriceGuide.asp', link) > 0 then
+        db.AddCrawlerLink(id, atoi(color), '');
+      Exit;
+    end;
+    if (color = '9996') or (color = '9997') or (color = '9998') then
+    begin
+    {$IFDEF CRAWLER}
+      FAILwarning := True;
+    {$ENDIF}
+      Exit;
+    end;
+  end
+  else if Pos('WWW.BRICKLINK.COM/PRICEGUIDE', UpperCase(link)) > 0 then
+  begin
+    forcelink := link;
+    if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+    begin
+      Result := True;
+      inc(type2_pg_hits);
+      last_pg_hit := 2;
+      Exit;
+    end;
+    if (color = '9996') or (color = '9997') or (color = '9998') then
+    begin
+    {$IFDEF CRAWLER}
+      FAILwarning := True;
+    {$ENDIF}
+      Exit;
+    end;
+  end
+  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?G=', UpperCase(link)) > 0 then
+  begin
+    forcelink := NET_MakePriceGuideLink2(
+                  'G',
+                  HTMLLinkParseParam(link, 'G', id),
+                  atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
+                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                );
+    if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+    begin
+      Result := True;
+      inc(type2_pg_hits);
+      last_pg_hit := 2;
+      db.AddCrawlerLink(id, atoi(color), forcelink);
+      if pci.sparttype <> 'G' then
+        db.SetPartType(pci, 'G');
+      Exit;
+    end;
+    if (color = '9996') or (color = '9997') or (color = '9998') then
+    begin
+    {$IFDEF CRAWLER}
+      FAILwarning := True;
+    {$ENDIF}
+      Exit;
+    end;
+  end
+  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?S=', UpperCase(link)) > 0 then
+  begin
+    forcelink := NET_MakePriceGuideLink2(
+                  'S',
+                  HTMLLinkParseParam(link, 'S', id),
+                  atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
+                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                );
+    if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+    begin
+      Result := True;
+      inc(type2_pg_hits);
+      last_pg_hit := 2;
+      db.AddCrawlerLink(id, atoi(color), forcelink);
+      if pci.sparttype <> 'S' then
+        db.SetPartType(pci, 'S');
+      Exit;
+    end;
+    if (color = '9996') or (color = '9997') or (color = '9998') then
+    begin
+    {$IFDEF CRAWLER}
+      FAILwarning := True;
+    {$ENDIF}
+      Exit;
+    end;
+  end
+  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?I=', UpperCase(link)) > 0 then
+  begin
+    forcelink := NET_MakePriceGuideLink2(
+                  'I',
+                  HTMLLinkParseParam(link, 'I', id),
+                  atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
+                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                );
+    if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+    begin
+      Result := True;
+      inc(type2_pg_hits);
+      last_pg_hit := 2;
+      db.AddCrawlerLink(id, atoi(color), forcelink);
+      if pci.sparttype <> 'I' then
+        db.SetPartType(pci, 'I');
+      Exit;
+    end;
+    if (color = '9996') or (color = '9997') or (color = '9998') then
+    begin
+    {$IFDEF CRAWLER}
+      FAILwarning := True;
+    {$ENDIF}
+      Exit;
+    end;
+  end
+  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?P=', UpperCase(link)) > 0 then
+  begin
+    forcelink := NET_MakePriceGuideLink2(
+                  'P',
+                  HTMLLinkParseParam(link, 'P', id),
+                  atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
+                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                );
+    if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+    begin
+      Result := True;
+      inc(type2_pg_hits);
+      last_pg_hit := 2;
+      db.AddCrawlerLink(id, atoi(color), forcelink);
+      if pci.sparttype <> 'P' then
+        db.SetPartType(pci, 'P');
+      Exit;
+    end;
+    if (color = '9996') or (color = '9997') or (color = '9998') then
+    begin
+    {$IFDEF CRAWLER}
+      FAILwarning := True;
+    {$ENDIF}
+      Exit;
+    end;
+  end
+  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?C=', UpperCase(link)) > 0 then
+  begin
+    forcelink := NET_MakePriceGuideLink2(
+                  'C',
+                  HTMLLinkParseParam(link, 'C', id),
+                  atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
+                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                );
+    if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+    begin
+      Result := True;
+      inc(type2_pg_hits);
+      last_pg_hit := 2;
+      db.AddCrawlerLink(id, atoi(color), forcelink);
+      if pci.sparttype <> 'C' then
+        db.SetPartType(pci, 'C');
+      Exit;
+    end;
+    if (color = '9996') or (color = '9997') or (color = '9998') then
+    begin
+    {$IFDEF CRAWLER}
+      FAILwarning := True;
+    {$ENDIF}
+      Exit;
+    end;
+  end
+  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?B=', UpperCase(link)) > 0 then
+  begin
+    forcelink := NET_MakePriceGuideLink2(
+                  'B',
+                  HTMLLinkParseParam(link, 'B', id),
+                  atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
+                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                );
+    if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+    begin
+      Result := True;
+      inc(type2_pg_hits);
+      last_pg_hit := 2;
+      db.AddCrawlerLink(id, atoi(color), forcelink);
+      if pci.sparttype <> 'B' then
+        db.SetPartType(pci, 'B');
+      Exit;
+    end;
+    if (color = '9996') or (color = '9997') or (color = '9998') then
+    begin
+    {$IFDEF CRAWLER}
+      FAILwarning := True;
+    {$ENDIF}
+      Exit;
+    end;
+  end
+  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?O=', UpperCase(link)) > 0 then
+  begin
+    forcelink := NET_MakePriceGuideLink2(
+                  'O',
+                  HTMLLinkParseParam(link, 'O', id),
+                  atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
+                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                );
+    if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+    begin
+      Result := True;
+      inc(type2_pg_hits);
+      last_pg_hit := 2;
+      db.AddCrawlerLink(id, atoi(color), forcelink);
+      if pci.sparttype <> 'O' then
+        db.SetPartType(pci, 'O');
+      Exit;
+    end;
+    if (color = '9996') or (color = '9997') or (color = '9998') then
+    begin
+    {$IFDEF CRAWLER}
+      FAILwarning := True;
+    {$ENDIF}
+      Exit;
+    end;
+  end
+  else if Pos('WWW.BRICKLINK.COM/CATALOGPG.ASP?M=', UpperCase(link)) > 0 then
+  begin
+    forcelink := NET_MakePriceGuideLink2(
+                  'M',
+                  HTMLLinkParseParam(link, 'M', id),
+                  atoi(HTMLLinkParseParam(link, 'ColorID', '0')),
+                  atoi(HTMLLinkParseParam(link, 'prDec', '6'))
+                );
+    if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+    begin
+      Result := True;
+      inc(type2_pg_hits);
+      last_pg_hit := 2;
+      db.AddCrawlerLink(id, atoi(color), forcelink);
+      if pci.sparttype <> 'M' then
+        db.SetPartType(pci, 'M');
+      Exit;
+    end;
+    if (color = '9996') or (color = '9997') or (color = '9998') then
+    begin
+    {$IFDEF CRAWLER}
+      FAILwarning := True;
+    {$ENDIF}
+      Exit;
+    end;
+  end;
+
+  if not allowtype1_hits then
+  begin
+    typ := pci.ItemType;
+    sRETRY := '';
+    if (typ = 'P') and (color = '9999') then
+      sRETRY := 'MGBS'
+    else if (typ = 'M') and ((color = '-1') or (color = '9999')) then
+      sRETRY := 'GBSP'
+    else if (typ = 'S') and ((color = '-1') or (color = '9999')) then
+      sRETRY := 'GBMP'
+    else if (typ = 'G') and ((color = '-1') or (color = '9999')) then
+      sRETRY := 'BSMP'
+    else if (typ = 'B') and ((color = '-1') or (color = '9999')) then
+      sRETRY := 'SGMP';
+    for i := 1 to Length(sRETRY) do
+    begin
+      forcelink := NET_MakePriceGuideLink2(sRETRY[i], db.GetBLNetPieceName(id), 0, 6);
+      if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+      begin
+        Result := True;
+        inc(type2_pg_hits);
+        last_pg_hit := 2;
+        db.AddCrawlerLink(id, atoi(color), forcelink);
+        db.SetPartType(pci, sRETRY[i]);
+        Exit;
+      end;
+    end;
+
+    if (typ = 'P') and (color <> '-1') and (color <> '9999') then
+    begin
+      cc := StrToIntDef(color, -2);
+      if (cc > -1) and (cc <= LASTNORMALCOLORINDEX) then
+      begin
+        forcelink := NET_MakePriceGuideLink2('G', db.GetBLNetPieceName(id), db.colors(cc).BrickLingColor, 6);
+        if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+        begin
+          Result := True;
+          inc(type2_pg_hits);
+          last_pg_hit := 2;
+          db.AddCrawlerLink(id, atoi(color), forcelink);
+          db.SetPartType(pci, 'G');
+          Exit;
+        end;
+      end;
+    end;
+
+  {$IFDEF CRAWLER}
+    FAILwarning := True;
+  {$ENDIF}
+    Exit;
+  end;
+
+  if link <> '' then
+  begin
+    if Pos('asp?G=', link) > 0 then
+      tryparttype := 'G'
+    else if Pos('asp?P=', link) > 0 then
+      tryparttype := 'P'
+    else if Pos('asp?S=', link) > 0 then
+      tryparttype := 'S'
+    else if Pos('asp?M=', link) > 0 then
+      tryparttype := 'M'
+    else if Pos('asp?O=', link) > 0 then
+      tryparttype := 'O'
+    else if Pos('asp?I=', link) > 0 then
+      tryparttype := 'I'
+    else if Pos('asp?C=', link) > 0 then
+      tryparttype := 'C'
+    else if Pos('asp?B=', link) > 0 then
+      tryparttype := 'B';
+  end;
+
+  inc(type1_pg_hits);
+  last_pg_hit := 1;
+
+  if Pos('catalogPriceGuide.asp', link) > 0 then
+  begin
+    link := '';
+    fixlink := true;
+  end
+  else
+    fixlink := false;
+  if link <> '' then
+    if Pos('&PRDEC=', UpperCase(link)) <= 0 then
+    begin
+      link := link + '&prdec=6';
+      fixlink := true;
+    end;
   if link = '' then
   begin
     id := db.BrickLinkPart(id);
     if (color = '89') or (color = '') or ((color = '-1') and (Pos('-', id) > 0))  then // set
-      link := 'http://www.bricklink.com/catalogPG.asp?S=' + id + '--&colorID=0&v=D&viewExclude=Y&cID=Y&prDec=6'
+    begin
+      link := 'http://www.bricklink.com/catalogPG.asp?S=' + db.GetBLNetPieceName(id) + '--&colorID=0&v=D&viewExclude=Y&cID=Y&prDec=6';
+      tryparttype := 'S';
+    end
     else if color = '-1' then // minifigure - sticker
     begin
       if issticker(id) then // sticker
-        link := 'https://www.bricklink.com/catalogPG.asp?P=' + id + '&colorID=0&prDec=6'
+      begin
+        link := 'https://www.bricklink.com/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6';
+        tryparttype := 'P';
+      end
       else if db.isbook(id) then  // book
-        link := 'https://www.bricklink.com/catalogPG.asp?B=' + id + '&prdec=6'
+      begin
+        link := 'https://www.bricklink.com/catalogPG.asp?B=' + db.GetBLNetPieceName(id) + '&prdec=6';
+        didbook := true;
+        tryparttype := 'B';
+      end
+      else if db.IsGear(id) then
+      begin
+        link := 'https://www.bricklink.com/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&prDec=6';
+        didgear := true;
+        tryparttype := 'G';
+      end
       else  // minifigure
-        link := 'https://www.bricklink.com/catalogPG.asp?M=' + id + '&prDec=6';
+      begin
+        link := 'https://www.bricklink.com/catalogPG.asp?M=' + db.GetBLNetPieceName(id) + '&prDec=6';
+        tryparttype := 'M';
+      end
+    end
+    else if atoi(color) = CATALOGCOLORINDEX then // Catalogs
+    begin
+      link := 'https://www.bricklink.com/catalogPG.asp?C=' + db.GetBLNetPieceName(id) + '&ColorID=0&prDec=6'
+    end
+    else if atoi(color) = INSTRUCTIONCOLORINDEX then // INstructions
+    begin
+      link := 'https://www.bricklink.com/catalogPG.asp?I=' + db.GetBLNetPieceName(id) + '&ColorID=0&prDec=6'
+    end
+    else if atoi(color) = BOXCOLORINDEX then // Original box
+    begin
+      link := 'https://www.bricklink.com/catalogPG.asp?O=' + db.GetBLNetPieceName(id) + '&ColorID=0&prDec=6'
     end
     else // part
     begin
       cc := StrToIntDef(color, -2);
-      if (cc < -1) or (cc > MAXINFOCOLOR) then
-        link := 'https://www.bricklink.com/catalogPG.asp?P=' + id + '&colorID=0&prDec=6'
+      if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
+        link := 'https://www.bricklink.com/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6'
       else
-        link := 'https://www.bricklink.com/catalogPG.asp?P=' + id + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+        link := 'https://www.bricklink.com/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+      tryparttype := 'P';
     end;
   end;
   loadedfromcache := false;
@@ -198,7 +1292,6 @@ begin
   if htm = '' then
     exit;
 
-  cc := StrToIntDef(color, -2);
   p := Pos('Last 6 Months Sales', htm);
   if p <= 0 then
   begin
@@ -206,10 +1299,12 @@ begin
     begin
       id := '3068bpb0' + id[8] + id[9] + id[10];
       cc := StrToIntDef(color, -2);
-      if (cc < -1) or (cc > MAXINFOCOLOR) then
-        link := 'https://www.bricklink.com/catalogPG.asp?P=' + id + '&colorID=0&prDec=6'
+      if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
+        link := 'https://www.bricklink.com/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6'
       else
-        link := 'https://www.bricklink.com/catalogPG.asp?P=' + id + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+        link := 'https://www.bricklink.com/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+      tryparttype := 'P';
+      savelink := true;
       loadedfromcache := false;
       htm := GetURLString(link);
       if htm <> '' then
@@ -217,8 +1312,9 @@ begin
     end
     else if color = '9999' then
     begin
-      cc := StrToIntDef(color, -2);
-      link := 'https://www.bricklink.com/catalogPG.asp?M=' + id + '&prDec=6';
+      link := 'https://www.bricklink.com/catalogPG.asp?M=' + db.GetBLNetPieceName(id) + '&prDec=6';
+      tryparttype := 'M';
+      savelink := true;
       loadedfromcache := false;
       htm := GetURLString(link);
       if htm <> '' then
@@ -227,10 +1323,12 @@ begin
     else
     begin
       cc := StrToIntDef(color, -2);
-      if (cc < -1) or (cc > MAXINFOCOLOR) then
-        link := 'https://www.bricklink.com/catalogPG.asp?G=' + id + '&colorID=0&prDec=6'
+      if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
+        link := 'https://www.bricklink.com/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=6'
       else
-        link := 'https://www.bricklink.com/catalogPG.asp?G=' + id + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+        link := 'https://www.bricklink.com/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+      tryparttype := 'G';
+      savelink := true;
       loadedfromcache := false;
       htm := GetURLString(link);
       if htm <> '' then
@@ -243,32 +1341,60 @@ begin
   begin
     cc := StrToIntDef(color, -2);
     if (cc < -1) or (cc > MAXINFOCOLOR) then
-      link := 'https://www.bricklink.com/catalogPriceGuide.asp?S=' + id
+    begin
+      link := 'https://www.bricklink.com/catalogPriceGuide.asp?S=' + db.GetBLNetPieceName(id) + '&prDec=6';
+      tryparttype := 'S';
+    end
     else
-      link := 'https://www.bricklink.com/catalogPriceGuide.asp?P=' + id + '&colorid=' + color;
+    begin
+      if cc > LASTNORMALCOLORINDEX then
+        link := 'https://www.bricklink.com/catalogPriceGuide.asp?P=' + db.GetBLNetPieceName(id) + '&colorid=0&prDec=6'
+      else
+        link := 'https://www.bricklink.com/catalogPriceGuide.asp?P=' + db.GetBLNetPieceName(id) + '&colorid=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+      tryparttype := 'P';
+    end;
+    savelink := false;
     loadedfromcache := false;
     htm := GetURLString(link);
     if htm <> '' then
       skeep := htm;
     isdollar := True;
+    p := Pos('Last 6 Months Sales', htm);
   end;
 
-  p := Pos('Last 6 Months Sales', htm);
   if p <= 0 then
   begin
     if color = '9999' then
     begin
       isdollar := False;
-      cc := 9999;
-      link := 'https://www.bricklink.com/catalogPG.asp?G=' + id + '&prDec=6';
+      link := 'https://www.bricklink.com/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&prDec=6';
+      tryparttype := 'G';
+      savelink := true;
       loadedfromcache := false;
       htm := GetURLString(link);
       if htm <> '' then
-        skeep := htm
+        skeep := htm;
+      p := Pos('Last 6 Months Sales', htm);
     end;
   end;
 
-  p := Pos('Last 6 Months Sales', htm);
+  if p <= 0 then
+  begin
+    if (color = '-1') or (color = '9999') then
+      if not didbook then
+      begin
+        isdollar := False;
+        link := 'https://www.bricklink.com/catalogPG.asp?B=' + db.GetBLNetPieceName(id) + '&prDec=6';
+        tryparttype := 'B';
+        savelink := true;
+        loadedfromcache := false;
+        htm := GetURLString(link);
+        if htm <> '' then
+          skeep := htm;
+        p := Pos('Last 6 Months Sales', htm);
+      end;
+  end;
+
   if p <= 0 then
   begin
   {$IFNDEF CRAWLER}
@@ -278,6 +1404,9 @@ begin
   {$ENDIF}
     Exit;
   end;
+
+  if savelink or fixlink then
+    db.AddCrawlerLink(id, atoi(color), link);
 
   htm := Copy(htm, p, Length(htm) - p + 1);
 
@@ -363,9 +1492,40 @@ begin
   if idx <= 24 then
     exit;
 
+  if tryparttype <> ' ' then
+    db.SetPartType(id, atoi(color), tryparttype);
+
   if isdollar then
   begin
-    USDval := db.ConvertCurrency('USD');
+    ret1.nTimesSold := Round(result_t[1]);
+    ret1.nTotalQty := Round(result_t[2]);
+    ret1.nMinPrice := result_t[3];
+    ret1.nAvgPrice := result_t[4];
+    ret1.nQtyAvgPrice := result_t[5];
+    ret1.nMaxPrice := result_t[6];
+    ret1.uTimesSold := Round(result_t[7]);
+    ret1.uTotalQty := Round(result_t[8]);
+    ret1.uMinPrice := result_t[9];
+    ret1.uAvgPrice := result_t[10];
+    ret1.uQtyAvgPrice := result_t[11];
+    ret1.uMaxPrice := result_t[12];
+
+    ret2.nTotalLots := Round(result_t[12 + 1]);
+    ret2.nTotalQty := Round(result_t[12 + 2]);
+    ret2.nMinPrice := result_t[12 + 3];
+    ret2.nAvgPrice := result_t[12 + 4];
+    ret2.nQtyAvgPrice := result_t[12 + 5];
+    ret2.nMaxPrice := result_t[12 + 6];
+    ret2.uTotalLots := Round(result_t[12 + 7]);
+    ret2.uTotalQty := Round(result_t[12 + 8]);
+    ret2.uMinPrice := result_t[12 + 9];
+    ret2.uAvgPrice := result_t[12 + 10];
+    ret2.uQtyAvgPrice := result_t[12 + 11];
+    ret2.uMaxPrice := result_t[12 + 12];
+
+    SaveParec3(id, color, ret1, ret2, 'USD', link, False);
+
+    USDval := db.ConvertCurrencyAt('USD', Now);
 {$IFDEF CRAWLER}
     USDwarning := true;
 {$ENDIF}
@@ -414,19 +1574,22 @@ begin
   ret2.uQtyAvgPrice := result_t[12 + 11];
   ret2.uMaxPrice := result_t[12 + 12];
 
-  with TStringList.Create do
-  try
-    Text := skeep;
-{    if not loadedfromcache then
-      backupfile(cachefile);}
-    try
-      SaveToFile(cachefile);
-    except
+  if not isdollar then
+    SaveParec3(id, color, ret1, ret2, 'EUR', link, True);
 
+  if not loadedfromcache then
+  begin
+    slist := TStringList.Create;
+    try
+      slist.Text := skeep;
+      S_SaveToFile(slist, cachefile);
+    finally
+      slist.Free;
     end;
-  finally
-    Free;
   end;
+
+  clink := link;
+
   result := true;
 end;
 
@@ -442,8 +1605,8 @@ begin
     Exit;
   if UpperCase(id) = '44302' then
     Exit;
-  s := GetURLString('http://rebrickable.com/parts/' + strtrim(id));
-  s1 := 'http://www.bricklink.com/v2/search.page?q=';
+  s := GetURLString('https://rebrickable.com/parts/' + strtrim(id));
+  s1 := 'www.bricklink.com/v2/search.page?q=';
   p := Pos(s1, s);
   if p > 0 then
   begin
@@ -457,6 +1620,242 @@ begin
     end;
   end;
 end;
+
+function NET_GetBricklinkCategory(const id: string; var fcat: integer; var fweight: double; var parttype: char): boolean;
+var
+  s: string;
+  s1: string;
+  p: integer;
+  i: integer;
+  scat: string;
+  didset: boolean;
+  tmpcat: integer;
+  sweight: string;
+  dotcnt, gcnt: integer;
+  tmpweight: double;
+  SL: TStringList;
+  ptype: char;
+begin
+  result := false;
+  parttype := #0;
+  if UpperCase(id) = '44302A' then
+    Exit;
+  if UpperCase(id) = '44302' then
+    Exit;
+  if db.IsBook(id) then
+  begin
+    s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?B=' + db.GetBLNetPieceName(strtrim(id)));
+    ptype := 'B';
+    didset := true;
+  end
+  else if Pos('-', id) > 0 then
+  begin
+    s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?S=' + db.GetBLNetPieceName(strtrim(id)));
+    ptype := 'S';
+    didset := true;
+  end
+  else
+  begin
+    s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?P=' + db.GetBLNetPieceName(strtrim(id)));
+    ptype := 'P';
+    didset := false;
+  end;
+  s1 := 'catString=';
+  p := Pos(s1, s);
+  if p <= 0 then
+  begin
+    if not didset then
+    begin
+      s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?S=' + db.GetBLNetPieceName(strtrim(id)));
+      ptype := 'S';
+      p := Pos(s1, s);
+    end;
+    if p <= 0 then
+    begin
+      s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?M=' + db.GetBLNetPieceName(strtrim(id)));
+      ptype := 'M';
+      p := Pos(s1, s);
+      if p <= 0 then
+      begin
+        s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?G=' + db.GetBLNetPieceName(strtrim(id)));
+        ptype := 'G';
+        p := Pos(s1, s);
+        if p <= 0 then
+        begin
+          s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?B=' + db.GetBLNetPieceName(strtrim(id)));
+          ptype := 'B';
+          p := Pos(s1, s);
+        end;
+      end;
+    end;
+  end;
+  SL := TStringList.Create;
+  try
+    if not DirectoryExists(basedefault + 'db\molds') then
+      ForceDirectories(basedefault + 'db\molds');
+    SL.Text := s;
+    SL.SaveToFile(basedefault + 'db\molds\' + id + '.htm');
+  finally
+    SL.Free;
+  end;
+  if p > 0 then
+  begin
+    result := true;
+    scat := '';
+    p := p + Length(s1);
+    for i := p to length(s) do
+    begin
+      if not (s[i] in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']) then
+        break
+      else
+        scat := scat + s[i];
+    end;
+    tmpcat := StrToIntDef(scat, -1);
+    if (tmpcat < 0) or (tmpcat >= MAXCATEGORIES) then
+      result := false
+    else
+      fcat := tmpcat;
+  end;
+  s1 := '<span id="item-weight-info">';
+  p := Pos(s1, s);
+  if p > 0 then
+  begin
+    result := true;
+    parttype := ptype;
+    p := p + Length(s1);
+    sweight := '';
+    dotcnt := 0;
+    gcnt := 0;
+    for i := p to length(s) do
+    begin
+      if not (s[i] in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', 'g']) then
+        break;
+      if s[i] = 'g' then
+        inc(gcnt);
+      if gcnt > 1 then
+        break;
+      if s[i] = '.' then
+        inc(dotcnt);
+      if dotcnt > 1 then
+        break;
+      sweight := sweight + s[i];
+    end;
+    sweight := Trim(sweight);
+    if sweight <> '' then
+      if dotcnt <= 1 then
+        if gcnt = 1 then
+          if sweight[length(sweight)] = 'g' then
+          begin
+            SetLength(sweight, length(sweight) - 1);
+            sweight := Trim(sweight);
+            if sweight <> '' then
+            begin
+              if sweight[1] = '.' then
+                sweight := '0' + sweight;
+              if sweight[length(sweight)] = '.' then
+                sweight := sweight + '0';
+              tmpweight := atof(sweight, -1.0);
+              if tmpweight > 0.0 then
+                fweight := tmpweight;
+            end;
+          end;
+  end;
+end;
+
+function NET_GetBricklinkMinifigCategory(const id: string; var fcat: integer; var fweight: double): boolean;
+var
+  s: string;
+  s1: string;
+  p: integer;
+  i: integer;
+  scat: string;
+  tmpcat: integer;
+begin
+  result := false;
+  s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?M=' + db.GetBLNetPieceName(strtrim(id)));
+  s1 := 'catString=';
+  p := Pos(s1, s);
+  if p > 0 then
+  begin
+    result := true;
+    scat := '';
+    p := p + Length(s1);
+    for i := p to length(s) do
+    begin
+      if not (s[i] in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']) then
+        break
+      else
+        scat := scat + s[i];
+    end;
+    tmpcat := StrToIntDef(scat, -1);
+    if (tmpcat < 0) or (tmpcat >= MAXCATEGORIES) then
+      result := false
+    else
+      fcat := tmpcat;
+  end;
+end;
+
+function NET_GetBricklinkMinifigWeight(const id: string; var fweight: double): boolean;
+var
+  s: string;
+  s1: string;
+  p: integer;
+  i: integer;
+  sweight: string;
+  dotcnt, gcnt: integer;
+  tmpweight: double;
+begin
+  result := false;
+  if UpperCase(id) = '44302A' then
+    Exit;
+  if UpperCase(id) = '44302' then
+    Exit;
+  s := GetURLString('https://www.bricklink.com/v2/catalog/catalogitem.page?M=' + db.GetBLNetPieceName(strtrim(id)));
+  s1 := '<span id="item-weight-info">';
+  p := Pos(s1, s);
+  if p > 0 then
+  begin
+    result := true;
+    p := p + Length(s1);
+    sweight := '';
+    dotcnt := 0;
+    gcnt := 0;
+    for i := p to length(s) do
+    begin
+      if not (s[i] in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.', 'g']) then
+        break;
+      if s[i] = 'g' then
+        inc(gcnt);
+      if gcnt > 1 then
+        break;
+      if s[i] = '.' then
+        inc(dotcnt);
+      if dotcnt > 1 then
+        break;
+      sweight := sweight + s[i];
+    end;
+    sweight := Trim(sweight);
+    if sweight <> '' then
+      if dotcnt <= 1 then
+        if gcnt = 1 then
+          if sweight[length(sweight)] = 'g' then
+          begin
+            SetLength(sweight, length(sweight) - 1);
+            sweight := Trim(sweight);
+            if sweight <> '' then
+            begin
+              if sweight[1] = '.' then
+                sweight := '0' + sweight;
+              if sweight[length(sweight)] = '.' then
+                sweight := sweight + '0';
+              tmpweight := atof(sweight, -1.0);
+              if tmpweight > 0.0 then
+                fweight := tmpweight;
+            end;
+          end;
+  end;
+end;
+
 
 initialization
   OpenInetConnection;

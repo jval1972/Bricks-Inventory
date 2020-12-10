@@ -1,3 +1,31 @@
+//------------------------------------------------------------------------------
+//
+//  BrickInventory: A tool for managing your brick collection
+//  Copyright (C) 2014-2018 by Jim Valavanis
+//
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, inc., 59 Temple Place - Suite 330, Boston, MA
+//  02111-1307, USA.
+//
+// DESCRIPTION:
+//    Hash list class (small capacity)
+//
+//------------------------------------------------------------------------------
+//  E-Mail: jvalavanis@gmail.com
+//  Site  : https://sourceforge.net/projects/brickinventory/
+//------------------------------------------------------------------------------
+
 unit bi_hash512;
 
 interface
@@ -6,12 +34,12 @@ uses
   SysUtils, Classes, bi_delphi;
 
 const
-  HASHSIZE = 512;
+  HASHSIZE512 = 512;
 
 type
   THashTable512 = class(TObject)
   private
-    positions: array[0..HASHSIZE - 1] of TDNumberList;
+    positions: array[0..HASHSIZE512 - 1] of TDNumberList;
     fList: TStringList;
   public
     constructor Create; virtual;
@@ -63,7 +91,7 @@ begin
     result := result * 33 + b;
   end;
 
-  result := result and (HASHSIZE - 1);
+  result := result and (HASHSIZE512 - 1);
 end;
 
 constructor THashTable512.Create;
@@ -77,7 +105,7 @@ destructor THashTable512.Destroy;
 var
   i: integer;
 begin
-  for i := 0 to HASHSIZE - 1 do
+  for i := 0 to HASHSIZE512 - 1 do
     if positions[i] <> nil then
       positions[i].Free;
   inherited;
@@ -116,7 +144,7 @@ procedure THashTable512.Clear;
 var
   i: integer;
 begin
-  for i := 0 to HASHSIZE - 1 do
+  for i := 0 to HASHSIZE512 - 1 do
     if positions[i] <> nil then
       positions[i].Clear;
 end;

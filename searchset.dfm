@@ -4,7 +4,7 @@ object SearchSetForm: TSearchSetForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Search Set'
-  ClientHeight = 534
+  ClientHeight = 568
   ClientWidth = 229
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -592,7 +592,7 @@ object SearchSetForm: TSearchSetForm
   end
   object Panel1: TPanel
     Left = 0
-    Top = 472
+    Top = 506
     Width = 229
     Height = 62
     Align = alBottom
@@ -627,9 +627,32 @@ object SearchSetForm: TSearchSetForm
       Top = 24
       Width = 61
       Height = 25
+      Cancel = True
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
     end
+  end
+  object SaveListButton: TButton
+    Left = 16
+    Top = 472
+    Width = 193
+    Height = 25
+    Caption = 'Save List'
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 3
+    OnClick = SaveListButtonClick
+  end
+  object SaveDialog1: TSaveDialog
+    DefaultExt = 'txt'
+    Filter = 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
+    Left = 176
+    Top = 448
   end
 end

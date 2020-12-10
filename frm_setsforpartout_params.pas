@@ -1,3 +1,31 @@
+//------------------------------------------------------------------------------
+//
+//  BrickInventory: A tool for managing your brick collection
+//  Copyright (C) 2014-2018 by Jim Valavanis
+//
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, inc., 59 Temple Place - Suite 330, Boston, MA
+//  02111-1307, USA.
+//
+// DESCRIPTION:
+//    Query input Form
+//
+//------------------------------------------------------------------------------
+//  E-Mail: jvalavanis@gmail.com
+//  Site  : https://sourceforge.net/projects/brickinventory/
+//------------------------------------------------------------------------------
+
 unit frm_setsforpartout_params;
 
 interface
@@ -25,6 +53,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
     procedure TrackBar2Change(Sender: TObject);
+    procedure Edit1KeyPress(Sender: TObject; var Key: Char);
+    procedure Edit2KeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
   protected
@@ -34,7 +64,7 @@ type
   end;
 
 
-var qpa_minyear: integer = 2000;
+var qpa_minyear: integer = 2010;
 var qpa_minavailablelots: integer = 10;
 var qpa_mindemand: double = 0.5;
 var qpa_mincostmultiplier: double = 1.25;
@@ -101,6 +131,32 @@ end;
 procedure TQueryPartOutParametersForm.TrackBar2Change(Sender: TObject);
 begin
   UpdateControls;
+end;
+
+procedure TQueryPartOutParametersForm.Edit1KeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if not (Key in [#8, '0'..'9']) then
+  begin
+    Key := #0;
+    exit;
+  end;
+  if Key in ['0'..'9'] then
+    if Length((Sender as TEdit).Text) > 4 then
+    begin
+      Key := #0;
+      exit;
+    end;
+end;
+
+procedure TQueryPartOutParametersForm.Edit2KeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if not (Key in [#8, '0'..'9']) then
+  begin
+    Key := #0;
+    exit;
+  end;
 end;
 
 end.

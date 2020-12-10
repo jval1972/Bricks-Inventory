@@ -1,3 +1,31 @@
+//------------------------------------------------------------------------------
+//
+//  BrickInventory: A tool for managing your brick collection
+//  Copyright (C) 2014-2018 by Jim Valavanis
+//
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, inc., 59 Temple Place - Suite 330, Boston, MA
+//  02111-1307, USA.
+//
+// DESCRIPTION:
+//    Utility functions
+//
+//------------------------------------------------------------------------------
+//  E-Mail: jvalavanis@gmail.com
+//  Site  : https://sourceforge.net/projects/brickinventory/
+//------------------------------------------------------------------------------
+
 unit bi_utils;
 
 interface
@@ -13,7 +41,7 @@ procedure RemoveDuplicates(const s: TStringList);
 
 procedure FreeList(var s: TStringList);
 
-procedure SaveBmpToJpeg(const MyBitmap : TBitmap; const JPEGFName: string);
+procedure SaveBmpToJpeg(const MyBitmap: TBitmap; const JPEGFName: string);
 
 function RGBInvert(const t: TColor): TColor;
 
@@ -39,6 +67,10 @@ function DownloadPngFileToJpg(SourceFile, DestFile: string): Boolean;
 
 function DownloadGIFFileToPNG(SourceFile, DestFile: string): Boolean;
 
+function JPG2PNG(const ajpg, apng: string): Boolean;
+
+function PNG2JPG(const apng, ajpg: string): Boolean;
+
 procedure SetClipboardTextWideString(const Text: WideString);
 
 function GetFileCreationTime(sFileName: string): TDateTime;
@@ -48,6 +80,9 @@ function GetNextAlphanumeric(const s: string): string;
 
 function InputQuery2(const ACaption, APrompt, APrompt2: string;
   var Value, Value2: string): Boolean;
+
+function InputInteger(const ACaption, APrompt: string;
+  var Value: integer): Boolean;
 
 function InputTwoIntegers(const ACaption, APrompt, APrompt2: string;
   var Value, Value2: integer): Boolean;
@@ -72,6 +107,48 @@ function LDrawToCSV(const filename: string): string;
 function MinI(x, y: integer): integer;
 function MaxI(x, y: integer): integer;
 
+function GetAveCharSize(Canvas: TCanvas): TPoint;
+
+function RemoveSpecialTagsFromString(const s: string): string;
+
+function S_SaveToFile(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
+
+function S_LoadFromFile(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
+
+function SH_SaveToFile(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
+
+function SH_LoadFromFile(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
+
+procedure AppendLineToFile(const fname: string; const line: string);
+
+function ResizeJpg2Png(const fin, fout: string; const dograyscale: boolean = True;
+  const maxWidth: integer = 64; const maxHeight: integer = 64): boolean;
+
+function ResizePng2Png(const fin, fout: string; const dograyscale: boolean = True;
+  const maxWidth: integer = 64; const maxHeight: integer = 64): boolean;
+
+procedure MakeGrayScaleBitmap(const ABitmap: TBitmap);
+
+type
+  TCounterObject = class(TObject)
+  private
+    fvalue: LongWord;
+  public
+    constructor Create(const avalue: LongWord = 0); virtual;
+    procedure IncL;
+    procedure DecL;
+    property value: LongWord read fvalue write fvalue;
+  end;
+
+function htmlstripstring(const htm: string): string;
+
+type
+  TRecordInfo = class
+  public
+    position: Int64;
+    constructor Create(const apos: Int64);
+  end;
+
 implementation
 
 uses
@@ -80,31 +157,31 @@ uses
 
 function IndexOfString(const hash: THashTable; const s: string): integer;
 begin
-  result := hash.GetPos(s);
-  if result = -1 then
+  Result := hash.GetPos(s);
+  if Result = -1 then
   begin
-    result := hash.List.IndexOf(s);
+    Result := hash.List.IndexOf(s);
     exit;
   end;
-  if hash.List.Strings[result] = s then
+  if hash.List.Strings[Result] = s then
     exit;
-  result := hash.List.IndexOf(s);
+  Result := hash.List.IndexOf(s);
 end;
 
 function MaxI(x, y: integer): integer;
 begin
   if x > y then
-    result := x
+    Result := x
   else
-    result := y;
+    Result := y;
 end;
 
 function MinI(x, y: integer): integer;
 begin
   if x < y then
-    result := x 
+    Result := x
   else
-    result := y;
+    Result := y;
 end;
 
 function CompareStringsInPercent(Str1, Str2: string): Byte;
@@ -136,7 +213,7 @@ begin
   // Quick Sort of pattern tables
   IndexA := 0;
   IndexB := 0;
-  while ((IndexA < (Length(PatternA) - 1)) and (IndexB < (Length(PatternB) - 1))) do 
+  while ((IndexA < (Length(PatternA) - 1)) and (IndexB < (Length(PatternB) - 1))) do
   begin
     if Length(PatternA) > IndexA then 
     begin
@@ -153,7 +230,7 @@ begin
       else 
         Inc(IndexA);
     end;
-    if Length(PatternB) > IndexB then 
+    if Length(PatternB) > IndexB then
     begin
       if PatternB[IndexB][0] < PatternB[IndexB + 1][0] then 
       begin
@@ -201,7 +278,7 @@ begin
   idx := IndexOfString(hash, s);
   if idx > -1 then
   begin
-    result := s;
+    Result := s;
     exit;
   end;
 
@@ -217,7 +294,7 @@ begin
       idx := IndexOfString(hash, s);
       if idx > -1 then
       begin
-        result := check;
+        Result := check;
         exit;
       end;
     end;
@@ -252,7 +329,7 @@ begin
     end;
     if value > -1 then
     begin
-      result := nlist.Strings[idx];
+      Result := nlist.Strings[idx];
       nlist.Free;
       exit;
     end;
@@ -260,7 +337,7 @@ begin
   end;
 
 // not found!
-  result := s;
+  Result := s;
 end;
 
 procedure RemoveDuplicates(const s: TStringList);
@@ -293,7 +370,7 @@ begin
   s := nil;
 end;
 
-procedure SaveBmpToJpeg(const MyBitmap : TBitmap; const JPEGFName: string);
+procedure SaveBmpToJpeg(const MyBitmap: TBitmap; const JPEGFName: string);
 var
   MyJPEG: TJPEGImage;
 begin
@@ -313,7 +390,7 @@ begin
   r := GetRValue(t);
   g := GetGValue(t);
   b := GetBValue(t);
-  result := RGB(b, g, r);
+  Result := RGB(b, g, r);
 end;
 
 //------------------------------------------------------------------------------
@@ -323,9 +400,9 @@ var
 begin
   s := TStringList.Create;
   try
-    s.LoadFromFile(fname);
+    S_LoadFromFile(s, fname);
+    AddStrings(s);
   finally
-    self.AddStrings(s);
     s.Free;
   end;
 end;
@@ -445,13 +522,13 @@ function filenamestring(const s: string): string;
 var
   i: integer;
 begin
-  result := '';
+  Result := '';
   for i := 1 to length(s) do
   begin
     if IsNumericC(s[i]) then
-      result := result + s[i]
+      Result := Result + s[i]
     else if Pos(toupper(s[i]), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ-') > 0 then
-      result := result + s[i];
+      Result := Result + s[i];
   end;
 end;
 
@@ -510,15 +587,15 @@ var
   B: TBitmap;
   P: TPNGObject;
 begin
-  result := DownloadFileImg(SourceFile, 'tmp1.jpg');
-  if not result then
+  Result := DownloadFileImg(SourceFile, 'tmp1.jpg');
+  if not Result then
   begin
     if FileExists('tmp1.jpg') then
       DeleteFile('tmp1.jpg');
     exit;
   end;
 
-  result := true;
+  Result := True;
   J := TJpegImage.Create;
   B := TBitmap.Create;
   P := TPNGObject.Create;
@@ -528,7 +605,7 @@ begin
     P.Assign(B);
     P.SaveToFile(DestFile);
   except
-    result := false;
+    Result := False;
   end;
   J.Free;
   B.Free;
@@ -538,21 +615,75 @@ begin
     DeleteFile('tmp1.jpg');
 end;
 
+function JPG2PNG(const ajpg, apng: string): Boolean;
+var
+  J: TJpegImage;
+  B: TBitmap;
+  P: TPNGObject;
+begin
+  Result := False;
+  if not FileExists(ajpg) then
+    exit;
+
+  J := TJpegImage.Create;
+  B := TBitmap.Create;
+  P := TPNGObject.Create;
+  try
+    J.LoadFromFile(ajpg);
+    B.Assign(J);
+    P.Assign(B);
+    P.SaveToFile(apng);
+    Result := True;
+  except
+    Result := False;
+  end;
+  J.Free;
+  B.Free;
+  P.Free;
+end;
+
+function PNG2JPG(const apng, ajpg: string): Boolean;
+var
+  J: TJpegImage;
+  B: TBitmap;
+  P: TPNGObject;
+begin
+  Result := False;
+  if not FileExists(apng) then
+    exit;
+
+  J := TJpegImage.Create;
+  B := TBitmap.Create;
+  P := TPNGObject.Create;
+  try
+    P.LoadFromFile(apng);
+    B.Assign(J);
+    J.Assign(B);
+    J.SaveToFile(ajpg);
+    Result := True;
+  except
+    Result := False;
+  end;
+  J.Free;
+  B.Free;
+  P.Free;
+end;
+
 function DownloadPngFileToJpg(SourceFile, DestFile: string): Boolean;
 var
   J: TJpegImage;
   B: TBitmap;
   P: TPNGObject;
 begin
-  result := DownloadFileImg(SourceFile, 'tmp1.png');
-  if not result then
+  Result := DownloadFileImg(SourceFile, 'tmp1.png');
+  if not Result then
   begin
     if FileExists('tmp1.png') then
       DeleteFile('tmp1.png');
     exit;
   end;
 
-  result := true;
+  Result := True;
   J := TJpegImage.Create;
   B := TBitmap.Create;
   P := TPNGObject.Create;
@@ -562,7 +693,7 @@ begin
     J.Assign(B);
     J.SaveToFile(DestFile);
   except
-    result := false;
+    Result := False;
   end;
   J.Free;
   B.Free;
@@ -583,7 +714,7 @@ begin
   f.Read(b, 1);
   if b <> 74 then
   begin
-    result := false;
+    Result := False;
     f.Free;
     exit;
   end;
@@ -592,7 +723,7 @@ begin
   f.Read(b, 1);
   if b <> 70 then
   begin
-    result := false;
+    Result := False;
     f.Free;
     exit;
   end;
@@ -601,7 +732,7 @@ begin
   f.Read(b, 1);
   if b <> 70 then
   begin
-    result := false;
+    Result := False;
     f.Free;
     exit;
   end;
@@ -610,7 +741,7 @@ begin
   f.Read(b, 1);
   if b <> 73 then
   begin
-    result := false;
+    Result := False;
     f.Free;
     exit;
   end;
@@ -619,12 +750,12 @@ begin
   f.Read(b, 1);
   if b <> 70 then
   begin
-    result := false;
+    Result := False;
     f.Free;
     exit;
   end;
 
-  result := true;
+  Result := True;
   f.Free;
 
 end;
@@ -635,8 +766,8 @@ var
   B: TBitmap;
   P: TPNGObject;
 begin
-  result := DownloadFileImg(SourceFile, 'tmp1.gif');
-  if not result then
+  Result := DownloadFileImg(SourceFile, 'tmp1.gif');
+  if not Result then
   begin
     if FileExists('tmp1.gif') then
       DeleteFile('tmp1.gif');
@@ -649,7 +780,7 @@ begin
   end
   else
   begin
-    result := true;
+    Result := True;
     J := TGIFImage.Create;
     B := TBitmap.Create;
     P := TPNGObject.Create;
@@ -659,7 +790,7 @@ begin
       P.Assign(B);
       P.SaveToFile(DestFile);
     except
-      result := false;
+      Result := False;
     end;
     J.Free;
     B.Free;
@@ -711,12 +842,12 @@ var
   n: integer;
   ret1a, ret1b, ret2: string;
 begin
-  result := s;
-  i := length(result);
+  Result := s;
+  i := length(Result);
   len := i;
   while i > 0 do
   begin
-    c := result[i];
+    c := Result[i];
     if IsNumericC(c) then
     begin
       n := atoi(c);
@@ -724,14 +855,14 @@ begin
       begin
         ret1a := '';
         for j := 1 to i - 1 do
-          ret1a := ret1a + result[j];
+          ret1a := ret1a + Result[j];
         ret2 := '';
         for j := i + 1 to len do
-          ret2 := ret2 + result[j];
+          ret2 := ret2 + Result[j];
         ret1b := GetPrevAlphanumeric(ret1a);
         if ret1b <> ret1a then
         begin
-          result := ret1b + '9' + ret2;
+          Result := ret1b + '9' + ret2;
           exit;
         end
         else
@@ -739,7 +870,7 @@ begin
       end
       else
       begin
-        result[i] := itoa(n - 1)[1];
+        Result[i] := itoa(n - 1)[1];
         exit;
       end;
     end;
@@ -754,12 +885,12 @@ var
   n: integer;
   ret1a, ret1b, ret2: string;
 begin
-  result := s;
-  i := length(result);
+  Result := s;
+  i := length(Result);
   len := i;
   while i > 0 do
   begin
-    c := result[i];
+    c := Result[i];
     if IsNumericC(c) then
     begin
       n := atoi(c);
@@ -767,14 +898,14 @@ begin
       begin
         ret1a := '';
         for j := 1 to i - 1 do
-          ret1a := ret1a + result[j];
+          ret1a := ret1a + Result[j];
         ret2 := '';
         for j := i + 1 to len do
-          ret2 := ret2 + result[j];
+          ret2 := ret2 + Result[j];
         ret1b := GetNextAlphanumeric(ret1a);
         if ret1b <> ret1a then
         begin
-          result := ret1b + '0' + ret2;
+          Result := ret1b + '0' + ret2;
           exit;
         end
         else
@@ -782,7 +913,7 @@ begin
       end
       else
       begin
-        result[i] := itoa(n + 1)[1];
+        Result[i] := itoa(n + 1)[1];
         exit;
       end;
     end;
@@ -811,7 +942,7 @@ var
   Edit2: TEdit;
   DialogUnits: TPoint;
   ButtonTop, ButtonWidth, ButtonHeight: Integer;
-begin
+begin         
   Result := False;
   Form := TForm.Create(Application);
   with Form do
@@ -894,6 +1025,81 @@ begin
       begin
         Value := Edit.Text;
         Value2 := Edit2.Text;
+        Result := True;
+      end;
+    finally
+      Form.Free;
+    end;
+end;
+
+
+function InputInteger(const ACaption, APrompt: string;
+  var Value: integer): Boolean;
+var
+  Form: TForm;
+  Prompt: TLabel;
+  Edit: TEdit;
+  DialogUnits: TPoint;
+  ButtonTop, ButtonWidth, ButtonHeight: Integer;
+begin
+  Result := False;
+  Form := TForm.Create(Application);
+  with Form do
+    try
+      Canvas.Font := Font;
+      DialogUnits := GetAveCharSize(Canvas);
+      BorderStyle := bsDialog;
+      Caption := ACaption;
+      ClientWidth := MulDiv(180, DialogUnits.X, 4);
+      Position := poScreenCenter;
+
+      Prompt := TLabel.Create(Form);
+      with Prompt do
+      begin
+        Parent := Form;
+        Caption := APrompt;
+        Left := MulDiv(8, DialogUnits.X, 4);
+        Top := MulDiv(8, DialogUnits.Y, 8);
+        Constraints.MaxWidth := MulDiv(164, DialogUnits.X, 4);
+        WordWrap := True;
+      end;
+      Edit := TEdit.Create(Form);
+      with Edit do
+      begin
+        Parent := Form;
+        Left := Prompt.Left;
+        Top := Prompt.Top + Prompt.Height + 5;
+        Width := MulDiv(164, DialogUnits.X, 4);
+        MaxLength := 255;
+        Text := itoa(Value);
+        SelectAll;
+      end;
+
+      ButtonTop := Edit.Top + Edit.Height + 15;
+      ButtonWidth := MulDiv(50, DialogUnits.X, 4);
+      ButtonHeight := MulDiv(14, DialogUnits.Y, 8);
+      with TButton.Create(Form) do
+      begin
+        Parent := Form;
+        Caption := 'OK';
+        ModalResult := mrOk;
+        Default := True;
+        SetBounds(MulDiv(38, DialogUnits.X, 4), ButtonTop, ButtonWidth,
+          ButtonHeight);
+      end;
+      with TButton.Create(Form) do
+      begin
+        Parent := Form;
+        Caption := 'Cancel';
+        ModalResult := mrCancel;
+        Cancel := True;
+        SetBounds(MulDiv(92, DialogUnits.X, 4), Edit.Top + Edit.Height + 15,
+          ButtonWidth, ButtonHeight);
+        Form.ClientHeight := Top + Height + 13;
+      end;
+      if ShowModal = mrOk then
+      begin
+        Value := atoi(Edit.Text, -1);
         Result := True;
       end;
     finally
@@ -1007,7 +1213,7 @@ var
   f: TFileStream;
   b: Byte;
 begin
-  result := false;
+  Result := False;
   if not fexists(src) then
     exit;
   f := TFileStream.Create(src, fmOpenRead or fmShareDenyWrite);
@@ -1030,17 +1236,29 @@ begin
     fdelete(src);
     Exit;
   end;
+  if b = Ord(' ') then
+  begin
+    f.Free;
+    fdelete(src);
+    Exit;
+  end;
+  if b in [10, 13] then
+  begin
+    f.Free;
+    fdelete(src);
+    Exit;
+  end;
   f.free;
-  result := true;
+  Result := True;
 end;
 
 function CountChars(const S: string; const C: char): integer;
 var
   i: Integer;
 begin
-  result := 0;
+  Result := 0;
   for i := 1 to Length(S) do
-    if S[i] = C then inc(result);
+    if S[i] = C then inc(Result);
 end;
 
 function RemoveHTMLTags(S: string): string;
@@ -1056,7 +1274,7 @@ begin
     TagBegin:= Pos( '<', S);            // search for next <
   end;
 
-  Result := S;                   // give the result
+  Result := S;                   // give the Result
 end;
 
 function LastPos(SubStr, S: string): Integer;
@@ -1160,7 +1378,7 @@ begin
     str.LoadFromFile(filename);
     for i := 0 to str.Count - 1 do
     begin
-      line := ReplaceWhiteSpace(Trim(str[i]), '_', true);
+      line := ReplaceWhiteSpace(Trim(str[i]), '_', True);
       if Pos(':', line) <> 0 then
       begin
         splitstring(line, part, line, ':');
@@ -1193,7 +1411,7 @@ begin
     inv.NameValueSeparator := ',';
     for i := 0 to ctx.Count - 1 do
     begin
-      ctx[i] := ReplaceWhiteSpace(ctx[i], #32, false);
+      ctx[i] := ReplaceWhiteSpace(ctx[i], #32, False);
       str.Clear;
       ExtractStrings([#32], [], PChar(ctx[i]), str);
 
@@ -1224,6 +1442,426 @@ begin
     FreeAndNil(str);
     FreeAndNil(inv);
   end;
+end;
+
+function RemoveSpecialTagsFromString(const s: string): string;
+var
+  tmp1, tmp2: string;
+begin
+  tmp2 := StringReplace(s, 'â€', '"', [rfReplaceAll, rfIgnoreCase]);
+  tmp1 := StringReplace(tmp2, '&nbsp;', ' ', [rfReplaceAll, rfIgnoreCase]);
+  tmp2 := StringReplace(tmp1, '&#40;', '(', [rfReplaceAll, rfIgnoreCase]);
+  tmp1 := StringReplace(tmp2, '&#41;', ')', [rfReplaceAll, rfIgnoreCase]);
+  tmp2 := StringReplace(tmp1, '&#39;', '''', [rfReplaceAll, rfIgnoreCase]);
+  tmp1 := StringReplace(tmp2, Chr(160), '', [rfReplaceAll, rfIgnoreCase]);
+  tmp2 := StringReplace(tmp1, '&amp;', '&', [rfReplaceAll, rfIgnoreCase]);
+  Result := tmp2;
+end;
+
+function S_SaveToFile(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
+var
+  success: boolean;
+  i: integer;
+
+  procedure DoSave;
+  begin
+    success := True;
+    try
+      s.SaveToFile(fname);
+    except
+      success := False;
+    end;
+  end;
+
+begin
+  success := False;
+  for i := 1 to maxretry do
+  begin
+    DoSave;
+    if not success then
+      Sleep(msecs)
+    else
+      break;
+  end;
+  Result := success;
+end;
+
+function S_LoadFromFile(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
+var
+  success: boolean;
+  i: integer;
+
+  procedure DoLoad;
+  begin
+    success := True;
+    try
+      if fexists(fname) then
+        s.LoadFromFile(fname);
+    except
+      success := False;
+    end;
+  end;
+
+begin
+  success := False;
+  for i := 1 to maxretry do
+  begin
+    DoLoad;
+    if not success then
+      Sleep(msecs)
+    else
+      break;
+  end;
+  Result := success;
+end;
+
+function SH_SaveToFile(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
+var
+  success: boolean;
+  i: integer;
+
+  procedure DoSave;
+  begin
+    success := True;
+    try
+      s.SaveToFile(fname);
+    except
+      success := False;
+    end;
+  end;
+
+begin
+  success := False;
+  for i := 1 to maxretry do
+  begin
+    DoSave;
+    if not success then
+      Sleep(msecs)
+    else
+      break;
+  end;
+  Result := success;
+end;
+
+function SH_LoadFromFile(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
+var
+  success: boolean;
+  i: integer;
+
+  procedure DoLoad;
+  begin
+    success := True;
+    try
+      if fexists(fname) then
+        s.LoadFromFile(fname);
+    except
+      success := False;
+    end;
+  end;
+
+begin
+  success := False;
+  for i := 1 to maxretry do
+  begin
+    DoLoad;
+    if not success then
+      Sleep(msecs)
+    else
+      break;
+  end;
+  Result := success;
+end;
+
+procedure AppendLineToFile(const fname: string; const line: string);
+var
+  f: file;
+  i: integer;
+  oldmode: byte;
+  b, b1, b2: byte;
+  fsize: integer;
+begin
+  oldmode := FileMode;
+  if not fexists(fname) then
+  begin
+    assignfile(f, fname);
+    FileMode := 2;
+    rewrite(f, 1);
+  end
+  else
+  begin
+    assignfile(f, fname);
+    FileMode := 2;
+    reset(f, 1);
+    fsize := FileSize(f);
+    if fsize >= 1 then
+    begin
+      if fsize > 1 then
+      begin
+        seek(f, FileSize(f) - 2);
+        BlockRead(f, b1, SizeOf(byte));
+        BlockRead(f, b2, SizeOf(byte));
+      end
+      else
+      begin
+        b1 := 0;
+        b2 := 0;
+      end;
+      if (b1 <> 13) or (b2 <> 10) then
+      begin
+        seek(f, fsize);
+        b1 := 13;
+        b2 := 10;
+        BlockWrite(f, b1, SizeOf(byte));
+        BlockWrite(f, b2, SizeOf(byte));
+      end;
+    end;
+  end;
+
+  seek(f, FileSize(f));
+  for i := 1 to length(line) do
+  begin
+    b := Ord(line[i]);
+    BlockWrite(f, b, SizeOf(byte));
+  end;
+  b1 := 13;
+  b2 := 10;
+  BlockWrite(f, b1, SizeOf(byte));
+  BlockWrite(f, b2, SizeOf(byte));
+  closeFile(f);
+
+  FileMode := oldmode;
+end;
+
+function ResizeJpg2Png(const fin, fout: string; const dograyscale: boolean = True;
+  const maxWidth: integer = 64; const maxHeight: integer = 64): boolean;
+var
+  J: TJpegImage;
+  B: TBitmap;
+  P: TPNGObject;
+  thumbRect: TRect;
+  adir: string;
+  sinfile: string;
+  ps: TPAKStream;
+  loadok: boolean;
+begin
+  Result := False;
+
+  sinfile := fin;
+  if not fexists(sinfile) then
+  begin
+    ps := TPAKStream.Create(sinfile, pm_full);
+    if ps.IOResult = 0 then
+    begin
+      sinfile := I_NewTempFile('ResizePng2Png.jpg');
+      ps.CopyToFile(sinfile);
+    end;
+    ps.Free;
+  end;
+
+  if not fexists(sinfile) then
+    Exit;
+
+{  if not IsLikeJpeg(fin) then
+    Exit;}
+
+  J := TJpegImage.Create;
+  B := TBitmap.Create;
+  P := TPNGObject.Create;
+  try
+    loadok := True;
+    try
+      J.LoadFromFile(sinfile);
+    except
+      loadok := False;
+    end;
+    if loadok then
+    begin
+      if (J.Width > 0) and (J.Height > 0) then
+      begin
+        thumbRect.Left := 0;
+        thumbRect.Top := 0;
+        if J.Width > J.Height then
+        begin
+          thumbRect.Right := maxWidth;
+          thumbRect.Bottom := (maxWidth * J.Height) div J.Width;
+        end
+        else
+        begin
+          thumbRect.Bottom := maxHeight;
+          thumbRect.Right := (maxHeight * J.Width) div J.Height;
+        end;
+        B.Width := thumbRect.Right;
+        B.Height := thumbRect.Bottom;
+        B.PixelFormat := pf32Bit;
+        B.Canvas.StretchDraw(thumbRect, J);
+        if dograyscale then
+          MakeGrayScaleBitmap(B);
+
+        P.Assign(B);
+
+        adir := Trim(ExtractFilePath(fout));
+        if adir <> '' then
+          if not DirectoryExists(adir) then
+            ForceDirectories(adir);
+
+        P.SaveToFile(fout);
+        Result := fexists(fout);
+      end;
+    end;
+  finally
+    J.Free;
+    B.Free;
+    P.Free;
+  end;
+end;
+
+function ResizePng2Png(const fin, fout: string; const dograyscale: boolean = True;
+  const maxWidth: integer = 64; const maxHeight: integer = 64): boolean;
+var
+  J: TPNGObject;
+  B: TBitmap;
+  P: TPNGObject;
+  thumbRect: TRect;
+  adir: string;
+  sinfile: string;
+  ps: TPAKStream;
+  loadok: boolean;
+begin
+  Result := False;
+
+  sinfile := fin;
+  if not fexists(sinfile) then
+  begin
+    ps := TPAKStream.Create(sinfile, pm_full);
+    if ps.IOResult = 0 then
+    begin
+      sinfile := I_NewTempFile('ResizePng2Png.png');
+      ps.CopyToFile(sinfile);
+    end;
+    ps.Free;
+  end;
+
+  if not fexists(sinfile) then
+    Exit;
+
+  J := TPNGObject.Create;
+  B := TBitmap.Create;
+  P := TPNGObject.Create;
+  try
+    loadok := True;
+    try
+      J.LoadFromFile(sinfile);
+    except
+      loadok := False;
+    end;
+    if loadok then
+    begin
+      if (J.Width > 0) and (J.Height > 0) then
+      begin
+        thumbRect.Left := 0;
+        thumbRect.Top := 0;
+        if J.Width > J.Height then
+        begin
+          thumbRect.Right := maxWidth;
+          thumbRect.Bottom := (maxWidth * J.Height) div J.Width;
+        end
+        else
+        begin
+          thumbRect.Bottom := maxHeight;
+          thumbRect.Right := (maxHeight * J.Width) div J.Height;
+        end;
+        B.Width := thumbRect.Right;
+        B.Height := thumbRect.Bottom;
+        B.PixelFormat := pf32Bit;
+        B.Canvas.StretchDraw(thumbRect, J);
+        if dograyscale then
+          MakeGrayScaleBitmap(B);
+
+        P.Assign(B);
+
+        adir := Trim(ExtractFilePath(fout));
+        if adir <> '' then
+          if not DirectoryExists(adir) then
+            ForceDirectories(adir);
+
+        P.SaveToFile(fout);
+        Result := fexists(fout);
+      end;
+    end;
+  finally
+    J.Free;
+    B.Free;
+    P.Free;
+  end;
+end;
+
+procedure MakeGrayScaleBitmap(const ABitmap: TBitmap);
+type
+  PPixelRec = ^TPixelRec;
+  TPixelRec = packed record
+    B: Byte;
+    G: Byte;
+    R: Byte;
+  end;
+var
+  X: Integer;
+  Y: Integer;
+  Gray: Byte;
+  Pixel: PPixelRec;
+begin
+  ABitmap.PixelFormat := pf24bit;
+  for Y := 0 to ABitmap.Height - 1 do
+  begin
+    Pixel := ABitmap.ScanLine[Y];
+    for X := 0 to ABitmap.Width - 1 do
+    begin
+      Gray := Round((0.2989 * Pixel.R) + (0.587 * Pixel.G) + (0.1141 * Pixel.B));
+      Pixel.R := Gray;
+      Pixel.G := Gray;
+      Pixel.B := Gray;
+      Inc(Pixel);
+    end;
+  end;
+  ABitmap.PixelFormat := pf32bit;
+end;
+
+constructor TCounterObject.Create(const avalue: LongWord = 0);
+begin
+  Inherited Create;
+  fvalue := avalue;
+end;
+
+procedure TCounterObject.IncL;
+begin
+  inc(fvalue);
+end;
+
+procedure TCounterObject.DecL;
+begin
+  dec(fvalue);
+end;
+
+function htmlstripstring(const htm: string): string;
+var
+  i: integer;
+  inbracket: boolean;
+begin
+  Result := '';
+  inbracket := False;
+  for i := 1 to Length(htm) do
+  begin
+    if htm[i] = '<' then
+      inbracket := True
+    else if htm[i] = '>' then
+      inbracket := False
+    else if not inbracket then
+      Result := Result + htm[i];
+  end;
+end;
+
+constructor TRecordInfo.Create(const apos: Int64);
+begin
+  position := apos;
 end;
 
 end.

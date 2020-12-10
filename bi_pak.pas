@@ -1,3 +1,31 @@
+//------------------------------------------------------------------------------
+//
+//  BrickInventory: A tool for managing your brick collection
+//  Copyright (C) 2014-2018 by Jim Valavanis
+//
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, inc., 59 Temple Place - Suite 330, Boston, MA
+//  02111-1307, USA.
+//
+// DESCRIPTION:
+//    PK3/ZIP file system
+//
+//------------------------------------------------------------------------------
+//  E-Mail: jvalavanis@gmail.com
+//  Site  : https://sourceforge.net/projects/brickinventory/
+//------------------------------------------------------------------------------
+
 unit bi_pak;
 
 interface
@@ -92,6 +120,7 @@ type
     MaxEntries: Integer;
     PAKS: TDStringList;
     HashTable: PPakHashPArray;
+    fdefaultpath: string;
     procedure Grow;
     procedure AddEntry(var H: FPakHead; const Pakn: string); overload;
     procedure AddEntry(var HD: FWADhead; const Pakn: string); overload;
@@ -114,6 +143,7 @@ type
     function PFileSize(var F: TPakFile): Integer;
     procedure PAddDirectory(const path: string);
     function PAddFile(const FileName: string): boolean;
+    property defaultpath: string read fdefaultpath write fdefaultpath;
   end;
 
   pakmode_t = (
@@ -138,6 +168,7 @@ type
     constructor Create(const FileName: string; amode: pakmode_t; const aprefdirs: string = ''); overload;
     constructor Create(const FileName: string; amode: pakmode_t; const apreflist: TDStringList); overload;
     destructor Destroy; override;
+    procedure CopyToFile(const fname: string);
     function Read(var Buffer; Count: integer): integer; override;
     function Write(const Buffer; Count: integer): integer; override;
     function Seek(Offset: integer; Origin: Word): integer; override;
@@ -154,6 +185,8 @@ function PAK_AddFile(const FileName: string): boolean;
 
 function PAK_GetEntry(const i: integer): string;
 function PAK_NumEntries: integer;
+
+procedure PAK_SetDefaultPath(const path: string);
 
 implementation
 
@@ -217,6 +250,7 @@ begin
   Entries := nil;
   NumEntries := 0;
   MaxEntries := 0;
+  fdefaultpath := '';
 
   HashTable := mallocz(SizeOf(PPakHashArray));
 end;
@@ -462,6 +496,7 @@ var
   hcode: integer;
   pe: PPakEntry;
   hashcheck: PPakHash;
+  Name2: string;
 begin
   result := false;
   F.Z := nil;
@@ -469,11 +504,28 @@ begin
   if fopen(F.F, Name, fOpenReadOnly) then
   begin
     F.Entry := -1;
-    result := true;
+    Result := True;
     Exit;
   end; // Disk file Overrides Pak file
 
   Name := strupper(Name);
+  if (fdefaultpath <> '') and (Pos(strupper(fdefaultpath), Name) = 1) then
+  begin
+    Name2 := Copy(Name, Length(fdefaultpath) + 1, Length(Name) - Length(fdefaultpath));
+    if Name2 = '' then
+      Name2 := Name
+    else
+    begin
+      if fopen(F.F, Name2, fOpenReadOnly) then
+      begin
+        F.Entry := -1;
+        Result := True;
+        Exit;
+      end; // Disk file Overrides Pak file
+    end;
+  end
+  else
+    Name2 := Name;
   hcode := MkHash(fshortname(Name));
 
   hashcheck := HashTable[HashToHashTableIndex(hcode)];
@@ -481,7 +533,7 @@ begin
   begin
     pe := @Entries[hashcheck.index];
     if hcode = pe.Hash then   // Fast compare the hash values
-      if pe.Name = Name then  // Slow compare strings
+      if (pe.Name = Name) or (pe.Name = Name2) then  // Slow compare strings
       begin // Found In Pak
         if pe.ZIP <> nil then // It's a zip (pk3/pk4) file
           F.Z := TCompressorCache.Create(pe.ZIP, pe.Offset)
@@ -503,7 +555,7 @@ begin
   begin
     pe := @Entries[i];
     if hcode = pe.Hash then   // Fast compare the hash values
-      if pe.Name = Name then  // Slow compare strings
+      if (pe.Name = Name) or (pe.Name = Name2) then  // Slow compare strings
       begin // Found In Pak
         if pe.ZIP <> nil then // It's a zip (pk3/pk4) file
           F.Z := TCompressorCache.Create(pe.ZIP, pe.Offset)
@@ -960,10 +1012,26 @@ begin
   Inherited;
 end;
 
+procedure TPakStream.CopyToFile(const fname: string);
+var
+  p: int64;
+  fs: TFileStream;
+begin
+  fs := TFileStream.Create(fname, fmCreate);
+  try
+    p := self.Position;
+    self.Seek(0, sFromBeginning);
+    fs.CopyFrom(self, self.Size);
+    self.Seek(p, sFromBeginning);
+  finally
+    fs.Free;
+  end;
+end;
+
 function TPakStream.Read(var Buffer; Count: integer): integer;
 begin
   result := manager.PBlockRead(entry, Buffer, Count);
-  if IOResult <> 0 then
+  if system.IOResult <> 0 then
     inc(FIOResult);
 end;
 
@@ -1041,6 +1109,11 @@ end;
 function PAK_NumEntries: integer;
 begin
   result := pakmanager.NumEntries;
+end;
+
+procedure PAK_SetDefaultPath(const path: string);
+begin
+  pakmanager.defaultpath := path;
 end;
 
 end.

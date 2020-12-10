@@ -119,7 +119,7 @@ type
 implementation
 
 uses
-   Gopage;
+  Gopage;
 
 {$R *.DFM}
 {$R GRID.RES}
@@ -129,38 +129,37 @@ constructor TPreviewForm.CreateIt(AOwner: TComponent; AViewer: ThtmlViewer;
 var
   StatusForm: TPrnStatusForm;
 begin
-inherited Create(AOwner);
-   ZoomBox.ItemIndex := 0;
-   UnitsBox.ItemIndex := 0;
-   Screen.Cursors[crZoom] := LoadCursor(hInstance, 'ZOOM_CURSOR');
-   Screen.Cursors[crHandDrag] := LoadCursor(hInstance, 'HAND_CURSOR');
-   ZoomCursorButClick(nil);
-Viewer := AViewer;
-MFPrinter := TMetaFilePrinter.Create(Self);
-StatusForm := TPrnStatusForm.Create(Self);
-try
-  StatusForm.DoPreview(Viewer, MFPrinter, Abort);
-finally
-  StatusForm.Free;
+  inherited Create(AOwner);
+  ZoomBox.ItemIndex := 0;
+  UnitsBox.ItemIndex := 0;
+  Screen.Cursors[crZoom] := LoadCursor(hInstance, 'ZOOM_CURSOR');
+  Screen.Cursors[crHandDrag] := LoadCursor(hInstance, 'HAND_CURSOR');
+  ZoomCursorButClick(nil);
+  Viewer := AViewer;
+  MFPrinter := TMetaFilePrinter.Create(Self);
+  StatusForm := TPrnStatusForm.Create(Self);
+  try
+    StatusForm.DoPreview(Viewer, MFPrinter, Abort);
+  finally
+    StatusForm.Free;
   end;
 end;
 
 destructor TPreviewForm.Destroy;
 begin
-inherited;
+  inherited;
 end;
 
 procedure TPreviewForm.CloseButClick(Sender: TObject);
 begin
-   Close;
+  Close;
 end;
 
-procedure TPreviewForm.FormClose(Sender: TObject;
-  var Action: TCloseAction);
+procedure TPreviewForm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-   Action := caFree;
-   Application.OnHint := OldHint;
-   MFPrinter.Free;
+  Action := caFree;
+  Application.OnHint := OldHint;
+  MFPrinter.Free;
 end;
 
 procedure TPreviewForm.ScrollBox1Resize(Sender: TObject);

@@ -1,10 +1,10 @@
 object EditPieceForm: TEditPieceForm
-  Left = 305
-  Top = 117
+  Left = 430
+  Top = 172
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Edit Piece'
-  ClientHeight = 472
+  ClientHeight = 507
   ClientWidth = 548
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -564,8 +564,8 @@ object EditPieceForm: TEditPieceForm
     WordWrap = True
   end
   object Label2: TLabel
-    Left = 32
-    Top = 248
+    Left = 24
+    Top = 280
     Width = 76
     Height = 16
     Caption = 'Num Pieces:'
@@ -578,8 +578,8 @@ object EditPieceForm: TEditPieceForm
     ParentFont = False
   end
   object SpeedButton1: TSpeedButton
-    Left = 240
-    Top = 248
+    Left = 248
+    Top = 280
     Width = 23
     Height = 22
     Caption = '+'
@@ -592,8 +592,8 @@ object EditPieceForm: TEditPieceForm
     OnClick = SpeedButton1Click
   end
   object SpeedButton2: TSpeedButton
-    Left = 264
-    Top = 248
+    Left = 272
+    Top = 280
     Width = 23
     Height = 22
     Caption = '-'
@@ -606,8 +606,8 @@ object EditPieceForm: TEditPieceForm
     OnClick = SpeedButton2Click
   end
   object Label3: TLabel
-    Left = 32
-    Top = 280
+    Left = 24
+    Top = 312
     Width = 54
     Height = 16
     Caption = 'Storage: '
@@ -620,7 +620,7 @@ object EditPieceForm: TEditPieceForm
   end
   object Label4: TLabel
     Left = 272
-    Top = 96
+    Top = 100
     Width = 257
     Height = 25
     AutoSize = False
@@ -634,8 +634,8 @@ object EditPieceForm: TEditPieceForm
     WordWrap = True
   end
   object AliasLabel: TLabel
-    Left = 232
-    Top = 184
+    Left = 24
+    Top = 216
     Width = 89
     Height = 16
     Caption = 'Bricklink Alias: '
@@ -648,8 +648,8 @@ object EditPieceForm: TEditPieceForm
     ParentFont = False
   end
   object Label5: TLabel
-    Left = 32
-    Top = 216
+    Left = 24
+    Top = 248
     Width = 79
     Height = 16
     Caption = 'Bricklink link: '
@@ -661,9 +661,61 @@ object EditPieceForm: TEditPieceForm
     Font.Style = []
     ParentFont = False
   end
+  object Label6: TLabel
+    Left = 24
+    Top = 184
+    Width = 43
+    Height = 16
+    Caption = 'Name: '
+    FocusControl = Edit2
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
+  object Label7: TLabel
+    Left = 280
+    Top = 216
+    Width = 96
+    Height = 16
+    Caption = 'Bricklink Name: '
+    FocusControl = NewNameEdit
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
+  object PartTypeLabel: TLabel
+    Left = 272
+    Top = 140
+    Width = 185
+    Height = 25
+    AutoSize = False
+    Caption = '(Default)'
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -16
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+    WordWrap = True
+  end
+  object SelectPartTypeSpeedButton: TSpeedButton
+    Left = 472
+    Top = 144
+    Width = 23
+    Height = 22
+    Caption = '...'
+    Flat = True
+    OnClick = SelectPartTypeSpeedButtonClick
+  end
   object Edit1: TEdit
-    Left = 120
-    Top = 248
+    Left = 128
+    Top = 280
     Width = 121
     Height = 24
     BiDiMode = bdLeftToRight
@@ -676,10 +728,11 @@ object EditPieceForm: TEditPieceForm
     ParentFont = False
     TabOrder = 4
     Text = '0'
+    OnKeyPress = Edit1KeyPress
   end
   object Memo1: TMemo
-    Left = 120
-    Top = 280
+    Left = 128
+    Top = 312
     Width = 297
     Height = 177
     Font.Charset = GREEK_CHARSET
@@ -693,8 +746,8 @@ object EditPieceForm: TEditPieceForm
     WordWrap = False
   end
   object Button1: TButton
-    Left = 440
-    Top = 400
+    Left = 448
+    Top = 432
     Width = 75
     Height = 25
     Caption = 'OK'
@@ -709,8 +762,8 @@ object EditPieceForm: TEditPieceForm
     TabOrder = 6
   end
   object Button2: TButton
-    Left = 440
-    Top = 432
+    Left = 448
+    Top = 464
     Width = 75
     Height = 25
     Cancel = True
@@ -731,17 +784,17 @@ object EditPieceForm: TEditPieceForm
     Height = 33
     Caption = ' '
     Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
+    Font.Color = clWhite
+    Font.Height = -16
     Font.Name = 'MS Sans Serif'
-    Font.Style = []
+    Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 8
   end
   object AliasEdit: TEdit
-    Left = 336
-    Top = 184
-    Width = 169
+    Left = 128
+    Top = 216
+    Width = 128
     Height = 24
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
@@ -752,9 +805,9 @@ object EditPieceForm: TEditPieceForm
     TabOrder = 2
   end
   object Edit2: TEdit
-    Left = 24
+    Left = 128
     Top = 184
-    Width = 185
+    Width = 128
     Height = 24
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
@@ -767,8 +820,8 @@ object EditPieceForm: TEditPieceForm
     Text = ' '
   end
   object AutodetectButton: TButton
-    Left = 232
-    Top = 152
+    Left = 320
+    Top = 176
     Width = 201
     Height = 25
     Caption = 'Autodetect'
@@ -782,9 +835,9 @@ object EditPieceForm: TEditPieceForm
     OnClick = AutodetectButtonClick
   end
   object LinkEdit: TEdit
-    Left = 120
-    Top = 216
-    Width = 385
+    Left = 128
+    Top = 248
+    Width = 393
     Height = 24
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
@@ -812,6 +865,35 @@ object EditPieceForm: TEditPieceForm
       Width = 105
       Height = 105
       AutoSize = True
+      OnDblClick = Image1DblClick
     end
+  end
+  object NewNameEdit: TEdit
+    Left = 384
+    Top = 216
+    Width = 137
+    Height = 24
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 10
+  end
+  object PartTypePanel: TPanel
+    Left = 224
+    Top = 136
+    Width = 33
+    Height = 33
+    Caption = ' '
+    Color = clBlack
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clWhite
+    Font.Height = -16
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 11
   end
 end

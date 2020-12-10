@@ -4403,7 +4403,7 @@ const
     // Latin Extended-A
     (Name: 'OElig';    Value: #338),  // latin capital ligature OE, U+0152 ISOlat2
     (Name: 'oelig';    Value: #339),  // latin small ligature oe, U+0153 ISOlat2
-                                     // ligature is a misnomer, this is a separate character in some languages
+                                      // ligature is a misnomer, this is a separate character in some languages
     (Name: 'Scaron';   Value: #352),  // latin capital letter S with caron, U+0160 ISOlat2
     (Name: 'scaron';   Value: #353),  // latin small letter s with caron, U+0161 ISOlat2
     (Name: 'Yuml';     Value: #376),  // latin capital letter Y with diaeresis, U+0178 ISOlat2
@@ -4430,10 +4430,10 @@ const
     (Name: 'Dagger';   Value: #8225), // double dagger, U+2021 ISOpub
     (Name: 'permil';   Value: #8240), // per mille sign, U+2030 ISOtech
     (Name: 'lsaquo';   Value: #8249), // single left-pointing angle quotation mark, U+2039 ISO proposed
-                                     // lsaquo is proposed but not yet ISO standardized
+                                      // lsaquo is proposed but not yet ISO standardized
     (Name: 'rsaquo';   Value: #8250), // single right-pointing angle quotation mark, U+203A ISO proposed
-                                     // rsaquo is proposed but not yet ISO standardized
-    (Name: 'euro';     Value: #8364) //  euro sign, U+20AC NEW
+                                      // rsaquo is proposed but not yet ISO standardized
+    (Name: 'euro';     Value: #8364)  //  euro sign, U+20AC NEW
   );
 
 {$ifndef Delphi6_Plus}
@@ -4473,15 +4473,15 @@ var
   I: integer;
 begin
 // Put the Entities into a sorted StringList for faster access.
-if Entities = nil then
+  if Entities = nil then
   begin
-  Entities := TCaseSensitiveStringList.Create;
+    Entities := TCaseSensitiveStringList.Create;
     with Entities do
-      begin
+    begin
       Sorted := True;
       for I := 0 to EntityCount - 1 do
         Entities.AddObject(EntityDefinitions[I].Name, Pointer(EntityDefinitions[I].Value));
-      end;
+    end;
   end;
 end;
 {$else}
@@ -4490,31 +4490,30 @@ var
   I: integer;
 begin
 // Put the Entities into a sorted StringList for faster access.
-if Entities = nil then
+  if Entities = nil then
   begin
-  Entities := TStringList.Create;
+    Entities := TStringList.Create;
     with Entities do
-      begin
+    begin
       CaseSensitive := True;
       for I := 0 to EntityCount - 1 do
         Entities.AddObject(EntityDefinitions[I].Name, Pointer(EntityDefinitions[I].Value));
       Sort;
-      end;
+    end;
   end;
 end;
 {$endif}
 
 initialization
+  LCToken := TokenObj.Create;
+  PropStack := TPropStack.Create;
+  SortEntities;
 
-LCToken := TokenObj.Create;
-PropStack := TPropStack.Create;
-SortEntities;
+finalization
+  LCToken.Free;
+  PropStack.Free;
+  Entities.Free;
 
-Finalization
-
-LCToken.Free;
-PropStack.Free;
-Entities.Free;
 end.
 
 

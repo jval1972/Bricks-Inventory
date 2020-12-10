@@ -1679,18 +1679,23 @@ end;
 
 function KindOfImageFile(FName: String): ImageType;
 var
-  Mem: TMemoryStream;
+  buf: array[0..10] of byte;
+  FMem: TFileStream;
+  ret: integer;
 begin
-Result := NoImage;
-if FileExists(FName) then
+  Result := NoImage;
+  if FileExists(FName) then
   begin
-  Mem := TMemoryStream.Create;
-  try
-    Mem.LoadFromFile(FName);
-    if Mem.Size >=10 then
-      Result := KindOfImage(Mem.Memory);
-  finally
-    Mem.Free;
+    FMem := TFileStream.Create(FName, fmOpenRead or fmShareDenyWrite);
+    try
+      if Fmem.Size >= SizeOf(buf) then
+      begin
+        ret := Fmem.Read(buf, SizeOf(buf));
+        if ret = SizeOf(buf) then
+          Result := KindOfImage(@buf);
+      end;
+    finally
+      FMem.Free;
     end;
   end;
 end;
@@ -1703,15 +1708,21 @@ var
   PW: ^Word absolute Start;
   PL: ^DWord absolute Start;
 begin
-if PL^ = $38464947 then
+  if PL^ = $38464947 then
   begin
-  if PB^[4] = Ord('9') then Result := Gif89
-  else Result := Gif;
+    if PB^[4] = Ord('9') then
+      Result := Gif89
+    else
+      Result := Gif;
   end
-else if PW^ = $4D42 then Result := Bmp
-else if PL^ = $474E5089 then Result := Png
-else if PW^ = $D8FF then Result := Jpg
-else Result := NoImage;
+  else if PW^ = $4D42 then
+    Result := Bmp
+  else if PL^ = $474E5089 then
+    Result := Png
+  else if PW^ = $D8FF then
+    Result := Jpg
+  else Result :=
+    NoImage;
 end;
 
 {$A-} {record field alignment off for this routine}
@@ -1719,7 +1730,7 @@ end;
 function IsTransparent(Stream: TStream; var Color: TColor): boolean;
 {Makes some simplifying assumptions that seem to be generally true for single
  images.}
-Type
+type
   RGB = record
     Red, Green, Blue: byte;
     end;
@@ -1743,28 +1754,31 @@ var
   OldPosition: integer;
 
 begin
-Result := False;
-Fillchar(Buff, Sizeof(Buff), 0);  {in case read comes short}
-OldPosition := Stream.Position;
-Stream.Position := 0;
-Stream.Read(Buff, Sizeof(Buff));
-Stream.Position := OldPosition;
+  Result := False;
+  Fillchar(Buff, Sizeof(Buff), 0);  {in case read comes short}
+  OldPosition := Stream.Position;
+  Stream.Position := 0;
+  Stream.Read(Buff, Sizeof(Buff));
+  Stream.Position := OldPosition;
 
-Header := @Buff;
-if KindOfImage(Header) <> Gif89 then Exit; 
-Colors := @Buff[Sizeof(GifHeader)];
-with Header^ do
+  Header := @Buff;
+  if KindOfImage(Header) <> Gif89 then
+    Exit;
+  Colors := @Buff[Sizeof(GifHeader)];
+  with Header^ do
   begin
-  X := 1 shl ((Field and 7) +1) - 1;  {X is last item in color table}
-  if X = 0 then Exit;   {no main color table}
+    X := 1 shl ((Field and 7) + 1) - 1;  {X is last item in color table}
+    if X = 0 then
+      Exit;   {no main color table}
   end;
-P := PChar(Colors)+(X+1)*Sizeof(RGB);
-if (P^ <> #$21) or ((P+1)^ <> #$F9) then Exit;  {extension block not found}
-if (ord(P[3]) and 1 <> 1) then Exit;     {no transparent color specified}
+  P := PChar(Colors) + (X + 1) * Sizeof(RGB);
+  if (P^ <> #$21) or ((P + 1)^ <> #$F9) then
+    Exit;  {extension block not found}
+  if (ord(P[3]) and 1 <> 1) then Exit;     {no transparent color specified}
 
-with Colors^[Ord(P[6])] do
-  Color := integer(Blue) shl 16 or integer(Green) shl 8 or integer(Red);
-Result := True;
+  with Colors^[Ord(P[6])] do
+    Color := integer(Blue) shl 16 or integer(Green) shl 8 or integer(Red);
+  Result := True;
 end;
 
 {$A+}
@@ -1803,17 +1817,17 @@ var
 
   function IntSwap(data: integer): integer;
   var
-     byte0 : integer;
-     byte1 : integer;
-     byte2 : integer;
-     byte3 : integer;
+    byte0: integer;
+    byte1: integer;
+    byte2: integer;
+    byte3: integer;
   begin
-     byte0 := data and $FF;
-     byte1 := (data shr 8) and $FF;
-     byte2 := (data shr 16) and $FF;
-     byte3 := (data shr 24) and $FF;
+    byte0 := data and $FF;
+    byte1 := (data shr 8) and $FF;
+    byte2 := (data shr 16) and $FF;
+    byte3 := (data shr 24) and $FF;
 
-     result := (byte0 shl 24) or (byte1 shl 16) or (byte2 shl 8) or byte3;
+    result := (byte0 shl 24) or (byte1 shl 16) or (byte2 shl 8) or byte3;
   end;
 
 begin
@@ -1896,15 +1910,15 @@ function TransparentGIF(const FName: string; var Color: TColor): boolean;
 var
   Stream: TFileStream;
 begin
-Result := False;
-try
-  Stream := TFileStream.Create(FName, fmShareDenyWrite or FmOpenRead);
+  Result := False;
   try
-    Result := IsTransparent(Stream, Color);
-  finally
-    Stream.Free;
-  end;
-except
+    Stream := TFileStream.Create(FName, fmShareDenyWrite or FmOpenRead);
+    try
+      Result := IsTransparent(Stream, Color);
+    finally
+      Stream.Free;
+    end;
+  except
   end;
 end;
 
@@ -1936,51 +1950,52 @@ function ConvertImage(Bitmap: TBitmap): TBitmap;
   end;
 
 begin
-if not Assigned(Bitmap) then
+  if not Assigned(Bitmap) then
   begin
-  Result := Nil;
-  Exit;
+    Result := Nil;
+    Exit;
   end;
 
-if ColorBits > 8 then
+  if ColorBits > 8 then
   begin
-  if Bitmap.PixelFormat <= pf8bit then
-    Result := DIBConvert
-  else
-    Result := Bitmap;
-  Exit;
+    if Bitmap.PixelFormat <= pf8bit then
+      Result := DIBConvert
+    else
+      Result := Bitmap;
+    Exit;
   end;
 
-if Bitmap.HandleType = bmDIB then
+  if Bitmap.HandleType = bmDIB then
   begin
-  Result := GetBitmap(Bitmap);
-  Bitmap.Free;
-  Exit;
+    Result := GetBitmap(Bitmap);
+    Bitmap.Free;
+    Exit;
   end;
-Result := DIBConvert;
+  
+  Result := DIBConvert;
 end;
 
 {----------------GetImageAndMaskFromFile}
 function GetImageAndMaskFromFile(const Filename: String; var Transparent: Transparency;
                             var Mask: TBitmap): TgpObject;
 var
-  Stream: TMemoryStream;   
+  Stream: TMemoryStream;
 begin
-Result := Nil;
-Mask := Nil;
-if not FileExists(Filename) then Exit;
-if GDIPlusActive and (KindOfImageFile(Filename) = Png) then
+  Result := Nil;
+  Mask := Nil;
+  if not FileExists(Filename) then Exit;
+  if GDIPlusActive and (KindOfImageFile(Filename) = Png) then
   begin
-  Result := TObject(TGPBitmap.Create(Filename));
+    Result := TObject(TGPBitmap.Create(Filename));
   end
-else
+  else
   begin
-  Stream := TMemoryStream.Create;
-  Stream.LoadFromFile(Filename);
-  try
-    Result := GetImageAndMaskFromStream(Stream, Transparent, Mask);
-  finally
-    Stream.Free;
+    Stream := TMemoryStream.Create;
+    Stream.LoadFromFile(Filename);
+    try
+      Result := GetImageAndMaskFromStream(Stream, Transparent, Mask);
+    finally
+      Stream.Free;
     end;
   end;
 end;
@@ -2171,56 +2186,56 @@ var
     TmpGif: TGifImage;
     NonAnimated: boolean;
   begin
-  Result := Nil;
-  TmpGif := CreateAGifFromStream(NonAnimated, Stream);
-  if Assigned(TmpGif) then
+    Result := Nil;
+    TmpGif := CreateAGifFromStream(NonAnimated, Stream);
+    if Assigned(TmpGif) then
     begin
-    Result := TBitmap.Create;
-    try
-      Result.Assign(TmpGif.Bitmap);
-    except
-      Result.Free;
-      Result := Nil;
+      Result := TBitmap.Create;
+      try
+        Result.Assign(TmpGif.Bitmap);
+      except
+        Result.Free;
+        Result := Nil;
       end;
-    TmpGif.Free;
+      TmpGif.Free;
     end
   end;
 
 begin
-Result := Nil;
-try
-  Stream := TMemoryStream.Create;
+  Result := Nil;
   try
-    Stream.LoadFromFile(Filename);
-    IT := KindOfImage(Stream.Memory);
-    if IT in [Gif, Gif89] then
-      Result := GetGif
-    else
+    Stream := TMemoryStream.Create;
+    try
+      Stream.LoadFromFile(Filename);
+      IT := KindOfImage(Stream.Memory);
+      if IT in [Gif, Gif89] then
+        Result := GetGif
+      else
       begin
-      GpObj := GetImageAndMaskFromStream(Stream, Transparent, Mask);
-      Mask.Free;
-      if GpObj is TBitmap then
-        Result := TBitmap(GpObj)
-{$ifndef NoMetafile}
-      else if GpObj is ThtMetafile then
+        GpObj := GetImageAndMaskFromStream(Stream, Transparent, Mask);
+        Mask.Free;
+        if GpObj is TBitmap then
+          Result := TBitmap(GpObj)
+  {$ifndef NoMetafile}
+        else if GpObj is ThtMetafile then
         begin
-        Result := TBitmap.Create;
-        Result.Assign(ThtMetafile(GpObj).WhiteBGBitmap);
-        GpObj.Free;
+          Result := TBitmap.Create;
+          Result.Assign(ThtMetafile(GpObj).WhiteBGBitmap);
+          GpObj.Free;
         end
-{$endif}
-      else if GpObj is TGpImage then
+  {$endif}
+        else if GpObj is TGpImage then
         begin
-        Result := TBitmap.Create;
-        Result.Assign(TGpImage(GpObj).GetTBitmap);
-        GpObj.Free;
+          Result := TBitmap.Create;
+          Result.Assign(TGpImage(GpObj).GetTBitmap);
+          GpObj.Free;
         end;
       end;
-  finally
-    Stream.Free;
+    finally
+      Stream.Free;
     end;
-except
-  Result := Nil;
+  except
+    Result := Nil;
   end;
 end;
 
@@ -2468,31 +2483,31 @@ end;
 {----------------IndentManagerBasic.Create}
 constructor IndentManagerBasic.Create;
 begin
-inherited Create;
-R := TFreeList.Create;
-L := TFreeList.Create;
+  inherited Create;
+  R := TFreeList.Create;
+  L := TFreeList.Create;
 end;
 
 destructor IndentManagerBasic.Destroy;
 begin
-R.Free;
-L.Free;
-inherited Destroy;
+  R.Free;
+  L.Free;
+  inherited Destroy;
 end;
 
 procedure IndentManagerBasic.Clear;
 begin
-R.Clear;
-L.Clear;
-CurrentID := Nil;
+  R.Clear;
+  L.Clear;
+  CurrentID := Nil;
 end;
 
 {----------------IndentManagerBasic.Reset}
 procedure IndentManagerBasic.Reset(Lf, Rt: integer);
 begin
-LfEdge := Lf;
-RtEdge := Rt;
-CurrentID := Nil;
+  LfEdge := Lf;
+  RtEdge := Rt;
+  CurrentID := Nil;
 end;
 
 procedure IndentManagerBasic.UpdateTable(Y: integer; IW: integer; IH: integer;
@@ -2531,17 +2546,17 @@ function IndentManagerBasic.LeftIndent(Y: integer): integer;
 var
   I: integer;
 begin
-Result := -99999;
-for I := 0 to L.Count-1 do
-  with IndentRec(L.Items[I]) do
+  Result := -99999;
+  for I := 0 to L.Count-1 do
+    with IndentRec(L.Items[I]) do
     begin
-    if (Y >= YT) and (Y < YB) and (Result < X) then
-      if not Assigned(ID) or (ID = CurrentID) then
-        Result := X;
+      if (Y >= YT) and (Y < YB) and (Result < X) then
+        if not Assigned(ID) or (ID = CurrentID) then
+          Result := X;
     end;
-if Result = -99999 then  
-  Result := 0;
-Inc(Result, LfEdge);
+  if Result = -99999 then
+    Result := 0;
+  Inc(Result, LfEdge);
 end;
 
 function IndentManagerBasic.RightSide(Y: integer): integer;
@@ -2551,18 +2566,19 @@ var
   I: integer;
   IR: IndentRec;
 begin
-Result := 99999;
-for I := 0 to R.Count-1 do
+  Result := 99999;
+  for I := 0 to R.Count-1 do
   begin
-  IR := IndentRec(R.Items[I]);
-  with IR do
-    if (Y >= YT) and (Y < YB) and (Result > X) then
-      if not Assigned(ID) or (ID = CurrentID) then
-        Result := X;
+    IR := IndentRec(R.Items[I]);
+    with IR do
+      if (Y >= YT) and (Y < YB) and (Result > X) then
+        if not Assigned(ID) or (ID = CurrentID) then
+          Result := X;
   end;
-if Result = 99999 then
-  Result := RtEdge     
-else Inc(Result, LfEdge);
+  if Result = 99999 then
+    Result := RtEdge
+  else
+    Inc(Result, LfEdge);
 end;
 
 function IndentManagerBasic.ImageBottom: integer;
@@ -2570,15 +2586,15 @@ function IndentManagerBasic.ImageBottom: integer;
 var
   I: integer;
 begin
-Result := 0;
-for I := 0 to L.Count-1 do
-  with IndentRec(L.Items[I]) do
-    if not Assigned(ID) and (YB > Result) then  
-      Result := YB;
-for I := 0 to R.Count-1 do
-  with IndentRec(R.Items[I]) do
-    if not Assigned(ID) and (YB > Result) then
-      Result := YB;
+  Result := 0;
+  for I := 0 to L.Count - 1 do
+    with IndentRec(L.Items[I]) do
+      if not Assigned(ID) and (YB > Result) then
+        Result := YB;
+  for I := 0 to R.Count - 1 do
+    with IndentRec(R.Items[I]) do
+      if not Assigned(ID) and (YB > Result) then
+        Result := YB;
 end;
 
 procedure IndentManagerBasic.GetClearY(var CL, CR: integer);
@@ -2586,18 +2602,18 @@ procedure IndentManagerBasic.GetClearY(var CL, CR: integer);
 var
   I: integer;
 begin
-CL := -1;
-for I := 0 to L.Count-1 do
-  with IndentRec(L.Items[I]) do
-    if not Assigned(ID)and (YB > CL) then
-      CL := YB;
-CR := -1;
-for I := 0 to R.Count-1 do
-  with IndentRec(R.Items[I]) do
-    if not Assigned(ID)and (YB > CR) then
-      CR := YB;
-Inc(CL);
-Inc(CR);
+  CL := -1;
+  for I := 0 to L.Count - 1 do
+    with IndentRec(L.Items[I]) do
+      if not Assigned(ID)and (YB > CL) then
+        CL := YB;
+  CR := -1;
+  for I := 0 to R.Count - 1 do
+    with IndentRec(R.Items[I]) do
+      if not Assigned(ID)and (YB > CR) then
+        CR := YB;
+  Inc(CL);
+  Inc(CR);
 end;
 
 function IndentManagerBasic.GetNextWiderY(Y: integer): integer;
@@ -2605,63 +2621,64 @@ function IndentManagerBasic.GetNextWiderY(Y: integer): integer;
 var
   I, CL, CR: integer;
 begin
-CL := Y;
-for I := 0 to L.Count-1 do
-  with IndentRec(L.Items[I]) do
-    if not Assigned(ID)and (YB > Y) and ((YB < CL) or (CL = Y)) then
-      CL := YB;
-CR := Y;
-for I := 0 to R.Count-1 do
-  with IndentRec(R.Items[I]) do
-    if not Assigned(ID)and (YB > Y) and ((YB < CR) or (CR = Y)) then
-      CR := YB;
-if CL = Y then
-  Result := CR
-else if CR = Y then
-  Result := CL
-else Result := IntMin(CL, CR);
+  CL := Y;
+  for I := 0 to L.Count - 1 do
+    with IndentRec(L.Items[I]) do
+      if not Assigned(ID)and (YB > Y) and ((YB < CL) or (CL = Y)) then
+        CL := YB;
+  CR := Y;
+  for I := 0 to R.Count - 1 do
+    with IndentRec(R.Items[I]) do
+      if not Assigned(ID)and (YB > Y) and ((YB < CR) or (CR = Y)) then
+        CR := YB;
+  if CL = Y then
+    Result := CR
+  else if CR = Y then
+    Result := CL
+  else
+    Result := IntMin(CL, CR);
 end;
 
 function IndentManagerBasic.SetLeftIndent(XLeft, Y: integer): integer;
 var
   IR: IndentRec;
 begin
-IR := IndentRec.Create;
-with IR do
+  IR := IndentRec.Create;
+  with IR do
   begin
-  YT := Y;
-  YB := BigY;
-  X := XLeft;
-  ID := CurrentID;
+    YT := Y;
+    YB := BigY;
+    X := XLeft;
+    ID := CurrentID;
   end;
-Result := L.Add(IR);
+  Result := L.Add(IR);
 end;
 
 function IndentManagerBasic.SetRightIndent(XRight, Y: integer): integer;
 var
   IR: IndentRec;
 begin
-IR := IndentRec.Create;
-with IR do
+  IR := IndentRec.Create;
+  with IR do
   begin
-  YT := Y;
-  YB := BigY;  
-  X := XRight;
-  ID := CurrentID;
+    YT := Y;
+    YB := BigY;
+    X := XRight;
+    ID := CurrentID;
   end;
-Result := R.Add(IR);
+  Result := R.Add(IR);
 end;
 
-procedure IndentManagerBasic.FreeLeftIndentRec(I: integer);  
+procedure IndentManagerBasic.FreeLeftIndentRec(I: integer);
 begin
-IndentRec(L.Items[I]).Free;
-L.Delete(I);
+  IndentRec(L.Items[I]).Free;
+  L.Delete(I);
 end;
 
 procedure IndentManagerBasic.FreeRightIndentRec(I: integer);
 begin
-IndentRec(R.Items[I]).Free;
-R.Delete(I);
+  IndentRec(R.Items[I]).Free;
+  R.Delete(I);
 end;
 
 procedure SetGlobalPalette(Value: HPalette);
@@ -2673,24 +2690,24 @@ var
   LP: ^TLogPalette;
   NumEntries: integer;
 begin
-Result := 0;
-if ColorBits > 8 then    
-  Exit;
-GetMem(LP, Sizeof(TLogPalette) + 256*Sizeof(TPaletteEntry));
-try
-  with LP^ do
+  Result := 0;
+  if ColorBits > 8 then
+    Exit;
+  GetMem(LP, Sizeof(TLogPalette) + 256 * Sizeof(TPaletteEntry));
+  try
+    with LP^ do
     begin
-    palVersion := $300;
-    palNumEntries := 256;
-    NumEntries := GetPaletteEntries(Source, 0, 256, palPalEntry);
-    if NumEntries > 0 then
+      palVersion := $300;
+      palNumEntries := 256;
+      NumEntries := GetPaletteEntries(Source, 0, 256, palPalEntry);
+      if NumEntries > 0 then
       begin
-      palNumEntries := NumEntries;
-      Result := CreatePalette(LP^);
+        palNumEntries := NumEntries;
+        Result := CreatePalette(LP^);
       end;
     end;
-finally
-  FreeMem(LP, Sizeof(TLogPalette) + 256*Sizeof(TPaletteEntry));
+  finally
+    FreeMem(LP, Sizeof(TLogPalette) + 256 * Sizeof(TPaletteEntry));
   end;
 end;
 
@@ -2702,48 +2719,48 @@ var
   LP: ^TLogPalette;
   I, J, K, Sub: integer;
 begin
-GetMem(LP, Sizeof(TLogPalette) + 256*Sizeof(TPaletteEntry));
-try
-  with LP^ do
+  GetMem(LP, Sizeof(TLogPalette) + 256 * Sizeof(TPaletteEntry));
+  try
+    with LP^ do
     begin
-    palVersion := $300;
-    palNumEntries := 256;
-    GetSystemPaletteEntries(DC, 0, 256, palPalEntry);
-    Sub := 10;  {start at entry 10}
-    for I := 0 to 5 do
-      for J := 0 to 5 do
-        for K := 0 to 5 do
-          if not ((I=5) and (J=5) and (K=5)) then  {skip the white}
-            with palPalEntry[Sub] do
+      palVersion := $300;
+      palNumEntries := 256;
+      GetSystemPaletteEntries(DC, 0, 256, palPalEntry);
+      Sub := 10;  {start at entry 10}
+      for I := 0 to 5 do
+        for J := 0 to 5 do
+          for K := 0 to 5 do
+            if not ((I = 5) and (J = 5) and (K = 5)) then  {skip the white}
+              with palPalEntry[Sub] do
               begin
-              peBlue := Values[I];
-              peGreen := Values[J];
-              peRed := Values[K];
+                peBlue := Values[I];
+                peGreen := Values[J];
+                peRed := Values[K];
+                peFlags := 0;
+                Inc(Sub);
+              end;
+      for I := 1 to 24 do
+         if not (I in [7, 15, 21]) then   {these would be duplicates}
+            with palPalEntry[Sub] do
+            begin
+              peBlue := 130 + 5 * I;
+              peGreen := 130 + 5 * I;
+              peRed := 130 + 5 * I;
               peFlags := 0;
               Inc(Sub);
-              end;
-    for I := 1 to 24 do
-       if not (I in [7, 15, 21]) then   {these would be duplicates}
-          with palPalEntry[Sub] do
-            begin
-            peBlue := 130 + 5*I;
-            peGreen := 130 + 5*I;
-            peRed := 130 + 5*I;
-            peFlags := 0;
-            Inc(Sub);
             end;
-    Sub := 245;
-    with palPalEntry[Sub] do    
+      Sub := 245;
+      with palPalEntry[Sub] do
       begin
-      peBlue := 254;
-      peGreen := 255;
-      peRed := 255;
-      peFlags := 0;
+        peBlue := 254;
+        peGreen := 255;
+        peRed := 255;
+        peFlags := 0;
       end;
-    ThePalette := CreatePalette(LP^);
+      ThePalette := CreatePalette(LP^);
     end;
-finally
-  FreeMem(LP, Sizeof(TLogPalette) + 256*Sizeof(TPaletteEntry));
+  finally
+    FreeMem(LP, Sizeof(TLogPalette) + 256 * Sizeof(TPaletteEntry));
   end;
 end;
 
@@ -2756,70 +2773,70 @@ const
 
 procedure ThisExit; far;
 begin
-if ThePalette <> 0 then
-  DeleteObject(ThePalette);
-DefBitMap.Free;
-ErrorBitMap.Free;
-ErrorBitMapMask.Free;
-WaitStream.Free;
+  if ThePalette <> 0 then
+    DeleteObject(ThePalette);
+  DefBitMap.Free;
+  ErrorBitMap.Free;
+  ErrorBitMapMask.Free;
+  WaitStream.Free;
 end;
 
 {----------------TIDNameList}
 constructor TIDNameList.Create(List: TList);
 begin
-inherited Create;
-Sorted := True;
-OwnerList := List;
+  inherited Create;
+  Sorted := True;
+  OwnerList := List;
 end;
 
 destructor TIDNameList.Destroy;
 begin
-Clear;
-inherited
+  Clear;
+  inherited
 end;
 
 procedure TIDNameList.Clear;
 var
   I: integer;
 begin
-for I := 0 to Count-1 do
-  try       
+  for I := 0 to Count - 1 do
+  try
     if Objects[I] is TChPosObj then
       Objects[I].Free;
   except
-    end; 
-inherited Clear;
+  end;
+  inherited Clear;
 end;
 
 function TIDNameList.AddObject(const S: string; AObject: TObject): Integer;
 var
   I: integer;
 begin
-if Find(S, I) then
+  if Find(S, I) then
   begin
-  try
-    if Objects[I] is TChPosObj then
-      Objects[I].Free;
-  except
+    try
+      if Objects[I] is TChPosObj then
+        Objects[I].Free;
+    except
     end;
-  Delete(I);
+    Delete(I);
   end;
-Result := inherited AddObject(S, AObject);
+  Result := inherited AddObject(S, AObject);
 end;
 
 procedure TIDNameList.AddChPosObject(const S: string; Pos: integer);
 var
   ChPosObj: TChPosObj;
 begin
-ChPosObj := TChPosObj.Create;
-ChPosObj.List := OwnerList;
-ChPosObj.ChPos := Pos;
-AddObject(S, ChPosObj);
+  ChPosObj := TChPosObj.Create;
+  ChPosObj.List := OwnerList;
+  ChPosObj.ChPos := Pos;
+  AddObject(S, ChPosObj);
 end;
 
 destructor TIDObject.Destroy;
 begin
-inherited;
+  inherited;
 end;
 
 {----------------TChPosObj.GetYPosition:}
@@ -2827,17 +2844,18 @@ function TChPosObj.GetYPosition: integer;
 var
   Pos, X, Y: integer;
 begin
-with List as TSectionList do
+  with List as TSectionList do
   begin
-  Pos := FindDocPos(ChPos, False);
-  if CursorToXY(Nil, Pos, X, Y) then
-      Result := Y
-  else Result := 0;
+    Pos := FindDocPos(ChPos, False);
+    if CursorToXY(Nil, Pos, X, Y) then
+        Result := Y
+    else
+      Result := 0;
   end;
 end;
 
 {$ifndef NoMetafile}
-procedure ThtMetaFile.Construct;  
+procedure ThtMetaFile.Construct;
 var
   Tmp: TBitmap;
   pe: TPaletteEntry;

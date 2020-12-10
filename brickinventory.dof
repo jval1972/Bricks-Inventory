@@ -113,9 +113,9 @@ RootDir=
 IncludeVerInfo=1
 AutoIncBuild=1
 MajorVer=3
-MinorVer=0
+MinorVer=9
 Release=1
-Build=206
+Build=284
 Debug=0
 PreRelease=0
 Special=0
@@ -126,27 +126,19 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=Jim Valavanis
 FileDescription=Bricks Inventory
-FileVersion=3.0.1.206
+FileVersion=3.9.1.284
 InternalName=brickinventory
-LegalCopyright=Copyright 2015-2018 by Jim Valavanis
-LegalTrademarks=Copyright 2015-2018 by Jim Valavanis
+LegalCopyright=Copyright 2014-2018 by Jim Valavanis
+LegalTrademarks=Copyright 2014-2018 by Jim Valavanis
 OriginalFilename=brickinventory.exe
 ProductName=Bricks Inventory
-ProductVersion=3.0
+ProductVersion=3.9
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
-[HistoryLists\hlSearchPath]
-Count=1
-Item0=C:\Program Files (x86)\Borland\Delphi7\Source\XML
 [HistoryLists\hlUnitOutputDirectory]
-Count=2
+Count=1
 Item0=..\dcu
-Item1=dcu
 [HistoryLists\hlOutputDirectorry]
-Count=5
+Count=1
 Item0=E:\BrickInventory\bin
-Item1=D:\LEGO\BrickInventory\bin
-Item2=..\bin
-Item3=bin
-Item4=release\bin

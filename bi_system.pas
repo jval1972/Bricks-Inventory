@@ -1,3 +1,31 @@
+//------------------------------------------------------------------------------
+//
+//  BrickInventory: A tool for managing your brick collection
+//  Copyright (C) 2014-2018 by Jim Valavanis
+//
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, inc., 59 Temple Place - Suite 330, Boston, MA
+//  02111-1307, USA.
+//
+// DESCRIPTION:
+//    System functions
+//
+//------------------------------------------------------------------------------
+//  E-Mail: jvalavanis@gmail.com
+//  Site  : https://sourceforge.net/projects/brickinventory/
+//------------------------------------------------------------------------------
+
 unit bi_system;
 
 interface
@@ -62,13 +90,15 @@ var
   usemultithread: boolean;
   criticalcpupriority: boolean;
 
+function I_GetNumCPUs: integer;
+
 const
   TICRATE = 200;
 
 implementation
 
 uses
-  Windows, Messages, bi_delphi, bi_io, bi_tmp, main;
+  Windows, Messages, bi_delphi, bi_io, bi_tmp;
 
 //
 // I_GetTime
@@ -433,39 +463,6 @@ begin
 
 end;
 
-procedure I_DetectCPU;
-begin
-
-  try
-  // detect MMX and 3DNow! capable CPU (adapted from AMD's "3DNow! Porting Guide")
-    asm
-      pusha
-      mov  eax, $80000000
-      cpuid
-      cmp  eax, $80000000
-      jbe @@NoMMX3DNow
-      mov mmxMachine, 1
-      mov  eax, $80000001
-      cpuid
-      test edx, $80000000
-      jz @@NoMMX3DNow
-      mov AMD3DNowMachine, 1
-  @@NoMMX3DNow:
-      popa
-    end;
-  except
-  // trap for old/exotics CPUs
-    mmxMachine := 0;
-    AMD3DNowMachine := 0;
-  end;
-
-  if mmxMachine <> 0 then
-    printf(' MMX extentions detected'#13#10);
-  if AMD3DNowMachine <> 0 then
-    printf(' AMD 3D Now! extentions detected'#13#10);
-end;
-
-
 procedure I_ClearInterface(var Dest: IInterface);
 var
   P: Pointer;
@@ -514,6 +511,66 @@ begin
   shellexecutefunc(0, 'open', PChar(cmd), nil, nil, SW_SHOWNORMAL);
   FreeLibrary(inst);
 end;
+
+var
+  numcpus: Integer = 0;
+
+procedure I_DetectCPU;
+var
+  info: TSystemInfo;
+begin
+  try
+  // detect MMX and 3DNow! capable CPU (adapted from AMD's "3DNow! Porting Guide")
+    asm
+      pusha
+      mov  eax, $80000000
+      cpuid
+      cmp  eax, $80000000
+      jbe @@NoMMX3DNow
+      mov mmxMachine, 1
+      mov  eax, $80000001
+      cpuid
+      test edx, $80000000
+      jz @@NoMMX3DNow
+      mov AMD3DNowMachine, 1
+  @@NoMMX3DNow:
+      popa
+    end;
+  except
+  // trap for old/exotics CPUs
+    mmxMachine := 0;
+    AMD3DNowMachine := 0;
+  end;
+
+  if mmxMachine <> 0 then
+    printf(' MMX extentions detected'#13#10);
+  if AMD3DNowMachine <> 0 then
+    printf(' AMD 3D Now! extentions detected'#13#10);
+
+  GetSystemInfo(info);
+  numcpus := info.dwNumberOfProcessors;
+
+  if numcpus > 1 then
+    printf(' Multi-core system detected (%d CPUs)'#13#10, [numcpus]);
+
+  usemultithread := numcpus > 1;
+
+  if usemultithread then
+    printf(' Multithreding mode ON'#13#10)
+  else
+  begin
+    if numcpus > 1 then
+      printf(' Multithreding mode OFF (will not use all cores)'#13#10)
+    else
+      printf(' Multithreding mode OFF'#13#10);
+  end;
+end;
+
+function I_GetNumCPUs: integer;
+begin
+  result := numcpus;
+end;
+
 
 initialization
   basetime := 0;

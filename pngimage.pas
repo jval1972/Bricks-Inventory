@@ -4572,7 +4572,9 @@ procedure TPngObject.SetMaxIdatSize(const Value: Integer);
 begin
   {Make sure the size is at least 65535}
   if Value < High(Word) then
-    fMaxIdatSize := High(Word) else fMaxIdatSize := Value;
+    fMaxIdatSize := High(Word)
+  else
+    fMaxIdatSize := Value;
 end;
 
 {Draws the image using pixel information from TChunkpHYs}

@@ -1,3 +1,31 @@
+//------------------------------------------------------------------------------
+//
+//  BrickInventory: A tool for managing your brick collection
+//  Copyright (C) 2014-2018 by Jim Valavanis
+//
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, inc., 59 Temple Place - Suite 330, Boston, MA
+//  02111-1307, USA.
+//
+// DESCRIPTION:
+//    Delphi library / low level routines
+//
+//------------------------------------------------------------------------------
+//  E-Mail: jvalavanis@gmail.com
+//  Site  : https://sourceforge.net/projects/brickinventory/
+//------------------------------------------------------------------------------
+
 unit bi_delphi;
 
 interface
@@ -68,6 +96,8 @@ type
   PBytePArray = ^TBytePArray;
 
   float = single;
+
+  PDouble = ^Double;
 
 type
   charset_t = set of char;
@@ -267,10 +297,12 @@ type
     constructor Create; virtual;
     destructor Destroy; override;
     procedure Add(const value: integer); overload; virtual;
+    procedure AddRange(const value1, value2: integer); virtual;
     procedure Add(const nlist: TDNumberList); overload; virtual;
     function Delete(const Index: integer): boolean;
     function IndexOf(const value: integer): integer;
     procedure Clear;
+    procedure Sort;
     property Count: integer read fNumItems;
     property Numbers[Index: Integer]: integer read Get write Put; default;
   end;
@@ -455,6 +487,12 @@ procedure splitstring(const inp: string; var out1, out2, out3, out4: string; con
 
 procedure splitstring(const inp: string; var out1, out2, out3, out4, out5: string; const splitter: char); overload;
 
+procedure splitstring(const inp: string; var out1, out2, out3, out4, out5, out6: string; const splitter: char); overload;
+
+procedure splitstring(const inp: string; var out1, out2, out3, out4, out5, out6, out7: string; const splitter: char); overload;
+
+procedure splitstring(const inp: string; var out1, out2, out3, out4, out5, out6, out7, out8: string; const splitter: char); overload;
+
 procedure splitstring(const inp: string; var out1, out2: string; const splitters: charset_t); overload;
 
 function firstword(const inp: string; const splitter: char = ' '): string; overload;
@@ -479,7 +517,7 @@ procedure MakeDir(const dir: string);
 
 function PascalText(src: PChar): string;
 
-procedure CopyFile(const sname, dname: string);
+function CopyFile(const sname, dname: string): boolean;
 
 function HexToInt(const s: string): integer;
 
@@ -502,12 +540,25 @@ type
     property value: double read fvalue write fvalue;
   end;
 
+  TString = class(TObject)
+  public
+    text: string;
+  end;
+
 function string2stringlist(const s: string; const c: char): TStringList;
 function stringlist2string(const s: TStringList; const c: char): string;
 
 function dbl_equal(const dbl1, dbl2: double): boolean;
 
 function dbl_safe_div(const a, b: double): double;
+
+procedure QSortIntegers(const A: PIntegerArray; const Len: integer);
+
+function SaveStringToFile(const fname: string; const s: string): boolean;
+
+function LoadStringFromFile(const fname: string): string;
+
+function SaveDataToFile(const fname: string; const fdata: pointer; const size: integer): boolean;
 
 implementation
 
@@ -1465,6 +1516,22 @@ begin
   inc(fNumItems);
 end;
 
+procedure TDNumberList.AddRange(const value1, value2: integer);
+var
+  i: integer;
+begin
+  if value1 < value2 then
+  begin
+    for i := value1 to value2 do
+      Add(i);
+  end
+  else
+  begin
+    for i := value1 downto value2 do
+      Add(i);
+  end;
+end;
+
 procedure TDNumberList.Add(const nlist: TDNumberList);
 var
   i: integer;
@@ -1511,6 +1578,10 @@ begin
   fRealNumItems := 0;
 end;
 
+procedure TDNumberList.Sort;
+begin
+  QSortIntegers(fList, fNumItems);
+end;
 
 ////////////////////////////////////////////////////////////////////////////////
 // TDTextList
@@ -2095,7 +2166,10 @@ end;
 
 function fexists(const filename: string): boolean;
 begin
-  result := FileExists(filename);
+  if Trim(filename) = '' then
+    result := false
+  else
+    result := FileExists(filename);
 end;
 
 function fexpand(const filename: string): string;
@@ -2614,6 +2688,108 @@ begin
   end;
 end;
 
+procedure splitstring(const inp: string; var out1, out2, out3, out4, out5, out6: string; const splitter: char); overload;
+var
+  i: integer;
+  aa: integer;
+begin
+  out1 := '';
+  out2 := '';
+  out3 := '';
+  out4 := '';
+  out5 := '';
+  out6 := '';
+  aa := 1;
+  for i := 1 to length(inp) do
+  begin
+    if (aa < 6) and (inp[i] = splitter) then
+      inc(aa)
+    else if aa = 1 then
+      out1 := out1 + inp[i]
+    else if aa = 2 then
+      out2 := out2 + inp[i]
+    else if aa = 3 then
+      out3 := out3 + inp[i]
+    else if aa = 4 then
+      out4 := out4 + inp[i]
+    else if aa = 5 then
+      out5 := out5 + inp[i]
+    else
+      out6 := out6 + inp[i]
+  end;
+end;
+
+procedure splitstring(const inp: string; var out1, out2, out3, out4, out5, out6, out7: string; const splitter: char); overload;
+var
+  i: integer;
+  aa: integer;
+begin
+  out1 := '';
+  out2 := '';
+  out3 := '';
+  out4 := '';
+  out5 := '';
+  out6 := '';
+  out7 := '';
+  aa := 1;
+  for i := 1 to length(inp) do
+  begin
+    if (aa < 7) and (inp[i] = splitter) then
+      inc(aa)
+    else if aa = 1 then
+      out1 := out1 + inp[i]
+    else if aa = 2 then
+      out2 := out2 + inp[i]
+    else if aa = 3 then
+      out3 := out3 + inp[i]
+    else if aa = 4 then
+      out4 := out4 + inp[i]
+    else if aa = 5 then
+      out5 := out5 + inp[i]
+    else if aa = 6 then
+      out6 := out6 + inp[i]
+    else
+      out7 := out7 + inp[i]
+  end;
+end;
+
+procedure splitstring(const inp: string; var out1, out2, out3, out4, out5, out6, out7, out8: string; const splitter: char); overload;
+var
+  i: integer;
+  aa: integer;
+begin
+  out1 := '';
+  out2 := '';
+  out3 := '';
+  out4 := '';
+  out5 := '';
+  out6 := '';
+  out7 := '';
+  out8 := '';
+  aa := 1;
+  for i := 1 to length(inp) do
+  begin
+    if (aa < 8) and (inp[i] = splitter) then
+      inc(aa)
+    else if aa = 1 then
+      out1 := out1 + inp[i]
+    else if aa = 2 then
+      out2 := out2 + inp[i]
+    else if aa = 3 then
+      out3 := out3 + inp[i]
+    else if aa = 4 then
+      out4 := out4 + inp[i]
+    else if aa = 5 then
+      out5 := out5 + inp[i]
+    else if aa = 6 then
+      out6 := out6 + inp[i]
+    else if aa = 7 then
+      out7 := out7 + inp[i]
+    else
+      out8 := out8 + inp[i]
+  end;
+end;
+
 procedure splitstring(const inp: string; var out1, out2: string; const splitters: charset_t);
 var
   i: integer;
@@ -2778,16 +2954,27 @@ begin
   until src^ = #0;
 end;
 
-procedure CopyFile(const sname, dname: string);
+function CopyFile(const sname, dname: string): boolean;
 var
   FromF, ToF: file;
   NumRead, NumWritten: Integer;
   Buf: array[1..8192] of Char;
+  adir: string;
 begin
+  Result := False;
+
+  if (Trim(sname) = '') or (Trim(dname) = '') then
+    exit;
+
   if fexists(sname) then
   begin
+    {$I-}
     AssignFile(FromF, sname);
     Reset(FromF, 1);
+    adir := Trim(ExtractFilePath(dname));
+    if adir <> '' then
+      if not DirectoryExists(adir) then
+        ForceDirectories(adir);
     AssignFile(ToF, dname);
     Rewrite(ToF, 1);
     repeat
@@ -2796,12 +2983,8 @@ begin
     until (NumRead = 0) or (NumWritten <> NumRead);
     CloseFile(FromF);
     CloseFile(ToF);
-  end
-  else
-  begin
-    AssignFile(ToF, dname);
-    Rewrite(ToF, 1);
-    CloseFile(ToF);
+    {$I+}
+    Result := IOResult = 0;
   end;
 end;
 
@@ -2904,6 +3087,90 @@ begin
   end;
 
   result := a / b;
+end;
+
+procedure QSortIntegers(const A: PIntegerArray; const Len: integer);
+
+  procedure qsortI(l, r: Integer);
+  var
+    i, j: integer;
+    t: integer;
+    d: integer;
+  begin
+    repeat
+      i := l;
+      j := r;
+      d := A[(l + r) shr 1];
+      repeat
+        while A[i] < d do
+          inc(i);
+        while A[j] > d do
+          dec(j);
+        if i <= j then
+        begin
+          t := A[i];
+          A[i] := A[j];
+          A[j] := t;
+          inc(i);
+          dec(j);
+        end;
+      until i > j;
+      if l < j then
+        qsortI(l, j);
+      l := i;
+    until i >= r;
+  end;
+
+begin
+  if Len > 1 then
+    qsortI(0, Len - 1);
+end;
+
+function SaveStringToFile(const fname: string; const s: string): boolean;
+var
+  f: file;
+begin
+{$I-}
+  AssignFile(f, fname);
+  Rewrite(f, 1);
+  BlockWrite(f, Pointer(s)^, Length(s));
+  CloseFile(f);
+{$I+}
+  result := IOResult = 0;
+end;
+
+function LoadStringFromFile(const fname: string): string;
+var
+  f: file;
+  NumRead: Integer;
+  Buf: array[1..8192] of Char;
+  i: integer;
+begin
+  result := '';
+  if fexists(fname) then
+  begin
+    AssignFile(f, fname);
+    Reset(f, 1);
+    repeat
+      BlockRead(f, Buf, SizeOf(Buf), NumRead);
+      for i := 1 to NumRead do
+        result := result + Buf[i];
+    until NumRead = 0;
+    CloseFile(f);
+  end;
+end;
+
+function SaveDataToFile(const fname: string; const fdata: pointer; const size: integer): boolean;
+var
+  f: file;
+begin
+{$I-}
+  AssignFile(f, fname);
+  Rewrite(f, 1);
+  BlockWrite(f, PByteArray(fdata)^, size);
+  CloseFile(f);
+{$I+}
+  result := IOResult = 0;
 end;
 
 begin

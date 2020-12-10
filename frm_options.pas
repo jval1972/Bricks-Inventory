@@ -1,0 +1,93 @@
+unit frm_options;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ExtCtrls, ComCtrls;
+
+type
+  TOptionsForm = class(TForm)
+    Panel1: TPanel;
+    Panel2: TPanel;
+    Button1: TButton;
+    Button2: TButton;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    Label1: TLabel;
+    Edit1: TEdit;
+    CheckBox1: TCheckBox;
+    CheckBox2: TCheckBox;
+    CheckBox3: TCheckBox;
+    CheckBox4: TCheckBox;
+    CheckBox5: TCheckBox;
+    procedure Edit1KeyPress(Sender: TObject; var Key: Char);
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+function BI_EditOptions: boolean;
+
+implementation
+
+{$R *.dfm}
+
+uses
+  bi_delphi, bi_defs;
+
+function BI_EditOptions: boolean;
+var
+  f: TOptionsForm;
+  oldpagesize: integer;
+begin
+  result := false;
+  f := TOptionsForm.Create(nil);
+  try
+    f.CheckBox1.Checked := domultipagedocuments;
+    oldpagesize := dpagesize;
+    f.Edit1.Text := itoa(dpagesize);
+    f.CheckBox2.Checked := dodraworderinfo;
+    f.CheckBox3.Checked := usemultithread;
+    f.CheckBox4.Checked := savealwayspartinvinfo;
+    f.CheckBox5.Checked := generatethumbnailsondemand;
+    f.ShowModal;
+    if f.ModalResult = mrOK then
+    begin
+      result := true;
+      domultipagedocuments := f.CheckBox1.Checked;
+      dpagesize := atoi(f.Edit1.Text, oldpagesize);
+      dodraworderinfo := f.CheckBox2.Checked;
+      usemultithread := f.CheckBox3.Checked;
+      savealwayspartinvinfo := f.CheckBox4.Checked;
+      generatethumbnailsondemand := f.CheckBox5.Checked;
+    end;
+  finally
+    f.Free;
+  end;
+end;
+
+procedure TOptionsForm.Edit1KeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in [#8, '0'..'9']) then
+  begin
+    Key := #0;
+    exit;
+  end;
+  if Key in ['0'..'9'] then
+    if Length((Sender as TEdit).Text) > 3 then
+    begin
+      Key := #0;
+      exit;
+    end;
+end;
+
+procedure TOptionsForm.FormCreate(Sender: TObject);
+begin
+  PageControl1.ActivePageIndex := 0;
+end;
+
+end.

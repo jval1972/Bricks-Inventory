@@ -1,11 +1,10 @@
 object Form1: TForm1
-  Left = 534
-  Top = 179
+  Left = 163
+  Top = 0
+  Width = 484
+  Height = 437
   BorderIcons = [biSystemMenu, biMinimize]
-  BorderStyle = bsSingle
   Caption = 'Bricklink Crawler'
-  ClientHeight = 427
-  ClientWidth = 457
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -185,120 +184,252 @@ object Form1: TForm1
     00000000000000000000000000000000000000000000}
   OldCreateOrder = False
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnHide = FormHide
   PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TLabel
-    Left = 32
-    Top = 8
-    Width = 48
-    Height = 16
-    Caption = 'Label1'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clMaroon
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = [fsBold]
-    ParentFont = False
-  end
-  object Label2: TLabel
-    Left = 24
-    Top = 152
-    Width = 18
-    Height = 16
-    Caption = '      '
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object Label3: TLabel
-    Left = 32
-    Top = 88
-    Width = 29
-    Height = 16
-    Caption = 'Slow'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object Label4: TLabel
-    Left = 400
-    Top = 88
-    Width = 26
-    Height = 16
-    Caption = 'Fast'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object Button1: TButton
-    Left = 88
-    Top = 32
-    Width = 265
-    Height = 41
-    Caption = 'Close'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 0
-    OnClick = Button1Click
-  end
-  object Memo1: TMemo
+  object Panel1: TPanel
     Left = 0
-    Top = 184
-    Width = 457
-    Height = 243
-    Align = alBottom
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clMaroon
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = [fsBold]
-    Lines.Strings = (
-      'Memo1'
-      'Memo2'
-      'Memo3'
-      'Memo4'
-      'Memo5')
-    ParentFont = False
-    ScrollBars = ssBoth
-    TabOrder = 2
-    WordWrap = False
+    Top = 0
+    Width = 468
+    Height = 177
+    Align = alTop
+    BevelOuter = bvNone
+    Caption = ' '
+    TabOrder = 0
+    object Label1: TLabel
+      Left = 32
+      Top = 8
+      Width = 48
+      Height = 16
+      Caption = 'Label1'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clMaroon
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object Label2: TLabel
+      Left = 24
+      Top = 152
+      Width = 18
+      Height = 16
+      Caption = '      '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label3: TLabel
+      Left = 32
+      Top = 88
+      Width = 29
+      Height = 16
+      Caption = 'Slow'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label4: TLabel
+      Left = 400
+      Top = 88
+      Width = 26
+      Height = 16
+      Caption = 'Fast'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Button1: TButton
+      Left = 88
+      Top = 32
+      Width = 265
+      Height = 41
+      Caption = 'Close'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      OnClick = Button1Click
+    end
+    object TrackBar1: TTrackBar
+      Left = 64
+      Top = 88
+      Width = 313
+      Height = 33
+      Position = 5
+      TabOrder = 1
+      OnChange = TrackBar1Change
+    end
+    object CheckBox1: TCheckBox
+      Left = 72
+      Top = 128
+      Width = 121
+      Height = 17
+      Caption = 'Pause crawling'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 2
+    end
+    object CheckBox2: TCheckBox
+      Left = 232
+      Top = 128
+      Width = 121
+      Height = 17
+      Caption = 'Silent Warnings'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 3
+    end
   end
-  object TrackBar1: TTrackBar
-    Left = 64
-    Top = 88
-    Width = 313
-    Height = 33
-    Position = 5
+  object Panel2: TPanel
+    Left = 0
+    Top = 177
+    Width = 468
+    Height = 221
+    Align = alClient
+    BevelOuter = bvNone
+    BorderWidth = 8
+    Caption = ' '
     TabOrder = 1
-    OnChange = TrackBar1Change
-  end
-  object CheckBox1: TCheckBox
-    Left = 72
-    Top = 128
-    Width = 121
-    Height = 17
-    Caption = 'Pause crawling'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 3
+    object PageControl1: TPageControl
+      Left = 8
+      Top = 8
+      Width = 452
+      Height = 205
+      ActivePage = TabSheet3
+      Align = alClient
+      TabOrder = 0
+      object TabSheet1: TTabSheet
+        Caption = 'Error Messages'
+        object Memo1: TMemo
+          Left = 0
+          Top = 0
+          Width = 444
+          Height = 177
+          Align = alClient
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clMaroon
+          Font.Height = -13
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          Lines.Strings = (
+            'Memo1'
+            'Memo2'
+            'Memo3'
+            'Memo4'
+            'Memo5')
+          ParentFont = False
+          ScrollBars = ssBoth
+          TabOrder = 0
+          WordWrap = False
+        end
+      end
+      object TabSheet2: TTabSheet
+        Caption = 'Log'
+        ImageIndex = 1
+        object Memo2: TMemo
+          Left = 0
+          Top = 0
+          Width = 444
+          Height = 177
+          Align = alClient
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'MS Sans Serif'
+          Font.Style = [fsBold]
+          Lines.Strings = (
+            'Memo1'
+            'Memo2'
+            'Memo3'
+            'Memo4'
+            'Memo5')
+          ParentFont = False
+          ScrollBars = ssBoth
+          TabOrder = 0
+          WordWrap = False
+        end
+      end
+      object TabSheet3: TTabSheet
+        Caption = 'Statistics'
+        ImageIndex = 2
+        object Label5: TLabel
+          Left = 16
+          Top = 16
+          Width = 85
+          Height = 13
+          Caption = 'Type 1 (old) hits: '
+          FocusControl = Edit1
+        end
+        object Label6: TLabel
+          Left = 16
+          Top = 48
+          Width = 91
+          Height = 13
+          Caption = 'Type 2 (new) hits: '
+          FocusControl = Edit2
+        end
+        object StatisticsLabel: TLabel
+          Left = 24
+          Top = 88
+          Width = 153
+          Height = 13
+          Caption = '                                                   '
+        end
+        object SuccessLabel: TLabel
+          Left = 24
+          Top = 104
+          Width = 153
+          Height = 13
+          Caption = '                                                   '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object Edit1: TEdit
+          Left = 108
+          Top = 16
+          Width = 121
+          Height = 21
+          ReadOnly = True
+          TabOrder = 0
+          Text = '0'
+        end
+        object Edit2: TEdit
+          Left = 108
+          Top = 48
+          Width = 121
+          Height = 21
+          ReadOnly = True
+          TabOrder = 1
+          Text = '0'
+        end
+      end
+    end
   end
   object CrawlerTimer: TTimer
     Enabled = False

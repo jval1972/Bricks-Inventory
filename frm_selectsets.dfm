@@ -1,8 +1,8 @@
 object SelectSetsForm: TSelectSetsForm
   Left = 305
   Top = 117
-  Width = 356
-  Height = 331
+  Width = 364
+  Height = 465
   BorderIcons = [biSystemMenu]
   Caption = 'Select Sets'
   Color = clBtnFace
@@ -547,8 +547,8 @@ object SelectSetsForm: TSelectSetsForm
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 248
-    Width = 340
+    Top = 382
+    Width = 348
     Height = 44
     Align = alBottom
     BevelOuter = bvNone
@@ -561,7 +561,7 @@ object SelectSetsForm: TSelectSetsForm
     ParentFont = False
     TabOrder = 0
     object Panel2: TPanel
-      Left = 136
+      Left = 144
       Top = 0
       Width = 204
       Height = 44
@@ -594,8 +594,8 @@ object SelectSetsForm: TSelectSetsForm
   object Panel3: TPanel
     Left = 0
     Top = 0
-    Width = 340
-    Height = 248
+    Width = 348
+    Height = 382
     Align = alClient
     BevelOuter = bvNone
     BevelWidth = 5
@@ -611,8 +611,8 @@ object SelectSetsForm: TSelectSetsForm
     object CheckListBox1: TCheckListBox
       Left = 8
       Top = 8
-      Width = 324
-      Height = 232
+      Width = 332
+      Height = 366
       Align = alClient
       ItemHeight = 16
       TabOrder = 0

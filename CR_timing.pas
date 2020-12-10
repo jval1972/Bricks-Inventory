@@ -8,15 +8,29 @@ uses
 
 type
   TForm1 = class(TForm)
-    CrawlerTimer: TTimer;
-    Button1: TButton;
+    Panel1: TPanel;
     Label1: TLabel;
-    Memo1: TMemo;
-    TrackBar1: TTrackBar;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
+    Button1: TButton;
+    TrackBar1: TTrackBar;
     CheckBox1: TCheckBox;
+    CrawlerTimer: TTimer;
+    Panel2: TPanel;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    Memo1: TMemo;
+    TabSheet2: TTabSheet;
+    Memo2: TMemo;
+    TabSheet3: TTabSheet;
+    Label5: TLabel;
+    Edit1: TEdit;
+    Label6: TLabel;
+    Edit2: TEdit;
+    StatisticsLabel: TLabel;
+    CheckBox2: TCheckBox;
+    SuccessLabel: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure CrawlerTimerTimer(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -28,6 +42,9 @@ type
  //   tr: TThreadComponent;
     doabort: boolean;
     cancrowl: boolean;
+    cnt_total, cnt_success: integer;
+    cont_success, cont_fail: integer;
+    procedure CrawlerStep;
   public
     { Public declarations }
     crawling: Boolean;
@@ -41,7 +58,7 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_db, bi_globals, bi_crawler, main;
+  bi_db, bi_globals, bi_crawler, bi_tmp;
 
 function InputBox(const ACaption, APrompt, ADefault: string): string;
 begin
@@ -54,6 +71,7 @@ var
   crfile: string;
   ACaption, APrompt, ADefault: string;
 begin
+  I_InitTempFiles;
   cancrowl := false;
   ACaption := 'Crawler file:';
   APrompt := 'Give the crawler file';
@@ -64,6 +82,7 @@ begin
     crfile := ADefault;
     Label1.Caption := crfile;
     Memo1.Lines.Clear;
+    Memo2.Lines.Clear;
     db := TSetsDatabase.Create;
     db.InitCreate(crfile);
     db.LoadFromDisk(basedefault + 'db\db_set_pieces.txt');
@@ -74,9 +93,16 @@ begin
   begin
     Label1.Caption := '';
     Memo1.Lines.Clear;
+    Memo2.Lines.Clear;
     CrawlerTimer.Interval := 1;
     Close;
   end;
+
+  cnt_total := 0;
+  cnt_success := 0;
+
+  cont_success := 0;
+  cont_fail := 0;
 
   CrawlerTimer.Enabled := true;
  { tr := TThreadComponent.Create(nil);
@@ -85,13 +111,15 @@ begin
   tr.Enabled := true;  }
 end;
 
-procedure TForm1.CrawlerTimerTimer(Sender: TObject);
+procedure TForm1.CrawlerStep;
 begin
   if doabort then
   begin
     Close;
-    exit;
+    Exit;
   end;
+
+  Sleep(0);
 
   Label1.Font.Color := clBlack;
   Label1.Update;
@@ -120,27 +148,93 @@ begin
     db.Crawler;
     if USDwarning then
     begin
-      Beep;
-      Memo1.Lines.Add('Warnign - USD values (' + db.lastcrawlpiece + ') - time=' + FormatDateTime('c', Now));
+      if not CheckBox2.Checked then
+        Beep;
+      Memo1.Lines.Add('Warning - USD values (' + db.lastcrawlpiece + ') - time=' + FormatDateTime('c', Now));
     end;
+
     if FAILwarning then
     begin
-      Beep;
-      Memo1.Lines.Add('Warnign - Failed to access priceguide (' + db.lastcrawlpiece + ') - time=' + FormatDateTime('c', Now));
+      cont_success := 0;
+      inc(cont_fail);
+    end
+    else
+    begin
+      inc(cont_success);
+      cont_fail := 0;
     end;
-    while Memo1.Lines.Count > 200 do
+
+    if FAILwarning then
+    begin
+      if not CheckBox2.Checked then
+        Beep;
+      Memo1.Lines.Add('Warning - Failed to access priceguide (' + db.lastcrawlpiece + ') - time=' + FormatDateTime('c', Now));
+    end;
+    while Memo1.Lines.Count > 210 do
+    repeat
       Memo1.Lines.Delete(0);
+    until Memo1.Lines.Count <= 200;
+    if not FAILwarning then
+    begin
+      inc(cnt_success);
+      Memo2.Lines.Add('Read priceguide: ' + db.lastcrawlpiece);
+    end;
+    while Memo2.Lines.Count > 210 do
+    repeat
+      Memo2.Lines.Delete(0);
+    until Memo2.Lines.Count <= 200;
+    inc(cnt_total);
+
     Label1.Font.Color := clBlack;
     Label1.Update;
     Label2.Caption := db.lastcrawlpiece;
     Label2.Update;
     crawling := false;
+    Edit1.Text := IntToStr(type1_pg_hits);
+    Edit1.Update;
+    Edit2.Text := IntToStr(type2_pg_hits);
+    Edit2.Update;
+    if cnt_total > 0 then
+    begin
+      StatisticsLabel.Caption := 'Success hits = ' + IntToStr(cnt_success) + '/' + IntToStr(cnt_total) + Format(' (%2.3f%s)', [cnt_success / cnt_total * 100, '%']);
+      StatisticsLabel.Update;
+    end;
+
+    if cont_success > 0 then
+    begin
+      SuccessLabel.Caption := Format('%d continuous hits succeded', [cont_success]);
+      SuccessLabel.Font.Color := RGB(0, 128, 0);
+      SuccessLabel.Update;
+    end
+    else if cont_fail > 0 then
+    begin
+      SuccessLabel.Caption := Format('%d continuous hits failed', [cont_fail]);
+      SuccessLabel.Font.Color := RGB(255, 0, 0);
+      SuccessLabel.Update;
+    end;
   except
     crawling := false;
     cancrowl := true;
     Memo1.Lines.Add('Exception at ' + FormatDateTime('c', Now));
-    if Memo1.Lines.Count > 5 then
+    if Memo1.Lines.Count > 210 then
+    repeat
       Memo1.Lines.Delete(0);
+    until Memo1.Lines.Count <= 200;
+  end;
+end;
+
+procedure TForm1.CrawlerTimerTimer(Sender: TObject);
+begin
+  CrawlerStep;
+  if (last_pg_hit = 2) {and (not FAILWarning)} then
+  begin
+    CrawlerStep;
+    if (last_pg_hit = 2) {and (not FAILWarning)} then
+    begin
+      CrawlerStep;
+      if (last_pg_hit = 2) {and (not FAILWarning)} then
+        CrawlerStep;
+    end;
   end;
 end;
 
@@ -152,10 +246,12 @@ begin
     CrawlerTimer.Enabled := false;
     db.Free;
   end;
+  I_ShutDownTempFiles;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
+  db.SaveCrawlerData;
   Close;
 end;
 

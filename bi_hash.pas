@@ -1,3 +1,31 @@
+//------------------------------------------------------------------------------
+//
+//  BrickInventory: A tool for managing your brick collection
+//  Copyright (C) 2014-2018 by Jim Valavanis
+//
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, inc., 59 Temple Place - Suite 330, Boston, MA
+//  02111-1307, USA.
+//
+// DESCRIPTION:
+//    Hash list class
+//
+//------------------------------------------------------------------------------
+//  E-Mail: jvalavanis@gmail.com
+//  Site  : https://sourceforge.net/projects/brickinventory/
+//------------------------------------------------------------------------------
+
 unit bi_hash;
 
 interface
@@ -17,10 +45,12 @@ type
     constructor Create; virtual;
     destructor Destroy; override;
     procedure AssignStringList(const s: TStringList);
+    procedure AssignStringListU(const s: TStringList);
     procedure Insert(const str: string; const p: integer);
     procedure Clear;
     function GetPos(const value: string): integer;
     function CheckPos(const value: string): integer;
+    function CheckPosU(const value: string): integer;
     property List: TStringList read fList;
   end;
 
@@ -28,11 +58,13 @@ type
   THashStringList = class(TStringList)
   protected
     fhash: THashTable;
+    fhashU: THashTable;
     procedure InsertItem(Index: Integer; const S: string; AObject: TObject); override;
   public
     constructor Create;
     destructor Destroy; override;
     function IndexOf(const S: string): Integer; override;
+    function IndexOfUCS(const S: string): Integer;
     procedure RebuiltHash;
   end;
 
@@ -106,6 +138,22 @@ begin
   for i := 0 to flist.Count - 1 do
   begin
     h := Hash(flist.Strings[i]);
+    if positions[h] = nil then
+      positions[h] := TDNumberList.Create;
+    positions[h].Add(i);
+  end;
+end;
+
+procedure THashTable.AssignStringListU(const s: TStringList);
+var
+  i: integer;
+  h: integer;
+begin
+  Clear;
+  flist := s;
+  for i := 0 to flist.Count - 1 do
+  begin
+    h := Hash(UpperCase(flist.Strings[i]));
     if positions[h] = nil then
       positions[h] := TDNumberList.Create;
     positions[h].Add(i);
@@ -187,17 +235,49 @@ begin
   result := -1;
 end;
 
+function THashTable.CheckPosU(const value: string): integer;
+var
+  h: integer;
+  i: integer;
+  n: integer;
+  check: string;
+begin
+  check := UpperCase(value);
+  h := Hash(check);
+  if positions[h] = nil then
+  begin
+    result := -1;
+    exit;
+  end;
+
+  for i := 0 to positions[h].Count - 1 do
+  begin
+    n := positions[h].Numbers[i];
+    if (n > -1) and (n < fList.Count) then
+      if UpperCase(flist.Strings[n]) = check then
+      begin
+        result := n;
+        exit;
+      end;
+  end;
+
+  result := -1;
+end;
+
 constructor THashStringList.Create;
 begin
   fhash := THashTable.Create;
+  fhashU := THashTable.Create;
   Inherited Create;
   fhash.AssignStringList(self);
+  fhashU.AssignStringListU(self);
 end;
 
 destructor THashStringList.Destroy;
 begin
   Inherited;
   fhash.Free;
+  fhashU.Free;
 end;
 
 procedure THashStringList.InsertItem(Index: Integer; const S: string; AObject: TObject);
@@ -209,10 +289,38 @@ begin
   if rebuildhash then
   begin
     if not Sorted then
+    begin
       fhash.AssignStringList(self);
+      fhashU.AssignStringListU(self);
+    end;
   end
   else
+  begin
     fhash.Insert(s, Index);
+    fhashU.Insert(UpperCase(s), Index);
+  end;
+end;
+
+function THashStringList.IndexOfUCS(const S: string): Integer;
+begin
+  if Sorted then
+  begin
+    if not Find(S, Result) then
+      Result := -1
+    else
+      exit;
+  end;
+
+  if Count = 0 then
+  begin
+    Result := -1;
+    exit;
+  end;
+
+  result := fhash.CheckPos(S);
+
+  if result = -1 then
+    result := fhashU.CheckPosU(S);
 end;
 
 function THashStringList.IndexOf(const S: string): Integer;

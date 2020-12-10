@@ -1,3 +1,31 @@
+//------------------------------------------------------------------------------
+//
+//  BrickInventory: A tool for managing your brick collection
+//  Copyright (C) 2014-2018 by Jim Valavanis
+//
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, inc., 59 Temple Place - Suite 330, Boston, MA
+//  02111-1307, USA.
+//
+// DESCRIPTION:
+//    Multithreading support
+//
+//------------------------------------------------------------------------------
+//  E-Mail: jvalavanis@gmail.com
+//  Site  : https://sourceforge.net/projects/brickinventory/
+//------------------------------------------------------------------------------
+
 unit bi_threads;
 
 interface
@@ -24,9 +52,10 @@ type
     fstatus: integer;
     fterminated: boolean;
   public
-    constructor Create(const func: threadfunc_t);
+    constructor Create(const func: threadfunc_t = nil);
     destructor Destroy; override;
-    procedure Activate(const parms: pointer);
+    procedure Activate(const parms: pointer); overload;
+    procedure Activate(const func: threadfunc_t; const parms: pointer); overload;
     procedure Wait;
     function CheckJobDone: Boolean;
     function IsIdle: Boolean;
@@ -62,7 +91,7 @@ begin
   end;
 end;
 
-constructor TDThread.Create(const func: threadfunc_t);
+constructor TDThread.Create(const func: threadfunc_t = nil);
 begin
   fterminated := false;
   ffunc := func;
@@ -84,10 +113,18 @@ end;
 // JVAL: Should check for fstatus, but it is not called while active
 procedure TDThread.Activate(const parms: pointer);
 begin
+  if not Assigned(ffunc) then
+    I_Error('TDThread.Activate(): Null function pointer');
   fparms := parms;
   fstatus := THR_ACTIVE;
   suspended := false;
   ResumeThread(fid);
+end;
+
+procedure TDThread.Activate(const func: threadfunc_t; const parms: pointer);
+begin
+  ffunc := func;
+  Activate(parms);
 end;
 
 procedure TDThread.Wait;

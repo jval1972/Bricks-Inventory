@@ -37,16 +37,16 @@ implementation
 procedure TPrnStatusForm.DoPreview(AViewer: ThtmlViewer; AMFPrinter: TMetaFilePrinter;
               var Abort: boolean);
 begin
-Viewer := AViewer;
-MFPrinter := AMFPrinter;
-Viewer.OnPageEvent := PageEvent;
-try                                   
-  Show;
-  Viewer.PrintPreview(MFPrinter);
-  Hide;
-  Abort := Canceled;
-finally
-  Viewer.OnPageEvent := Nil;      
+  Viewer := AViewer;
+  MFPrinter := AMFPrinter;
+  Viewer.OnPageEvent := PageEvent;
+  try
+    Show;
+    Viewer.PrintPreview(MFPrinter);
+    Hide;
+    Abort := Canceled;
+  finally
+    Viewer.OnPageEvent := nil;
   end;
 end;
 

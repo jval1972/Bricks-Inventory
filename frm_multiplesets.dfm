@@ -4,8 +4,8 @@ object MultipleSetsForm: TMultipleSetsForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Multiple Sets List'
-  ClientHeight = 250
-  ClientWidth = 229
+  ClientHeight = 422
+  ClientWidth = 236
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -565,7 +565,7 @@ object MultipleSetsForm: TMultipleSetsForm
     Left = 18
     Top = 30
     Width = 121
-    Height = 155
+    Height = 323
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -13
@@ -576,8 +576,8 @@ object MultipleSetsForm: TMultipleSetsForm
     TabOrder = 0
   end
   object Button1: TButton
-    Left = 48
-    Top = 204
+    Left = 40
+    Top = 372
     Width = 56
     Height = 29
     Caption = 'OK'
@@ -592,8 +592,8 @@ object MultipleSetsForm: TMultipleSetsForm
     TabOrder = 1
   end
   object Button2: TButton
-    Left = 126
-    Top = 204
+    Left = 118
+    Top = 372
     Width = 56
     Height = 29
     Cancel = True

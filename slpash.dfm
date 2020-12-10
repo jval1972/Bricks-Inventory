@@ -5,8 +5,8 @@ object SplashForm: TSplashForm
   BorderStyle = bsNone
   BorderWidth = 1
   Caption = 'Loading...'
-  ClientHeight = 72
-  ClientWidth = 329
+  ClientHeight = 81
+  ClientWidth = 332
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -551,8 +551,8 @@ object SplashForm: TSplashForm
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 329
-    Height = 72
+    Width = 332
+    Height = 81
     Align = alClient
     Caption = ' '
     TabOrder = 0
@@ -565,6 +565,21 @@ object SplashForm: TSplashForm
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
+      Font.Name = 'MS Sans Serif'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object Label2: TLabel
+      Left = 24
+      Top = 56
+      Width = 289
+      Height = 16
+      Alignment = taCenter
+      AutoSize = False
+      Caption = '-'
+      Font.Charset = GREEK_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
       Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
       ParentFont = False

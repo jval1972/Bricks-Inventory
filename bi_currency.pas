@@ -82,7 +82,7 @@ type
 implementation
 
 uses
-  bi_delphi, bi_utils, DateUtils, StrUtils, UrlMon, bi_tmp;
+  bi_delphi, bi_utils, DateUtils, StrUtils, UrlMon, bi_tmp, bi_cachefile;
 
 constructor TCurrency.Create(const afile: string);
 var

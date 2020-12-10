@@ -5,7 +5,7 @@ object EditLugbulkPriceForm: TEditLugbulkPriceForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Lugbulk Price'
-  ClientHeight = 221
+  ClientHeight = 251
   ClientWidth = 537
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -545,18 +545,12 @@ object EditLugbulkPriceForm: TEditLugbulkPriceForm
     0000000000000000000000000000000000000000000000000000000000000000
     000000000000000000000000000000000000000000000000000000000000}
   OldCreateOrder = False
+  Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 13
-  object Image1: TImage
-    Left = 16
-    Top = 8
-    Width = 105
-    Height = 105
-    AutoSize = True
-  end
   object Label5: TLabel
     Left = 16
-    Top = 144
+    Top = 168
     Width = 55
     Height = 16
     Caption = 'Price ('#8364'): '
@@ -570,7 +564,7 @@ object EditLugbulkPriceForm: TEditLugbulkPriceForm
   end
   object YearLabel: TLabel
     Left = 80
-    Top = 176
+    Top = 200
     Width = 54
     Height = 16
     Caption = '{YEAR}'
@@ -582,9 +576,9 @@ object EditLugbulkPriceForm: TEditLugbulkPriceForm
     ParentFont = False
   end
   object Label1: TLabel
-    Left = 142
+    Left = 168
     Top = 16
-    Width = 355
+    Width = 329
     Height = 81
     AutoSize = False
     Caption = '       '
@@ -597,9 +591,9 @@ object EditLugbulkPriceForm: TEditLugbulkPriceForm
     WordWrap = True
   end
   object Label4: TLabel
-    Left = 176
+    Left = 208
     Top = 96
-    Width = 313
+    Width = 281
     Height = 25
     AutoSize = False
     Caption = '       '
@@ -613,7 +607,7 @@ object EditLugbulkPriceForm: TEditLugbulkPriceForm
   end
   object Label2: TLabel
     Left = 16
-    Top = 176
+    Top = 200
     Width = 35
     Height = 16
     Caption = 'Year: '
@@ -627,7 +621,7 @@ object EditLugbulkPriceForm: TEditLugbulkPriceForm
   end
   object Button1: TButton
     Left = 420
-    Top = 176
+    Top = 208
     Width = 75
     Height = 25
     Caption = 'OK'
@@ -642,7 +636,7 @@ object EditLugbulkPriceForm: TEditLugbulkPriceForm
   end
   object Button2: TButton
     Left = 332
-    Top = 176
+    Top = 208
     Width = 75
     Height = 25
     Cancel = True
@@ -658,7 +652,7 @@ object EditLugbulkPriceForm: TEditLugbulkPriceForm
   end
   object Edit1: TEdit
     Left = 80
-    Top = 144
+    Top = 168
     Width = 73
     Height = 24
     BiDiMode = bdLeftToRight
@@ -674,7 +668,7 @@ object EditLugbulkPriceForm: TEditLugbulkPriceForm
     OnKeyPress = Edit1KeyPress
   end
   object Panel1: TPanel
-    Left = 136
+    Left = 160
     Top = 96
     Width = 33
     Height = 33
@@ -686,5 +680,26 @@ object EditLugbulkPriceForm: TEditLugbulkPriceForm
     Font.Style = []
     ParentFont = False
     TabOrder = 3
+  end
+  object ScrollBox1: TScrollBox
+    Left = 16
+    Top = 8
+    Width = 129
+    Height = 129
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 4
+    object Image1: TImage
+      Left = 0
+      Top = 0
+      Width = 105
+      Height = 105
+      AutoSize = True
+      OnDblClick = Image1DblClick
+    end
   end
 end

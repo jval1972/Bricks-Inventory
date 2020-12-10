@@ -112,7 +112,16 @@ uses
   bi_defs in 'bi_defs.pas',
   frm_selectparttype in 'frm_selectparttype.pas' {SelectPartTypeForm},
   bi_data in 'bi_data.pas',
-  frm_editlugbulkprice in 'frm_editlugbulkprice.pas' {EditLugbulkPriceForm};
+  frm_editlugbulkprice in 'frm_editlugbulkprice.pas' {EditLugbulkPriceForm},
+  bi_cachefile in 'bi_cachefile.pas',
+  frm_editbllink in 'frm_editbllink.pas' {EditBricklinkLinkForm},
+  bi_pghistory in 'bi_pghistory.pas',
+  bi_instructions in 'bi_instructions.pas',
+  bi_pdf2jpeg in 'bi_pdf2jpeg.pas',
+  bi_wzipfile in 'bi_wzipfile.pas',
+  frm_pdfinstructions in 'frm_pdfinstructions.pas' {ImportPDFForm},
+  bi_imagerotate in 'bi_imagerotate.pas',
+  buildinexcludes in 'buildinexcludes.pas';
 
 {$R *.res}
 
@@ -121,5 +130,6 @@ begin
   Application.Title := 'Bricks Inventory';
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TTimingForm, TimingForm);
+  Application.CreateForm(TImportPDFForm, ImportPDFForm);
   Application.Run;
 end.

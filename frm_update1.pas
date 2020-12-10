@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -57,16 +57,22 @@ type
     Panel4: TPanel;
     Label6: TLabel;
     Label7: TLabel;
+    Button8: TButton;
+    Label8: TLabel;
+    Edit6: TEdit;
     procedure LevelNumEditKeyPress(Sender: TObject; var Key: Char);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
     procedure Button7Click(Sender: TObject);
+    procedure Button8Click(Sender: TObject);
   private
     { Private declarations }
     procedure AddInvSetRec(const s: string);
+    procedure AddInvMinifigRec(const s: string);
     procedure AddNoInvSetRec(const s: string);
+    procedure AddNoInvMinifigRec(const s: string);
     procedure UpdateLabel;
   public
     { Public declarations }
@@ -104,13 +110,13 @@ begin
   if not (Key in [#8, '0'..'9']) then
   begin
     Key := #0;
-    exit;
+    Exit;
   end;
   if Key in ['0'..'9'] then
     if Length((Sender as TEdit).Text) > 3 then
     begin
       Key := #0;
-      exit;
+      Exit;
     end;
 end;
 
@@ -130,11 +136,43 @@ begin
   UpdateLabel;
 end;
 
+procedure TUpdateForm1.AddInvMinifigRec(const s: string);
+var
+  s1: string;
+begin
+  s1 := 'downloadminifignorefresh/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  s1 := 'sinv/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  s1 := 'spiece/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  UpdateLabel;
+end;
+
 procedure TUpdateForm1.AddNoInvSetRec(const s: string);
 var
   s1: string;
 begin
   s1 := 'UpdateSetAsPartFromBricklinknorefresh/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  s1 := 'UpdateSetAssetsFromBricklinknorefresh/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  s1 := 'spiece/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  UpdateLabel;
+end;
+
+procedure TUpdateForm1.AddNoInvMinifigRec(const s: string);
+var
+  s1: string;
+begin
+  s1 := 'UpdateMinifigAsPartFromBricklinknorefresh/' + s;
   if Memo1.Lines.IndexOf(s1) = -1 then
     Memo1.Lines.Add(s1);
   s1 := 'spiece/' + s;
@@ -153,6 +191,7 @@ begin
   num := StrToIntDef(Edit1.Text, -1);
   if num <= 0 then
   begin
+    try Edit1.SetFocus; except end;
     MessageBeep(MB_ICONERROR);
     Exit;
   end;
@@ -181,6 +220,7 @@ begin
   num := StrToIntDef(Edit2.Text, -1);
   if num <= 0 then
   begin
+    try Edit2.SetFocus; except end;
     MessageBeep(MB_ICONERROR);
     Exit;
   end;
@@ -191,7 +231,7 @@ begin
       lnk := 'https://' + BL_NET + '/catalogList.asp?pg=' + itoa(i) + '&viewInv=Y&sortBy=D&sortAsc=D&itemBrand=1000&catType=M';
       lst := db.QryNewInventoriesFromBricklink(lnk, '<a href="catalogItemInv.asp?M=');
       for j := 0 to lst.Count - 1 do
-        AddInvSetRec(lst.Strings[j]);
+        AddInvMinifigRec(lst.Strings[j]);
       lst.Free;
     end;
   finally
@@ -209,6 +249,7 @@ begin
   num := StrToIntDef(Edit3.Text, -1);
   if num <= 0 then
   begin
+    try Edit3.SetFocus; except end;
     MessageBeep(MB_ICONERROR);
     Exit;
   end;
@@ -237,6 +278,7 @@ begin
   num := StrToIntDef(Edit4.Text, -1);
   if num <= 0 then
   begin
+    try Edit4.SetFocus; except end;
     MessageBeep(MB_ICONERROR);
     Exit;
   end;
@@ -265,6 +307,7 @@ begin
   num := StrToIntDef(Edit5.Text, -1);
   if num <= 0 then
   begin
+    try Edit5.SetFocus; except end;
     MessageBeep(MB_ICONERROR);
     Exit;
   end;
@@ -287,6 +330,35 @@ procedure TUpdateForm1.UpdateLabel;
 begin
   Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
   Label7.Update;
+end;
+
+procedure TUpdateForm1.Button8Click(Sender: TObject);
+var
+  lnk: string;
+  i, j: integer;
+  num: integer;
+  lst: TStringList;
+begin
+  num := StrToIntDef(Edit6.Text, -1);
+  if num <= 0 then
+  begin
+    MessageBeep(MB_ICONERROR);
+    try Edit6.SetFocus; except end;
+    Exit;
+  end;
+  Screen.Cursor := crHourglass;
+  try
+    for i := 1 to num do
+    begin
+      lnk := 'https://' + BL_NET + '/catalogList.asp?v=1&pg=' + itoa(i) + '&itemInvUserID=0&sortBy=D&sortAsc=D&itemBrand=1000&catType=M';
+      lst := db.QryNewSetAsPartFromBricklink(lnk, '<a href="/v2/catalog/catalogitem.page?M=');
+      for j := 0 to lst.Count - 1 do
+        AddNoInvMinifigRec(lst.Strings[j]);
+      lst.Free;
+    end;
+  finally
+    Screen.Cursor := crDefault;
+  end;
 end;
 
 end.

@@ -32,7 +32,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, Buttons, CheckLst;
+  Dialogs, StdCtrls, ExtCtrls, Buttons, CheckLst, ComCtrls;
 
 type
   TEditMoldForm = class(TForm)
@@ -53,10 +53,6 @@ type
     Panel7: TPanel;
     ComboBox1: TComboBox;
     Label2: TLabel;
-    CheckListBox1: TCheckListBox;
-    Label3: TLabel;
-    ColorPanel: TPanel;
-    ColorLabel: TLabel;
     Label4: TLabel;
     WeightEdit: TEdit;
     SpeedButton1: TSpeedButton;
@@ -65,10 +61,20 @@ type
     NewNameEdit: TEdit;
     Label5: TLabel;
     ColorAssetsLabel: TLabel;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    ColorLabel1: TLabel;
+    ColorLabel2: TLabel;
+    ColorLabel3: TLabel;
+    CheckListBox1: TCheckListBox;
+    ColorPanel: TPanel;
+    TabSheet2: TTabSheet;
+    Memo1: TMemo;
     procedure AutodetectButtonClick(Sender: TObject);
     procedure Image1DblClick(Sender: TObject);
     procedure CheckListBox1Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
   public
@@ -92,7 +98,7 @@ begin
   r := GetRValue(cl);
   g := GetGValue(cl);
   b := GetBValue(cl);
-  result := RGB(b, g, r);
+  Result := RGB(b, g, r);
 end;
 
 function EditMold(const apart: string): boolean;
@@ -108,6 +114,13 @@ var
   catcheck: string;
   part: string;
   pi: TPieceInfo;
+  pci: TPieceColorInfo;
+  initialinv, afterinv: string;
+  hassetinv: boolean;
+  hadinstructions: boolean;
+  hadbox: boolean;
+  sinv: TBrickInventory;
+  yyyy: integer;
 
   procedure PanelCaption(const p: TPanel; const c: integer);
   begin
@@ -124,21 +137,24 @@ var
   end;
 
 begin
-  result := false;
+  Result := False;
+  if Trim(apart) = '' then
+    Exit;
+
   f := TEditMoldForm.Create(nil);
   try
     part := db.RebrickablePart(apart);
     kc := db.GetMoldKnownColors(part);
-    f.Panel1.Visible := false;
-    f.Panel2.Visible := false;
-    f.Panel3.Visible := false;
-    f.Panel4.Visible := false;
-    f.Panel5.Visible := false;
-    f.Panel6.Visible := false;
-    f.Panel7.Visible := false;
+    f.Panel1.Visible := False;
+    f.Panel2.Visible := False;
+    f.Panel3.Visible := False;
+    f.Panel4.Visible := False;
+    f.Panel5.Visible := False;
+    f.Panel6.Visible := False;
+    f.Panel7.Visible := False;
     if kc.Count > 0 then
     begin
-      f.Panel1.Visible := true;
+      f.Panel1.Visible := True;
       f.Panel1.Color := RGBInvert(db.Colors(kc.Numbers[0]).RGB);
       f.Panel1.Hint := db.Colors(kc.Numbers[0]).name;
       PanelCaption(f.Panel1, kc.Numbers[0]);
@@ -212,9 +228,12 @@ begin
             f.CheckListBox1.Checked[idx] := db.Colors(i).knownpieces.IndexOfUCS(part) >= 0;
           end;
     end;
+    hadinstructions := db.Colors(INSTRUCTIONCOLORINDEX).knownpieces.IndexOfUCS(part) >= 0;
+    hadbox := db.Colors(BOXCOLORINDEX).knownpieces.IndexOfUCS(part) >= 0;
+
     for i := 0 to f.CheckListBox1.Items.Count - 1 do
       if f.CheckListBox1.Checked[i] then
-        f.CheckListBox1.ItemEnabled[i] := false;
+        f.CheckListBox1.ItemEnabled[i] := False;
     if f.CheckListBox1.Items.Count > 0 then
     begin
       f.CheckListBox1.ItemIndex := 0;
@@ -233,14 +252,31 @@ begin
             idxcat := db.categories[i].name;
       end;
     end;
+    pi := db.PieceInfo(part);
     if idxcat = '' then
     begin
-      pi := db.PieceInfo(part);
       if pi <> nil then
         if pi.category >= 0 then
           if pi.category < MAXCATEGORIES then
             idxcat := db.categories[pi.category].name;
     end;
+
+    sinv := db.GetSetInventory(part);
+    if sinv <> nil then
+    begin
+      hassetinv := True;
+      f.Memo1.Lines.Text := sinv.AsText;
+    end
+    else
+    begin
+      hassetinv := False;
+      f.Memo1.Lines.Text := pi.InventoryAsText(-2);
+    end;
+
+    if f.Memo1.Lines.Count <= 1 then
+      initialinv := ''
+    else
+      initialinv := Trim(f.Memo1.Lines.Text);
     if idxcat <> '' then
     begin
       idx := f.ComboBox1.Items.IndexOf(idxcat);
@@ -277,7 +313,7 @@ begin
     begin
       Screen.Cursor := crHourglass;
       try
-        result := true;
+        Result := True;
         db.SetMoldName(part, f.Edit1.Text);
         if strupper(strtrim(f.AliasEdit.Text)) <> strupper(strtrim(initialalias)) then
           db.AddPieceAlias(f.AliasEdit.Text, part);
@@ -300,6 +336,40 @@ begin
             if db.GetColorIdFromName(f.CheckListBox1.Items.Strings[i], cc) then
               db.AddMoldColor(part, cc);
         db.UpdatePartWeight(part, atof(f.WeightEdit.Text));
+        if f.Memo1.Lines.Count <= 1 then
+          afterinv := ''
+        else
+          afterinv := Trim(f.Memo1.Lines.Text);
+        if afterinv <> initialinv then
+        begin
+          if hassetinv then
+            db.UpdateSet(part, afterinv)
+          else
+            db.SetPartInventory(part, afterinv);
+        end;
+        // Update new instructions and box year
+        if not hadinstructions then
+          if db.Colors(INSTRUCTIONCOLORINDEX).knownpieces.IndexOfUCS(part) >= 0 then
+          begin
+            yyyy := db.SetYear(part);
+            if (yyyy >= 1932) and (yyyy <= 2050) then
+            begin
+              pci := db.PieceColorInfo(part, INSTRUCTIONCOLORINDEX);
+              if pci <> nil then
+                db.SetItemYear(pci, yyyy);
+            end;
+          end;
+        if not hadbox then
+          if db.Colors(BOXCOLORINDEX).knownpieces.IndexOfUCS(part) >= 0 then
+          begin
+            yyyy := db.SetYear(part);
+            if (yyyy >= 1932) and (yyyy <= 2050) then
+            begin
+              pci := db.PieceColorInfo(part, BOXCOLORINDEX);
+              if pci <> nil then
+                db.SetItemYear(pci, yyyy);
+            end;
+          end;
       finally
         Screen.Cursor := crDefault;
       end;
@@ -354,18 +424,20 @@ begin
   idx := CheckListBox1.ItemIndex;
   if idx < 0 then
   begin
-    ColorPanel.Visible := false;
-    exit;
+    ColorPanel.Visible := False;
+    Exit;
   end;
 
   if not db.GetColorIdFromName(CheckListBox1.Items.Strings[idx], cc) then
   begin
-    ColorPanel.Visible := false;
-    exit;
+    ColorPanel.Visible := False;
+    Exit;
   end;
 
   ColorPanel.Color := RGBInvert(db.Colors(cc).RGB);
-  ColorLabel.Caption := itoa(cc) + '(BL=' + itoa(db.colors(cc).BrickLingColor) + ')';
+  ColorLabel1.Caption := itoa(cc);
+  ColorLabel2.Caption := '(BL=' + itoa(db.colors(cc).BrickLingColor) + ')';
+  ColorLabel3.Caption := '(RB=' + itoa(db.colors(cc).RebrickableColor) + ')'
 end;
 
 procedure TEditMoldForm.CheckListBox1Click(Sender: TObject);
@@ -406,9 +478,14 @@ begin
   if tmpweight > 0 then
   begin
     WeightEdit.Text := Format('%2.4f', [tmpweight]);
-    exit;
+    Exit;
   end;
   Beep;
+end;
+
+procedure TEditMoldForm.FormCreate(Sender: TObject);
+begin
+  PageControl1.ActivePageIndex := 0;
 end;
 
 end.

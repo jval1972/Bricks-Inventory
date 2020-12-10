@@ -106,13 +106,13 @@ begin
   if not (Key in [#8, '0'..'9']) then
   begin
     Key := #0;
-    exit;
+    Exit;
   end;
   if Key in ['0'..'9'] then
     if Length((Sender as TEdit).Text) > 3 then
     begin
       Key := #0;
-      exit;
+      Exit;
     end;
 end;
 

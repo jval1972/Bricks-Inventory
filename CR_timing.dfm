@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 163
-  Top = 0
+  Left = 165
+  Top = 115
   Width = 484
   Height = 437
   BorderIcons = [biSystemMenu, biMinimize]
@@ -274,7 +274,7 @@ object Form1: TForm1
       OnChange = TrackBar1Change
     end
     object CheckBox1: TCheckBox
-      Left = 72
+      Left = 32
       Top = 128
       Width = 121
       Height = 17
@@ -288,7 +288,7 @@ object Form1: TForm1
       TabOrder = 2
     end
     object CheckBox2: TCheckBox
-      Left = 232
+      Left = 160
       Top = 128
       Width = 121
       Height = 17
@@ -300,6 +300,20 @@ object Form1: TForm1
       Font.Style = []
       ParentFont = False
       TabOrder = 3
+    end
+    object CheckBox3: TCheckBox
+      Left = 288
+      Top = 128
+      Width = 121
+      Height = 17
+      Caption = 'Single batch'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 4
     end
   end
   object Panel2: TPanel
@@ -392,14 +406,14 @@ object Form1: TForm1
         end
         object StatisticsLabel: TLabel
           Left = 24
-          Top = 88
+          Top = 104
           Width = 153
           Height = 13
           Caption = '                                                   '
         end
         object SuccessLabel: TLabel
           Left = 24
-          Top = 104
+          Top = 120
           Width = 153
           Height = 13
           Caption = '                                                   '
@@ -409,6 +423,14 @@ object Form1: TForm1
           Font.Name = 'Tahoma'
           Font.Style = [fsBold]
           ParentFont = False
+        end
+        object Label7: TLabel
+          Left = 16
+          Top = 80
+          Width = 49
+          Height = 13
+          Caption = 'Links left: '
+          FocusControl = Edit3
         end
         object Edit1: TEdit
           Left = 108
@@ -426,6 +448,15 @@ object Form1: TForm1
           Height = 21
           ReadOnly = True
           TabOrder = 1
+          Text = '0'
+        end
+        object Edit3: TEdit
+          Left = 108
+          Top = 80
+          Width = 121
+          Height = 21
+          ReadOnly = True
+          TabOrder = 2
           Text = '0'
         end
       end

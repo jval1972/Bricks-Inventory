@@ -4,7 +4,7 @@ object EditMoldForm: TEditMoldForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Edit Piece'
-  ClientHeight = 593
+  ClientHeight = 633
   ClientWidth = 548
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -546,6 +546,7 @@ object EditMoldForm: TEditMoldForm
   OldCreateOrder = False
   Position = poScreenCenter
   ShowHint = True
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object AliasLabel: TLabel
@@ -569,33 +570,6 @@ object EditMoldForm: TEditMoldForm
     Height = 16
     Caption = 'Category: '
     FocusControl = ComboBox1
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object Label3: TLabel
-    Left = 24
-    Top = 304
-    Width = 85
-    Height = 16
-    Caption = 'Known colors: '
-    FocusControl = ComboBox1
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object ColorLabel: TLabel
-    Left = 424
-    Top = 440
-    Width = 66
-    Height = 16
-    Caption = '                      '
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
     Font.Height = -13
@@ -696,8 +670,8 @@ object EditMoldForm: TEditMoldForm
     WordWrap = True
   end
   object Button1: TButton
-    Left = 440
-    Top = 520
+    Left = 328
+    Top = 592
     Width = 75
     Height = 25
     Caption = 'OK'
@@ -713,7 +687,7 @@ object EditMoldForm: TEditMoldForm
   end
   object Button2: TButton
     Left = 440
-    Top = 552
+    Top = 592
     Width = 75
     Height = 25
     Cancel = True
@@ -905,29 +879,6 @@ object EditMoldForm: TEditMoldForm
     ParentFont = False
     TabOrder = 14
   end
-  object CheckListBox1: TCheckListBox
-    Left = 24
-    Top = 328
-    Width = 377
-    Height = 249
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ItemHeight = 16
-    ParentFont = False
-    TabOrder = 15
-    OnClick = CheckListBox1Click
-  end
-  object ColorPanel: TPanel
-    Left = 424
-    Top = 328
-    Width = 105
-    Height = 105
-    Caption = ' '
-    TabOrder = 16
-  end
   object WeightEdit: TEdit
     Left = 392
     Top = 264
@@ -939,7 +890,7 @@ object EditMoldForm: TEditMoldForm
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ParentFont = False
-    TabOrder = 17
+    TabOrder = 15
   end
   object Edit1: TEdit
     Left = 224
@@ -966,6 +917,100 @@ object EditMoldForm: TEditMoldForm
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ParentFont = False
-    TabOrder = 18
+    TabOrder = 16
+  end
+  object PageControl1: TPageControl
+    Left = 16
+    Top = 320
+    Width = 513
+    Height = 257
+    ActivePage = TabSheet2
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 17
+    object TabSheet1: TTabSheet
+      Caption = 'Known Colors'
+      object ColorLabel1: TLabel
+        Left = 391
+        Top = 133
+        Width = 66
+        Height = 16
+        Caption = '                      '
+        Font.Charset = GREEK_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+      end
+      object ColorLabel2: TLabel
+        Left = 391
+        Top = 149
+        Width = 66
+        Height = 16
+        Caption = '                      '
+        Font.Charset = GREEK_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+      end
+      object ColorLabel3: TLabel
+        Left = 391
+        Top = 165
+        Width = 66
+        Height = 16
+        Caption = '                      '
+        Font.Charset = GREEK_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+      end
+      object CheckListBox1: TCheckListBox
+        Left = 8
+        Top = 16
+        Width = 369
+        Height = 201
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ItemHeight = 16
+        ParentFont = False
+        TabOrder = 0
+        OnClick = CheckListBox1Click
+      end
+      object ColorPanel: TPanel
+        Left = 388
+        Top = 20
+        Width = 105
+        Height = 105
+        Caption = ' '
+        TabOrder = 1
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'Inventory'
+      ImageIndex = 1
+      object Memo1: TMemo
+        Left = 8
+        Top = 16
+        Width = 490
+        Height = 201
+        Lines.Strings = (
+          'Part,Color,Num')
+        ScrollBars = ssBoth
+        TabOrder = 0
+        WordWrap = False
+      end
+    end
   end
 end

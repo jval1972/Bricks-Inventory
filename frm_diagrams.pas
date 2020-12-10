@@ -183,7 +183,7 @@ type
     { Public declarations }
   end;
 
-procedure DiagramPiece(const part: string; const color: integer);
+procedure DiagramPiece(const part: string; const color: integer; const chid: integer = 5);
 
 procedure DiagramStorage(const storage: string);
 
@@ -194,661 +194,7 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_db, bi_delphi, bi_utils, DateUtils, StrUtils, bi_priceadjust, bi_orders,
-  bi_globals;
-
-type
-  parecarray_t = array[0..$1fff] of parecdate_t;
-  parecarray_p = ^parecarray_t;
-
-  extracacheinfo_t = record
-    dir: string[128];
-    date: TDateTime;
-  end;
-
-type
-  exclude_t = record
-    mindate: string[8];
-    maxdate: string[8];
-    part: string[64];
-    color: integer;
-    mindatedbl: double;
-    maxdatedbl: double;
-  end;
-  exclude_p = ^exclude_t;
-  exclude_a = array[0..$FFF] of exclude_t;
-  exclude_pa = ^exclude_a;
-
-const
-  NUMEXCLUDES = 41;
-
-var
-  excludes: array[0..NUMEXCLUDES - 1] of exclude_t = (
-    (
-      mindate: '20171126';
-      maxdate: '20171126';
-      part:    '';
-      color:   -2;
-    ),
-    (
-      mindate: '20180409';
-      maxdate: '20180409';
-      part:    '';
-      color:   -2;
-    ),
-    (
-      mindate: '20151009';
-      maxdate: '20151012';
-      part:    '';
-      color:   -2;
-    ),
-    (
-      mindate: '20141215';
-      maxdate: '20141215';
-      part:    '';
-      color:   -2;
-    ),
-    (
-      mindate: '20150227';
-      maxdate: '20150307';
-      part:    '';
-      color:   -2;
-    ),
-    (
-      mindate: '20150313';
-      maxdate: '20150316';
-      part:    '';
-      color:   -2;
-    ),
-    (
-      mindate: '20150323';
-      maxdate: '20150326';
-      part:    '';
-      color:   -2;
-    ),
-    (
-      mindate: '20150409';
-      maxdate: '20150411';
-      part:    '';
-      color:   -2;
-    ),
-    (
-      mindate: '20150424';
-      maxdate: '20150426';
-      part:    '';
-      color:   -2;
-    ),
-    (
-      mindate: '20150430';
-      maxdate: '20150501';
-      part:    '';
-      color:   -2;
-    ),
-    (
-      mindate: '20150523';
-      maxdate: '20150525';
-      part:    '';
-      color:   -2;
-    ),
-    (
-      mindate: '20150625';
-      maxdate: '20150628';
-      part:    '';
-      color:   -2;
-    ),
-    (
-      mindate: '20150731';
-      maxdate: '20150807';
-      part:    '';
-      color:   -2;
-    ),
-    (
-      mindate: '20180105';
-      maxdate: '20180105';
-      part:    '';
-      color:   2;
-    ),
-    (
-      mindate: '20180407';
-      maxdate: '20180407';
-      part:    '';
-      color:   2;
-    ),
-    (
-      mindate: '20180424';
-      maxdate: '20180424';
-      part:    '';
-      color:   -2;
-    ),
-    (
-      mindate: '20171126';
-      maxdate: '20171127';
-      part:    '6014b';
-      color:   4;
-    ),
-    (
-      mindate: '20171219';
-      maxdate: '20171221';
-      part:    '3069b';
-      color:   82;
-    ),
-    (
-      mindate: '20180328';
-      maxdate: '20180329';
-      part:    '4858';
-      color:   0;
-    ),
-    (
-      mindate: '20180105';
-      maxdate: '20180105';
-      part:    '3068b';
-      color:   2;
-    ),
-    (
-      mindate: '20180330';
-      maxdate: '20180331';
-      part:    '3010';
-      color:   15;
-    ),
-    (
-      mindate: '20180216';
-      maxdate: '20180216';
-      part:    '3023';
-      color:   4;
-    ),
-    (
-      mindate: '20180105';
-      maxdate: '20180106';
-      part:    '4070';
-      color:   2;
-    ),
-    (
-      mindate: '20171126';
-      maxdate: '20171127';
-      part:    '4070';
-      color:   4;
-    ),
-    (
-      mindate: '20180105';
-      maxdate: '20180106';
-      part:    '3666';
-      color:   2;
-    ),
-    (
-      mindate: '20171126';
-      maxdate: '20171127';
-      part:    '3666';
-      color:   4;
-    ),
-    (
-      mindate: '20180120';
-      maxdate: '20180121';
-      part:    '';
-      color:   -2;
-    ),
-    (
-      mindate: '20150902';
-      maxdate: '20150902';
-      part:    '10211-1';
-      color:   -1;
-    ),
-    (
-      mindate: '20170311';
-      maxdate: '20170311';
-      part:    '10211-1';
-      color:   -1;
-    ),
-    (
-      mindate: '20140610';
-      maxdate: '20150222';
-      part:    '2780';
-      color:   0;
-    ),
-    (
-      mindate: '20180120';
-      maxdate: '20180121';
-      part:    '3004';
-      color:   3;
-    ),
-    (
-      mindate: '20180120';
-      maxdate: '20180121';
-      part:    '3005';
-      color:   1;
-    ),
-    (
-      mindate: '20180120';
-      maxdate: '20180121';
-      part:    '3005';
-      color:   2;
-    ),
-    (
-      mindate: '20180120';
-      maxdate: '20180121';
-      part:    '3006';
-      color:   2;
-    ),
-    (
-      mindate: '20171126';
-      maxdate: '20171127';
-      part:    '3622';
-      color:   4;
-    ),
-    (
-      mindate: '20171126';
-      maxdate: '20171127';
-      part:    '6111';
-      color:   4;
-    ),
-    (
-      mindate: '20180120';
-      maxdate: '20180121';
-      part:    '3010';
-      color:   7;
-    ),
-    (
-      mindate: '20180120';
-      maxdate: '20180121';
-      part:    '3010';
-      color:   8;
-    ),
-    (
-      mindate: '20180120';
-      maxdate: '20180121';
-      part:    '3010';
-      color:   15;
-    ),
-    (
-      mindate: '20180120';
-      maxdate: '20180121';
-      part:    '3010';
-      color:   19;
-    ),
-    (
-      mindate: '20180120';
-      maxdate: '20180121';
-      part:    '3010';
-      color:   28;
-    )
-  );
-
-function s2date1(const s: string): TDateTime;
-var
-  ayear, amonth, aday: word;
-begin
-  if length(s) <> 8 then
-  begin
-    result := 0.0;
-    exit;
-  end;
-  ayear := atoi(leftstr(s, 4));
-  amonth := atoi(rightstr(leftstr(s, 6), 2));
-  aday := atoi(rightstr(s, 2));
-  if not TryEncodeDateTime(ayear, amonth, aday, 0, 0, 0, 0, result) then
-    result := 0.0;
-end;
-
-type
-  TExcludeManager = class(TObject)
-  private
-    fname: string;
-    fdir: string;
-    fpart: string;
-    fcolor: integer;
-    fexcludes: exclude_pa;
-    fnumexcludes: integer;
-  protected
-    procedure Clear;
-    procedure AddExclude(const d1, d2: string);
-  public
-    constructor Create(const part: string; const color: integer); virtual;
-    destructor Destroy; override;
-    procedure LoadFromFile;
-    procedure SaveToFile;
-    function GetText: string;
-    procedure SetText(const atext: string);
-    function Exclude(const date: double): boolean;
-  end;
-
-constructor TExcludeManager.Create(const part: string; const color: integer);
-begin
-  fnumexcludes := 0;
-  fexcludes := nil;
-  fpart := part;
-  fcolor := color;
-  fname := basedefault + 'cache\' + IntToStr(color) + '\' + part + '.excludes';
-  fdir := basedefault + 'cache\' + IntToStr(color);
-  if not DirectoryExists(fdir) then
-    ForceDirectories(fdir);
-  Inherited Create;
-  LoadFromFile;
-end;
-
-destructor TExcludeManager.Destroy;
-begin
-  Clear;
-  Inherited;
-end;
-
-procedure TExcludeManager.Clear;
-begin
-  if fexcludes <> nil then
-  begin
-    memfree(pointer(fexcludes), fnumexcludes * SizeOf(exclude_t));
-    fnumexcludes := 0;
-  end;
-end;
-
-procedure TExcludeManager.AddExclude(const d1, d2: string);
-begin
-  if Length(d1) <> 8 then
-    Exit;
-  if Length(d2) <> 8 then
-    Exit;
-  realloc(pointer(fexcludes), fnumexcludes * SizeOf(exclude_t), (fnumexcludes + 1) * SizeOf(exclude_t));
-  fexcludes[fnumexcludes].mindate := d1;
-  fexcludes[fnumexcludes].maxdate := d2;
-  fexcludes[fnumexcludes].part := fpart;
-  fexcludes[fnumexcludes].color := fcolor;
-  fexcludes[fnumexcludes].mindatedbl := s2date1(fexcludes[fnumexcludes].mindate);
-  fexcludes[fnumexcludes].maxdatedbl := s2date1(fexcludes[fnumexcludes].maxdate);
-  inc(fnumexcludes);
-end;
-
-procedure TExcludeManager.LoadFromFile;
-var
-  s: TStringList;
-  i: integer;
-  s1, s2: string;
-begin
-  Clear;
-  if fexists(fname) then
-  begin
-    s := TStringList.Create;
-    try
-      s.LoadFromFile(fname);
-      if s.Count > 1 then
-      begin
-        for i := 0 to s.Count - 1 do
-        begin
-          splitstring(s.Strings[i], s1, s2, ',');
-          s1 := Trim(s1);
-          s2 := Trim(s2);
-          if s2 = '' then
-          begin
-            if Length(s1) = 8 then
-              s2 := s1
-            else if IsIntegerInRange(atoi(s1), 2014, 2050) then
-            begin
-              s2 := s1 + '1231';
-              s1 := s1 + '0101';
-            end;
-          end;
-          AddExclude(s1, s2);
-        end;
-      end;
-    finally
-      s.Free;
-    end;
-  end;
-end;
-
-function TExcludeManager.GetText: string;
-var
-  s: TStringList;
-  i: integer;
-begin
-  s := TStringList.Create;
-  s.Add('date1,date2');
-  for i := 0 to fnumexcludes - 1 do
-    s.Add(Format('%s,%s', [fexcludes[i].mindate, fexcludes[i].maxdate]));
-  result := s.Text;
-  s.Free;
-end;
-
-procedure TExcludeManager.SetText(const atext: string);
-var
-  s: TStringList;
-begin
-  s := TStringList.Create;
-  try
-    s.Text := atext;
-    s.SaveToFile(fname);
-  finally
-    s.Free;
-  end;
-  LoadFromFile;
-end;
-
-procedure TExcludeManager.SaveToFile;
-var
-  s: TStringList;
-begin
-  s := TStringList.Create;
-  try
-    s.Text := GetText;
-    s.SaveToFile(fname);
-  finally
-    s.Free;
-  end;
-end;
-
-function TExcludeManager.Exclude(const date: double): boolean;
-var
-  i: integer;
-begin
-  for i := 0 to fnumexcludes - 1 do
-    if date >= fexcludes[i].mindatedbl then
-      if date < fexcludes[i].maxdatedbl + 1 then
-      begin
-        Result := True;
-        Exit;
-      end;
-
-  Result := False;
-end;
-
-var
-  dd20180904a: double;
-  dd20180907a: double;
-
-function mustexclude(const part: string; const color: integer; const date1: double): boolean;
-var
-  i: integer;
-  ep: exclude_p;
-  em: TExcludeManager;
-begin
-  Result := False;
-
-  if date1 > dd20180904a then
-    if date1 < dd20180907a then
-    begin
-      Result := True;
-      Exit;
-    end;
-
-  for i := 0 to NUMEXCLUDES - 1 do
-  begin
-    ep := @excludes[i];
-    if (color = ep.color) or (ep.color = -2) then
-      if (date1 >= ep.mindatedbl) and (date1 <= ep.maxdatedbl + 1) then
-        if (part = ep.part) or (ep.part = '') then
-        begin
-          Result := True;
-          Exit;
-        end;
-  end;
-
-  em := TExcludeManager.Create(part, color);
-  if em.Exclude(date1) then
-    Result := True;
-  em.Free;
-end;
-
-function iszeroparec(const p: parecdate_t): boolean;
-begin
-  result := false;
-
-  if p.priceguide.nTimesSold <> 0 then
-    exit;
-  if p.priceguide.nTotalQty <> 0 then
-    exit;
-  if p.priceguide.nMinPrice <> 0 then
-    exit;
-  if p.priceguide.nAvgPrice <> 0 then
-    exit;
-  if p.priceguide.nQtyAvgPrice <> 0 then
-    exit;
-  if p.priceguide.nMaxPrice <> 0 then
-    exit;
-  if p.priceguide.uTimesSold <> 0 then
-    exit;
-  if p.priceguide.uTotalQty <> 0 then
-    exit;
-  if p.priceguide.uMinPrice <> 0 then
-    exit;
-  if p.priceguide.uAvgPrice <> 0 then
-    exit;
-  if p.priceguide.uQtyAvgPrice <> 0 then
-    exit;
-  if p.priceguide.uMaxPrice <> 0 then
-    exit;
-
-  if p.availability.nTotalLots <> 0 then
-    exit;
-  if p.availability.nTotalQty <> 0 then
-    exit;
-  if p.availability.nMinPrice <> 0 then
-    exit;
-  if p.availability.nAvgPrice <> 0 then
-    exit;
-  if p.availability.nQtyAvgPrice <> 0 then
-    exit;
-  if p.availability.nMaxPrice <> 0 then
-    exit;
-  if p.availability.uTotalLots <> 0 then
-    exit;
-  if p.availability.uTotalQty <> 0 then
-    exit;
-  if p.availability.uMinPrice <> 0 then
-    exit;
-  if p.availability.uAvgPrice <> 0 then
-    exit;
-  if p.availability.uQtyAvgPrice <> 0 then
-    exit;
-  if p.availability.uMaxPrice <> 0 then
-    exit;
-
-  result := true;
-end;
-
-procedure SortParecArray(const A: parecarray_p; const num: integer);
-var
-  T: parecdate_t;
-
-  procedure QuickSort(iLo, iHi: Integer);
-  var
-     Lo, Hi: integer;
-     Pivot: TDateTime;
-  begin
-    Lo := iLo;
-    Hi := iHi;
-    Pivot := A[(Lo + Hi) div 2].date;
-    repeat
-      while A[Lo].date < Pivot do Inc(Lo);
-      while A[Hi].date > Pivot do Dec(Hi);
-      if Lo <= Hi then
-      begin
-        T := A[Lo];
-        A[Lo] := A[Hi];
-        A[Hi] := T;
-        Inc(Lo);
-        Dec(Hi);
-      end;
-    until Lo > Hi;
-    if Hi > iLo then QuickSort(iLo, Hi);
-    if Lo < iHi then QuickSort(Lo, iHi);
-  end;
-
-begin
-  if num > 0 then
-  begin
-    QuickSort(0, num - 1);
-    if num > 1 then
-      if abs(A[1].date - A[0].date) < 0.001 then
-        if iszeroparec(A[1]) then
-          if not iszeroparec(A[0]) then
-          begin
-            T := A[0];
-            A[0] := A[1];
-            A[1] := T;
-          end;
-  end;
-end;
-
-procedure FixParecArray(const A: parecarray_p; const num: integer);
-  procedure fix_value(const v1, v2: PDouble);
-  begin
-    if v1^ = 0.0 then
-      v1^ := v2^
-    else
-      v2^ := v1^;
-  end;
-var
-  p_nMinPrice: double;
-  p_nAvgPrice: double;
-  p_nQtyAvgPrice: double;
-  p_nMaxPrice: double;
-  p_uMinPrice: double;
-  p_uAvgPrice: double;
-  p_uQtyAvgPrice: double;
-  p_uMaxPrice: double;
-  a_nMinPrice: double;
-  a_nAvgPrice: double;
-  a_nQtyAvgPrice: double;
-  a_nMaxPrice: double;
-  a_uMinPrice: double;
-  a_uAvgPrice: double;
-  a_uQtyAvgPrice: double;
-  a_uMaxPrice: double;
-  i: integer;
-begin
-  p_nMinPrice := 0.0;
-  p_nAvgPrice := 0.0;
-  p_nQtyAvgPrice := 0.0;
-  p_nMaxPrice := 0.0;
-  p_uMinPrice := 0.0;
-  p_uAvgPrice := 0.0;
-  p_uQtyAvgPrice := 0.0;
-  p_uMaxPrice := 0.0;
-  a_nMinPrice := 0.0;
-  a_nAvgPrice := 0.0;
-  a_nQtyAvgPrice := 0.0;
-  a_nMaxPrice := 0.0;
-  a_uMinPrice := 0.0;
-  a_uAvgPrice := 0.0;
-  a_uQtyAvgPrice := 0.0;
-  a_uMaxPrice := 0.0;
-  for i := 0 to num - 1 do
-  begin
-    fix_value(@A[i].priceguide.nMinPrice, @p_nMinPrice);
-    fix_value(@A[i].priceguide.nAvgPrice, @p_nAvgPrice);
-    fix_value(@A[i].priceguide.nQtyAvgPrice, @p_nQtyAvgPrice);
-    fix_value(@A[i].priceguide.nMaxPrice, @p_nMaxPrice);
-    fix_value(@A[i].priceguide.uMinPrice, @p_uMinPrice);
-    fix_value(@A[i].priceguide.uAvgPrice, @p_uAvgPrice);
-    fix_value(@A[i].priceguide.uQtyAvgPrice, @p_uQtyAvgPrice);
-    fix_value(@A[i].priceguide.uMaxPrice, @p_uMaxPrice);
-    fix_value(@A[i].availability.nMinPrice, @a_nMinPrice);
-    fix_value(@A[i].availability.nAvgPrice, @a_nAvgPrice);
-    fix_value(@A[i].availability.nQtyAvgPrice, @a_nQtyAvgPrice);
-    fix_value(@A[i].availability.nMaxPrice, @a_nMaxPrice);
-    fix_value(@A[i].availability.uMinPrice, @a_uMinPrice);
-    fix_value(@A[i].availability.uAvgPrice, @a_uAvgPrice);
-    fix_value(@A[i].availability.uQtyAvgPrice, @a_uQtyAvgPrice);
-    fix_value(@A[i].availability.uMaxPrice, @a_uMaxPrice);
-  end;
-end;
+  bi_db, bi_delphi, bi_utils, bi_orders, bi_pghistory, bi_globals;
 
 const
   PG_nTimesSold = 1;
@@ -941,29 +287,18 @@ const
     'AV_nuQtyRatio'
   );
 
-var
-  NNN: TDateTime;
-
-const
-  MAXEXTRACACKHEDIRS = 128;
-
 procedure MakeChart(const c: TChart; const piece: string; const color: integer; const idx: integer);
 var
   A: parecarray_p;
-  Asize: integer;
   num: integer;
-  sname: string;
-  s: TStringList;
   fname: string;
-  EXTRA: array[0..MAXEXTRACACKHEDIRS - 1] of extracacheinfo_t;
   numextra: integer;
-  i, j, k, l: integer;
-  s1, s2: string;
+  i, j, k: integer;
   f: TFileStream;
   x, y: double;
   mx: double;
-  ddxxx: double;
-  dd20141216, dd20141220: double;
+//  ddxxx: double;
+//  dd20141216, dd20141220: double;
   dd20151218: double;
   dd20160119: double;
   dd20160123: double;
@@ -998,16 +333,18 @@ var
   num27: integer;
   snum27: string;
   date20150403: integer;
+  date20190402: integer;
+  date20190405: integer;
   ii: integer;
   num_actual: integer;
-  aliaspiece: string;
-  hasalias: boolean;
-  aliasSL: TStringList;
 begin
   c.Tag := idx;
 
+  // Order
   if idx = 40 then
   begin
+    date20190402 := round(s2date1('20190402'));
+    date20190405 := round(s2date1('20190405'));
     fname := basedefault + 'orders\' + piece + '.eval';
     if fexists(fname) then
     begin
@@ -1036,6 +373,10 @@ begin
         if o40 = piece then
         begin
           x := s2date1(d40);
+          truncx := Trunc(x);
+          if truncx >= date20190402 then
+            if truncx <= date20190405 then
+              Continue;
           y := atof(e40);
           if not zz then
           begin
@@ -1049,29 +390,38 @@ begin
       list40.Free;
 
       f := TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
+      j := 0;
       for i := 0 to (f.Size div SizeOf(orderevalhistory_t)) - 1 do
       begin
         f.Read(e, SizeOf(orderevalhistory_t));
         x := e.time;
+        truncx := Trunc(x);
+        if truncx >= date20190402 then
+          if truncx <= date20190405 then
+            Continue;
         y := e.eval;
         if not zz then
-          if i = 0 then
+          if j = 0 then
           begin
             c.Series[0].AddXY(x, 0.0);
             zz := true;
           end;
         c.Series[0].AddXY(x, y);
+        inc(j);
       end;
 
       f.Free;
     end;
 
-    exit;
+    Exit;
   end;
 
+  // Storage Bins
   if (idx >= 30) and (idx <=39) then
   begin
     date20150403 := round(s2date1('20150403'));
+    date20190402 := round(s2date1('20190402'));
+    date20190405 := round(s2date1('20190405'));
 
     if piece = 'Storage Bins' then
       fname := basedefault + 'storage\storagebins.stats'
@@ -1088,6 +438,7 @@ begin
       c.Title.Text.Text := C_TITLES[idx];
 
       f := TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
+      j := 0;
       for i := 0 to (f.Size div SizeOf(brickstatshistory_t)) - 1 do
       begin
         f.Read(h2, SizeOf(brickstatshistory_t));
@@ -1112,17 +463,23 @@ begin
           y := h2.nDemand.value
         else
           y := h2.uDemand.value;
-        if i = 0 then
-          c.Series[0].AddXY(x, 0.0);
-        if trunc(x) <> date20150403 then
-          c.Series[0].AddXY(x, y);
+        truncx := Trunc(x);
+        if truncx <> date20150403 then
+          if (truncx < date20190402) or (truncx > date20190405) then
+          begin
+            if j = 0 then
+              c.Series[0].AddXY(x, 0.0);
+            c.Series[0].AddXY(x, y);
+            inc(j);
+          end;
       end;
 
       f.Free;
     end;
-    exit;
+    Exit;
   end;
 
+  // N_PartOut, U_PartOut
   if (idx = 28) or (idx = 29) then
   begin
     if (color = -1) or (color = 9999) then
@@ -1138,6 +495,8 @@ begin
     begin
       dd20160218 := s2date1('20160218');
       dd20160309 := s2date1('20160309');
+      date20190402 := round(s2date1('20190402'));
+      date20190405 := round(s2date1('20190405'));
 
       c.Series[0].Clear;
       c.Series[0].XValues.DateTime := True;
@@ -1157,6 +516,10 @@ begin
         if x >= dd20160218 then
           if x <= dd20160309 then
             Continue;
+        truncx := Trunc(x);
+        if truncx >= date20190402 then
+          if truncx <= date20190405 then
+            Continue;
 
         if idx = 28 then
           y := h2.Sold_nQtyAvg.value
@@ -1171,7 +534,7 @@ begin
 
       f.Free;
     end;
-    exit;
+    Exit;
   end;
 
   dd20170614 := s2date1('20170614');
@@ -1179,6 +542,7 @@ begin
   dd20170418 := s2date1('20170418');
   dd20180207 := s2date1('20180207');
 
+  // My inventory
   if idx = 27 then
   begin
     dd20151218 := s2date1('20151218');
@@ -1292,130 +656,11 @@ begin
 
       f.Free;
     end;
-    exit;
+    Exit;
   end;
 
-  NNN := Now;
-  numextra := 1;
-  EXTRA[0].dir := 'cache';
-  EXTRA[0].date := s2date1('20141101');
-  sname := basedefault + 'cache\additional.txt';
-  if fexists(sname) then
-  begin
-    s := TStringList.Create;
-    try
-      s.LoadFromFile(sname);
-      for i := 0 to s.Count - 1 do
-      begin
-        splitstring(s.Strings[i], s1, s2, ',');
-        EXTRA[numextra].dir := s1;
-        EXTRA[numextra].date := s2date1(s2);
-        inc(numextra);
-        if numextra = MAXEXTRACACKHEDIRS then
-          break;
-      end;
-    finally
-      s.Free;
-    end;
-  end;
-
-  aliasSL := TStringList.Create;
-  aliasSL.Add(piece);
-  aliaspiece := db.GetBLNetPieceName(piece);
-  hasalias := (UpperCase(aliaspiece) <> UpperCase(piece)) and (Trim(aliaspiece) <> '');
-  if hasalias then
-    aliasSL.Add(aliaspiece);
-
-  Asize := 0;
-
-  for l := 0 to aliasSL.Count - 1 do
-  begin
-    for i := 0 to numextra - 1 do
-    begin
-      fname := basedefault + EXTRA[i].dir + '\' + itoa(decide(color = -1, 9999, color)) + '\' + aliasSL.Strings[l] + '.cache';
-      if not fexists(fname) then
-        continue;
-      try
-        f := TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
-      except
-        sleep(100);
-        f := TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
-      end;
-      if f.Size = 160 then
-      begin
-        inc(Asize);
-      end
-      else if f.Size mod SizeOf(parecdate_t) = 0 then
-      begin
-        inc(Asize, f.Size div SizeOf(parecdate_t));
-      end;
-      f.free;
-    end;
-  end;
-
-  Asize := Asize + 8192 * 4;
-
-  num := 0;
-  A := mallocz(Asize * SizeOf(parecdate_t));
-  for l := 0 to aliasSL.Count - 1 do
-  begin
-    for i := 0 to numextra - 1 do
-    begin
-      fname := basedefault + EXTRA[i].dir + '\' + itoa(decide(color = -1, 9999, color)) + '\' + aliasSL.Strings[l] + '.cache';
-      if not fexists(fname) then
-        continue;
-      try
-        f := TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
-      except
-        sleep(100);
-        f := TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
-      end;
-      if f.Size = 160 then
-      begin
-        f.Read(A[num].priceguide, SizeOf(priceguide_t));
-        f.Read(A[num].availability, SizeOf(availability_t));
-        A[num].date := EXTRA[i].date;
-        if num < Asize then
-          inc(num);
-      end
-      else if f.Size mod SizeOf(parecdate_t) = 0 then
-      begin
-        for j := 1 to (f.Size div SizeOf(parecdate_t)) do
-        begin
-          f.Read(A[num], SizeOf(parecdate_t));
-          if j >= 1 then
-          begin
-            if A[num].date < s2date1('20141101') then
-            begin
-              A[num].date := s2date1('20141101') + j - 2;
-              if A[num].date > s2date1('20141121') then
-                A[num].date := s2date1('20141121');
-            end;
-          end
-          else if j = 1 then
-          begin
-            if A[num].date < EXTRA[i].date then
-              A[num].date := EXTRA[i].date
-          end;
-          if num < Asize then
-            inc(num);
-        end;
-      end;
-      f.free;
-    end;
-  end;
-
-  aliasSL.Free;
-
-  for i := 0 to num - 1 do
-  begin
-    PRICEADJUST(piece, color, @A[i]);
-    if A[i].date < s2date1('20140401') then
-      A[i].date := s2date1('20140401');
-  end;
-
-  SortParecArray(A, num);
-  FixParecArray(A, num);
+  // Price Guide 
+  PG_MakeHistoryParecArray(piece, color, A, num);
 
   c.Series[0].Clear;
   c.Series[0].XValues.DateTime := True;
@@ -1426,17 +671,17 @@ begin
 //  c.LeftAxis.StartPosition := 0.0;
   mx := 0.0;
 
-  ddxxx := s2date1('20141101');
-  dd20141216 := s2date1('20141216');
-  dd20141220 := s2date1('20141220');
-  dd20170430 := s2date1('20170430');
-  dd20170510 := s2date1('20170510');
+//  ddxxx := s2date1('20141101');
+//  dd20141216 := s2date1('20141216');
+//  dd20141220 := s2date1('20141220');
+//  dd20170430 := s2date1('20170430');
+//  dd20170510 := s2date1('20170510');
   ii := 0;
   num_actual := 0;
   for i := 0 to num - 1 do
   begin
     x := A[i].date;
-    if x = ddxxx then
+{    if x = ddxxx then
       continue;
     if (x >= dd20141216) and (x <= dd20141220) then
       continue;
@@ -1445,7 +690,7 @@ begin
     if (piece = '3069b') and (x >= dd20170614) and (x <= dd20171220) then
       continue;
     if (piece = '2412b') and (x >= dd20170418) and (x <= dd20180207) then
-      continue;
+      continue;}
     if mustexclude(piece, color, x) then
       continue;
 
@@ -1500,15 +745,16 @@ begin
   end;
   if num_actual = 0 then
     c.Series[0].AddXY(Now(), 0.0);
-  memfree(pointer(A), Asize * SizeOf(parecdate_t));
+  memfree(pointer(A), num * SizeOf(parecdate_t));
 end;
 
-procedure DiagramPiece(const part: string; const color: integer);
+procedure DiagramPiece(const part: string; const color: integer; const chid: integer = 5);
 var
   f: TDiagramForm;
   pci: TPieceColorInfo;
   st: set_t;
   hasinv: boolean;
+  chid1: integer;
 begin
   f := TDiagramForm.Create(nil);
   try
@@ -1576,7 +822,10 @@ begin
       f.piece := part;
       f.color := color;
       Screen.Cursor := crHourglass;
-      f.DoMakeChart(5);
+      chid1 := chid;
+      if (chid1 <= 0) or (chid1 > 28) then
+        chid1 := 5;
+      f.DoMakeChart(chid1);
       Screen.Cursor := crDefault;
       f.ShowModal;
     end;
@@ -2079,9 +1328,6 @@ begin
   Chart1.CopyToClipboardBitmap;
 end;
 
-var
-  ixxx: integer;
-
 procedure TDiagramForm.UpdateSpeedButton1Click(Sender: TObject);
 var
   pci: TPieceColorInfo;
@@ -2155,16 +1401,5 @@ begin
       DoMakeChart(Chart1.Tag);
   end;
 end;
-
-initialization
-
-  for ixxx := 0 to NUMEXCLUDES - 1 do
-  begin
-    excludes[ixxx].mindatedbl := s2date1(excludes[ixxx].mindate);
-    excludes[ixxx].maxdatedbl := s2date1(excludes[ixxx].maxdate);
-  end;
-
-  dd20180904a := s2date1('20180904') + 0.5;
-  dd20180907a := s2date1('20180907') + 0.5;
 
 end.

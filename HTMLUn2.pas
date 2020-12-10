@@ -1105,55 +1105,55 @@ end;
 
 constructor TBitmapItem.Create(AImage:TgpObject; AMask: TBitmap; Tr: Transparency);
 begin
-inherited Create;
-MImage := AImage;
-Mask := AMask;
-AccessCount := 0;
-Transp := Tr;
+  inherited Create;
+  MImage := AImage;
+  Mask := AMask;
+  AccessCount := 0;
+  Transp := Tr;
 end;
 
 destructor TBitmapItem.Destroy;
 begin
-Assert(UsageCount = 0, 'Freeing Image still in use'); 
-MImage.Free;
-Mask.Free;
-inherited Destroy;
+  Assert(UsageCount = 0, 'Freeing Image still in use');
+  MImage.Free;
+  Mask.Free;
+  inherited Destroy;
 end;
 
 constructor TStringBitmapList.Create;
 begin
-inherited Create;
-MaxCache := 4;
-CheckInitGDIPlus; 
+  inherited Create;
+  MaxCache := 4;
+  CheckInitGDIPlus;
 end;
 
 destructor TStringBitmapList.Destroy;
 var
   I: integer;
 begin
-for I := 0 to Count-1 do
-  (Objects[I] as TBitmapItem).Free;
-CheckExitGDIPlus;  
-inherited Destroy;
+  for I := 0 to Count-1 do
+    (Objects[I] as TBitmapItem).Free;
+  CheckExitGDIPlus;
+  inherited Destroy;
 end;
 
 function TStringBitmapList.AddObject(const S: string; AObject: TObject): Integer;
 begin
-Result := inherited AddObject(S, AObject);
-if AObject is TBitmapItem then
-  Inc(TBitmapItem(AObject).UsageCount);
+  Result := inherited AddObject(S, AObject);
+  if AObject is TBitmapItem then
+    Inc(TBitmapItem(AObject).UsageCount);
 end;
 
 procedure TStringBitmapList.DecUsage(const S: string);
 var
   I: integer;
 begin
-I := IndexOf(S);
-if I >= 0 then
-  with Objects[I] as TBitmapItem do
+  I := IndexOf(S);
+  if I >= 0 then
+    with Objects[I] as TBitmapItem do
     begin
-    Dec(UsageCount);
-    Assert(UsageCount >= 0, 'Cache image usage count < 0');  
+      Dec(UsageCount);
+      Assert(UsageCount >= 0, 'Cache image usage count < 0');
     end;
 end;
 
@@ -1161,35 +1161,35 @@ procedure TStringBitmapList.IncUsage(const S: string);
 var
   I: integer;
 begin
-I := IndexOf(S);
-if I >= 0 then
-  with Objects[I] as TBitmapItem do
-    Inc(UsageCount);
+  I := IndexOf(S);
+  if I >= 0 then
+    with Objects[I] as TBitmapItem do
+      Inc(UsageCount);
 end;
 
 procedure TStringBitmapList.SetCacheCount(N: integer);
 var
   I: integer;
 begin
-for I := Count-1 downto 0 do
-  with (Objects[I] as TBitmapItem)do
+  for I := Count - 1 downto 0 do
+    with (Objects[I] as TBitmapItem)do
     begin
-    if (AccessCount > N) and (UsageCount <= 0) then     
+      if (AccessCount > N) and (UsageCount <= 0) then
       begin
-      Delete(I);
-      Free;
+        Delete(I);
+        Free;
       end;
     end;
-MaxCache := N;
+  MaxCache := N;
 end;
 
 function TStringBitmapList.GetImage(I: integer): TgpObject;
 begin
-with Objects[I] as TBitmapItem do
+  with Objects[I] as TBitmapItem do
   begin
-  Result := MImage;
-  AccessCount := 0;
-  Inc(UsageCount);
+    Result := MImage;
+    AccessCount := 0;
+    Inc(UsageCount);
   end;
 end;
 
@@ -1198,19 +1198,19 @@ var
   I: integer;
   Tmp: TBitmapItem;
 begin
-  for I := Count-1 downto 0 do
-    begin
+  for I := Count - 1 downto 0 do
+  begin
     Tmp := (Objects[I] as TBitmapItem);
     with Tmp do
-      begin
+    begin
       Inc(AccessCount);
       if (AccessCount > MaxCache) and (UsageCount <= 0) then
-        begin
+      begin
         Delete(I);
         Free;          {the TBitmapItem}
-        end;
       end;
     end;
+  end;
 end;
 
 procedure TStringBitmapList.PurgeCache;
@@ -1218,15 +1218,15 @@ var
   I: integer;
   Tmp: TBitmapItem;
 begin
-for I := Count-1 downto 0 do
+  for I := Count - 1 downto 0 do
   begin
-  Tmp := (Objects[I] as TBitmapItem);
-  with Tmp do
+    Tmp := (Objects[I] as TBitmapItem);
+    with Tmp do
     begin
-    if (UsageCount <= 0) then
+      if (UsageCount <= 0) then
       begin
-      Delete(I);
-      Free;          {the TBitmapItem}
+        Delete(I);
+        Free;          {the TBitmapItem}
       end;
     end;
   end;
@@ -1236,38 +1236,38 @@ procedure TStringBitmapList.Clear;
 var
   I: integer;
 begin
-for I := 0 to Count-1 do
-  (Objects[I] as TBitmapItem).Free;
-inherited Clear;
+  for I := 0 to Count-1 do
+    (Objects[I] as TBitmapItem).Free;
+  inherited Clear;
 end;
 
 constructor TAttribute.Create(ASym: Symb; AValue: integer;
            Const NameStr, ValueStr: string; ACodePage: integer);
 begin
-inherited Create;
-Which := ASym;
-Value := AValue;
-WhichName := NameStr;
-Name := ValueStr;
-CodePage := ACodePage;
+  inherited Create;
+  Which := ASym;
+  Value := AValue;
+  WhichName := NameStr;
+  Name := ValueStr;
+  CodePage := ACodePage;
 end;
 
 destructor TAttribute.Destroy;
 begin
-inherited Destroy;
+  inherited Destroy;
 end;
 
 {----------------TAttributeList}
 destructor TAttributeList.Destroy;
 begin
-Prop.Free;
-inherited;
+  Prop.Free;
+  inherited;
 end;
 
 procedure TAttributeList.Clear;
 begin
-SaveID := '';
-inherited Clear;
+  SaveID := '';
+  inherited Clear;
 end;
 
 function TAttributeList.Find(Sy: Symb; var T: TAttribute): boolean;
@@ -1288,10 +1288,10 @@ function TAttributeList.CreateStringList: TStringList;
 var
   I: integer;
 begin
-Result := TStringList.Create;
-for I := 0 to Count-1 do
-  with TAttribute(Items[I]) do
-    Result.Add(WhichName+'='+Name);
+  Result := TStringList.Create;
+  for I := 0 to Count - 1 do
+    with TAttribute(Items[I]) do
+      Result.Add(WhichName + '=' + Name);
 end;
 
 function TAttributeList.GetClass: string;
@@ -1338,102 +1338,105 @@ function TAttributeList.GetTitle: string;
 var
   T: TAttribute;
 begin
-if Find(TitleSy, T) then
-  Result := T.Name
-else Result := '';
+  if Find(TitleSy, T) then
+    Result := T.Name
+  else
+    Result := '';
 end;
 
 function TAttributeList.GetStyle: TProperties;
 var
   T: TAttribute;
 begin
-if Find(StyleSy, T) then
+  if Find(StyleSy, T) then
   begin
-  Prop.Free;
-  Prop := TProperties.Create;
-  Result := Prop;
-  ParsePropertyStr(T.Name, Result);
+    Prop.Free;
+    Prop := TProperties.Create;
+    Result := Prop;
+    ParsePropertyStr(T.Name, Result);
   end
-else Result := Nil;
+  else
+    Result := nil;
 end;
 
 {----------------TUrlTarget.Create}
 constructor TUrlTarget.Create;
 begin
-inherited Create;
-utText := TutText.Create;
-utText.Start := -1;
-utText.Last := -1;   
+  inherited Create;
+  utText := TutText.Create;
+  utText.Start := -1;
+  utText.Last := -1;
 end;
 
 destructor TUrlTarget.Destroy;
 begin
-FreeAndNil(utText);    
-inherited Destroy;
+  FreeAndNil(utText);
+  inherited Destroy;
 end;
 
 var
   Sequence: integer = 10;
 
-procedure TUrlTarget.Assign(AnUrl, ATarget: String; L: TAttributeList; AStart: integer);   
+procedure TUrlTarget.Assign(AnUrl, ATarget: String; L: TAttributeList; AStart: integer);
 var
-  SL: TStringList;  
+  SL: TStringList;
 begin
-Url := AnUrl;
-Target := ATarget;
-ID := Sequence;
-Inc(Sequence);
-utText.Start := AStart;
-SL := L.CreateStringList;  
-try
-  Attr := SL.Text;
-finally
-  SL.Free;
-  end;                     
+  Url := AnUrl;
+  Target := ATarget;
+  ID := Sequence;
+  Inc(Sequence);
+  utText.Start := AStart;
+  SL := L.CreateStringList;
+  try
+    Attr := SL.Text;
+  finally
+    SL.Free;
+  end;
 end;
 
 procedure TUrlTarget.Copy(UT: TUrlTarget);
 begin
-Url := UT.Url;
-Target := UT.Target;
-ID := UT.ID;
-TabIndex := UT.TabIndex;
-Attr := UT.Attr;   
-utText.Start := UT.utText.Start;
-utText.Last := UT.utText.Last;   
+  Url := UT.Url;
+  Target := UT.Target;
+  ID := UT.ID;
+  TabIndex := UT.TabIndex;
+  Attr := UT.Attr;
+  utText.Start := UT.utText.Start;
+  utText.Last := UT.utText.Last;
 end;
 
 procedure TUrlTarget.Clear;
 begin
-Url := '';
-Target := '';
-ID := 0;
-TabIndex := 0;
-Attr := '';
-utText.Start := -1;
-utText.Last := -1;   
+  Url := '';
+  Target := '';
+  ID := 0;
+  TabIndex := 0;
+  Attr := '';
+  utText.Start := -1;
+  utText.Last := -1;
 end;
 
-function TUrlTarget.GetStart: integer;  
+function TUrlTarget.GetStart: integer;
 begin
-Result := utText.Start
+  Result := utText.Start
 end;
 
-function TUrlTarget.GetLast: integer;  
+function TUrlTarget.GetLast: integer;
 begin
-Result := utText.Last
+  Result := utText.Last
 end;
 
-procedure TUrlTarget.SetLast(List: TList; ALast: integer);   
+procedure TUrlTarget.SetLast(List: TList; ALast: integer);
 var
   I: integer;
 begin
-utText.Last := ALast;
-if (List.Count > 0) then
-  for I := List.Count-1 downto 0 do
-    if (ID = TFontObj(List[I]).UrlTarget.ID) then
-      TFontObj(List[I]).UrlTarget.utText.Last := ALast
-    else Break;
+  utText.Last := ALast;
+  if (List.Count > 0) then
+    for I := List.Count - 1 downto 0 do
+      if (ID = TFontObj(List[I]).UrlTarget.ID) then
+        TFontObj(List[I]).UrlTarget.utText.Last := ALast
+      else
+        Break;
 end;
 
 {----------------SelTextCount}
@@ -1441,28 +1444,28 @@ procedure SelTextCount.AddText(P: PWideChar; Size: integer);
 var
   I: integer;
 begin
-for I := 0 to Size-1 do
-  if not (P[I] in [FmCtl, ImgPan]) then {ImgPan and FmCtl used to mark images, form controls}
-    Inc(Leng);
+  for I := 0 to Size - 1 do
+    if not (P[I] in [FmCtl, ImgPan]) then {ImgPan and FmCtl used to mark images, form controls}
+      Inc(Leng);
 end;
 
 procedure SelTextCount.AddTextCR(P: PWideChar; Size: integer);
 begin
-AddText(P, Size);
-AddText(#13#10, 2);
+  AddText(P, Size);
+  AddText(#13#10, 2);
 end;
 
 function SelTextCount.Terminate: integer;
 begin
-Result := Leng;  
+  Result := Leng;
 end;
 
 {----------------SelTextBuf.Create}
 constructor SelTextBuf.Create(ABuffer: PWideChar; Size: integer);
 begin
-inherited Create;
-Buffer := ABuffer;
-BufferLeng := Size;
+  inherited Create;
+  Buffer := ABuffer;
+  BufferLeng := Size;
 end;
 
 procedure SelTextBuf.AddText(P: PWideChar; Size: integer);
@@ -1470,37 +1473,37 @@ var
   SizeM1 : integer;
   I: integer;
 begin
-SizeM1 := BufferLeng-1;
-for I := 0 to Size-1 do
-  if not (P[I] in [FmCtl, ImgPan, BrkCh]) then {ImgPan and FmCtl used to mark images, form controls}
-    if Leng < SizeM1 then
+  SizeM1 := BufferLeng - 1;
+  for I := 0 to Size - 1 do
+    if not (P[I] in [FmCtl, ImgPan, BrkCh]) then {ImgPan and FmCtl used to mark images, form controls}
+      if Leng < SizeM1 then
       begin
-      Buffer[Leng] := P[I];
-      Inc(Leng);
+        Buffer[Leng] := P[I];
+        Inc(Leng);
       end;
 end;
 
 function SelTextBuf.Terminate: integer;
 begin
-Buffer[Leng] := #0;
-Result := Leng+1;
+  Buffer[Leng] := #0;
+  Result := Leng + 1;
 end;
 
 {----------------ClipBuffer.Create}
-constructor ClipBuffer.Create(Leng: integer);   
+constructor ClipBuffer.Create(Leng: integer);
 begin
-inherited Create(Nil, 0);
-BufferLeng := Leng;
-Getmem(Buffer, BufferLeng*2);
+  inherited Create(nil, 0);
+  BufferLeng := Leng;
+  Getmem(Buffer, BufferLeng * 2);
 end;
 
 destructor ClipBuffer.Destroy;
 begin
-if Assigned(Buffer) then FreeMem(Buffer);  
-inherited Destroy;
+  if Assigned(Buffer) then FreeMem(Buffer);
+  inherited Destroy;
 end;
 
-procedure ClipBuffer.CopyToClipboard;   
+procedure ClipBuffer.CopyToClipboard;
 {Unicode clipboard routine courtesy Mike Lischke}
 var
   Data: THandle;
@@ -1523,59 +1526,59 @@ end;
 
 function ClipBuffer.Terminate: integer;
 begin
-Buffer[Leng] := #0;
-Result := Leng+1;
-if IsWin32Platform then
-  Clipboard.AsText := Buffer  
-else
-  CopyToClipboard;
+  Buffer[Leng] := #0;
+  Result := Leng + 1;
+  if IsWin32Platform then
+    Clipboard.AsText := Buffer
+  else
+    CopyToClipboard;
 end;
 
 {----------------TMapItem.Create}
 constructor TMapItem.Create;
 begin
-inherited Create;
-Areas := TStringList.Create;
-AreaTargets := TStringList.Create;
-AreaTitles := TStringList.Create;  
+  inherited Create;
+  Areas := TStringList.Create;
+  AreaTargets := TStringList.Create;
+  AreaTitles := TStringList.Create;
 end;
 
 destructor TMapItem.Destroy;
 var
   I: integer;
 begin
-for I := 0 to Areas.Count-1 do
-  DeleteObject(THandle(Areas.Objects[I]));
-Areas.Free;
-AreaTargets.Free;
-AreaTitles.Free;    
-inherited Destroy;
+  for I := 0 to Areas.Count - 1 do
+    DeleteObject(THandle(Areas.Objects[I]));
+  Areas.Free;
+  AreaTargets.Free;
+  AreaTitles.Free;
+  inherited Destroy;
 end;
 
-function TMapItem.GetURL(X, Y: integer; var URLTarg: TUrlTarget; var ATitle: string): boolean;  
+function TMapItem.GetURL(X, Y: integer; var URLTarg: TUrlTarget; var ATitle: string): boolean;
 var
   I: integer;
 begin
-Result := False;
-with Areas do
-  for I := 0 to Count-1 do
-    if PtInRegion(THandle(Objects[I]), X, Y) then
+  Result := False;
+  with Areas do
+    for I := 0 to Count-1 do
+      if PtInRegion(THandle(Objects[I]), X, Y) then
       begin
-      if Strings[I] <> '' then  {could be NoHRef}    
+        if Strings[I] <> '' then  {could be NoHRef}
         begin
-        URLTarg := TUrlTarget.Create;
-        URLTarg.URL := Strings[I];
-        URLTarg.Target := AreaTargets[I];
-        ATitle := AreaTitles[I];   
-        Result := True;
+          URLTarg := TUrlTarget.Create;
+          URLTarg.URL := Strings[I];
+          URLTarg.Target := AreaTargets[I];
+          ATitle := AreaTitles[I];
+          Result := True;
         end;
-      Exit;
+        Exit;
       end;
 end;
 
 procedure TMapItem.AddArea(Attrib: TAttributeList);
 Const
-  MAXCNT = 300;  
+  MAXCNT = 300;
 var
   I, Cnt, Rad: integer;
   HRef, S, Target, Title: string;   

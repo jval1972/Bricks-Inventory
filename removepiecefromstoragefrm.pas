@@ -70,13 +70,13 @@ begin
   inv := db.GetSetInventory(setid);
   if inv = nil then
   begin
-    result := false;
-    exit;
+    result := False;
+    Exit;
   end;
   num := inv.LoosePartCount(part, color);
   if num = 0 then
   begin
-    Result := false;
+    Result := False;
     Exit;
   end;
   Result := RemovePieceFromStorage(part, color, num, storage);
@@ -90,7 +90,7 @@ var
   s: TStringList;
   invmax: integer;
 begin
-  result := false;
+  result := False;
   if color = -1 then
     Exit;
   inv := db.InventoryForStorageBin(storage);
@@ -106,10 +106,10 @@ begin
   f := TRemovePieceFromStorageForm.Create(nil);
   try
     f.Label1.Caption := db.PieceDesc(part);
-    f.Label2.Visible := true;
-    f.Label4.Visible := true;
-    f.Label5.Visible := true;
-    f.Panel1.Visible := true;
+    f.Label2.Visible := True;
+    f.Label4.Visible := True;
+    f.Label5.Visible := True;
+    f.Panel1.Visible := True;
     f.Label4.Caption := db.colors(color).name;
     f.Edit1.Text := itoa(num);
     if num = 1 then
@@ -134,11 +134,11 @@ begin
         begin
           s.Add(storage + ':-' + itoa(num));
           db.SetPieceStorage(part, color, s);
-          Result := true;
+          Result := True;
         end
         else
         begin
-          Result := false;
+          Result := False;
         end;
         s.Free;
       end;
@@ -155,7 +155,7 @@ begin
   if not (Key in [#8, '0'..'9']) then
   begin
     Key := #0;
-    exit;
+    Exit;
   end;
 end;
 

@@ -4,7 +4,7 @@ object UpdateForm1: TUpdateForm1
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Update Sets (bricklink.com)'
-  ClientHeight = 516
+  ClientHeight = 543
   ClientWidth = 391
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -549,7 +549,7 @@ object UpdateForm1: TUpdateForm1
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 448
+    Top = 475
     Width = 391
     Height = 68
     Align = alBottom
@@ -587,7 +587,7 @@ object UpdateForm1: TUpdateForm1
     Left = 0
     Top = 0
     Width = 391
-    Height = 177
+    Height = 209
     Align = alTop
     BevelOuter = bvNone
     Caption = ' '
@@ -655,6 +655,20 @@ object UpdateForm1: TUpdateForm1
       Height = 16
       Caption = 'Level: '
       FocusControl = Edit5
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label8: TLabel
+      Left = 264
+      Top = 184
+      Width = 39
+      Height = 16
+      Caption = 'Level: '
+      FocusControl = Edit6
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
       Font.Height = -13
@@ -793,7 +807,7 @@ object UpdateForm1: TUpdateForm1
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
-      TabOrder = 8
+      TabOrder = 9
       Text = '1'
       OnKeyPress = LevelNumEditKeyPress
     end
@@ -809,15 +823,45 @@ object UpdateForm1: TUpdateForm1
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
-      TabOrder = 9
+      TabOrder = 8
       OnClick = Button7Click
+    end
+    object Button8: TButton
+      Left = 32
+      Top = 176
+      Width = 225
+      Height = 25
+      Caption = 'Add Minifigs Without Inventory'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 10
+      OnClick = Button8Click
+    end
+    object Edit6: TEdit
+      Left = 312
+      Top = 180
+      Width = 33
+      Height = 24
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 11
+      Text = '1'
+      OnKeyPress = LevelNumEditKeyPress
     end
   end
   object Panel3: TPanel
     Left = 0
-    Top = 177
+    Top = 209
     Width = 391
-    Height = 271
+    Height = 266
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 8
@@ -827,7 +871,7 @@ object UpdateForm1: TUpdateForm1
       Left = 8
       Top = 33
       Width = 375
-      Height = 230
+      Height = 225
       Align = alClient
       ScrollBars = ssBoth
       TabOrder = 0

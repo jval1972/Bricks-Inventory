@@ -86,7 +86,7 @@ begin
   if len = 0 then
   begin
     Result := 0;
-    exit;
+    Exit;
   end;
 
   b := Ord(name[1]);
@@ -124,7 +124,7 @@ var
   h: integer;
 begin
   if flist = nil then
-    exit;
+    Exit;
 
   h := Hash(str);
   if positions[h] = nil then
@@ -182,20 +182,20 @@ begin
   if flist = nil then
   begin
     result := -1;
-    exit;
+    Exit;
   end;
 
   if flist.Count = 0 then
   begin
     result := -1;
-    exit;
+    Exit;
   end;
 
   h := Hash(value);
   if positions[h] = nil then
   begin
     result := fList.IndexOf(value);
-    exit;
+    Exit;
   end;
 
   for i := 0 to positions[h].Count - 1 do
@@ -205,7 +205,7 @@ begin
       if flist.Strings[n] = value then
       begin
         result := n;
-        exit;
+        Exit;
       end;
   end;
 
@@ -222,7 +222,7 @@ begin
   if positions[h] = nil then
   begin
     result := -1;
-    exit;
+    Exit;
   end;
 
   for i := 0 to positions[h].Count - 1 do
@@ -232,7 +232,7 @@ begin
       if flist.Strings[n] = value then
       begin
         result := n;
-        exit;
+        Exit;
       end;
   end;
 
@@ -251,7 +251,7 @@ begin
   if positions[h] = nil then
   begin
     result := -1;
-    exit;
+    Exit;
   end;
 
   for i := 0 to positions[h].Count - 1 do
@@ -261,7 +261,7 @@ begin
       if UpperCase(flist.Strings[n]) = check then
       begin
         result := n;
-        exit;
+        Exit;
       end;
   end;
 
@@ -312,13 +312,13 @@ begin
     if not Find(S, Result) then
       Result := -1
     else
-      exit;
+      Exit;
   end;
 
   if Count = 0 then
   begin
     Result := -1;
-    exit;
+    Exit;
   end;
 
   result := fhash.CheckPos(S);
@@ -332,13 +332,13 @@ begin
   if Sorted then
   begin
     if not Find(S, Result) then Result := -1;
-    exit;
+    Exit;
   end;
 
   if Count = 0 then
   begin
     Result := -1;
-    exit;
+    Exit;
   end;
 
   result := fhash.CheckPos(S);
@@ -349,7 +349,7 @@ var
   i: integer;
 begin
   if s = nil then
-    exit;
+    Exit;
   for i := 0 to s.Count - 1 do
     s.Objects[i].Free;
   s.Free;

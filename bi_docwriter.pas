@@ -70,7 +70,7 @@ type
     procedure title(const s: string); overload;
     procedure title(const Fmt: string; const Args: array of const); overload;
     procedure BlancColorCell(const RGB: LongWord; const width: integer);
-    procedure SaveBufferToFile(const aname: string);
+    procedure SaveBufferToFile(const aname1: string);
     procedure FlashMultiPageDocument(const akey: string; const pg: integer);
     procedure Flash;
     procedure NewMultiPageDocument(const key1, key2: string);
@@ -266,7 +266,7 @@ procedure TDocument.SetSavePath(const value: string);
 begin
   fsavepath := value;
   if fsavepath = '' then
-    exit;
+    Exit;
   if not (fsavepath[length(fsavepath)] in ['/', '\']) then
     fsavepath := fsavepath + '\';
 end;
@@ -345,7 +345,7 @@ begin
   if currentpage <= 1 then
   begin
     Result := '';
-    exit;
+    Exit;
   end;
 
   if pg = 1 then
@@ -406,6 +406,7 @@ var
 begin
   key := akey;
   navstr := DoLoadString(fsavepath + key + '\' + key + '_2_N' + IntToStrzFill(4, pg) + '.html');
+  hview.Clear;
   hview.LoadHtmlFromString(
     DoLoadString(fsavepath + key + '\' + key + '_1_S.html') +
     navstr +
@@ -434,6 +435,7 @@ procedure TDocument.Flash;
 begin
   SetLength(buffer, fsize);
   fcapacity := fsize;
+  hview.Clear;
   if multipage then
   begin
     hview.LoadHtmlFromString(
@@ -464,14 +466,16 @@ begin
   fneedsidletime := True;
 end;
 
-procedure TDocument.SaveBufferToFile(const aname: string);
+procedure TDocument.SaveBufferToFile(const aname1: string);
 var
   t: TextFile;
   i: integer;
   fname: string;
+  aname: string;
 begin
+  aname := Trim(aname1);
   if aname = '' then
-    exit;
+    Exit;
 
   fname := '';
   for i := 1 to Length(aname) do

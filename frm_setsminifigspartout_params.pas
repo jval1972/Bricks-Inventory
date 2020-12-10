@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -179,13 +179,13 @@ begin
   if not (Key in [#8, '0'..'9']) then
   begin
     Key := #0;
-    exit;
+    Exit;
   end;
   if Key in ['0'..'9'] then
     if Length((Sender as TEdit).Text) > 4 then
     begin
       Key := #0;
-      exit;
+      Exit;
     end;
 end;
 
@@ -195,7 +195,7 @@ begin
   if not (Key in [#8, '0'..'9']) then
   begin
     Key := #0;
-    exit;
+    Exit;
   end;
 end;
 
@@ -205,13 +205,13 @@ begin
   if not (Key in [#8, '0'..'9']) then
   begin
     Key := #0;
-    exit;
+    Exit;
   end;
   if Key in ['0'..'9'] then
     if Length((Sender as TEdit).Text) > 3 then
     begin
       Key := #0;
-      exit;
+      Exit;
     end;
 end;
 

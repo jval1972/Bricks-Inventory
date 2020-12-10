@@ -6735,7 +6735,7 @@ if BMName <> '' then
       end;
     if Assigned(GetImage) then
       begin    {the OnImageRequest}
-      Stream := Nil;
+      Stream := nil;
       GetImage(TheOwner, BMName, Stream);
       if Stream = WaitStream then
         Delay := True

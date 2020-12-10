@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -126,12 +126,12 @@ begin
   end;
   if basetime = 0 then
     basetime := _time;
-  result := (_time - basetime) / Freq;
+  Result := (_time - basetime) / Freq;
 end;
 
 function I_GetTime: integer;
 begin
-  result := trunc(I_GetSysTime * TICRATE);
+  Result := trunc(I_GetSysTime * TICRATE);
 end;
 
 //
@@ -191,7 +191,7 @@ begin
     Exit;
 
   if in_i_error then
-    exit;
+    Exit;
 
   I_FlashCachedOutput;
 
@@ -251,10 +251,10 @@ begin
       for i := 0 to 2 do
         drv[i] := prm[i + 1];
       drv[3] := #0;
-      result := GetDriveType(drv) = DRIVE_CDROM;
+      Result := GetDriveType(drv) = DRIVE_CDROM;
     end
     else
-      result := GetDriveType(nil) = DRIVE_CDROM
+      Result := GetDriveType(nil) = DRIVE_CDROM
   end
   else
   begin
@@ -262,7 +262,7 @@ begin
     drv[1] := ':';
     drv[2] := '\';
     drv[3] := #0;
-    result := GetDriveType(drv) = DRIVE_CDROM;
+    Result := GetDriveType(drv) = DRIVE_CDROM;
   end;
 end;
 
@@ -281,8 +281,8 @@ begin
 
   if not fopen(f, fname, fOpenReadOnly) then
   begin
-    result := false;
-    exit;
+    Result := false;
+    Exit;
   end;
 
   {$I-}
@@ -290,42 +290,42 @@ begin
   if EXESig <> $5A4D {'MZ'} then
   begin
     close(f);
-    result := false;
-    exit;
+    Result := false;
+    Exit;
   end;
   seek(f, $3C);
   BlockRead(f, PEHeaderOffset, SizeOf(PEHeaderOffset));
   if PEHeaderOffset = 0 then
   begin
     close(f);
-    result := false;
-    exit;
+    Result := false;
+    Exit;
   end;
   seek(f, PEHeaderOffset);
   BlockRead(f, PESig, SizeOf(PESig));
   if PESig <> $00004550 {'PE'#0#0} then
   begin
     close(f);
-    result := false;
-    exit;
+    Result := false;
+    Exit;
   end;
   BlockRead(f, PEHeader, SizeOf(PEHeader));
   if PEHeader.SizeOfOptionalHeader <> SizeOf(TImageOptionalHeader) then
   begin
     close(f);
-    result := false;
-    exit;
+    Result := false;
+    Exit;
   end;
   BlockRead(f, PEOptHeader^, SizeOf(TImageOptionalHeader));
   if PEOptHeader.Magic <> IMAGE_NT_OPTIONAL_HDR32_MAGIC then
   begin
     close(f);
-    result := false;
-    exit;
+    Result := false;
+    Exit;
   end;
   close(f);
   {$I+}
-  result := IOResult = 0;
+  Result := IOResult = 0;
 end;
 
 function I_GetExeImageSize(fname: string = ''): LongWord;
@@ -333,9 +333,9 @@ var
   PEOptHeader: TImageOptionalHeader;
 begin
   if I_GetOptHeader(@PEOptHeader, fname) then
-    result := PEOptHeader.SizeOfImage
+    Result := PEOptHeader.SizeOfImage
   else
-    result := 0;
+    Result := 0;
 end;
 
 function I_VersionBuilt(fname: string = ''): string;
@@ -352,19 +352,19 @@ begin
   vsize := GetFileVersionInfoSize(PChar(fname), zero);
   if vsize = 0 then
   begin
-    result := '';
-    exit;
+    Result := '';
+    Exit;
   end;
 
   buffer := PByteArray(malloc(vsize + 1));
   GetFileVersionInfo(PChar(fname), 0, vsize, buffer);
   VerQueryValue(buffer, '\StringFileInfo\040904E4\FileVersion', res, len);
-  result := '';
+  Result := '';
   for i := 0 to len - 1 do
   begin
     if PChar(res)^ = #0 then
       break;
-    result := result + PChar(res)^;
+    Result := Result + PChar(res)^;
     res := pointer(integer(res) + 1);
   end;
   memfree(pointer(buffer), vsize + 1);
@@ -375,7 +375,7 @@ var
   Code: Integer;
 begin
   Code := GetFileAttributes(PChar(Name));
-  result := (Code <> -1) and (FILE_ATTRIBUTE_DIRECTORY and Code <> 0);
+  Result := (Code <> -1) and (FILE_ATTRIBUTE_DIRECTORY and Code <> 0);
 end;
 
 var
@@ -468,7 +468,7 @@ var
   P: Pointer;
 begin
   if safemode then
-    exit;
+    Exit;
   if Dest <> nil then
   begin
     P := Pointer(Dest);
@@ -482,9 +482,9 @@ var
   id: LongWord;
 begin
   if suspended then
-    result := CreateThread(nil, $1000, @p, parm, CREATE_SUSPENDED, id)
+    Result := CreateThread(nil, $1000, @p, parm, CREATE_SUSPENDED, id)
   else
-    result := CreateThread(nil, $1000, @p, parm, 0, id);
+    Result := CreateThread(nil, $1000, @p, parm, 0, id);
 end;
 
 procedure I_WaitForProcess(pid: integer; msec: integer);
@@ -568,7 +568,7 @@ end;
 
 function I_GetNumCPUs: integer;
 begin
-  result := numcpus;
+  Result := numcpus;
 end;
 
 

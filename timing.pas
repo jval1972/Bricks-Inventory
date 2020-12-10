@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -61,8 +61,8 @@ uses
 
 procedure TTimingForm.FormCreate(Sender: TObject);
 begin
-  crawling := false;
-  cancrowl := true;
+  crawling := False;
+  cancrowl := True;
  { tr := TThreadComponent.Create(nil);
   tr.Sleep := CrawlerTimer.Interval;
   tr.OnExecute := CrawlerTimerTimer;
@@ -72,28 +72,28 @@ end;
 procedure TTimingForm.CrawlerTimerTimer(Sender: TObject);
 begin
   if not cancrowl then
-    exit;
+    Exit;
 
   if db = nil then
     Exit;
 
   if crawling then
-    exit;
+    Exit;
 
   if MainForm.activebits > 0 then
-    exit;
+    Exit;
 
   if not MainForm.CheckBox1.Checked then
-    exit;
-    
-  crawling := true;
+    Exit;
+
+  crawling := True;
   db.Crawler;
-  crawling := false;
+  crawling := False;
 end;
 
 procedure TTimingForm.FormDestroy(Sender: TObject);
 begin
-  cancrowl := false;
+  cancrowl := False;
 end;
 
 end.

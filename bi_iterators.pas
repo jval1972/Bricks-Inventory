@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -42,7 +42,7 @@ type
   end;
   iterator_base_p = ^iterator_base_t;
 
-function MT_Iterate_Base(const func: threadfunc_t): TStringList;
+function MT_Iterate_Base(const func: threadfunc_t; const domultithread: boolean = True): TStringList;
 
 type
   iterator_double_t = record
@@ -53,25 +53,31 @@ type
   end;
   iterator_double_p = ^iterator_double_t;
 
-function MT_Iterate_Double(const func: threadfunc_t; const parm: double): TStringList;
+function MT_Iterate_Double(const func: threadfunc_t; const parm: double; const domultithread: boolean = True): TStringList;
 
 implementation
 
 uses
   bi_system;
 
-function MT_Iterate_Base(const func: threadfunc_t): TStringList;
+function MT_Iterate_Base(const func: threadfunc_t; const domultithread: boolean = True): TStringList;
 var
   parm1, parm2, parm3, parm4, parm5, parm6, parm7, parm8: iterator_base_t;
-  oldm: boolean;
 begin
-  result := TStringList.Create;
+  Result := TStringList.Create;
 
-  if I_GetNumCPUs <= 4 then
+  if not domultithread then
   begin
     parm1.idx := 0;
     parm1.numidxs := 4;
-    parm1.list := result;
+    parm1.list := Result;
+    func(@parm1);
+  end
+  else if I_GetNumCPUs <= 4 then
+  begin
+    parm1.idx := 0;
+    parm1.numidxs := 4;
+    parm1.list := Result;
 
     parm2.idx := 1;
     parm2.numidxs := 4;
@@ -85,19 +91,16 @@ begin
     parm4.numidxs := 4;
     parm4.list := TStringList.Create;
 
-    oldm := ismultithread;
-    ismultithread := true;
     MT_Execute(
       func, @parm1,
       func, @parm2,
       func, @parm3,
       func, @parm4
     );
-    ismultithread := oldm;
 
-    result.AddStrings(parm2.list);
-    result.AddStrings(parm3.list);
-    result.AddStrings(parm4.list);
+    Result.AddStrings(parm2.list);
+    Result.AddStrings(parm3.list);
+    Result.AddStrings(parm4.list);
 
     parm2.list.Free;
     parm3.list.Free;
@@ -107,7 +110,7 @@ begin
   begin
     parm1.idx := 0;
     parm1.numidxs := 6;
-    parm1.list := result;
+    parm1.list := Result;
 
     parm2.idx := 1;
     parm2.numidxs := 6;
@@ -129,8 +132,6 @@ begin
     parm6.numidxs := 6;
     parm6.list := TStringList.Create;
 
-    oldm := ismultithread;
-    ismultithread := true;
     MT_Execute(
       func, @parm1,
       func, @parm2,
@@ -139,13 +140,12 @@ begin
       func, @parm5,
       func, @parm6
     );
-    ismultithread := oldm;
 
-    result.AddStrings(parm2.list);
-    result.AddStrings(parm3.list);
-    result.AddStrings(parm4.list);
-    result.AddStrings(parm5.list);
-    result.AddStrings(parm6.list);
+    Result.AddStrings(parm2.list);
+    Result.AddStrings(parm3.list);
+    Result.AddStrings(parm4.list);
+    Result.AddStrings(parm5.list);
+    Result.AddStrings(parm6.list);
 
     parm2.list.Free;
     parm3.list.Free;
@@ -157,7 +157,7 @@ begin
   begin
     parm1.idx := 0;
     parm1.numidxs := 8;
-    parm1.list := result;
+    parm1.list := Result;
 
     parm2.idx := 1;
     parm2.numidxs := 8;
@@ -187,8 +187,6 @@ begin
     parm8.numidxs := 8;
     parm8.list := TStringList.Create;
 
-    oldm := ismultithread;
-    ismultithread := true;
     MT_Execute(
       func, @parm1,
       func, @parm2,
@@ -199,15 +197,14 @@ begin
       func, @parm7,
       func, @parm8
     );
-    ismultithread := oldm;
 
-    result.AddStrings(parm2.list);
-    result.AddStrings(parm3.list);
-    result.AddStrings(parm4.list);
-    result.AddStrings(parm5.list);
-    result.AddStrings(parm6.list);
-    result.AddStrings(parm7.list);
-    result.AddStrings(parm8.list);
+    Result.AddStrings(parm2.list);
+    Result.AddStrings(parm3.list);
+    Result.AddStrings(parm4.list);
+    Result.AddStrings(parm5.list);
+    Result.AddStrings(parm6.list);
+    Result.AddStrings(parm7.list);
+    Result.AddStrings(parm8.list);
 
     parm2.list.Free;
     parm3.list.Free;
@@ -219,19 +216,26 @@ begin
   end;
 end;
   
-function MT_Iterate_Double(const func: threadfunc_t; const parm: double): TStringList;
+function MT_Iterate_Double(const func: threadfunc_t; const parm: double; const domultithread: boolean = True): TStringList;
 var
   parm1, parm2, parm3, parm4, parm5, parm6, parm7, parm8: iterator_double_t;
-  oldm: boolean;
 begin
-  result := TStringList.Create;
+  Result := TStringList.Create;
 
-  if I_GetNumCPUs <= 4 then
+  if not domultithread then
   begin
     parm1.idx := 0;
     parm1.numidxs := 4;
     parm1.param := parm;
-    parm1.list := result;
+    parm1.list := Result;
+    func(@parm1);
+  end
+  else if I_GetNumCPUs <= 4 then
+  begin
+    parm1.idx := 0;
+    parm1.numidxs := 4;
+    parm1.param := parm;
+    parm1.list := Result;
 
     parm2.idx := 1;
     parm2.numidxs := 4;
@@ -248,19 +252,16 @@ begin
     parm4.param := parm;
     parm4.list := TStringList.Create;
 
-    oldm := ismultithread;
-    ismultithread := true;
     MT_Execute(
       func, @parm1,
       func, @parm2,
       func, @parm3,
       func, @parm4
     );
-    ismultithread := oldm;
 
-    result.AddStrings(parm2.list);
-    result.AddStrings(parm3.list);
-    result.AddStrings(parm4.list);
+    Result.AddStrings(parm2.list);
+    Result.AddStrings(parm3.list);
+    Result.AddStrings(parm4.list);
 
     parm2.list.Free;
     parm3.list.Free;
@@ -271,7 +272,7 @@ begin
     parm1.idx := 0;
     parm1.numidxs := 6;
     parm1.param := parm;
-    parm1.list := result;
+    parm1.list := Result;
 
     parm2.idx := 1;
     parm2.numidxs := 6;
@@ -298,8 +299,6 @@ begin
     parm6.param := parm;
     parm6.list := TStringList.Create;
 
-    oldm := ismultithread;
-    ismultithread := true;
     MT_Execute(
       func, @parm1,
       func, @parm2,
@@ -308,13 +307,12 @@ begin
       func, @parm5,
       func, @parm6
     );
-    ismultithread := oldm;
 
-    result.AddStrings(parm2.list);
-    result.AddStrings(parm3.list);
-    result.AddStrings(parm4.list);
-    result.AddStrings(parm5.list);
-    result.AddStrings(parm6.list);
+    Result.AddStrings(parm2.list);
+    Result.AddStrings(parm3.list);
+    Result.AddStrings(parm4.list);
+    Result.AddStrings(parm5.list);
+    Result.AddStrings(parm6.list);
 
     parm2.list.Free;
     parm3.list.Free;
@@ -327,7 +325,7 @@ begin
     parm1.idx := 0;
     parm1.numidxs := 8;
     parm1.param := parm;
-    parm1.list := result;
+    parm1.list := Result;
 
     parm2.idx := 1;
     parm2.numidxs := 8;
@@ -364,8 +362,6 @@ begin
     parm8.param := parm;
     parm8.list := TStringList.Create;
 
-    oldm := ismultithread;
-    ismultithread := true;
     MT_Execute(
       func, @parm1,
       func, @parm2,
@@ -376,15 +372,14 @@ begin
       func, @parm7,
       func, @parm8
     );
-    ismultithread := oldm;
 
-    result.AddStrings(parm2.list);
-    result.AddStrings(parm3.list);
-    result.AddStrings(parm4.list);
-    result.AddStrings(parm5.list);
-    result.AddStrings(parm6.list);
-    result.AddStrings(parm7.list);
-    result.AddStrings(parm8.list);
+    Result.AddStrings(parm2.list);
+    Result.AddStrings(parm3.list);
+    Result.AddStrings(parm4.list);
+    Result.AddStrings(parm5.list);
+    Result.AddStrings(parm6.list);
+    Result.AddStrings(parm7.list);
+    Result.AddStrings(parm8.list);
 
     parm2.list.Free;
     parm3.list.Free;

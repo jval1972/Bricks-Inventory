@@ -321,6 +321,15 @@ type
     Lugbulk2019items1: TMenuItem;
     N45: TMenuItem;
     Comparesets1: TMenuItem;
+    Pieceswithunknownweight1: TMenuItem;
+    N46: TMenuItem;
+    SpeedButton2: TSpeedButton;
+    MinifiguresIcanbuild1: TMenuItem;
+    N47: TMenuItem;
+    OpenItemPU1: TMenuItem;
+    N48: TMenuItem;
+    Instructionswithunknownweight1: TMenuItem;
+    OriginalBoxeswithunknownweight1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -530,6 +539,12 @@ type
     procedure Lugbulk2018items1Click(Sender: TObject);
     procedure Lugbulk2019items1Click(Sender: TObject);
     procedure Comparesets1Click(Sender: TObject);
+    procedure Pieceswithunknownweight1Click(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
+    procedure MinifiguresIcanbuild1Click(Sender: TObject);
+    procedure OpenItemPU1Click(Sender: TObject);
+    procedure Instructionswithunknownweight1Click(Sender: TObject);
+    procedure OriginalBoxeswithunknownweight1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -568,7 +583,8 @@ type
     procedure PreviewSetInventory(const setid: string);
     procedure ShowColors;
     procedure ShowCategoryColors(const cat: integer);
-    function HtmlDrawInvImgLink(const pcs: string; const color: integer; const pi: TPieceInfo): string;
+    function HtmlDrawInvImgLink(const pcs: string; const color: integer;
+      const pi: TPieceInfo): string;
     procedure ShowCategories;
     procedure ShowPiece(pcs: string; const year: integer = -1);
     procedure DoAddNewSetAsPiece(const pcs: string; const desc: string);
@@ -591,6 +607,9 @@ type
     procedure DrawSetAlternatePieceList(const tit: string; const lst: TStringList);
     procedure PiecesWithDaysToUpdate(const x: integer);
     procedure PiecesWithDaysToUpdateRange(const ax1, ax2: integer);
+    procedure PiecesUnknownWeight;
+    procedure InstructionsUnknownWeight;
+    procedure BoxesUnknownWeight;
     procedure UsedPiecesbeloweuroKgr(const x: integer);
     procedure UsedPiecesaboveeuroKgr(const x: integer);
     procedure NewPiecesbeloweuroKgr(const x: integer);
@@ -610,8 +629,9 @@ type
     procedure PiecesNewAtYear_Minifigure(const y: integer);
     procedure MoldsYearQry(const y: integer; const firstappeared: boolean);
     procedure ShowPieceCInventory(const pcs: string; const color: integer);
-    procedure ShowColorPiece(const pcs: string; const color: integer; const ayear: integer = -1; const doshowsets: boolean = True);
-    procedure ShowSetsICanBuild(const pct: double);
+    procedure ShowColorPiece(const apcs: string; const color: integer; const ayear: integer = -1; const doshowsets: boolean = True);
+    procedure ShowInstructions(const apcs: string);
+    procedure ShowSetsICanBuild(const pct: double; const dosets, dofigs: boolean);
     procedure ShowSetsAtYear(const year: integer);
     procedure ShowSetsAtUnknownYear;
     procedure UpdateUnknownYearFromDisk(const qry: string);
@@ -653,12 +673,15 @@ type
     procedure ShowLugbulkBestPriceNoBrickOrder(const year: string; const over: double; const catid: integer  = -1);
     procedure ShowStorageBins;
     procedure ShowStorageInventory(const st: string);
+    procedure ShowMyMinifigInventory(const doloose, doofsets, domocs: boolean);
     procedure ShowHomePage;
     function ShowInventorySets(const inv: TBrickInventory; const header_flash: boolean; const mocflag: integer): boolean;
-    procedure ShowMySets;
+    procedure ShowMySetsAndMocs;
     procedure ShowMyMocs;
+    procedure ShowMyOfficialSets;
     procedure ShowMySetsPieces;
     procedure ShowMyMocsPieces;
+    procedure ShowMyMinifiguresMenu;
     procedure ShowMyPiecesValue;
     procedure ShowLengthQuery(const id: string);
     procedure ShowLengthQuerySlopes(const id: string);
@@ -666,6 +689,7 @@ type
     procedure DrawNavigateCatalog;
     procedure DrawHeadLine(const s: string);
     procedure DrawHeadLine2(const s1, s2: string);
+    procedure DrawHeadLineN(const ll: TStringList);
     procedure DrawPartOutValueWithOutSets(inv: TBrickInventory; const setid: string = '');
     procedure DrawPartOutValue(inv: TBrickInventory; const setid: string = '');
     procedure DrawInventoryTable(inv: TBrickInventory; const lite: Boolean = False;
@@ -675,7 +699,9 @@ type
     procedure DrawBrickOrderInfo(const brick: brickpool_p; const setid: string = ''; const aspan1: integer = -1; const aspan2: integer = -1);
     procedure UpdateDismantaledsetsinv;
     procedure DrawPriceguide(const part: string; const color: integer = -1);
+    procedure DrawPriceguideEx(const part: string; const color: integer; const at: TDateTime);
     procedure HTMLClick(const SRC1: String; var Handled: Boolean);
+    procedure AdjustStreamsSize;
     procedure doHTMLClick(const SRC1: String; var Handled: Boolean);
     procedure StoreInventoryStatsRec(const piece: string; const color: string = '');
     procedure DoEditSet(const setid: string);
@@ -686,6 +712,10 @@ type
     procedure ShowNameswithbothpartandsetcolorindexes;
     procedure ShowChildMolds(const basepcs: string);
     procedure ShowFamilyMolds(const basepcs: string);
+    procedure ShowMoldVariations(const basepcs: string);
+    procedure ShowPieceAlternates(const basepcs: string);
+    procedure ShowPiecePatterns(const basepcs: string);
+    procedure ShowPiecePrints(const basepcs: string);
     function MakeThumbnailImageEx(const pcs1: string; const typof: char; const ncolor: integer = -1000): string;
     function MakeThumbnailImageExCache(const pcs: string; const typof: char; const ncolor: integer = -1000): string;
     function ConvertThumbnailImageExCache(const imgfile: string): boolean;
@@ -698,6 +728,12 @@ type
     function CanOpenInNewTab(const surl: string): boolean;
     procedure ErrorBeep;
     function DoOpenUrlInNewTable(const aUrl: string): boolean;
+    function GetRebrickableColorHtml(const cl: integer): string;
+    function AutoCorrectUnknownPieceYears: boolean;
+    procedure DoUpdateInstructionsFromNet(const sset: string);
+    procedure DoUpdateInstructionsFromNetHost(const sset: string; const host: string);
+    procedure DoUpdateInstructionsFromPdf(const sset: string);
+    function RemoveImageFromCache(const simg: string): boolean;
   public
     { Public declarations }
     activebits: integer;
@@ -709,14 +745,16 @@ var
 implementation
 
 uses
-  DateUtils, bi_pak, bi_io, bi_system, bi_tmp, slpash, bi_utils, timing,
-  searchset, searchpart, frm_multiplesets, PreviewForm, bl_orderxml,
+  DateUtils, ShellApi, bi_pak, bi_io, bi_system, bi_tmp, slpash, bi_utils,
+  timing, searchset, searchpart, frm_multiplesets, PreviewForm, bl_orderxml,
   compare2sets, mosaicfrm, mosaicfrm_plates, mosaicfrm_tiles, editpiecefrm,
-  removepiecefromstoragefrm, strutils, frm_diagrams, frm_lugbulksuggest,
-  frm_selectsets, bi_script, frm_batch, bi_globals, frm_setsforpartout_params,
-  frm_editsetastext, searchstorage, frm_setsminifigspartout_params, editmoldfrm,
-  frm_update1, frm_update2, frm_update3, frm_update4, frm_editlugbulkprice,
-  frm_options, bi_multithread, bi_iterators, bi_defs, bi_data, bi_crawler;
+  removepiecefromstoragefrm, strutils, frm_diagrams, frm_setsforpartout_params,
+  frm_selectsets, searchstorage, frm_batch, bi_globals, frm_lugbulksuggest,
+  frm_editsetastext, frm_setsminifigspartout_params, editmoldfrm, frm_update1,
+  frm_update2, frm_update3, frm_update4, bi_cachefile, frm_editlugbulkprice,
+  frm_options, bi_multithread, bi_iterators, bi_defs, bi_crawler, bi_script,
+  buildinexcludes, bi_instructions, frm_pdfinstructions, bi_data,
+  bi_imagerotate;
 
 {$R *.dfm}
 
@@ -762,18 +800,20 @@ type
   TTabItem = class(TComponent)
   protected
     fgoback, fgofwd: TStringList;
+    fAddress: string;
     fTitle: string;
     fHtmlString: string;
     fHScroll, fVScroll: integer;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Store(const HTML: THTMLViewer; const agoback, agofwd: TStringList);
-    procedure Restore(const HTML: THTMLViewer; const agoback, agofwd: TStringList);
+    procedure Store(const HTML: THTMLViewer; const aaddress: string; const agoback, agofwd: TStringList);
+    procedure Restore(const HTML: THTMLViewer; const aEdit: TEdit; const agoback, agofwd: TStringList);
     property goback: TStringList read fgoback;
     property gofwd: TStringList read fgofwd;
     property Title: string read fTitle write fTitle;
     property HtmlString: string read fHtmlString write fHtmlString;
+    property Address: string read fAddress write fAddress;
   end;
 
 constructor TTabItem.Create(AOwner: TComponent);
@@ -781,6 +821,7 @@ begin
   Inherited Create(AOwner);
   fgoback := TStringList.Create;
   fgofwd := TStringList.Create;
+  fAddress := '';
   fTitle := '';
   fHtmlString := '';
   fHScroll := 0;
@@ -796,10 +837,11 @@ begin
   Inherited;
 end;
 
-procedure TTabItem.Store(const HTML: THTMLViewer; const agoback, agofwd: TStringList);
+procedure TTabItem.Store(const HTML: THTMLViewer; const aaddress: string; const agoback, agofwd: TStringList);
 var
   i: integer;
 begin
+  fAddress := aaddress;
   for i := 0 to fgoback.Count - 1 do
     fgoback.Objects[i].Free;
   fgoback.Clear;
@@ -820,11 +862,12 @@ begin
   fVScroll := HTML.VScrollBarPosition;
 end;
 
-procedure TTabItem.Restore(const HTML: THTMLViewer; const agoback, agofwd: TStringList);
+procedure TTabItem.Restore(const HTML: THTMLViewer; const aEdit: TEdit; const agoback, agofwd: TStringList);
 var
   i: integer;
   dd: TDocument;
 begin
+  aEdit.Text := fAddress;
   for i := 0 to agoback.Count - 1 do
     agoback.Objects[i].Free;
   agoback.Clear;
@@ -1063,7 +1106,7 @@ begin
     9997:
       document.Write('<table border=1 width=' + IntToStr(width) + ' bgcolor="#' + IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#FFFFFF><b>I</b></font></p></td></tr></table>');
     9998:
-      document.Write('<table border=1 width=' + IntToStr(width) + ' bgcolor="#' + IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#FFFFFF><b>B</b></font></p></td></tr></table>');
+      document.Write('<table border=1 width=' + IntToStr(width) + ' bgcolor="#' + IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#FFFFFF><b>O</b></font></p></td></tr></table>');
     else
       document.BlancColorCell(db.colors(cc).RGB, width);
   end;
@@ -1076,15 +1119,15 @@ begin
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tr>');
 {  document.write('<td width=16%><a href="back">Back</a></td>');
   document.write('<td width=16%><a href="fwd">Forward</a></td>');}
-  document.write('<td width=16%><a href="home">Home</a></td>');
-  document.write('<td width=16%><a href="cataloghome">Catalog</a></td>');
-  document.write('<td width=16%><a href="inv/0/C/-1">My loose parts</a></td>');
-  document.write('<td width=16%><a href="mysets">My sets</a></td>');
-  document.write('<td width=16%><a href="mymocs">My mocs</a></td>');
-  document.write('<td width=16%><a href="colors">Colors</a></td>');
-  document.write('<td width=16%><a href="categories">Categories</a></td>');
-  document.write('<td width=16%><a href="orders">Orders</a></td>');
-  document.write('<td width=16%><a href="ShowStorageBins">Storage Bins</a></td>');
+  document.write('<td width=10%><a href="home">Home</a></td>');
+  document.write('<td width=12%><a href="cataloghome">Catalog</a></td>');
+  document.write('<td width=12%><a href="inv/0/C/-1">My loose parts</a></td>');
+  document.write('<td width=12%><a href="mysetsandmocs">My official sets and mocs</a></td>');
+  document.write('<td width=12%><a href="ShowMyMinifiguresMenu">My minifigures</a></td>');
+  document.write('<td width=10%><a href="colors">Colors</a></td>');
+  document.write('<td width=12%><a href="categories">Categories</a></td>');
+  document.write('<td width=10%><a href="orders">Orders</a></td>');
+  document.write('<td width=12%><a href="ShowStorageBins">Storage Bins</a></td>');
 
   document.write('</tr></table></p></div><br><br>');
 
@@ -1108,6 +1151,7 @@ begin
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogparts">Parts</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogpartsinv">Parts with inventory</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogsets">Sets</a></td></tr>');
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogsetsnoinv">Sets without inventory</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogminifigures">Minifigures</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogmocs">Mocs</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="cataloginstructions">Instructions</a></td></tr>');
@@ -1138,17 +1182,51 @@ procedure TMainForm.DrawHeadLine2(const s1, s2: string);
 begin
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
   document.write('<tr bgcolor=' + DBGCOLOR + '>');
+
   document.write('<td width 50%>');
   document.write('<font color=' + DFGCOLOR + '>');
   document.write('<h3 align=center>' + s1 + '</h3>');
   document.write('</font>');
   document.write('</td>');
+
   document.write('<td width 50%>');
   document.write('<font color=' + DFGCOLOR + '>');
   document.write('<h3 align=center>' + s2 + '</h3>');
   document.write('</font>');
   document.write('</td>');
+
   document.write('</tr></table>');
+end;
+
+procedure TMainForm.DrawHeadLineN(const ll: TStringList);
+var
+  i: integer;
+  ww: integer;
+begin
+  if ll.Count = 0 then
+    Exit;
+  if ll.Count = 1 then
+    DrawHeadLine((ll.Objects[0] as TString).text)
+  else if ll.Count = 2 then
+    DrawHeadLine2((ll.Objects[0] as TString).text, (ll.Objects[1] as TString).text)
+  else
+  begin
+    ww := 100 div ll.Count;
+    document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+    document.write('<tr bgcolor=' + DBGCOLOR + '>');
+    for i := 0 to ll.Count - 1 do
+    begin
+      if i = 0 then
+        document.write('<td width=' + itoa(100 - (ll.Count - 1) * ww) + '%>')
+      else
+        document.write('<td width=' + itoa(ww) + '%>');
+      document.write('<font color=' + DFGCOLOR + '>');
+      document.write('<h3 align=center>' + (ll.Objects[i] as TString).text + '</h3>');
+      document.write('</font>');
+      document.write('</td>');
+    end;
+    document.write('</tr></table>');
+  end;
 end;
 
 procedure TMainForm.DrawOrderInf(const orderid: string);
@@ -1603,6 +1681,95 @@ begin
 end;
 
 
+procedure TMainForm.ShowMyMinifigInventory(const doloose, doofsets, domocs: boolean);
+var
+  inv, itmp: TBrickInventory;
+  tit: string;
+  i, j: integer;
+begin
+  Screen.Cursor := crHourGlass;
+
+  if domultipagedocuments then
+    document.NewMultiPageDocument('ShowMyMinifigInventory_', btoa(doloose) + '_' + btoa(doofsets) + '_' + btoa(domocs));
+
+  document.write('<body background="splash.jpg">');
+  tit := 'Minifigures (';
+  if doloose then
+    tit := tit + 'loose';
+  if doofsets then
+    if tit[length(tit)] <> '(' then
+      tit := tit + ', sets'
+    else
+      tit := tit + 'sets';
+  if domocs then
+    if tit[length(tit)] <> '(' then
+      tit := tit + ', mocs'
+    else
+      tit := tit + 'mocs';
+    tit := tit + ')';
+
+  document.title(tit);
+
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+
+  inv := TBrickInventory.Create;
+  if doloose then
+  begin
+    itmp := inventory.Minifigures;
+    inv.MergeWith(itmp);
+    itmp.Free;
+  end;
+  if doofsets then
+  begin
+    for i := 0 to inventory.numsets - 1 do
+      if inventory.sets[i].num > 0 then
+        if not db.IsMoc(inventory.sets[i].setid) then
+        begin
+          itmp := db.GetSetInventory(inventory.sets[i].setid);
+          if itmp <> nil then
+          begin
+            itmp := itmp.Minifigures;
+            for j := 0 to inventory.sets[i].num - 1 do
+              inv.MergeWith(itmp);
+            itmp.Free;
+          end;
+        end;
+  end;
+  if domocs then
+  begin
+    for i := 0 to inventory.numsets - 1 do
+      if inventory.sets[i].num > 0 then
+        if db.IsMoc(inventory.sets[i].setid) then
+        begin
+          itmp := db.GetSetInventory(inventory.sets[i].setid);
+          if itmp <> nil then
+          begin
+            itmp := itmp.Minifigures;
+            for j := 0 to inventory.sets[i].num - 1 do
+              inv.MergeWith(itmp);
+            itmp.Free;
+          end;
+        end;
+  end;
+
+  DrawHeadLine(tit);
+
+  inv.SortPiecesByPartNumber;
+
+  DrawInventoryTable(inv);
+  document.write('<br>');
+  document.write('<br>');
+  document.write('</p>');
+  document.write('</div>');
+  document.write('</body>');
+  inv.Free;
+  document.SaveBufferToFile(diskmirror);
+  document.Flash;
+  Screen.Cursor := crDefault;
+end;
+
 procedure TMainForm.ShowOrder(const orderid: string);
 var
   inv: TBrickInventory;
@@ -1671,9 +1838,12 @@ begin
   document.write('<th><b>Quick links</b></th>');
   document.write('</tr>');
 
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="cataloghome">Catalog</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="inv/0/C/-1">My loose parts</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="mysets">My sets</a></td></tr>');
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="mysetsandmocs">My official sets and mocs</a></td></tr>');
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="myofficialsets">My official sets</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="mymocs">My mocs</a></td></tr>');
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifiguresMenu">My minifigures</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="colors">Colors</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="categories">Categories</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="orders">Orders</a></td></tr>');
@@ -1704,6 +1874,16 @@ begin
   Result := db.GetBLNetPieceName(s1) + '.' + s2;
 end;
 
+function IsThumbImageLink(const src: string): boolean;
+begin
+  if Length(src) < 8 then
+  begin
+    Result := False;
+    Exit;
+  end;
+  Result := (toupper(src[1]) = 'T') and (toupper(src[2]) = 'H') and (src[4] in ['\', '/']);
+end;
+
 procedure TMainForm.HTMLImageRequest(Sender: TObject; const SRC: String;
   var Stream: TMemoryStream);
 var
@@ -1726,6 +1906,8 @@ var
   didgear: boolean;
   jnewblname: string;
   pnewblname: string;
+  curS: string;
+  curM: TMemoryStream;
 
   function BLCOLOR1: string;
   var
@@ -1761,7 +1943,7 @@ begin
   if Pos('//static.bricklink', SRC) = 1 then
     Exit;
 
-  if toupper(scheck[1]) = 'T' then
+  if IsThumbImageLink(scheck) then
   begin
     if not fexists(basedefault + scheck) then
       ConvertThumbnailImageExCache(scheck);
@@ -1770,7 +1952,7 @@ begin
 
   if fexists(basedefault + SRC) then
   begin
-    if RightStr(SRC, 4) = '.jpg' then // set
+    if (RightStr(SRC, 4) = '.jpg') and (Pos('s\', scheck) = 1) then // set
     begin
       trydownload := not CheckValidImageDonwload(basedefault + 's\' + ExtractFileName(SRC));
       if not trydownload then
@@ -1789,14 +1971,14 @@ begin
     ps := TPakStream.Create(SRC, pm_full);
     trydownload := (ps.IOResult <> 0) and (idx2 = -1);
     if not trydownload then
-      if RightStr(SRC, 4) = '.jpg' then // set
+      if (RightStr(SRC, 4) = '.jpg') and (Pos('s\', scheck) = 1) then // set
         if fexists(basedefault + 's\' + ExtractFileName(SRC)) then
           trydownload := not CheckValidImageDonwload(basedefault + 's\' + ExtractFileName(SRC));
     if trydownload then
     begin
       Screen.Cursor := crHourglass;
       ps.Free;
-      if RightStr(SRC, 4) = '.jpg' then // set
+      if (RightStr(SRC, 4) = '.jpg') and (Pos('s\', scheck) = 1)then // set
       begin
         ForceDirectories(basedefault + 's\');
         jpgfilename := ExtractFileName(SRC);
@@ -1887,24 +2069,25 @@ begin
         begin
           outfname := basedefault + itoa(INSTRUCTIONCOLORINDEX) + '\' + ExtractFileName(SRC);
           if not DownloadFileImg('https://img.bricklink.com/ItemImage/IN/0/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
-            if not DownloadFileImg('https://img.bricklink.com/ItemImage/IT/0/' + ChangeFileExt(NewBlFileName(ExtractFileName(SRC)), '.t1.png'), outfname) then
-              if not DownloadJpgFileToPNG('http://img.bricklink.com/I/' + NewBlFileName(ChangeFileExt(ExtractFileName(SRC), '.jpg')), outfname) then
-              begin
-                iname1 := ChangeFileExt(ExtractFileName(SRC), '');
-                if Length(iname1) > 5 then
-                  if Pos('-1', iname1) = Length(iname1) - 1 then
-                  begin
-                    SetLength(iname1, Length(iname1) - 2);
-                    iname2 := iname1;
-                    iname2[Length(iname2) - 2] := '0';
-                    iname2[Length(iname2) - 1] := '0';
-                    iname2[Length(iname2) - 0] := '0';
-                    while Length(iname2) < 5 do
-                      iname2 := '0' + iname2;
-                    if not DownloadJpgFileToPNG('http://lego.brickinstructions.com/' + iname2 + '/' + iname1 + '/001.jpg', outfname) then
-                      DownloadJpgFileToPNG('http://lego.brickinstructions.com/' + iname2 + '/' + iname1 + '/main.jpg', outfname);
-                  end;
-              end;
+            if not DownloadFileImg('https://img.bricklink.com/ItemImage/IN/0/' + NewBlFileName(ChangeFileExt(ExtractFileName(SRC), '') + '-99') + '.png', outfname) then
+              if not DownloadFileImg('https://img.bricklink.com/ItemImage/IT/0/' + ChangeFileExt(NewBlFileName(ExtractFileName(SRC)), '.t1.png'), outfname) then
+                if not DownloadJpgFileToPNG('http://img.bricklink.com/I/' + NewBlFileName(ChangeFileExt(ExtractFileName(SRC), '.jpg')), outfname) then
+                begin
+                  iname1 := ChangeFileExt(ExtractFileName(SRC), '');
+                  if Length(iname1) > 5 then
+                    if Pos('-1', iname1) = Length(iname1) - 1 then
+                    begin
+                      SetLength(iname1, Length(iname1) - 2);
+                      iname2 := iname1;
+                      iname2[Length(iname2) - 2] := '0';
+                      iname2[Length(iname2) - 1] := '0';
+                      iname2[Length(iname2) - 0] := '0';
+                      while Length(iname2) < 5 do
+                        iname2 := '0' + iname2;
+                      if not DownloadJpgFileToPNG('http://lego.brickinstructions.com/' + iname2 + '/' + iname1 + '/001.jpg', outfname) then
+                        DownloadJpgFileToPNG('http://lego.brickinstructions.com/' + iname2 + '/' + iname1 + '/main.jpg', outfname);
+                    end;
+                end;
         end
         else if RBCOLOR1 = itoa(BOXCOLORINDEX) then
         begin
@@ -2002,7 +2185,7 @@ begin
       sTmp := FindThumbnailImageFileNameForHtmlReq(SRC);
       if sTmp <> '' then
       begin
-        if fExists(basedefault + sTmp) then
+        if fexists(basedefault + sTmp) then
         begin
           ps := TPakStream.Create(basedefault + sTmp, pm_full);
           if ps.IOResult <> 0 then
@@ -2047,8 +2230,20 @@ begin
     ps.Free;
     idx := streams.AddObject(strupper(SRC), m);
   end;
+  if idx > 1 then
+  begin
+    curS := streams.Strings[idx];
+    curM := streams.Objects[idx] as TMemoryStream;
+    streams.Delete(idx);
+    streams.Insert(0, curS);
+    streams.Objects[0] := curM;
+    idx := 0;
+  end;
+  Stream := streams.Objects[idx] as TMemoryStream;
+
+{  curM: TMemoryStream;
   Streams.Exchange(0, idx);
-  Stream := streams.Objects[0] as TMemoryStream;
+  Stream := streams.Objects[0] as TMemoryStream;}
 end;
 
 procedure TMainForm.FormDestroy(Sender: TObject);
@@ -2148,8 +2343,18 @@ begin
     MkDir(basedefault + 'out\navigate');
   if not DirectoryExists(basedefault + 'db') then
     MkDir(basedefault + 'db');
+  if not DirectoryExists(basedefault + 'db\instructions') then
+    MkDir(basedefault + 'db\instructions');
+  if not DirectoryExists(basedefault + 'db\boxes') then
+    MkDir(basedefault + 'db\boxes');
   if not DirectoryExists(basedefault + 'db\setmolds') then
     MkDir(basedefault + 'db\setmolds');
+  if not DirectoryExists(basedefault + 'db\books') then
+    MkDir(basedefault + 'db\books');
+  if not DirectoryExists(basedefault + 'db\gears') then
+    MkDir(basedefault + 'db\gears');
+  if not DirectoryExists(basedefault + 'db\minifigs') then
+    MkDir(basedefault + 'db\minifigs');
   if not DirectoryExists(basedefault + 'db\rmolds') then
     MkDir(basedefault + 'db\rmolds');
   if not DirectoryExists(basedefault + 'db\molds') then
@@ -2174,6 +2379,8 @@ begin
     MkDir(basedefault + 'mosaic');
   if not DirectoryExists(basedefault + 's') then
     MkDir(basedefault + 's');
+  if not DirectoryExists(basedefault + '9997') then
+    MkDir(basedefault + '9997');
   if not DirectoryExists(basedefault + 'orders') then
     MkDir(basedefault + 'orders');
   if not DirectoryExists(basedefault + 'storage') then
@@ -2206,11 +2413,13 @@ begin
 
   document.savepath := basedefault + 'out\navigate\';
 
+  AddressEdit.Text := 'home';
+
   goback.AddObject('home', TScrollPos.Create(0, 0));
   ShowHomePage;
   Caption := Application.Title + ' - ' + HTML.DocumentTitle;
   tb := TTabItem.Create(TabControl1);
-  tb.Store(HTML, goback, gofwd);
+  tb.Store(HTML, 'home', goback, gofwd);
   TabControl1.Tabs.AddObject(HTML.DocumentTitle, tb);
 {  db.CrawlerPriorityPart('15714', 15);
   db.CrawlerPriorityPart('15714', 41);
@@ -2251,7 +2460,9 @@ begin
   document.write('<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>');
   document.write('<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>');
   document.write('<th>');
-  document.write('<b>Inventory (Part Out) Value (%d parts in %d lots)</b>', [inv.totallooseparts, inv.numlooseparts]);
+  document.write('<b>Inventory (Part Out) Value (%d ' +
+                  decide(inv.totallooseparts = 1, 'part', 'parts') + ' in %d ' + decide(inv.numlooseparts = 1, 'lot', 'lots') + ')</b>',
+                  [inv.totallooseparts, inv.numlooseparts]);
   if setid <> '' then
     document.write(' <a href=refreshset/' + setid + '><img src="images\refresh.png"></a>');
   document.write('</th></table>');
@@ -2557,6 +2768,7 @@ var
   totalcostwn: double;
   totalcostwu: double;
   scolor: string;
+  www: double;
 begin
   UpdateDismantaledsetsinv;
 
@@ -2603,21 +2815,23 @@ begin
 //    pci := db.PieceColorInfo(brick.part, brick.color);
     pci := db.PieceColorInfo(brick);
     cinfo := db.colors(brick.color);
-    document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name + ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')</td>');
+    document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name +
+      ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(brick.color) + '</td>');
     document.write('<td width=10% align=right>' + IntToStr(brick.num));
     document.write('</td>');
     pi := db.PieceInfo(pci);
     if pci <> nil then
     begin
+      www := db.GetItemWeight(pci.piece, pci.color, pi);
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
-      document.write('<td width=15% align=right>' + Format('€ ' + accurstr + '<br>€ ' + accurstr + '<br>€ %2.2f / Krg', [prn, prn * brick.num, dbl_safe_div(prn, pi.weight) * 1000]) + '</td>');
-      document.write('<td width=15% align=right>' + Format('€ ' + accurstr + '<br>€ ' + accurstr + '<br>€ %2.2f / Krg', [pru, pru * brick.num, dbl_safe_div(pru, pi.weight) * 1000]) + '</td>');
+      document.write('<td width=15% align=right>' + Format('€ ' + accurstr + '<br>€ ' + accurstr + '<br>€ %2.2f / Kgr', [prn, prn * brick.num, dbl_safe_div(prn, www) * 1000]) + '</td>');
+      document.write('<td width=15% align=right>' + Format('€ ' + accurstr + '<br>€ ' + accurstr + '<br>€ %2.2f / Kgr', [pru, pru * brick.num, dbl_safe_div(pru, www) * 1000]) + '</td>');
       prnt := prnt + prn * brick.num;
       prut := prut + pru * brick.num;
-      if pi.weight > 0.0 then
+      if www > 0.0 then
       begin
-        totalweight := totalweight + pi.weight * brick.num;
+        totalweight := totalweight + www * brick.num;
         totalcostwn := totalcostwn + prn * brick.num;
         totalcostwu := totalcostwu + pru * brick.num;
       end;
@@ -2644,8 +2858,8 @@ begin
   document.write('<td width=20%><b>' + IntToStr(cl.Count) + ' unique color' + decide(cl.Count = 1, '', 's') + '</b></td>');
 
   document.write('<td width=10% align=right><b>' + IntToStr(num) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Krg', [prnt, dbl_safe_div(totalcostwn, totalweight) * 1000]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Krg', [prut, dbl_safe_div(totalcostwu, totalweight) * 1000]) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Kgr', [prnt, dbl_safe_div(totalcostwn, totalweight) * 1000]) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Kgr', [prut, dbl_safe_div(totalcostwu, totalweight) * 1000]) + '</b></td>');
   document.write('</tr>');
   SplashProgress('Working...', 1);
 
@@ -2689,6 +2903,7 @@ var
   lcost, lcostt: double;
   lugcostedit: string;
   cinfo: colorinfo_p;
+  www: double;
 begin
   UpdateDismantaledsetsinv;
 
@@ -2756,7 +2971,8 @@ begin
       if not lite then
         document.StartItemId(aa);
     scolor := itoa(brick.Color);
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img src=' + scolor + '\' + brick.part + '.png><br><b>');
+    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' +
+      IntToStr(aa) + '.</td><td width=35%><img src=' + scolor + '\' + brick.part + '.png><br><b>');
     document.write('<a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
     document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=20%>');
     DrawColorCell(brick.color, 25);
@@ -2768,10 +2984,17 @@ begin
       pi := db.PieceInfo(brick.part);
     cinfo := db.colors(brick.color);
     if lite or (pci = nil) then
-      document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name + ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')<img src="images\details.png"></a>' + HtmlDrawInvImgLink(brick.part, brick.color, pi) + '</td>')
+      document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name +
+        ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' +
+          GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
+          HtmlDrawInvImgLink(brick.part, brick.color, pi) + '</td>')
     else
-      document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name + ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')<img src="images\details.png"></a>' + HtmlDrawInvImgLink(brick.part, brick.color, pi) +
-        decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+      document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name +
+        ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' +
+          GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
+          HtmlDrawInvImgLink(brick.part, brick.color, pi) +
+          decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) +
+          ' times in ' + pci.setmost + '</a>') + '</td>');
     if not lite then
     begin
       if pci <> nil then
@@ -2794,7 +3017,8 @@ begin
     begin
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
-      document.write('<td width=' + decide(lite, '15%', '10%') + ' align=right>' + Format('€ ' + accurstr + '<br>€ ' + accurstr + '<br>€ %2.2f / Krg', [prn, prn * brick.num, dbl_safe_div(prn, pi.weight) * 1000]) + '</td>');
+      www := db.GetItemWeight(pci.piece, pci.color, pi);
+      document.write('<td width=' + decide(lite, '15%', '10%') + ' align=right>' + Format('€ ' + accurstr + '<br>€ ' + accurstr + '<br>€ %2.2f / Kgr', [prn, prn * brick.num, dbl_safe_div(prn, www) * 1000]) + '</td>');
       if (lb <> nil) and not lite then
       begin
         lcost := lb.ItemCost(pci.piece, pci.color);
@@ -2802,7 +3026,7 @@ begin
         if lcost >= 0.0 then
         begin
           lcostt := lcostt + lcost * brick.num;
-          document.write('<td width=' + decide(lite, '15%', '10%') + ' align=right>' + Format('€ ' + '<a href=' + lugcostedit + '>' + accurstr + '</a><br>€ ' + accurstr + '<br>€ %2.2f / Krg', [lcost, lcost * brick.num, dbl_safe_div(lcost, pi.weight) * 1000]) + '</td>')
+          document.write('<td width=' + decide(lite, '15%', '10%') + ' align=right>' + Format('€ ' + '<a href=' + lugcostedit + '>' + accurstr + '</a><br>€ ' + accurstr + '<br>€ %2.2f / Kgr', [lcost, lcost * brick.num, dbl_safe_div(lcost, www) * 1000]) + '</td>')
         end
         else
         begin
@@ -2814,12 +3038,12 @@ begin
         lcost := 0.0;
 
       if not lite then
-        document.write('<td width=10% align=right>' + Format('€ ' + accurstr + '<br>€ ' + accurstr + '<br>€ %2.2f / Krg', [pru, pru * brick.num, dbl_safe_div(pru, pi.weight) * 1000]) + '</td>');
+        document.write('<td width=10% align=right>' + Format('€ ' + accurstr + '<br>€ ' + accurstr + '<br>€ %2.2f / Kgr', [pru, pru * brick.num, dbl_safe_div(pru, www) * 1000]) + '</td>');
       prnt := prnt + prn * brick.num;
       prut := prut + pru * brick.num;
-      if pi.weight > 0.0 then
+      if www > 0.0 then
       begin
-        totalweight := totalweight + pi.weight * brick.num;
+        totalweight := totalweight + www * brick.num;
         totalcostwn := totalcostwn + prn * brick.num;
         totalcostwt := totalcostwt + lcost * brick.num;
         totalcostwu := totalcostwu + pru * brick.num;
@@ -2880,14 +3104,14 @@ begin
     document.write('<td width=10% align=right></td>');}
 
   document.write('<td width=10% align=right><b>' + IntToStr(num) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Krg', [prnt, dbl_safe_div(totalcostwn, totalweight) * 1000]) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Kgr', [prnt, dbl_safe_div(totalcostwn, totalweight) * 1000]) + '</b></td>');
 
   if lb <> nil then
-    document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Krg', [lcostt, dbl_safe_div(totalcostwt, totalweight) * 1000]) + '</b></td>');
+    document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Kgr', [lcostt, dbl_safe_div(totalcostwt, totalweight) * 1000]) + '</b></td>');
 
   if not lite then
   begin
-    document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Krg', [prut,  dbl_safe_div(totalcostwu, totalweight) * 1000]) + '</b></td>');
+    document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Kgr', [prut,  dbl_safe_div(totalcostwu, totalweight) * 1000]) + '</b></td>');
     if num = 0 then
       document.write('<td width=10% align=right><b>' + Format('€ %2.2f', [mycosttot]) + '</b></td>')
     else
@@ -2953,6 +3177,86 @@ begin
   document.write('</tr></table>');
 end;
 
+procedure TMainForm.DrawPriceguideEx(const part: string; const color: integer; const at: TDateTime);
+var
+  pg: priceguide_t;
+  av: availability_t;
+  PA: parecdate_t;
+
+  function _getdiagram(x1, x1a: double; const chid: integer): string;
+  begin
+    if x1 < x1a * 0.9 then
+      Result := ' <a href="diagrampieceex/' + part + '/' + itoa(color) + '/' + itoa(chid) + '"><img src="images\diagram_down.png"></a>'
+    else if x1 > x1a * 1.1 then
+      Result := ' <a href="diagrampieceex/' + part + '/' + itoa(color) + '/' + itoa(chid) + '"><img src="images\diagram_up.png"></a>'
+    else
+      Result := ' <a href="diagrampieceex/' + part + '/' + itoa(color) + '/' + itoa(chid) + '"><img src="images\diagram_flat.png"></a>';
+  end;
+
+  function _getcolex(const cont, til: string;
+    x1, x2: integer; y1, y2, y3, y4: Double;
+    x1a, x2a: integer; y1a, y2a, y3a, y4a: Double; const chbase: integer): string;
+  var
+    sx1, sx2: string;
+    sy1, sy2, sy3, sy4: string;
+  begin
+    sx1 := IntToStr(x1);
+    sx2 := IntToStr(x2);
+    sy1 := Format('%2.3f', [y1]);
+    sy2 := Format('%2.3f', [y2]);
+    sy3 := Format('%2.3f', [y3]);
+    sy4 := Format('%2.3f', [y4]);
+    Result := '<td width=25%><p align="center"><b>' + cont + '</b><br></p>';
+    Result := Result + '<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tbody><tr align="RIGHT">';
+    Result := Result + '<td width="50%">' + til + '</td><td width="50%"><b>' + sx1 + _getdiagram(x1, x1a, chbase);
+    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Total Qty:</td><td><b>' + sx2 + _getdiagram(x2, x2a, chbase + 1);
+    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Min Price:</td><td><b>€ ' + sy1 + _getdiagram(y1, y1a, chbase + 2);
+    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Avg Price:</td><td><b>€ ' + sy2 + _getdiagram(y2, y2a, chbase + 3);
+    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Qty Avg Price:</td><td><b>€ ' + sy3 + _getdiagram(y3, y3a, chbase + 4);
+    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Max Price:</td><td><b>€ ' + sy4 + _getdiagram(y4, y4a, chbase + 5);
+    Result := Result + '</b></td></tr></tbody></table></td>';
+  end;
+
+begin
+  pg := db.Priceguide(part, color);
+  av := db.Availability(part, color);
+  PA := db.PArecAt(part, color, at);
+
+  document.write('<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>');
+  document.write('<tr>');
+  document.write('<td width=50% align="center"><b>Priceguide</b></td>');
+  document.write('<td width=50% align="center"><b>Availability</b></td>');
+  document.write('</tr>');
+  document.write('</table>');
+  document.write('<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>');
+  document.write('<tr>');
+  document.write(_getcolex('New', 'Times Sold: ',
+    pg.nTimesSold, pg.nTotalQty, pg.nMinPrice, pg.nAvgPrice, pg.nQtyAvgPrice, pg.nMaxPrice,
+    PA.priceguide.nTimesSold, PA.priceguide.nTotalQty, PA.priceguide.nMinPrice, PA.priceguide.nAvgPrice, PA.priceguide.nQtyAvgPrice, PA.priceguide.nMaxPrice,
+    1
+    )
+  );
+  document.write(_getcolex('Used', 'Times Sold: ',
+    pg.uTimesSold, pg.uTotalQty, pg.uMinPrice, pg.uAvgPrice, pg.uQtyAvgPrice, pg.uMaxPrice,
+    PA.priceguide.uTimesSold, PA.priceguide.uTotalQty, PA.priceguide.uMinPrice, PA.priceguide.uAvgPrice, PA.priceguide.uQtyAvgPrice, PA.priceguide.uMaxPrice,
+    7
+    )
+  );
+  document.write(_getcolex('New', 'Total Lots: ',
+    av.nTotalLots, av.nTotalQty, av.nMinPrice, av.nAvgPrice, av.nQtyAvgPrice, av.nMaxPrice,
+    PA.availability.nTotalLots, PA.availability.nTotalQty, PA.availability.nMinPrice, PA.availability.nAvgPrice, PA.availability.nQtyAvgPrice, PA.availability.nMaxPrice,
+    13
+    )
+  );
+  document.write(_getcolex('Used', 'Total Lots: ',
+    av.uTotalLots, av.uTotalQty, av.uMinPrice, av.uAvgPrice, av.uQtyAvgPrice, av.uMaxPrice,
+    PA.availability.uTotalLots, PA.availability.uTotalQty, PA.availability.uMinPrice, PA.availability.uAvgPrice, PA.availability.uQtyAvgPrice, PA.availability.uMaxPrice,
+    19
+    )
+  );
+  document.write('</tr></table>');
+end;
+
 function TMainForm.ShowInventorySets(const inv: TBrickInventory; const header_flash: boolean; const mocflag: integer): boolean;
 var
   aa, i: integer;
@@ -2985,16 +3289,10 @@ begin
     link := '<a href=dismantleallsets>Dismantle All Sets</a> - <a href=buildallsets>Build All Sets</a>';
 
     tot := 0;
-    if mocflag = 3 then
-      for i := 0 to inv.numsets - 1 do
-        if inv.sets[i].num > 0 then
-        begin
-          sinv := db.GetSetInventory(inv.sets[i].setid);
-          if sinv <> nil then
-            tot := tot + sinv.totallooseparts * inv.sets[i].num;
-        end;
 
+    // Official sets only
     if mocflag = 1 then
+    begin
       for i := 0 to inv.numsets - 1 do
         if not db.IsMoc(inv.sets[i].setid) then
           if inv.sets[i].num > 0 then
@@ -3003,8 +3301,13 @@ begin
             if sinv <> nil then
               tot := tot + sinv.totallooseparts * inv.sets[i].num;
           end;
+      DrawHeadLine('My Official Sets <br><br>' +
+        'My official sets have <a href="ShowMyMocsPieces">' + IntToStr(tot) + ' parts</a><br><br>');
+    end;
 
+    // Mocs only
     if mocflag = 2 then
+    begin
       for i := 0 to inv.numsets - 1 do
         if db.IsMoc(inv.sets[i].setid) then
           if inv.sets[i].num > 0 then
@@ -3013,14 +3316,25 @@ begin
             if sinv <> nil then
               tot := tot + sinv.totallooseparts * inv.sets[i].num;
           end;
-
-    if mocflag = 3 then
-      DrawHeadLine('My Sets and Mocs (' + IntToStr(inv.numsets) + ' lots)<br>(' + IntToStr(inv.totalsetsbuilted) + ' builted - ' + IntToStr(inv.totalsetsdismantaled) + ' dismantaled)<br><br>' +
-        'My builded sets have <a href="ShowMySetsPieces">' + IntToStr(tot) + ' parts</a><br><br>' +
-        link);
-    if mocflag = 2 then
       DrawHeadLine('My Mocs <br><br>' +
         'My builded mocs have <a href="ShowMyMocsPieces">' + IntToStr(tot) + ' parts</a><br><br>');
+    end;
+
+    // Official sets & mocs
+    if mocflag = 3 then
+    begin
+      for i := 0 to inv.numsets - 1 do
+        if inv.sets[i].num > 0 then
+        begin
+          sinv := db.GetSetInventory(inv.sets[i].setid);
+          if sinv <> nil then
+            tot := tot + sinv.totallooseparts * inv.sets[i].num;
+        end;
+      DrawHeadLine('My <a href="myofficialsets">Official Sets</a> and <a href="mymocs">Mocs</a> (' + IntToStr(inv.numsets) + ' lots)<br>(' + IntToStr(inv.totalsetsbuilted) + ' builted - ' + IntToStr(inv.totalsetsdismantaled) + ' dismantaled)<br><br>' +
+        'My builded official sets and mocs have <a href="ShowMySetsPieces">' + IntToStr(tot) + ' parts</a><br><br>' +
+        link);
+    end;
+
   end;
 
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
@@ -3028,8 +3342,10 @@ begin
   document.write('<th><b>#</b></th>');
   if mocflag = 2 then
     document.write('<th><b>Moc</b></th>')
+  else if mocflag = 1 then
+    document.write('<th><b>Set</b></th>')
   else
-    document.write('<th><b>Set</b></th>');
+    document.write('<th><b>Set/Moc</b></th>');
   if header_flash then
   begin
     document.write('<th>Num Builded</th>');
@@ -3122,7 +3438,7 @@ begin
 
 end;
 
-procedure TMainForm.ShowMySets;
+procedure TMainForm.ShowMySetsAndMocs;
 begin
   ShowInventorySets(inventory, True, 3);
 end;
@@ -3130,6 +3446,11 @@ end;
 procedure TMainForm.ShowMyMocs;
 begin
   ShowInventorySets(inventory, True, 2);
+end;
+
+procedure TMainForm.ShowMyOfficialSets;
+begin
+  ShowInventorySets(inventory, True, 1);
 end;
 
 function BLColorPieceInfo(const pcs: string; const color: integer): string;
@@ -3240,6 +3561,8 @@ var
   pi: TPieceInfo;
   pidx: integer;
   year: integer;
+  slink: string;
+  pci: TPieceColorInfo;
 begin
   Screen.Cursor := crHourGlass;
 
@@ -3261,7 +3584,12 @@ begin
       lnk := '<a href=downloadset/' + setid + '>Try to download the inventory from bricklink.com</a>'
     else
       lnk := '';
-    DrawHeadLine('Can not find inventory for ' + setid + ' <a href=DoEditSet/' + setid + '><img src="images\edit.png"></a><br><br>' + lnk);
+    pci := db.PieceColorInfo(setid, -1);
+    if pci = nil then
+      slink := setid
+    else
+      slink := '<a href="spiece/' + setid + '">' + setid + '</a>';
+    DrawHeadLine('Can not find inventory for ' + slink + ' <a href=DoEditSet/' + setid + '><img src="images\edit.png"></a><br><br>' + lnk);
     document.write('<br>');
     document.write('</p>');
     document.write('</div>');
@@ -3329,7 +3657,7 @@ begin
   if not DirectoryExists(s1) then
     ForceDirectories(s1);
   s2 := s1 + Trim(setid) + '.txt';
-  inv.SaveLooseParts(s2);
+  inv.SaveLoosePartsAndSets(s2);
 
   s2 := s1 + setid + '_priceguide.txt';
   inv.SavePartsInventoryPriceguide(s2);
@@ -3557,7 +3885,7 @@ begin
   if not DirectoryExists(s1) then
     ForceDirectories(s1);
   s2 := s1 + Trim(setid) + '.txt';
-  inv.SaveLooseParts(s2);
+  inv.SaveLoosePartsAndSets(s2);
 
   s2 := s1 + setid + '_priceguide.txt';
   inv.SavePartsInventoryPriceguide(s2);
@@ -3664,7 +3992,8 @@ begin
     DrawColorCell(i, 25);
 //    document.BlancColorCell(cp.RGB, 25);
     document.write('<a href="inv/' + IntToStr(Integer(inv)) +'/C/' + IntToStr(decide(i = -1, 9999, i)) + '">');
-    document.write('<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLingColor) +  ')</a></td>');
+    document.write('<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLingColor) +  ')' +
+      GetRebrickableColorHtml(i) + '</a></td>');
     document.write('<td width=25% align=right>' + IntToStr(inv.numlotsbycolor(i)) + '</td>');
     document.write('<td width=25% align=right>' + IntToStr(inv.totalloosepartsbycolor(i)) + '</td>');
     document.write('<td width=25% align=right>' + Format('%2.3f', [inv.weightbycolor(i) / 1000]) + '</td>');
@@ -3764,7 +4093,8 @@ begin
       DrawColorCell(i, 25);
       // document.BlancColorCell(cp.RGB, 25);
       document.write('<a href="invex/' + IntToStr(Integer(inv)) + '/' + IntToStr(decide(i = -1, 9999, i)) + '/' + IntToStr(cat) + '">');
-      document.write('<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLingColor) +  ')</a></td>');
+      document.write('<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLingColor) +  ')' +
+        GetRebrickableColorHtml(i) + '</a></td>');
       document.write('<td width=25% align=right>' + IntToStr(inv.numlotsbycatcolor(i, cat)) + '</td>');
       document.write('<td width=25% align=right>' + IntToStr(inv.totalloosepartsbycatcolor(i, cat)) + '</td>');
       document.write('<td width=25% align=right>' + Format('%2.3f', [inv.weightbycatcolor(i, cat) / 1000]) + '</td>');
@@ -3855,9 +4185,11 @@ begin
 end;
 
 
-function TMainForm.HtmlDrawInvImgLink(const pcs: string; const color: integer; const pi: TPieceInfo): string;
+function TMainForm.HtmlDrawInvImgLink(const pcs: string; const color: integer;
+  const pi: TPieceInfo): string;
 var
   inv: TBrickInventory;
+  pci: TPieceColorInfo;
 begin
   if (color = -1) or (color = 9999) or (color = 89) then
   begin
@@ -3874,14 +4206,31 @@ begin
         inv.Free;
       end
       else
+      begin
         Result := '';
+        pci := nil;
+        if color = -1 then
+          pci := db.PieceColorInfo(pcs, -1);
+        if pci <> nil then
+          if pci.ItemType = 'S' then
+            Result := ' <a href=DoEditSet/' + pcs + '><img src="images\edit.png">';
+      end;
     end;
     Exit;
   end;
 
-  if (color = 9996) or (color = 9997) or (color = 9998) then
+  if (color = 9996) or (color = 9998) then
   begin
     Result := '';
+    Exit;
+  end;
+
+  if color = 9997 then
+  begin
+    Result := ' <a href=updateinstructionsfromnet/' + pcs + '>' + '<img src="images\refresh.png"></img></a>' +
+              ' <a href=updateinstructionsfrompdf/' + pcs + '>' + '<img src="images\pdf.png"></img></a>';
+    if InstructionsExist(pcs) or (findfile(basedefault + InstructionDir(pcs) + '*.pdf') <> '') then
+      Result := Result + ' <a href=instructions/' + pcs + '>' + '<img src="images\instructions.png"></img></a>';
     Exit;
   end;
 
@@ -4095,6 +4444,12 @@ var
   validmask: boolean;
   cinfo: colorinfo_p;
   willmultipage: boolean;
+  si: string;
+  ypdateyearlink: string;
+  srelationships: string;
+  rlst: TStringList;
+  ts: TString;
+  www: double;
 begin
   UpdateDismantaledsetsinv;
 
@@ -4144,8 +4499,8 @@ begin
 
     if (Pos('?', pcs) <= 0) and (Pos('*', pcs) <= 0) and (Trim(pcs) <> '') then
     begin
-      DrawHeadLine('Can not find piece ' + pcs + ' <a href=editmold/' + pcs + '><img src="images\edit.png"></a>' +
-                                                 ' <a href=refreshpieceorgearfrombricklink/' + pcs + '><img src="images\refreshcolors.png"></a>');
+      DrawHeadLine('Can not find piece ' + pcs + ' <a href=editmold/' + Trim(pcs) + '><img src="images\edit.png"></a>' +
+                                                 ' <a href=refreshpieceorgearfrombricklink/' + Trim(pcs) + '><img src="images\refreshcolors.png"></a>');
       willmultipage := False;
     end
     else
@@ -4153,7 +4508,7 @@ begin
       DrawHeadLine('Can not find piece ' + pcs);
       willmultipage := True;
     end;
-      
+
     document.write('<br>');
     document.write('</p>');
     document.write('</div>');
@@ -4211,7 +4566,7 @@ begin
 
     for i := 0 to tmpsets.Count - 1 do
     begin
-      if willmultipage then
+      if willmultipage or (tmpsets.Count > 500) then
       begin
         inc(aa);
         document.StartItemId(aa);
@@ -4275,9 +4630,13 @@ begin
   else
     DrawHeadLine(pcs + ' - ' + db.PieceDesc(pcs) + '<a href=editpiece/' + pcs + '/' + itoa(GetAPieceColor(pcs)) + '><img src="images\edit.png"></a>' + refrhtml + '<br>' + cathtml);}
   if pi.weight > 0.0 then
-    DrawHeadLine(pcs + ' - ' + db.PieceDesc(pi) + ' (' + Format('%2.2f gr', [pi.weight]) + ')' + ' <a href=editmold/' + pcs + '><img src="images\edit.png"></a>' + ' <a href=refreshpieceorgearfrombricklink/' + pcs + '><img src="images\refreshcolors.png"></a>' + refrhtml + '<br>' + cathtml)
+    DrawHeadLine(pcs + ' - ' + db.PieceDesc(pi) + ' (' + Format('%2.2f gr', [pi.weight]) + ')' +
+      ' <a href=editmold/' + pcs + '><img src="images\edit.png"></a>' +
+      ' <a href=refreshpieceorgearfrombricklink/' + Trim(pcs) + '><img src="images\refreshcolors.png"></a>' + refrhtml + '<br>' + cathtml)
   else
-    DrawHeadLine(pcs + ' - ' + db.PieceDesc(pi) + ' <a href=editmold/' + pcs + '><img src="images\edit.png"></a>' + ' <a href=refreshpieceorgearfrombricklink/' + pcs + '><img src="images\refreshcolors.png"></a>' + refrhtml + '<br>' + cathtml);
+    DrawHeadLine(pcs + ' - ' + db.PieceDesc(pi) +
+      ' <a href=editmold/' + pcs + '><img src="images\edit.png"></a>' +
+      ' <a href=refreshpieceorgearfrombricklink/' + Trim(pcs) + '><img src="images\refreshcolors.png"></a>' + refrhtml + '<br>' + cathtml);
 
   storages := db.StorageBinsForMold(pcs);
   if storages.Count > 0 then
@@ -4315,11 +4674,15 @@ begin
       pyearsstr := pyearsstr + '<a href=spiece/' + pcs + '>All</a>'
     else
       pyearsstr := pyearsstr + 'All';
+    if db.HasSetColorsOnly(pcs) then
+      ypdateyearlink := '<a href="UpdateSetYearFromNet/' + pcs + '"><img src="images\refresh.png"></a>'
+    else
+      ypdateyearlink := '<a href="UpdateMoldYearsFromNet/' + pcs + '"><img src="images\refresh.png"></a>';
     for i := 0 to pyears.Count - 1 do
     begin
       pyearsstr := pyearsstr + ' - ';
       if year = pyears.Numbers[i] then
-        pyearsstr := pyearsstr + decide(pyears.Numbers[i] = 0, '(Unknown)', itoa(pyears.Numbers[i]))
+        pyearsstr := pyearsstr + decide(pyears.Numbers[i] = 0, '(Unknown) ' + ypdateyearlink, itoa(pyears.Numbers[i]))
       else
         pyearsstr := pyearsstr + '<a href=spiece/' + pcs + '/' + itoa(pyears.Numbers[i]) + '>' + decide(pyears.Numbers[i] = 0, '(Unknown)', itoa(pyears.Numbers[i])) + '</a>';
     end;
@@ -4337,12 +4700,59 @@ begin
         pfamilystr := MakeThumbnailImage2(pcs) + '<br><a href=ShowFamilyMolds/' + pcs + '>Variations and other prints...</a>';
   end;
 
-  if pyearsstr + pfamilystr <> '' then
+  srelationships := '';
+  if pi.moldvariations.Count > 0 then
+    srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td><a href=ShowMoldVariations/' + pcs + '>Mold Variations</a></td></tr>';
+  if pi.alternates.Count > 0 then
+    srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td><a href=ShowPieceAlternates/' + pcs + '>Alternates</a></td></tr>';
+  if pi.patternof <> '' then
+    srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td>Pattern of <a href=spiece/' + pi.patternof + '>' + pi.patternof + '</a></td></tr>';
+  if pi.printof <> '' then
+    srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td>Print of <a href=spiece/' + pi.printof + '>' + pi.printof + '</a></td></tr>';
+  if pi.patterns.Count > 0 then
+    srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td><a href=ShowPiecePatterns/' + pcs + '>Patterns</a></td></tr>';
+  if pi.prints.Count > 0 then
+    srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td><a href=ShowPiecePrints/' + pcs + '>Prints</a></td></tr>';
+
+  if srelationships = '' then
   begin
-    if (pyearsstr = '') or (pfamilystr = '') then
-      DrawHeadLine(pyearsstr + pfamilystr)
-    else
-      DrawHeadLine2(pyearsstr, pfamilystr);
+    if pyearsstr + pfamilystr <> '' then
+    begin
+      if (pyearsstr = '') or (pfamilystr = '') then
+        DrawHeadLine(pyearsstr + pfamilystr)
+      else
+        DrawHeadLine2(pyearsstr, pfamilystr);
+    end;
+  end
+  else
+  begin
+    srelationships :=
+      '<p valign=top><table width=99% bgcolor=' + TBGCOLOR + ' border=1>' +
+      '<tr bgcolor=' + THBGCOLOR + '>' +
+      '<th><b>Relationships</b></th>' + '</tr>' +
+      srelationships +
+      '</table></p>';
+    rlst := TStringList.Create;
+    try
+      if pyearsstr <> '' then
+      begin
+        ts := TString.Create;
+        ts.text := pyearsstr;
+        rlst.AddObject('', ts);
+      end;
+      if pfamilystr <> '' then
+      begin
+        ts := TString.Create;
+        ts.text := pfamilystr;
+        rlst.AddObject('', ts);
+      end;
+      ts := TString.Create;
+      ts.text := srelationships;
+      rlst.AddObject('', ts);
+      DrawHeadLineN(rlst);
+    finally
+      FreeList(rlst);
+    end;
   end;
 
   didmyinventoryheader := False;
@@ -4383,15 +4793,18 @@ begin
               end;
 
               inc(aa);
-              document.write('<td width=10%><img src=' + IntToStr(i) + '\' + pcs + '.png>');
+              si := IntToStr(i);
+              document.write('<td width=10%><img src=' + si + '\' + pcs + '.png>');
               DrawColorCell(i, 25);
   //            document.BlancColorCell(db.colors(i).RGB, 25);
               cinfo := db.colors(i);
-              document.write('<a href=spiecec/' + pcs + '/' + IntToStr(i) + '>' + cinfo.name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')<img src="images\details.png"></a>' +
+              document.write('<a href=spiecec/' + pcs + '/' + si + '>' + cinfo.name +
+                ' (' + si + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(i) +
+                  '<img src="images\details.png"></a>' +
                   HtmlDrawInvImgLink(pcs, i, pi) + '</td>');
               document.write('<td width=10% align=right>' + Format('%d', [numpieces]) +
-                '<br><a href=editpiece/' + pcs + '/' + itoa(i) + '><img src="images\edit.png"></a>' +
-                '<br><a href=diagrampiece/' + pcs + '/' + itoa(i) + '><img src="images\diagram.png"></a>' +
+                '<br><a href=editpiece/' + pcs + '/' + si + '><img src="images\edit.png"></a>' +
+                '<br><a href=diagrampiece/' + pcs + '/' + si + '><img src="images\diagram.png"></a>' +
                 '</td>');
               if aa mod 5 = 0 then
                 document.write('</tr>');
@@ -4437,37 +4850,42 @@ begin
             inc(aa);
             numpieces := inventory.LoosePartCount(pcs, i);
             totpieces := totpieces + numpieces;
+            si := IntToStr(i);
             document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
-            document.write('<td width=35%><img src=' + IntToStr(i) + '\' + pcs + '.png></td>');
+            document.write('<td width=35%><img src=' + si + '\' + pcs + '.png></td>');
             document.write('<td width=20%>');
             DrawColorCell(i, 25);
             // document.BlancColorCell(db.colors(i).RGB, 25);
             cinfo := db.colors(i);
             if pci <> nil then
             begin
-              document.write('<a href=spiecec/' + pcs + '/' + IntToStr(i) + '>' + cinfo.name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')<img src="images\details.png"></a>' +
+              document.write('<a href=spiecec/' + pcs + '/' + si + '>' + cinfo.name +
+                ' (' + si + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(i) +
+                '<img src="images\details.png"></a>' +
                 HtmlDrawInvImgLink(pcs, i, pi) +
-                decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+                decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
               document.write('<td width=10% align=right>');
               document.write('N=%2.3f<br>U=%2.3f</td>', [pci.nDemand, pci.uDemand]);
             end
             else
             begin
-              document.write('<a href=spiecec/' + pcs + '/' + IntToStr(i) + '>' + cinfo.name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')<img src="images\details.png"></a>' +
+              document.write('<a href=spiecec/' + pcs + '/' + si + '>' + cinfo.name +
+                ' (' + si + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(i) + '<img src="images\details.png"></a>' +
                 HtmlDrawInvImgLink(pcs, i, pi) + '</td>');
               document.write('<td width=10% align=right></td>');
             end;
             document.write('<td width=15% align=right>' + Format('%d', [numpieces]) +
-              '<br><a href=editpiece/' + pcs + '/' + itoa(i) + '><img src="images\edit.png"></a>' +
-              '<br><a href=diagrampiece/' + pcs + '/' + itoa(i) + '><img src="images\diagram.png"></a>' +
+              '<br><a href=editpiece/' + pcs + '/' + si + '><img src="images\edit.png"></a>' +
+              '<br><a href=diagrampiece/' + pcs + '/' + si + '><img src="images\diagram.png"></a>' +
               '</td>');
 
             if pci <> nil then
             begin
+              www := db.GetItemWeight(pci.piece, pci.color);
               prn := pci.EvaluatePriceNew;
               pru := pci.EvaluatePriceUsed;
-              document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Krg', [prn, dbl_safe_div(prn, pi.weight) * 1000]) + '</td>');
-              document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Krg', [pru, dbl_safe_div(pru, pi.weight) * 1000]) + '</td>');
+              document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
+              document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [pru, dbl_safe_div(pru, www) * 1000]) + '</td>');
               prnt := prnt + prn * numpieces;
               prut := prut + pru * numpieces;
 
@@ -4849,6 +5267,12 @@ begin
     cranges.Add(INSTRUCTIONCOLORINDEX);
     cranges.Add(BOXCOLORINDEX);
   end
+  else if typ = 'SNI' then
+  begin
+    tit_typ := '<a href="catalogsetsnoinv">Sets without inventory</a>';
+    cranges.AddRange(-1, LASTNORMALCOLORINDEX);
+    cranges.Add(MAXINFOCOLOR);
+  end
   else if typ = 'I' then
   begin
     tit_typ := '<a href="cataloginstructions">Instructions</a>';
@@ -4930,6 +5354,8 @@ begin
 
           if typ = 'PI' then
             okpartinv := (pci.ItemType = 'P') and db.PieceInfo(pci).hasinventory
+          else if typ = 'SNI' then
+            okpartinv := (pci.ItemType = 'S') and (db.AllSets.IndexOfUCS(pci.piece) < 0)
           else
             okpartinv := False;
 
@@ -5211,6 +5637,7 @@ var
   mycosttot: double;
   dn: TDateTime;
   cinfo: colorinfo_p;
+  www: double;
 begin
   UpdateDismantaledsetsinv;
   ShowSplash;
@@ -5271,7 +5698,7 @@ begin
     pci := db.PieceColorInfo(pcs, cl, lst.Objects[i]);
     pi := db.PieceInfo(pci);
 
-    document.write('<td width=35%>' + decide((cl = 9996) or (cl = 9997) or (cl = 9998), MakeThumbnailImage(pcs, cl),'<img src=' + col + '\' + pcs + '.png>'));
+    document.write('<td width=35%>' + decide((cl = 9996) or (cl = 9997) or (cl = 9998), MakeThumbnailImage(pcs, cl), '<img src=' + col + '\' + pcs + '.png>'));
     document.write('<a href=spiece/' + pcs + '>' + pcs + '</a></b>');
     document.write(' - ' + db.PieceDesc(pi) + '</td>');
     document.write('<td width=20%>');
@@ -5280,12 +5707,14 @@ begin
 
     cinfo := db.colors(cl);
     if pci = nil then
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name + ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')<img src="images\details.png"></a>' +
+      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) + '</td>')
     else
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name + ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')<img src="images\details.png"></a>' +
+      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-          decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+          decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
 
     document.write('<td width=15% align=right>' + Format('%d', [numpieces]) +
             '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
@@ -5300,8 +5729,9 @@ begin
         document.write('<td width=15% align=right>' + Format('%d', [(lst.Objects[i] as TCInteger).value]) + '</td>');
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
-      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Krg', [prn, dbl_safe_div(prn, pi.weight) * 1000]) + '</td>');
-      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Krg', [pru, dbl_safe_div(pru, pi.weight) * 1000]) + '</td>');
+      www := db.GetItemWeight(pci.piece, pci.color, pi);
+      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
+      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [pru, dbl_safe_div(pru, www) * 1000]) + '</td>');
       prnt := prnt + prn * numpieces;
       prut := prut + pru * numpieces;
 
@@ -5375,6 +5805,7 @@ var
   sinv: TBrickInventory;
   numpcsinset: integer;
   cinfo: colorinfo_p;
+  www: double;
 begin
   UpdateDismantaledsetsinv;
   ShowSplash;
@@ -5432,12 +5863,14 @@ begin
 
     cinfo := db.colors(cl);
     if pci = nil then
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name + ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')<img src="images\details.png"></a>' +
+      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) + '</td>')
     else
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name + ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')<img src="images\details.png"></a>' +
+      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-          decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+          decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
 
     document.write('<td width=10% align=right>' + Format('%d', [numpieces]) +
             '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
@@ -5468,8 +5901,9 @@ begin
     begin
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
-      document.write('<td width=12% align=right>' + Format('€ %2.4f<br>€ %2.2f / Krg', [prn, dbl_safe_div(prn, pi.weight) * 1000]) + '</td>');
-      document.write('<td width=12% align=right>' + Format('€ %2.4f<br>€ %2.2f / Krg', [pru, dbl_safe_div(pru, pi.weight) * 1000]) + '</td>');
+      www := db.GetItemWeight(pci.piece, pci.color, pi);
+      document.write('<td width=12% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
+      document.write('<td width=12% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [pru, dbl_safe_div(pru, www) * 1000]) + '</td>');
       prnt := prnt + prn * numpieces;
       prut := prut + pru * numpieces;
     end
@@ -5533,6 +5967,7 @@ var
   mycosttot: double;
   foo: string;
   cinfo: colorinfo_p;
+  www: double;
 begin
   DrawHeadLine('<p align=center>' + tit + '</p>');
 
@@ -5556,7 +5991,7 @@ begin
   for i := 0 to lst.Count - 1 do
   begin
     if i = 0 then
-      if lst.Strings[i] = 'Part,Color,Desc' then
+      if lst.Strings[0] = 'Part,Color,Desc' then
         continue;
     inc(aa);
     splitstring(lst.Strings[i], pcs, col, foo, ',');
@@ -5568,7 +6003,7 @@ begin
     if Pos('BL', col) = 1 then
     begin
       col := Trim(Copy(col, 3, Length(col) - 2));
-      cl := db.BrickLinkColorToRebrickableColor(StrToIntDef(col, 0))
+      cl := db.BrickLinkColorToSystemColor(StrToIntDef(col, 0))
     end
     else
     begin
@@ -5593,12 +6028,16 @@ begin
 
     cinfo := db.colors(cl);
     if pci = nil then
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name + ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')<img src="images\details.png"></a>' +
+      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) +
+        '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) + '</td>')
     else
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name + ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')<img src="images\details.png"></a>' +
+      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) +
+        '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-          decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+          decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
 
     document.write('<td width=15% align=right>' +
             '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
@@ -5609,8 +6048,9 @@ begin
     begin
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
-      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Krg', [prn, dbl_safe_div(prn, pi.weight) * 1000]) + '</td>');
-      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Krg', [pru, dbl_safe_div(pru, pi.weight) * 1000]) + '</td>');
+      www := db.GetItemWeight(pci.piece, pci.color, pi);
+      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
+      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [pru, dbl_safe_div(pru, www) * 1000]) + '</td>');
       prnt := prnt + prn * numpieces;
       prut := prut + pru * numpieces;
 
@@ -5658,6 +6098,7 @@ var
   totpieces: integer;
   mycosttot: double;
   cinfo: colorinfo_p;
+  www: double;
 begin
   UpdateDismantaledsetsinv;
   ShowSplash;
@@ -5715,13 +6156,15 @@ begin
     // document.BlancColorCell(db.colors(cl).RGB, 25);
     cinfo := db.colors(cl);
     if pci = nil then
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name + ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')<img src="images\details.png"></a>' +
+      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
           '</td>')
     else
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name + ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')<img src="images\details.png"></a>' +
+      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-         decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+         decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
     document.write('<td width=15% align=right>' + Format('%2.3f', [decided(pci = nil, 0.0, pci.nDemand)]) +
             '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
             '<br><a href=diagrampiece/' + pcs + '/' + itoa(cl) + '><img src="images\diagram.png"></a>' +
@@ -5731,7 +6174,8 @@ begin
     begin
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
-      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Krg', [prn, dbl_safe_div(prn, pi.weight) * 1000]) + '</td>');
+      www := db.GetItemWeight(pci.piece, pci.color, pi);
+      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
       prnt := prnt + prn * numpieces;
       prut := prut + pru * numpieces;
       document.write('<td width=10% align=right>' + itoa(pci.priceguide.nTimesSold) + '</td>');
@@ -5788,6 +6232,7 @@ var
   numpieces: integer;
   prn, pru, mycost: double;
   bp: brickpool_t;
+  www: double;
 begin
   Screen.Cursor := crHourglass;
   UpdateDismantaledsetsinv;
@@ -5836,18 +6281,19 @@ begin
           DrawColorCell(i, 25);
           // document.BlancColorCell(db.colors(i).RGB, 25);
           if pci = nil then
-            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')</td>')
+            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
           else
-            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')' +
-              decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')' + GetRebrickableColorHtml(i) +
+              decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
           document.write('<td width=15% align=right>' + Format('%d', [numpieces]) + '</td>');
 
           if pci <> nil then
           begin
             prn := pci.EvaluatePriceNew;
             pru := pci.EvaluatePriceUsed;
-            document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Krg', [prn, dbl_safe_div(prn, pi.weight) * 1000]) + '</td>');
-            document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Krg', [pru, dbl_safe_div(pru, pi.weight) * 1000]) + '</td>');
+            www := db.GetItemWeight(pci.piece, pci.color, pi);
+            document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
+            document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [pru, dbl_safe_div(pru, www) * 1000]) + '</td>');
           end
           else
           begin
@@ -5904,11 +6350,12 @@ begin
   document.Flash;
 end;
 
-procedure TMainForm.ShowColorPiece(const pcs: string; const color: integer;
+procedure TMainForm.ShowColorPiece(const apcs: string; const color: integer;
   const ayear: integer = -1; const doshowsets: boolean = True);
 var
   i, j: integer;
   idx: Integer;
+  pcs: string;
   aa: integer;
   pci: TPieceColorInfo;
   pi: TPieceInfo;
@@ -5925,14 +6372,23 @@ var
   ayearcount: integer;
   fryear, toyear: integer;
   ofsetscnt: integer;
+  storages: TStringList;
+  stortxt: string;
+  tmpyear: integer;
+  tmpset: string;
+  www: double;
 begin
   UpdateDismantaledsetsinv;
 
-  pci := db.PieceColorInfo(pcs, color);
+  pci := db.PieceColorInfo(apcs, color);
+  if pci <> nil then
+    pcs := pci.piece
+  else
+    pcs := apcs;
   pi := db.PieceInfo(pci);
 
   if domultipagedocuments then
-    document.NewMultiPageDocument('ShowColorPiece', pcs + '_' + itoa(color) + '_' + itoa(ayear));
+    document.NewMultiPageDocument('ShowColorPiece', pcs + '_' + itoa(color) + '_' + itoa(ayear) + '_' + btoa(doshowsets));
   document.write('<body background="splash.jpg">');
   document.title(db.Colors(color).name + ' ' + db.PieceDesc(pi));
   DrawNavigateBar;
@@ -6004,8 +6460,21 @@ begin
     HtmlDrawInvImgLink(pcs, color, pi) +
     '<br><a href=diagrampiece/' + pcs + '/' + itoa(color) + '><img src="images\diagram.png"></a>' +
     '<br><br><img src=' + IntToStr(color) + '\' + pcs + '.png>' + stmp);
+
+  storages := db.StorageBinsForPart(pcs, color);
+  if storages.Count > 0 then
+  begin
+    stortxt := '<b>Storage Bins:</b><br>';
+    for i := 0 to storages.Count - 1 do
+      stortxt := stortxt + '<a href=storage/' + storages.Strings[i] + '>' + storages.Strings[i] + '</a><br>';
+    DrawHeadLine(stortxt);
+  end;
+  storages.Free;
+
   if ytext <> '' then
     DrawHeadLine(ytext);
+
+  DrawPriceguideEx(pcs, color, IncDay(Now, -30));
 
   document.StartNavigateSection;
 
@@ -6039,18 +6508,19 @@ begin
           DrawColorCell(i, 25);
           // document.BlancColorCell(db.colors(i).RGB, 25);
           if pci = nil then
-            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')</td>')
+            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
           else
-            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')' +
-              decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')' + GetRebrickableColorHtml(i) +
+              decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
           document.write('<td width=15% align=right>' + Format('%d', [numpieces]) + '</td>');
 
           if pci <> nil then
           begin
             prn := pci.EvaluatePriceNew;
             pru := pci.EvaluatePriceUsed;
-            document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Krg', [prn, dbl_safe_div(prn, pi.weight) * 1000]) + '</td>');
-            document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Krg', [pru, dbl_safe_div(pru, pi.weight) * 1000]) + '</td>');
+            www := db.GetItemWeight(pci.piece, pci.color, pi);
+            document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
+            document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [pru, dbl_safe_div(pru, www) * 1000]) + '</td>');
           end
           else
           begin
@@ -6070,19 +6540,22 @@ begin
           if doshowsets then
             if pci <> nil then
               for j := 0 to pci.sets.Count - 1 do
-                if (ayear < 0) or (db.SetYear(pci.sets.Strings[j]) = ayear) then
+              begin
+                tmpset := pci.sets.Strings[j];
+                tmpyear := db.SetYear(tmpset);
+                if (ayear < 0) or (tmpyear = ayear) then
                 begin
                   inc(aa);
                   document.StartItemId(aa);
-                  inv := db.GetSetInventory(pci.sets.Strings[j]);
-                  if db.SetYear(pci.sets.Strings[j]) > 1931 then
-                    y := Format('[Year: <a href=ShowSetsAtYear/%d>%d</a>]', [db.SetYear(pci.sets.Strings[j]), db.SetYear(pci.sets.Strings[j])])
+                  inv := db.GetSetInventory(tmpset);
+                  if tmpyear > 1931 then
+                    y := Format('[Year: <a href=ShowSetsAtYear/%d>%d</a>]', [tmpyear, tmpyear])
                   else
                     y := '';
-                  DrawHeadLine(Format('%d. <a href="sinv/%s">%s - %s</a> %s<br>(appears %d times)<br><img width=240px src=s\' + pci.sets.Strings[j] + '.jpg>',
-                    [aa, pci.sets.Strings[j], pci.sets.Strings[j], db.SetDesc(pci.sets.Strings[j]), y, inv.LoosePartCount(pcs, color)]));
+                  DrawHeadLine(Format('%d. <a href="sinv/%s">%s - %s</a> %s<br>(appears %d times)<br><img width=240px src=s\' + tmpset + '.jpg>',
+                    [aa, tmpset, tmpset, db.SetDesc(tmpset), y, inv.LoosePartCount(pcs, color)]));
                 end;
-
+              end;
         end;
       end;
 
@@ -6098,7 +6571,119 @@ begin
 
 end;
 
-procedure TMainForm.ShowSetsICanBuild(const pct: double);
+procedure TMainForm.ShowInstructions(const apcs: string);
+var
+  i: integer;
+  pcs: string;
+  pci: TPieceColorInfo;
+  pi: TPieceInfo;
+  stmp: string;
+  instructions: TStringList;
+  pdfs: TDStringList;
+  spdfreader: string;
+  refreshstr: string;
+  rotatestr: string;
+begin
+  Screen.Cursor := crHourglass;
+
+  UpdateDismantaledsetsinv;
+
+  pci := db.PieceColorInfo(apcs, 9997);
+  if pci <> nil then
+    pcs := pci.piece
+  else
+    pcs := apcs;
+  pi := db.PieceInfo(pci);
+
+  if domultipagedocuments then
+    document.NewMultiPageDocument('ShowInstructions', pcs);
+  document.write('<body background="splash.jpg">');
+  document.title('Building instructions for ' + db.PieceDesc(pi));
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+
+  stmp := '';
+  if pci <> nil then
+    if pci.code <> '' then
+      stmp := stmp + '<br>(Lego Code="' + pci.code + '")';
+
+  DrawHeadLine('<a href=spiece/' + pcs + '>' + pcs + '</a> - ' + db.Colors(9997).name + ' ' + db.PieceDesc(pi) +
+    ' <a href=editpiece/' + pcs + '/9997><img src="images\edit.png"></a>' +
+    HtmlDrawInvImgLink(pcs, 9997, pi) +
+    '<br><a href=diagrampiece/' + pcs + '/9997><img src="images\diagram.png"></a>' +
+    '<br><br><img src=9997\' + pcs + '.png>' + stmp);
+
+  document.StartNavigateSection;
+
+  inventory.StorePieceInventoryStatsRec(basedefault + 'cache\9997\' + pcs + '.history', pcs, 9997);
+
+  pdfs := findfiles(basedefault + InstructionDir(pcs) + '*.pdf');
+  if pdfs.Count > 0 then
+  begin
+    spdfreader :=
+      '<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tr>' +
+      '<tr bgcolor=' + THBGCOLOR + '><th><b>Files</b></th></tr></table>' +
+      '<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tr>' +
+      '<tr bgcolor=' + TBGCOLOR + '>';
+    for i := 0 to pdfs.Count - 1 do
+      spdfreader := spdfreader +
+        '<td><p align=center><a href="pdfreader/' + pcs + '/' +
+        ChangeFileExt(ExtractFileName(pdfs.Strings[i]), '') + '"><img src="images\pdfreader.png"><br>' +
+        ChangeFileExt(ExtractFileName(pdfs.Strings[i]), '') + '</p></td></a>';
+    spdfreader := spdfreader + '</tr></table>';
+    document.write(spdfreader);
+  end;
+
+  instructions := TStringList.Create;
+  GetInstructions(pcs, instructions);
+
+  if instructions.Count > 0 then
+  begin
+    document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+    document.write('<tr bgcolor=' + THBGCOLOR + '>');
+    document.write('<th><b>#</b></th>');
+    document.write('<th><b>Image</b></th>');
+    document.write('</tr>');
+
+    for i := 0 to instructions.Count - 1 do
+    begin
+      document.StartItemId(i + 1);
+      document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + itoa(i + 1) + '</td>');
+      rotatestr :=
+        ' <a href="rotatejpegleft/' + instructions.Strings[i] + '"><img src=images/rotate_left.png></a>' +
+        ' <a href="rotatejpegright/' + instructions.Strings[i] + '"><img src=images/rotate_right.png></a>';
+      document.write('<td width=95%><img src=' + instructions.Strings[i] + '>' + rotatestr + '</td>');
+    end;
+  end;
+
+  if (pdfs.Count = 0) and (instructions.Count = 0) then
+    DrawHeadline('No instructions found for ' + pcs);
+
+  pdfs.Free;
+  instructions.Free;
+
+  document.EndNavigateSection;
+
+  document.write('</table>');
+  document.MarkBottomNavigateSection;
+
+  document.write('<br>');
+  refreshstr :=
+    '<a href="updateinstructionsfromnethost/' + pcs + '/lego">Update from lego.com</a><br>' +
+    '<a href="updateinstructionsfromnethost/' + pcs + '/letsbuilditagain">Update from letsbuilditagain.com</a><br>' +
+    '<a href="updateinstructionsfromnethost/' + pcs + '/brickfactory">Update from brickfactory.info</a><br>';
+  DrawHeadline(refreshstr);
+
+  document.write('<br></p></div>');
+  document.write('</body>');
+  document.SaveBufferToFile(diskmirror);
+  document.Flash;
+
+  Screen.Cursor := crDefault;
+end;
+
+procedure TMainForm.ShowSetsICanBuild(const pct: double; const dosets, dofigs: boolean);
 const
   MAXST1SETS = $20000;
 type
@@ -6119,6 +6704,8 @@ var
   numsets: integer;
   aa: integer;
   links: string;
+  ok: boolean;
+  pci: TPieceColorInfo;
 begin
   Screen.Cursor := crHourGlass;
 
@@ -6131,31 +6718,54 @@ begin
     if i mod 100 = 0 then
       SplashProgress('Working...', i / db.AllSets.Count);
 
-    inv := db.GetSetInventory(db.AllSets.Strings[i]);
-    if inv.numsets = 0 then
+    if dosets and dofigs then
+      ok := True
+    else
     begin
-      tot1 := inv.totallooseparts;
-      if tot1 > 0 then
+      ok := False;
+      if dofigs then
       begin
-        mis1 := inventory.MissingToBuildInventory(inv);
-        pct1 := (tot1 - mis1) / tot1;
-        if pct1 >= pct then
+        pci := db.PieceColorInfo(db.AllSets.Strings[i], -1);
+        if pci <> nil then
+          ok := pci.sparttype = 'M';
+      end
+      else
+      begin
+        pci := db.PieceColorInfo(db.AllSets.Strings[i], -1);
+        if pci <> nil then
+          ok := pci.sparttype <> 'M';
+      end;
+    end;
+
+    if ok then
+    begin
+      inv := db.GetSetInventory(db.AllSets.Strings[i]);
+      if inv.numsets = 0 then
+      begin
+        tot1 := inv.totallooseparts;
+        if tot1 > 0 then
         begin
-          A[numsets].setid := db.AllSets.Strings[i];
-          A[numsets].set_tot_pieces := tot1;
-          A[numsets].set_have_pieces := tot1 - mis1;
-          A[numsets].set_pct := pct1;
-          inc(numsets);
-          if numsets = MAXST1SETS then
-            break;
+          mis1 := inventory.MissingToBuildInventory(inv);
+          pct1 := (tot1 - mis1) / tot1;
+          if pct1 >= pct then
+          begin
+            A[numsets].setid := db.AllSets.Strings[i];
+            A[numsets].set_tot_pieces := tot1;
+            A[numsets].set_have_pieces := tot1 - mis1;
+            A[numsets].set_pct := pct1;
+            inc(numsets);
+            if numsets = MAXST1SETS then
+              break;
+          end;
         end;
       end;
     end;
+
   end;
 
   SplashProgress('Working...', 1);
   if domultipagedocuments then
-    document.NewMultiPageDocument('ShowSetsICanBuild', ftoa(pct));
+    document.NewMultiPageDocument('ShowSetsICanBuild_', ftoa(pct) + '_' + btoa(dosets) + '_' + btoa(dofigs));
 
   document.write('<body background="splash.jpg">');
   document.title('Sets I can build');
@@ -6165,13 +6775,13 @@ begin
 
   links := '';
   if not dbl_equal(pct, 0.7) then
-    links := links + '<a href=setsIcanbuild/7/10>Check 70%</a><br>';
+    links := links + '<a href=' + decide(dosets, 'setsIcanbuild', 'figsIcanbuild') + '/7/10>Check 70%</a><br>';
   if not dbl_equal(pct, 0.8) then
-    links := links + '<a href=setsIcanbuild/8/10>Check 80%</a><br>';
+    links := links + '<a href=' + decide(dosets, 'setsIcanbuild', 'figsIcanbuild') + '/8/10>Check 80%</a><br>';
   if not dbl_equal(pct, 0.9) then
-    links := links + '<a href=setsIcanbuild/9/10>Check 90%</a><br>';
+    links := links + '<a href=' + decide(dosets, 'setsIcanbuild', 'figsIcanbuild') + '/9/10>Check 90%</a><br>';
 
-  DrawHeadLine(Format('Sets that I can build<br> (Loose parts are at least %2.3f%s of set inventory)<br>', [100 * pct, '%']) + links);
+  DrawHeadLine(Format(decide(dosets, 'Sets', 'Minifigs') + ' that I can build<br> (Loose parts are at least %2.3f%s of ' + decide(dosets, 'set', 'minifig') + ' inventory)<br>', [100 * pct, '%']) + links);
 
   document.StartNavigateSection;
 
@@ -7893,10 +8503,11 @@ begin
     DrawColorCell(ncolor, 25);
 //    document.BlancColorCell(db.colors(ncolor).RGB, 25);
 
-    document.write('<a href=spiecec/' + spart + '/' + scolor + '>' +  db.colors(ncolor).name + ' (' + scolor + ') (BL=' + IntToStr(db.colors(ncolor).BrickLingColor) + ')<img src="images\details.png"></a>' +
+    document.write('<a href=spiecec/' + spart + '/' + scolor + '>' +  db.colors(ncolor).name +
+      ' (' + scolor + ') (BL=' + IntToStr(db.colors(ncolor).BrickLingColor) + ')' + GetRebrickableColorHtml(ncolor) + '<img src="images\details.png"></a>' +
       HtmlDrawInvImgLink(spart, ncolor, pi));
     if pci <> nil then
-      document.write((decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>'))
+      document.write((decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>'))
     else
       document.write('</td>');
 
@@ -8030,15 +8641,16 @@ begin
 
   DrawHeadLine(Format('<a href="sinv/%s">%s - %s</a><br><br><img width=360px src=s\' + setid + '.jpg>', [setid, setid, db.SetDesc(setid)]));
   if numsets <= 1 then
-    DrawHeadLine(Format('%d part' + decide(missing = 1, '', 's') + ' in %d lots ' +
+    DrawHeadLine(Format('%d part' + decide(missing = 1, '', 's') + ' in %d ' + decide(inv.numlooseparts = 1, 'lot', 'lots') + ' ' +
       decide(missing = 1, 'is', 'are') + ' missing to build a copy of this set %s (%2.2f%s)',
         [missing, inv.numlooseparts, setid, dbl_safe_div(100 * missing, db.GetSetInventory(setid).totallooseparts), '%']))
   else
   begin
     nparts := db.GetSetInventory(setid).totallooseparts;
     if nparts > 0 then
-      DrawHeadLine(Format('%d part' + decide(missing = 1, '', 's') + ' in %d lots ' +
-        decide(missing = 1, 'is', 'are') + ' missing to build %d copies of this set %s (%2.2f%s)', [missing, inv.numlooseparts, numsets, setid, missing / nparts / numsets * 100, '%']));
+      DrawHeadLine(Format('%d part' + decide(missing = 1, '', 's') + ' in %d ' + decide(inv.numlooseparts = 1, 'lot', 'lots') + ' ' +
+        decide(missing = 1, 'is', 'are') + ' missing to build %d copies of this set %s (%2.2f%s)',
+          [missing, inv.numlooseparts, numsets, setid, missing / nparts / numsets * 100, '%']));
   end;
 
   if legacyignore then
@@ -8634,7 +9246,7 @@ begin
   DrawHeadLine(atitle);
 
   reallots := numlots;
-  if reallots < sinv.numlooseparts then
+  if reallots > sinv.numlooseparts then
     reallots := sinv.numlooseparts;
 
   if reallots > 1 then
@@ -9032,6 +9644,7 @@ var
   invs: string;
   scolor: string;
   looseparts: boolean;
+  www: double;
 begin
   UpdateDismantaledsetsinv;
 
@@ -9063,16 +9676,26 @@ begin
   document.write('<div style="color:#' + DFGCOLOR + '">');
   document.write('<p align=center>');
   if (colormask <> -1) and (cat <> -1) then
-    DrawHeadLine('Loose Parts - ' + IntToStr(inv.numlotsbycolor(colormask)) + ' lots, ' + IntToStr(inv.totalloosepartsbycatcolor(colormask, cat)) + ' parts (filtered)')
+    DrawHeadLine('Loose Parts - ' +
+      IntToStr(inv.numlotsbycolor(colormask)) + ' lots, ' +
+      IntToStr(inv.totalloosepartsbycatcolor(colormask, cat)) + ' parts (filtered)')
   else if colormask <> -1 then
-    DrawHeadLine('Loose Parts - ' + IntToStr(inv.numlotsbycolor(colormask)) + ' lots, ' + IntToStr(inv.totalloosepartsbycolor(colormask)) + ' parts (filtered)')
+    DrawHeadLine('Loose Parts - ' +
+      IntToStr(inv.numlotsbycolor(colormask)) + ' lots, ' +
+      IntToStr(inv.totalloosepartsbycolor(colormask)) + ' parts (filtered)')
   else if partmask <> '' then
-    DrawHeadLine('Loose Parts - ' + IntToStr(inv.numlotsbypart(partmask)) + ' lots, ' + IntToStr(inv.totalloosepartsbypart(partmask)) + ' parts (filtered)')
+    DrawHeadLine('Loose Parts - ' +
+      IntToStr(inv.numlotsbypart(partmask)) + ' lots, ' +
+      IntToStr(inv.totalloosepartsbypart(partmask)) + ' parts (filtered)')
   else if cat <> -1 then
-    DrawHeadLine('Loose Parts - ' + IntToStr(inv.numlotsbycategory(cat)) + ' lots, ' + IntToStr(inv.totalloosepartsbycategory(cat)) + ' parts (filtered)')
+    DrawHeadLine('Loose Parts - ' +
+      IntToStr(inv.numlotsbycategory(cat)) + ' lots, ' +
+      IntToStr(inv.totalloosepartsbycategory(cat)) + ' parts (filtered)')
   else
   begin
-    DrawHeadLine('Loose Parts - ' + IntToStr(inv.numlooseparts) + ' lots, ' + IntToStr(inv.totallooseparts) + ' parts');
+    DrawHeadLine('Loose Parts - ' +
+      IntToStr(inv.numlooseparts) + ' lots, ' +
+      IntToStr(inv.totallooseparts) + ' parts');
     if looseparts then
       DrawHeadLine('Inventory Statistics <a href="diagramstorage/Loose Parts"><img src="images\diagram.png"></a>');
 
@@ -9120,24 +9743,24 @@ begin
 
       pci := db.PieceColorInfo(brick);
       pi := db.PieceInfo(pci);
-      
+
       document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img src=' + scolor + '\' + brick.part + '.png><br>');
       document.write('<b><a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
-      document.write('<a href="inv/' + invs +'/P/' + decide(partmask='',brick.part,'') + '">' + ' - ' );
+      document.write('<a href="inv/' + invs +'/P/' + decide(partmask = '', brick.part, '') + '">' + ' - ' );
       document.write(db.PieceDesc(pi) + '</a> <a href=spiece/' + brick.part + '>...</a></td><td width=25%>');
       DrawColorCell(brick.color, 20);
   //    document.BlancColorCell(db.colors(brick.color).RGB, 20);
-      document.write('<a href="inv/' + invs +'/C/' + IntToStr(decide(colormask=-1, brick.color, -1)) + '">');
+      document.write('<a href="inv/' + invs +'/C/' + IntToStr(decide(colormask = -1, brick.color, -1)) + '">');
 
       document.write(db.colors(brick.color).name + ' (' + scolor + ') (BL=' +
-                     IntToStr(db.colors(brick.color).BrickLingColor) +  ')</a> <a href=spiecec/' +
+                     IntToStr(db.colors(brick.color).BrickLingColor) +  ')' + GetRebrickableColorHtml(brick.color) + '</a> <a href=spiecec/' +
                      brick.part + '/' + scolor + '><img src="images\details.png"></a>' +  HtmlDrawInvImgLink(brick.part, brick.color, pi));
 
 //      pci := db.PieceColorInfo(brick.part, brick.color);
       if pci = nil then
         document.write('</td>')
       else
-        document.write(decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+        document.write(decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
 
       if pci <> nil then
       begin
@@ -9155,13 +9778,16 @@ begin
       begin
         prn := pci.EvaluatePriceNew;
         pru := pci.EvaluatePriceUsed;
-        document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f<br>€ %2.2f / Krg', [prn, prn * brick.num, dbl_safe_div(prn, pi.weight) * 1000]) + '</td>');
-        document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f<br>€ %2.2f / Krg', [pru, pru * brick.num, dbl_safe_div(pru, pi.weight) * 1000]) + '</td>');
+        www := db.GetItemWeight(pci.piece, pci.color, pi);
+        document.write('<td width=10% align=right>' +
+          Format('€ %2.4f<br>€ %2.4f<br>€ %2.2f / Kgr', [prn, prn * brick.num, dbl_safe_div(prn, www) * 1000]) + '</td>');
+        document.write('<td width=10% align=right>' +
+          Format('€ %2.4f<br>€ %2.4f<br>€ %2.2f / Kgr', [pru, pru * brick.num, dbl_safe_div(pru, www) * 1000]) + '</td>');
         prnt := prnt + prn * brick.num;
         prut := prut + pru * brick.num;
-        if pi.weight > 0.0 then
+        if www > 0.0 then
         begin
-          totalweight := totalweight + pi.weight * brick.num;
+          totalweight := totalweight + www * brick.num;
           totalcostwn := totalcostwn + prn * brick.num;
           totalcostwu := totalcostwu + pru * brick.num;
         end;
@@ -9198,12 +9824,16 @@ begin
   document.write('<td width=10% align=right>');
   document.write('N=%2.3f<br>U=%2.3f</td>', [inv.nDemand.value, inv.uDemand.value]);
   document.write('<td width=10% align=right><b>' + IntToStr(num)  + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Krg', [prnt, dbl_safe_div(totalcostwn, totalweight) * 1000]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Krg', [prut, dbl_safe_div(totalcostwu, totalweight) * 1000]) + '</b></td>');
+  document.write('<td width=10% align=right><b>' +
+    Format('€ %2.2f<br>€ %2.2f / Kgr', [prnt, dbl_safe_div(totalcostwn, totalweight) * 1000]) + '</b></td>');
+  document.write('<td width=10% align=right><b>' +
+    Format('€ %2.2f<br>€ %2.2f / Kgr', [prut, dbl_safe_div(totalcostwu, totalweight) * 1000]) + '</b></td>');
   if num = 0 then
-    document.write('<td width=10% align=right><b>' + Format('€ %2.2f', [mycosttot]) + '</b></td>')
+    document.write('<td width=10% align=right><b>' +
+      Format('€ %2.2f', [mycosttot]) + '</b></td>')
   else
-    document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>%2.3f%s', [mycosttot, 100 * mytotcostpieces / num, '%']) + '</b></td>');
+    document.write('<td width=10% align=right><b>' +
+      Format('€ %2.2f<br>%2.3f%s', [mycosttot, 100 * mytotcostpieces / num, '%']) + '</b></td>');
   document.write('</tr>');
 
   cl.Free;
@@ -9237,6 +9867,7 @@ var
 begin
   Screen.Cursor := crHourGlass;
   try
+    DecimalSeparator := '.';
     doHTMLClick(SRC1, Handled);
     Caption := Application.Title + ' - ' + HTML.DocumentTitle;
     idx := TabControl1.TabIndex;
@@ -9270,6 +9901,7 @@ begin
   if s1 = UpperCase('removepiecefromstorageset/') then Exit;
   if s1 = UpperCase('removepiecefromstoragenum/') then Exit;
   if s1 = UpperCase('UpdateSetYearFromNet/') then Exit;
+  if s1 = UpperCase('UpdateMoldYearsFromNet/') then Exit;
   if s1 = UpperCase('StoreInventoryStatsRec/') then Exit;
   if s1 = UpperCase('refreshset/') then Exit;
   if s1 = UpperCase('refreshsetlite/') then Exit;
@@ -9297,6 +9929,8 @@ begin
   if s1 = UpperCase('updatepartnamerebrickablenorefresh/') then Exit;
   if s1 = UpperCase('UpdateSetAsPartFromBricklink/') then Exit;
   if s1 = UpperCase('UpdateSetAsPartFromBricklinknorefresh/') then Exit;
+  if s1 = UpperCase('UpdateMinifigAsPartFromBricklink/') then Exit;
+  if s1 = UpperCase('UpdateMinifigAsPartFromBricklinknorefresh/') then Exit;
   if s1 = UpperCase('refreshminifigcat/') then Exit;
   if s1 = UpperCase('refreshpiece100/') then Exit;
   if s1 = UpperCase('refreshpiece1000/') then Exit;
@@ -9311,6 +9945,8 @@ begin
   if s1 = UpperCase('RefreshUnKnownInventoryPiecesCategory') then Exit;
   if s1 = UpperCase('downloadset/') then Exit;
   if s1 = UpperCase('downloadsetnorefresh/') then Exit;
+  if s1 = UpperCase('downloadminifig/') then Exit;
+  if s1 = UpperCase('downloadminifignorefresh/') then Exit;
   if s1 = UpperCase('downloadsetaltparts/') then Exit;
   if s1 = UpperCase('downloadsetex/') then Exit;
   if s1 = UpperCase('downloadsetandrefresh/') then Exit;
@@ -9321,12 +9957,56 @@ begin
   if s1 = UpperCase('DownloadPartInventorynorefresh/') then Exit;
   if s1 = UpperCase('removeset/') then Exit;
   if s1 = UpperCase('UpdateSetAssetsFromBricklink/') then Exit;
+  if s1 = UpperCase('UpdateSetAssetsFromBricklinknorefresh/') then Exit;
   if s1 = UpperCase('removesetdismantaled/') then Exit;
   if s1 = UpperCase('diagrampiece/') then Exit;
+  if s1 = UpperCase('diagrampieceex/') then Exit;
   if s1 = UpperCase('diagramstorage/') then Exit;
   if s1 = UpperCase('diagramorder/') then Exit;
+  if s1 = UpperCase('autofixsticker/') then Exit;
+  if s1 = UpperCase('autofixstickernorefresh/') then Exit;
+  if s1 = UpperCase('AutoCorrectUnknownPieceYears/') then Exit;
+  if s1 = UpperCase('updateinstructionweight/') then Exit;
+  if s1 = UpperCase('updateinstructionweightnorefresh/') then Exit;
+  if s1 = UpperCase('updateboxweight/') then Exit;
+  if s1 = UpperCase('updateboxweightnorefresh/') then Exit;
+  if s1 = UpperCase('updateinstructionsfromnet/') then Exit;
+  if s1 = UpperCase('updateinstructionsfromnethost/') then Exit;
+  if s1 = UpperCase('updateinstructionsfrompdf/') then Exit;
+  if s1 = UpperCase('pdfreader/') then Exit;
+  if s1 = UpperCase('rotatejpegright/') then Exit;
+  if s1 = UpperCase('rotatejpegleft/') then Exit;
 
   Result := True;
+end;
+
+procedure TMainForm.AdjustStreamsSize;
+var
+  i, totalsize: integer;
+begin
+  // Limit to 300 streams if we have more than 400 streams;
+  if streams.Count > 400 then
+  begin
+    for i := streams.Count - 1 downto 300 do
+    begin
+      streams.Objects[i].Free;
+      streams.Delete(i);
+    end;
+  end;
+
+  totalsize := 0;
+  for i := 0 to streams.Count - 1 do
+    totalsize := totalsize + (streams.Objects[i] as TMemoryStream).Size;
+
+  if totalsize > 256 * 1024 * 1024 then // 256 MB
+  begin
+    while (totalsize > 256 * 1024 * 1024) and (streams.Count > 100) do
+    begin
+      totalsize := totalsize - (streams.Objects[streams.Count - 1] as TMemoryStream).Size;
+      streams.Objects[streams.Count - 1].Free;
+      streams.Delete(streams.Count - 1);
+    end;
+  end;
 end;
 
 procedure TMainForm.doHTMLClick(const SRC1: String; var Handled: Boolean);
@@ -9370,18 +10050,11 @@ var
   end;
 
 begin
+  AdjustStreamsSize;
+
   splitstring(SRC1, SRC, PARAMS, '&');
 
   diskmirror := '';
-
-  if streams.Count > 500 then
-  begin
-    for i := streams.Count - 1 downto 400 do
-    begin
-      streams.Objects[i].Free;
-      streams.Delete(i);
-    end;
-  end;
 
   scrollx := 0;
   scrolly := 0;
@@ -9436,10 +10109,112 @@ begin
       Exit;
     end;
 
+    if Pos('updateinstructionweight/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      if db.UpdateAssetWeightFromNET(s2, 9997) then
+        HTMLClick('refresh', Handled);
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('updateinstructionweightnorefresh/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      db.UpdateAssetWeightFromNET(s2, 9997);
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('updateboxweight/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      if db.UpdateAssetWeightFromNET(s2, 9998) then
+        HTMLClick('refresh', Handled);
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('updateboxweightnorefresh/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      db.UpdateAssetWeightFromNET(s2, 9998);
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('updateinstructionsfromnet/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      DoUpdateInstructionsFromNet(s2);
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('updateinstructionsfromnethost/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, s3, '/');
+      DoUpdateInstructionsFromNetHost(s2, s3);
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('updateinstructionsfrompdf/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      DoUpdateInstructionsFromPdf(s2);
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('pdfreader/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, s3, '/');
+      s4 := InstructionDir(s2) + s3 + '.pdf';
+      ShellExecute(Handle, 'open', PChar(s4), nil, nil, SW_SHOWNORMAL);
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('rotatejpegright/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      ChDir(basedefault);
+      if RotateJPEGFile90DegreesClockwise(s2) then
+      begin
+        RemoveImageFromCache(s2);
+        HTMLClick('refresh', Handled);
+      end;
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('rotatejpegleft/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      ChDir(basedefault);
+      if RotateJPEGFile90DegreesCounterClockwise(s2) then
+      begin
+        RemoveImageFromCache(s2);
+        HTMLClick('refresh', Handled);
+      end;
+      Handled := True;
+      Exit;
+    end;
+
     if Pos('UpdateSetYearFromNet/', SRC) = 1 then
     begin
       splitstring(SRC, s1, s2, '/');
       if db.UpdateSetYearFromNet(s2) then
+        HTMLClick('refresh', Handled);
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('UpdateMoldYearsFromNet/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      if db.UpdateMoldYearsFromNet(s2) then
         HTMLClick('refresh', Handled);
       Handled := True;
       Exit;
@@ -9856,6 +10631,32 @@ begin
       Exit;
     end;
 
+    if Pos('UpdateMinifigAsPartFromBricklink/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      Screen.Cursor := crHourglass;
+      ShowSplash;
+      if db.UpdateMinifigAsPartFromBricklink(s2) then
+        HTMLClick('refresh', Handled);
+      HideSplash;
+      Screen.Cursor := crDefault;
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('UpdateMinifigAsPartFromBricklinknorefresh/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      Screen.Cursor := crHourglass;
+      ShowSplash;
+      if not db.UpdateMinifigAsPartFromBricklink(s2) then
+        ErrorBeep;
+      HideSplash;
+      Screen.Cursor := crDefault;
+      Handled := True;
+      Exit;
+    end;
+
     if Pos('refreshminifigcat/', SRC) = 1 then
     begin
       splitstring(SRC, s1, s2, '/');
@@ -10032,11 +10833,55 @@ begin
       Exit;
     end;
 
+    if Pos('downloadminifig/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      if db.DownloadSetFromBricklinkNew(s2, 'M') then
+        HTMLClick('refresh', Handled)
+      else
+        ErrorBeep;
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('downloadminifignorefresh/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      if not db.DownloadSetFromBricklinkNew(s2, 'M') then
+        ErrorBeep;
+      Handled := True;
+      Exit;
+    end;
+
     if Pos('downloadsetaltparts/', SRC) = 1 then
     begin
       Screen.Cursor := crHourglass;
       splitstring(SRC, s1, s2, '/');
       if db.DownloadSetAlternatesFromBricklinkNew(s2) then
+        HTMLClick('refresh', Handled)
+      else
+        ErrorBeep;
+      Handled := True;
+      Screen.Cursor := crDefault;
+      Exit;
+    end;
+
+    if Pos('autofixstickernorefresh/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      Screen.Cursor := crHourglass;
+      if not db.AutoFixSticker(s2) then
+        ErrorBeep;
+      Handled := True;
+      Screen.Cursor := crDefault;
+      Exit;
+    end;
+
+    if Pos('autofixsticker/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      Screen.Cursor := crHourglass;
+      if db.AutoFixSticker(s2) then
         HTMLClick('refresh', Handled)
       else
         ErrorBeep;
@@ -10110,6 +10955,14 @@ begin
       Exit;
     end;
 
+    if SRC = 'AutoCorrectUnknownPieceYears' then
+    begin
+      if AutoCorrectUnknownPieceYears then
+        HTMLClick('refresh', Handled);
+      Handled := True;
+      Exit;
+    end;
+
     if Pos('UpdatePartInventory/', SRC) = 1 then
     begin
       splitstring(SRC, s1, s2, '/');
@@ -10154,6 +11007,14 @@ begin
       Exit;
     end;
 
+    if Pos('UpdateSetAssetsFromBricklinknorefresh/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      UpdateSetAssetsFromBricklink(s2);
+      Handled := True;
+      Exit;
+    end;
+
     if Pos('removesetdismantaled/', SRC) = 1 then
     begin
       splitstring(SRC, s1, s2, '/');
@@ -10168,6 +11029,14 @@ begin
     begin
       splitstring(SRC, s1, s2, s3, '/');
       DiagramPiece(s2, atoi(s3));
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('diagrampieceex/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, s3, s4, '/');
+      DiagramPiece(s2, atoi(s3), atoi(s4));
       Handled := True;
       Exit;
     end;
@@ -10259,12 +11128,8 @@ begin
     ForceDirectories(basedefault + 'out\html\');
   tmpfname := slink;
   for i := 1 to Length(tmpfname) do
-  begin
-    if tmpfname[i] = '\' then
-      tmpfname[i] := '_'
-    else if tmpfname[i] = '/' then
-      tmpfname[i] := '_'
-  end;
+    if tmpfname[i] in ['\', '/', '|', ':', '<', '>'] then
+      tmpfname[i] := '_';
   diskmirror := basedefault + 'out\html\' + tmpfname + '.htm';
 
   Handled := True;
@@ -10358,6 +11223,10 @@ begin
   else if slink = 'catalogsets' then
   begin
     ShowCatalogList('S', -1, -1, false);
+  end
+  else if slink = 'catalogsetsnoinv' then
+  begin
+    ShowCatalogList('SNI', -1, -1, false);
   end
   else if slink = 'cataloginstructions' then
   begin
@@ -10462,6 +11331,26 @@ begin
     splitstring(slink, s1, s2, '/');
     ShowFamilyMolds(s2);
   end
+  else if Pos('ShowMoldVariations/', slink) = 1 then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowMoldVariations(s2);
+  end
+  else if Pos('ShowPieceAlternates/', slink) = 1 then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowPieceAlternates(s2);
+  end
+  else if Pos('ShowPiecePatterns/', slink) = 1 then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowPiecePatterns(s2);
+  end
+  else if Pos('ShowPiecePrints/', slink) = 1 then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowPiecePrints(s2);
+  end
   else if Pos('ShowChildMolds/', slink) = 1 then
   begin
     splitstring(slink, s1, s2, '/');
@@ -10526,6 +11415,11 @@ begin
     splitstring(slink, s1, s2, s3, s4, '/');
     ShowColorPiece(s2, atoi(s3, 0), atoi(s4, -1), false);
   end
+  else if Pos('instructions/', slink) = 1 then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowInstructions(s2);
+  end
   else if Pos('spiececinv/', slink) = 1 then
   begin
     splitstring(slink, s1, s2, s3, '/');
@@ -10564,6 +11458,18 @@ begin
   begin
     splitstring(slink, s1, s2, s3, '/');
     PiecesWithDaysToUpdateRange(atoi(s2), atoi(s3));
+  end
+  else if slink = 'PiecesUnknownWeight' then
+  begin
+    PiecesUnknownWeight;
+  end
+  else if slink = 'InstructionsUnknownWeight' then
+  begin
+    InstructionsUnknownWeight;
+  end
+  else if slink = 'BoxesUnknownWeight' then
+  begin
+    BoxesUnknownWeight;
   end
   else if Pos('UsedPiecesbeloweuroKgr/', slink) = 1 then
   begin
@@ -10623,6 +11529,15 @@ begin
   begin
     ShowMySetsPieces;
   end
+  else if slink = 'ShowMyMinifiguresMenu' then
+  begin
+    ShowMyMinifiguresMenu;
+  end
+  else if Pos('ShowMyMinifigInventory/', slink) = 1 then
+  begin
+    splitstring(slink, s1, s2, s3, s4, '/');
+    ShowMyMinifigInventory(atob(s2), atob(s3), atob(s4));
+  end
   else if slink = 'ShowMyMocsPieces' then
   begin
     ShowMyMocsPieces;
@@ -10658,9 +11573,13 @@ begin
   begin
     ShowCategories;
   end
-  else if slink = 'mysets' then
+  else if slink = 'mysetsandmocs' then
   begin
-    ShowMySets;
+    ShowMySetsAndMocs;
+  end
+  else if slink = 'myofficialsets' then
+  begin
+    ShowMyOfficialSets;
   end
   else if slink = 'mymocs' then
   begin
@@ -10671,14 +11590,14 @@ begin
     Screen.Cursor := crHourGlass;
     inventory.DismandalAllSets;
     Screen.Cursor := crDefault;
-    ShowMySets;
+    ShowMySetsAndMocs;
   end
   else if slink = 'buildallsets' then
   begin
     Screen.Cursor := crHourGlass;
     inventory.BuildAllSets;
     Screen.Cursor := crDefault;
-    ShowMySets;
+    ShowMySetsAndMocs;
   end
   else if slink = 'orders' then
   begin
@@ -10697,7 +11616,12 @@ begin
   else if Pos('setsIcanbuild/', slink) = 1 then
   begin
     splitstring(slink, s1, s2, s3, '/');
-    ShowSetsICanBuild(atoi(s2) / atoi(s3));
+    ShowSetsICanBuild(atoi(s2) / atoi(s3), True, True);
+  end
+  else if Pos('figsIcanbuild/', slink) = 1 then
+  begin
+    splitstring(slink, s1, s2, s3, '/');
+    ShowSetsICanBuild(atoi(s2) / atoi(s3), False, True);
   end
   else if Pos('ShowSetsForPartOutNew/', slink) = 1 then
   begin
@@ -10922,9 +11846,15 @@ end;
 
 procedure TMainForm.btn_saveClick(Sender: TObject);
 begin
-  inventory.SaveLooseParts(basedefault + 'myparts.txt');
-  inventory.SaveSets(basedefault + 'mysets.txt');
-  db.SaveStorage;
+  Screen.Cursor := crHourGlass;
+  try
+    inventory.SaveLooseParts(basedefault + 'myparts.txt');
+    inventory.SaveSets(basedefault + 'mysets.txt');
+    db.SaveStorage;
+    S_FlashFileSystem;
+  finally
+    Screen.Cursor := crDefault;
+  end;
 end;
 
 procedure TMainForm.SetstobuyNew1Click(Sender: TObject);
@@ -10953,12 +11883,182 @@ var
   foo: Boolean;
 begin
   if QueryPartOutParameters(qpa_minyear, qpa_minavailablelots, qpa_mindemand, qpa_mincostmultiplier) then
-    HTMLClick('ShowSetsForPartOutUsed/' + 
+    HTMLClick('ShowSetsForPartOutUsed/' +
         itoa(qpa_minyear) + '/' +
         itoa(qpa_minavailablelots) + '/' +
         itoa(round(qpa_mindemand * 100)) + '/' +
         itoa(round(qpa_mincostmultiplier * 100)),
       foo);
+end;
+
+procedure TMainForm.Pieceswithunknownweight1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('PiecesUnknownWeight', foo);
+end;
+
+procedure TMainForm.PiecesUnknownWeight;
+var
+  i, j: integer;
+  lst: TStringList;
+  pcs: string;
+  pi: TPieceInfo;
+  pci: TPieceColorInfo;
+  inv: TBrickInventory;
+  s1: string;
+  kp: THashStringList;
+begin
+  lst := TStringList.Create;
+
+  inv := TBrickInventory.Create;
+
+  for i := 0 to LASTNORMALCOLORINDEX do
+    if db.Colors(i).id = i then
+    begin
+      kp := db.Colors(i).knownpieces;
+      if kp <> nil then
+        for j := 0 to kp.Count - 1 do
+        begin
+          pcs := kp.Strings[j];
+          pci := kp.Objects[j] as TPieceColorInfo;
+          pi := db.PieceInfo(pci);
+          if pi.Weight = 0.0 then
+          begin
+            lst.Add(pcs + ',' + itoa(i));
+            inv.AddLoosePartFast(pcs, i, 1, pci);
+          end;
+        end;
+    end;
+
+  lst.Sort;
+  DrawPieceList('Pieces with unknown weight', lst, SORT_NONE);
+  lst.Free;
+
+  s1 := basedefault + 'out\PiecesUnknownWeight\';
+  if not DirectoryExists(s1) then
+    ForceDirectories(s1);
+  s1 := s1 + 'PiecesUnknownWeight';
+  inv.SaveLooseParts(s1 + '.txt');
+  s1 := s1 + '_wantedlist';
+  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  inv.Free;
+end;
+
+procedure TMainForm.InstructionsUnknownWeight;
+var
+  i: integer;
+  lst: TStringList;
+  inv: TBrickInventory;
+  ss: TSetExtraInfo;
+  s1: string;
+begin
+  lst := TStringList.Create;
+
+  inv := TBrickInventory.Create;
+
+  for i := 0 to db.Sets.Count - 1 do
+  begin
+    ss := db.Sets.Objects[i] as TSetExtraInfo;
+    if ss.hasinstructions then
+      if ss.instructionsweight = 0.0 then
+      begin
+        lst.Add(db.Sets.Strings[i] + ',9997');
+        inv.AddLoosePartFast(db.Sets.Strings[i], 9997, 1);
+      end;
+  end;
+
+  lst.Sort;
+  DrawPieceList('Intructions with unknown weight', lst, SORT_NONE);
+  lst.Free;
+
+  s1 := basedefault + 'out\InstructionsUnknownWeight\';
+  if not DirectoryExists(s1) then
+    ForceDirectories(s1);
+  s1 := s1 + 'InstructionsUnknownWeight';
+  inv.SaveLooseParts(s1 + '.txt');
+  s1 := s1 + '_wantedlist';
+  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  inv.Free;
+end;
+
+procedure TMainForm.BoxesUnknownWeight;
+var
+  i: integer;
+  lst: TStringList;
+  inv: TBrickInventory;
+  ss: TSetExtraInfo;
+  s1: string;
+begin
+  lst := TStringList.Create;
+
+  inv := TBrickInventory.Create;
+
+  for i := 0 to db.Sets.Count - 1 do
+  begin
+    ss := db.Sets.Objects[i] as TSetExtraInfo;
+    if ss.hasoriginalbox then
+      if ss.originalboxweight = 0.0 then
+      begin
+        lst.Add(db.Sets.Strings[i] + ',9998');
+        inv.AddLoosePartFast(db.Sets.Strings[i], 9998, 1);
+      end;
+  end;
+
+  lst.Sort;
+  DrawPieceList('Original Boxes with unknown weight', lst, SORT_NONE);
+  lst.Free;
+
+  s1 := basedefault + 'out\BoxesUnknownWeight\';
+  if not DirectoryExists(s1) then
+    ForceDirectories(s1);
+  s1 := s1 + 'BoxesUnknownWeight';
+  inv.SaveLooseParts(s1 + '.txt');
+  s1 := s1 + '_wantedlist';
+  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  inv.Free;
 end;
 
 procedure TMainForm.UsedPiecesbelow30euroKgr1Click(Sender: TObject);
@@ -10997,11 +12097,11 @@ begin
         begin
           pcs := kp.Strings[j];
           pci := kp.Objects[j] as TPieceColorInfo;
-          pi := db.PieceInfo(pci);
-          weight := pi.Weight;
-          if weight > 0 then
+          if pci <> nil then
           begin
-            if pci <> nil then
+            pi := db.PieceInfo(pci);
+            weight := db.GetItemWeight(pci.piece, pci.color, pi);
+            if weight > 0.0 then
             begin
               cost := pci.EvaluatePriceUsed;
               if cost > 0.0 then
@@ -11064,7 +12164,6 @@ begin
   inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
 
   inv.Free;
-
 end;
 
 procedure TMainForm.NewPiecesbeloweuroKgr(const x: integer);
@@ -11096,11 +12195,11 @@ begin
         begin
           pcs := kp.Strings[j];
           pci := kp.Objects[j] as TPieceColorInfo;
-          pi := db.PieceInfo(pci);
-          weight := pi.Weight;
-          if weight > 0 then
+          if pci <> nil then
           begin
-            if pci <> nil then
+            pi := db.PieceInfo(pci);
+            weight :=  db.GetItemWeight(pci.piece, pci.color, pi);
+            if weight > 0.0 then
             begin
               if pci.priceguide.nTimesSold > 0 then
               begin
@@ -11273,6 +12372,32 @@ begin
   Screen.Cursor := crDefault;
 end;
 
+procedure TMainForm.ShowMyMinifiguresMenu;
+begin
+  document.write('<body background="splash.jpg">');
+  document.title('My Minifigures');
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+  DrawHeadLine('Bricks Inventory - My Minifigures');
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+
+  document.write('<tr bgcolor=' + THBGCOLOR + '>');
+  document.write('<th><b>Quick links</b></th>');
+  document.write('</tr>');
+
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifigInventory/1/1/1">All Minifigures</a></td></tr>');
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifigInventory/1/0/0">My loose parts minifigures</a></td></tr>');
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifigInventory/0/1/0">My official sets minifigures</a></td></tr>');
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifigInventory/0/0/1">My mocs minifigures</a></td></tr>');
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifigInventory/0/1/1">My official sets and mocs minifigures</a></td></tr>');
+
+  document.write('</table></p></div></body>');
+
+  document.SaveBufferToFile(diskmirror);
+  document.Flash;
+end;
+
 procedure TMainForm.ShowMyPiecesValue;
 var
   inv1, inv2, inv3: TBrickInventory;
@@ -11364,7 +12489,7 @@ begin
   aa := 0;
 
   document.write('<p valign=top>');
-  stmp := db.colors(color).name + ' (' + itoa(color) + ') (BL=' + IntToStr(db.colors(color).BrickLingColor) + ')' +
+  stmp := db.colors(color).name + ' (' + itoa(color) + ') (BL=' + IntToStr(db.colors(color).BrickLingColor) + ')' + GetRebrickableColorHtml(color) +
     '<table border=1 width=25 bgcolor="#' + IntToHex(db.colors(color).RGB, 6) + '"><tr><td><br></td></tr></table>';
   DrawHeadLine(stmp);
 
@@ -11479,7 +12604,7 @@ begin
   aa := 0;
 
   document.write('<p valign=top>');
-  stmp := db.colors(color).name + ' (' + itoa(color) + ') (BL=' + IntToStr(db.colors(color).BrickLingColor) + ')' +
+  stmp := db.colors(color).name + ' (' + itoa(color) + ') (BL=' + IntToStr(db.colors(color).BrickLingColor) + ')' + GetRebrickableColorHtml(color) +
     '<table border=1 width=' + IntToStr(25) + ' bgcolor="#' + IntToHex(db.colors(color).RGB, 6) + '"><tr><td><br></td></tr></table>';
   DrawHeadLine(stmp);
 
@@ -11897,7 +13022,7 @@ begin
     splitstring(lst.Strings[i], pcs, scolor, ',');
     color := atoi(scolor);
     pi := db.PieceInfo(pcs);
-    weight := pi.Weight;
+    weight := db.GetItemWeight(pcs, color, pi);
     if weight > 0.0 then
     begin
       pci := db.PieceColorInfo(pcs, color, lst.Objects[i]);
@@ -11991,6 +13116,7 @@ begin
     Screen.Cursor := crHourglass;
     for i := 0 to s.Count - 1 do
       HTMLClick(s.Strings[i], foo);
+    S_FlashFileSystem;
     Screen.Cursor := crDefault;
   end;
   s.Free;
@@ -12121,6 +13247,7 @@ var
   year: integer;
   inv: TBrickInventory;
   s1, s2: string;
+  oldpci: TPieceColorInfo;
 begin
   lst := TStringList.Create;
   lst.Text := db.binarysets.GetSetAsText(setid);
@@ -12137,7 +13264,7 @@ begin
         if not DirectoryExists(s1) then
           ForceDirectories(s1);
         s2 := s1 + setid + '.txt';
-        inv.SaveLooseParts(s2);
+        inv.SaveLoosePartsAndSets(s2);
         lst.LoadFromFile(s2);
       end;
     end;
@@ -12149,13 +13276,19 @@ begin
   desc := db.SetDesc(setid);
   year := db.SetYear(setid);
   ismoc := db.IsMoc(setid);
+  oldpci := db.PieceColorInfo(setid, -1);
   if EditSetAsTextForm(setid, data, desc, year, ismoc) then
   begin
     Screen.Cursor := crHourglass;
-    db.UpdateSet(setid, data);
-    db.UpdateSetInfo(setid, desc, year, ismoc);
-    HTMLClick('sinv/' + setid, foo);
-    Screen.Cursor := crDefault;
+    try
+      db.UpdateSet(setid, data);
+      db.UpdateSetInfo(setid, desc, year, ismoc);
+      if oldpci = nil then
+        db.AddKnownPiece(setid, -1, desc);
+      HTMLClick('sinv/' + setid, foo);
+    finally
+      Screen.Cursor := crDefault;
+    end;
   end;
   lst.Free;
 end;
@@ -12185,6 +13318,7 @@ var
   lst: TStringList;
   lprice: Double;
   syear, lugcostedit: string;
+  www: double;
 begin
   UpdateDismantaledsetsinv;
   ShowSplash;
@@ -12279,11 +13413,15 @@ begin
     DrawColorCell(cl, 25);
 //    document.BlancColorCell(db.colors(cl).RGB, 25);
     if pci = nil then
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name + ' (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLingColor) + ')<img src="images\details.png"></a>' + HtmlDrawInvImgLink(pcs, cl, pi) + '</td>')
+      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name +
+        ' (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLingColor) + ')' + GetRebrickableColorHtml(cl) +
+        '<img src="images\details.png"></a>' + HtmlDrawInvImgLink(pcs, cl, pi) + '</td>')
     else
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name + ' (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLingColor) + ')<img src="images\details.png"></a>' +
+      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name +
+        ' (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLingColor) + ')' + GetRebrickableColorHtml(cl) +
+        '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-         decide(pci.setmost='','', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+         decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
     document.write(
       '<td width=15% align=right>' + Format('%2.3f', [decided(pci = nil, 0.0, pci.nDemand)]) +
       '<br><a href=editpiece/' + pcs + '/' + col + '><img src="images\edit.png"></a>' +
@@ -12291,8 +13429,10 @@ begin
 
     lprice := lb.ItemCost(pcs, cl);
     lugcostedit := 'EditLugbulkPrice/' + pcs + '/' + col + '/' + syear;
+    www := db.GetItemWeight(pcs, cl, pi);
     if lprice >= 0.0 then
-      document.write('<td width=15% align=right>' + Format('€ ' + '<a href=' + lugcostedit + '>' + '%2.4f</a><br>€ %2.2f / Krg', [lprice, dbl_safe_div(lprice, pi.weight) * 1000]) + '</td>')
+      document.write('<td width=15% align=right>' +
+        Format('€ ' + '<a href=' + lugcostedit + '>' + '%2.4f</a><br>€ %2.2f / Kgr', [lprice, dbl_safe_div(lprice, www) * 1000]) + '</td>')
     else
       document.write('<td width=15% align=right><a href=' + lugcostedit + '>-</a></td>');
 
@@ -12300,7 +13440,7 @@ begin
     begin
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
-      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Krg', [prn, dbl_safe_div(prn, pi.weight) * 1000]) + '</td>');
+      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
       prnt := prnt + prn * numpieces;
       prut := prut + pru * numpieces;
       document.write('<td width=5% align=right>' + itoa(pci.priceguide.nTimesSold) + '</td>');
@@ -12719,8 +13859,8 @@ begin
           if pci <> nil then
           begin
             pi := db.PieceInfo(pci);
-            weight := pi.Weight;
-            if weight > 0 then
+            weight := db.GetItemWeight(pci.piece, pci.color, pi);
+            if weight > 0.0 then
             begin
               cost := pci.EvaluatePriceUsed;
               if cost > 0.0 then
@@ -12810,8 +13950,8 @@ begin
           if pci <> nil then
           begin
             pi := db.PieceInfo(pci);
-            weight := pi.Weight;
-            if weight > 0 then
+            weight := db.GetItemWeight(pci.piece, pci.color, pi);
+            if weight > 0.0 then
             begin
               if pci.priceguide.nTimesSold > 0 then
               begin
@@ -12972,13 +14112,18 @@ var
   dtit, stit, sprev, snext: string;
   kp: THashStringList;
   dominifig: boolean;
+  sexclude: TStringList;
 begin
   lst := TStringList.Create;
 
   inv := TBrickInventory.Create;
 
+  sexclude := TStringList.Create;
+
   if (typ = 'P') or (typ = '') then
   begin
+    sexclude.Text := S_PGQRY_EXCLUDE_P;
+    sexclude.Sorted := True;
     for i := 0 to MAXINFOCOLOR do
       if db.Colors(i).id = i then
       begin
@@ -12987,21 +14132,24 @@ begin
           for j := 0 to kp.Count - 1 do
           begin
             pcs := kp.Strings[j];
-            pci := kp.Objects[j] as TPieceColorInfo;
-            if pci <> nil then
+            if sexclude.IndexOf(pcs) < 0 then
             begin
-              idx := lst.Add(pcs + ',' + itoa(i));
-              dd := TCInteger.Create;
-              if dosoldnew then
-                dd.Add(pci.priceguide.nTotalQty);
-              if dosoldused then
-                dd.Add(pci.priceguide.uTotalQty);
-              if doavailnew then
-                dd.Add(pci.availability.nTotalQty);
-              if doavailused then
-                dd.Add(pci.availability.uTotalQty);
+              pci := kp.Objects[j] as TPieceColorInfo;
+              if pci <> nil then
+              begin
+                idx := lst.Add(pcs + ',' + itoa(i));
+                dd := TCInteger.Create;
+                if dosoldnew then
+                  dd.Add(pci.priceguide.nTotalQty);
+                if dosoldused then
+                  dd.Add(pci.priceguide.uTotalQty);
+                if doavailnew then
+                  dd.Add(pci.availability.nTotalQty);
+                if doavailused then
+                  dd.Add(pci.availability.uTotalQty);
 
-              lst.Objects[idx] := dd;
+                lst.Objects[idx] := dd;
+              end;
             end;
           end;
       end;
@@ -13009,38 +14157,48 @@ begin
   else if (typ = 'S') or (typ = 'M') then
   begin
     dominifig := typ = 'M';
+    if dominifig then
+      sexclude.Text := S_PGQRY_EXCLUDE_M
+    else
+      sexclude.Text := S_PGQRY_EXCLUDE_S;
+    sexclude.Sorted := True;
     kp := db.AllSets;
     for i := 0 to kp.Count - 1 do
     begin
       pcs := kp.Strings[i];
-      pci := db.PieceColorInfo(pcs, -1);
-      if pci <> nil then
+      if sexclude.IndexOf(pcs) < 0 then
       begin
-        if dominifig then
+        pci := db.PieceColorInfo(pcs, -1);
+        if pci <> nil then
         begin
-          if pci.sparttype <> 'M' then
-            Continue;
-        end
-        else
-        begin
-          if pci.sparttype = 'M' then
-            Continue;
-        end;
-        idx := lst.Add(pcs + ',-1');
-        dd := TCInteger.Create;
-        if dosoldnew then
-          dd.Add(pci.priceguide.nTotalQty);
-        if dosoldused then
-          dd.Add(pci.priceguide.uTotalQty);
-        if doavailnew then
-          dd.Add(pci.availability.nTotalQty);
-        if doavailused then
-          dd.Add(pci.availability.uTotalQty);
+          if dominifig then
+          begin
+            if pci.sparttype <> 'M' then
+              Continue;
+          end
+          else
+          begin
+            if pci.sparttype = 'M' then
+              Continue;
+          end;
+          idx := lst.Add(pcs + ',-1');
+          dd := TCInteger.Create;
+          if dosoldnew then
+            dd.Add(pci.priceguide.nTotalQty);
+          if dosoldused then
+            dd.Add(pci.priceguide.uTotalQty);
+          if doavailnew then
+            dd.Add(pci.availability.nTotalQty);
+          if doavailused then
+            dd.Add(pci.availability.uTotalQty);
 
-        lst.Objects[idx] := dd;
+          lst.Objects[idx] := dd;
+        end;
       end;
     end;
   end;
+
+  sexclude.Free;
 
   lst.CustomSort(sortpiecelist_TCInteger);
   for i := lst.Count - 1 downto n do
@@ -13648,7 +14806,7 @@ var
   pi: TPieceInfo;
 begin
   params := iterator_double_p(p);
-  for i := 0 to MAXINFOCOLOR do
+  for i := 0 to db.AllPieces.Count - 1 do
     if i mod params.numidxs = params.idx then
     begin
       pcs := db.AllPieces.Strings[i];
@@ -14838,6 +15996,7 @@ begin
     Screen.Cursor := crHourglass;
     for i := 0 to sl.Count - 1 do
       HTMLClick(sl.Strings[i], foo);
+    S_FlashFileSystem;
     Screen.Cursor := crDefault;
   end;
   sl.Free;
@@ -14855,6 +16014,7 @@ begin
     Screen.Cursor := crHourglass;
     for i := 0 to sl.Count - 1 do
       HTMLClick(sl.Strings[i], foo);
+    S_FlashFileSystem;
     Screen.Cursor := crDefault;
   end;
   sl.Free;
@@ -14872,6 +16032,7 @@ begin
     Screen.Cursor := crHourglass;
     for i := 0 to sl.Count - 1 do
       HTMLClick(sl.Strings[i], foo);
+    S_FlashFileSystem;
     Screen.Cursor := crDefault;
   end;
   sl.Free;
@@ -14991,6 +16152,7 @@ begin
     Screen.Cursor := crHourglass;
     for i := 0 to sl.Count - 1 do
       HTMLClick(sl.Strings[i], foo);
+    S_FlashFileSystem;
     Screen.Cursor := crDefault;
   end;
   sl.Free;
@@ -15050,7 +16212,6 @@ var
   tit: string;
   cnt: integer;
   step: integer;
-  oldm: boolean;
   donumlinks: boolean;
 begin
   Screen.Cursor := crHourglass;
@@ -15089,14 +16250,11 @@ begin
       params4.maxcolors := maxcolors;
       params4.list := cmolds4;
 
-      oldm := ismultithread;
-      ismultithread := True;
       MT_Execute(
         @ShowMoldsWithMoreThanColors_thr, @params1,
         @ShowMoldsWithMoreThanColors_thr, @params2,
         @ShowMoldsWithMoreThanColors_thr, @params3,
         @ShowMoldsWithMoreThanColors_thr, @params4);
-      ismultithread := oldm;
 
       cmolds.AddStrings(cmolds2);
       cmolds.AddStrings(cmolds3);
@@ -15178,6 +16336,58 @@ begin
     DrawMoldList('Variations and/or other prints for ' + linkstr, cmolds, False, False);
 end;
 
+procedure TMainForm.ShowMoldVariations(const basepcs: string);
+var
+  linkstr: string;
+  pi: TPieceInfo;
+begin
+  pi := db.PieceInfo(basepcs);
+  linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  if pi.moldvariations.Count = 0 then
+    DrawMoldList('No mold variations for ' + linkstr, pi.moldvariations, False, False)
+  else
+    DrawMoldList('Mold variations for ' + linkstr, pi.moldvariations, False, False);
+end;
+
+procedure TMainForm.ShowPieceAlternates(const basepcs: string);
+var
+  linkstr: string;
+  pi: TPieceInfo;
+begin
+  pi := db.PieceInfo(basepcs);
+  linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  if pi.alternates.Count = 0 then
+    DrawMoldList('No alternates for ' + linkstr, pi.alternates, False, False)
+  else
+    DrawMoldList('Alternates for ' + linkstr, pi.alternates, False, False);
+end;
+
+procedure TMainForm.ShowPiecePatterns(const basepcs: string);
+var
+  linkstr: string;
+  pi: TPieceInfo;
+begin
+  pi := db.PieceInfo(basepcs);
+  linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  if pi.patterns.Count = 0 then
+    DrawMoldList('No patterns for ' + linkstr, pi.patterns, False, False)
+  else
+    DrawMoldList('Patterns for ' + linkstr, pi.patterns, False, False);
+end;
+
+procedure TMainForm.ShowPiecePrints(const basepcs: string);
+var
+  linkstr: string;
+  pi: TPieceInfo;
+begin
+  pi := db.PieceInfo(basepcs);
+  linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  if pi.prints.Count = 0 then
+    DrawMoldList('No prints for ' + linkstr, pi.prints, False, False)
+  else
+    DrawMoldList('Prints for ' + linkstr, pi.prints, False, False);
+end;
+
 procedure TMainForm.Pieceswithmorethan30colors1Click(Sender: TObject);
 var
   foo: Boolean;
@@ -15218,7 +16428,6 @@ var
   tit: string;
   cnt: integer;
   step: integer;
-  oldm: boolean;
 begin
   Screen.Cursor := crHourglass;
   cmolds := TStringList.Create;
@@ -15248,14 +16457,11 @@ begin
       params4.stop := cnt - 1;
       params4.list := cmolds4;
 
-      oldm := ismultithread;
-      ismultithread := True;
       MT_Execute(
         @ShowNameswithbothpartandsetcolorindexes_thr, @params1,
         @ShowNameswithbothpartandsetcolorindexes_thr, @params2,
         @ShowNameswithbothpartandsetcolorindexes_thr, @params3,
         @ShowNameswithbothpartandsetcolorindexes_thr, @params4);
-      ismultithread := oldm;
 
       cmolds.AddStrings(cmolds2);
       cmolds.AddStrings(cmolds3);
@@ -15705,11 +16911,20 @@ begin
 end;
 
 procedure TMainForm.PopupMenu1Popup(Sender: TObject);
+var
+  validitem: boolean;
 begin
   HtmlCopy2.Enabled := HTML.SelLength <> 0;
   CloseTab1.Enabled := TabControl1.Tabs.Count > 1;
   Openlinkinnewtab1.Enabled := (newtabUrl <> '') and (TabControl1.Tabs.Count <= MAXNUMTABS) and (CanOpenInNewTab(newtabUrl));
   Openlink1.Enabled := newtabUrl <> '';
+
+  OpenItemPU1.Visible := False;
+  if db.AllPieces.IndexOf(Trim(HTML.SelText)) >= 0 then
+  begin
+    OpenItemPU1.Visible := True;
+    OpenItemPU1.Caption := 'Open item "' + Trim(HTML.SelText) + '"';
+  end;
 end;
 
 procedure TMainForm.CloseTabClick(Sender: TObject);
@@ -15745,7 +16960,7 @@ begin
     Exit;
 
   tb := TabControl1.Tabs.Objects[idx] as TTabItem;
-  tb.Store(HTML, goback, gofwd);
+  tb.Store(HTML, AddressEdit.Text, goback, gofwd);
 end;
 
 procedure TMainForm.RestoreTab;
@@ -15758,7 +16973,7 @@ begin
     Exit;
 
   tb := TabControl1.Tabs.Objects[idx] as TTabItem;
-  tb.Restore(HTML, goback, gofwd);
+  tb.Restore(HTML, AddressEdit, goback, gofwd);
   Caption := Application.Title + ' - ' + HTML.DocumentTitle;
 end;
 
@@ -16379,7 +17594,7 @@ var
   i, j: integer;
   pci: TPieceColorInfo;
   kp: THashStringList;
-  idx, tot, cnt: integer;
+  idx, tot: integer;
   smsg: string;
   lst: TStringList;
 begin
@@ -16426,13 +17641,11 @@ begin
 
   SplashProgress(smsg, 0.01);
 
-  cnt := 0;
   for i := 0 to tot - 1 do
   begin
     db.UpdatePartKnownColorsFromBricklink(lst.Strings[i]);
-    inc(cnt);
-    if cnt mod 100 = 0 then
-      SplashProgress(smsg, 0.01 + 0.99 * (cnt / tot));
+    if i mod 100 = 0 then
+      SplashProgress(smsg, 0.01 + 0.99 * (i / tot));
   end;
 
   SplashProgress(smsg, 1.0);
@@ -16823,6 +18036,244 @@ begin
   fn := fn + 'Comparesetslist.txt';
   backupfile(fn);
   Comparesetslist.SaveToFile(fn);
+end;
+
+
+procedure TMainForm.SpeedButton2Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('refresh', foo);
+end;
+
+procedure TMainForm.MinifiguresIcanbuild1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('figsIcanbuild/9/10', foo);
+end;
+
+function TMainForm.GetRebrickableColorHtml(const cl: integer): string;
+var
+  rcolor: integer;
+begin
+  rcolor := db.colors(cl).RebrickableColor;
+  if cl <> rcolor then
+    Result := ' (RB=' + itoa(rcolor) + ')'
+  else
+    Result := '';
+end;
+
+procedure TMainForm.OpenItemPU1Click(Sender: TObject);
+var
+  pcs: string;
+  foo: boolean;
+begin
+  pcs := Trim(HTML.SelText);
+  if db.AllPieces.IndexOf(pcs) >= 0 then
+    HTMLClick('spiece/' + pcs, foo);
+end;
+
+function AutoCorrectUnknownPieceYears_thr(p: pointer): integer; stdcall;
+var
+  params: iterator_base_p;
+  i, j, k: integer;
+  pci: TPieceColorInfo;
+  cp: colorinfo_p;
+  kp: THashStringList;
+  y: integer;
+  scheck: string;
+  sset: string;
+  idx: integer;
+  desc: string;
+begin
+  params := iterator_base_p(p);
+
+  scheck := ' SET ';
+  for i := 0 to MAXINFOCOLOR do
+    if i mod params.numidxs = params.idx then
+    begin
+      cp := db.Colors(i);
+      if cp.id = i then
+      begin
+        kp := cp.knownpieces;
+        if kp <> nil then
+        begin
+          for j := 0 to kp.Count - 1 do
+          begin
+            pci := kp.Objects[j] as TPieceColorInfo;
+            if pci <> nil then
+              if pci.year = 0 then
+              begin
+                desc := db.PieceDesc(pci.piece);
+                idx := Pos(scheck, strupper(desc));
+                if idx > 0 then
+                begin
+                  sset := '';
+                  for k := idx + Length(scheck) to Length(desc) do
+                  begin
+                    if IsNumericC(desc[k]) or (desc[k] = '-') then
+                      sset := sset + desc[k]
+                    else
+                      Break;
+                  end;
+
+                  if Pos('-', sset) = 0 then
+                    sset := sset + '-1';
+
+                  y := db.SetYear(sset);
+                  if y >= 1931 then
+                    if y <= 2050 then
+                      params.list.AddObject(pci.piece, TCInteger.Create(y));
+                end;
+              end;
+          end;
+        end;
+      end;
+    end;
+
+  scheck := 'STICKER FOR SET ';
+  cp := db.Colors(-1);
+  kp := cp.knownpieces;
+  if kp <> nil then
+    for j := 0 to kp.Count - 1 do
+      if j mod params.numidxs = params.idx then
+      begin
+        pci := kp.Objects[j] as TPieceColorInfo;
+        if pci <> nil then
+          if pci.year = 0 then
+          begin
+            desc := db.PieceDesc(pci.piece);
+            idx := Pos(scheck, strupper(desc));
+            if idx = 1 then
+            begin
+              sset := '';
+              for k := idx + Length(scheck) to Length(desc) do
+              begin
+                if IsNumericC(desc[k]) or (desc[k] = '-') then
+                  sset := sset + desc[k]
+                else
+                  Break;
+              end;
+
+              if Pos('-', sset) = 0 then
+                sset := sset + '-1';
+
+              y := db.SetYear(sset);
+              if y >= 1931 then
+                if y <= 2050 then
+                  params.list.AddObject(pci.piece, TCInteger.Create(y));
+            end;
+          end;
+      end;
+
+  Result := 0;
+end;
+
+function TMainForm.AutoCorrectUnknownPieceYears: boolean;
+var
+  i: integer;
+  lst: TStringList;
+begin
+  Screen.Cursor := crHourglass;
+
+  lst := MT_Iterate_Base(@AutoCorrectUnknownPieceYears_thr);
+  lst.Sort;
+
+  for i := lst.Count - 1 downto 1 do
+    if lst.Strings[i] = lst.Strings[i - 1] then
+    begin
+      lst.Objects[i].Free;
+      lst.Delete(i);
+    end;
+
+  for i := 0 to lst.Count - 1 do
+    db.UpdateYearForAllColors(lst.Strings[i], (lst.Objects[i] as TCInteger).value);
+
+  Result := lst.Count > 0;
+
+  FreeList(lst);
+
+  S_FlashFileSystem;
+
+  Screen.Cursor := crDefault;
+end;
+
+procedure TMainForm.DoUpdateInstructionsFromNet(const sset: string);
+var
+  foo: boolean;
+  ret: boolean;
+begin
+  Screen.Cursor := crHourglass;
+  try
+    ret := UpdateInstructionsFromNet(sset, True);
+  finally
+    Screen.Cursor := crDefault;
+  end;
+  if ret or InstructionsExist(sset) or (findfile(basedefault + InstructionDir(sset) + '*.pdf') <> '') then
+    HTMLClick('instructions/' + sset, foo);
+end;
+
+procedure TMainForm.DoUpdateInstructionsFromNetHost(const sset: string; const host: string);
+var
+  foo: boolean;
+  ret: boolean;
+begin
+  Screen.Cursor := crHourglass;
+  try
+    ret := UpdateInstructionsFromNet(sset, True, host);
+  finally
+    Screen.Cursor := crDefault;
+  end;
+  if ret or InstructionsExist(sset) or (findfile(basedefault + InstructionDir(sset) + '*.pdf') <> '') then
+    HTMLClick('refresh', foo);
+end;
+
+procedure TMainForm.DoUpdateInstructionsFromPdf(const sset: string);
+var
+  foo: boolean;
+begin
+  if UpdateInstructionsFromPdf(sset) then
+    HTMLClick('instructions/' + sset, foo);
+end;
+
+function TMainForm.RemoveImageFromCache(const simg: string): boolean;
+var
+  idx: integer;
+  scheck: string;
+begin
+  scheck := strupper(simg);
+
+  Result := False;
+
+  idx := streams.IndexOf(scheck);
+  if idx >= 0 then
+  begin
+    Result := True;
+    streams.Objects[idx].Free;
+    streams.Delete(idx);
+  end;
+
+  idx := imagerequests.IndexOf(scheck);
+  if idx >= 0 then
+  begin
+    Result := True;
+    imagerequests.Delete(idx);
+  end;
+end;
+
+procedure TMainForm.Instructionswithunknownweight1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('InstructionsUnknownWeight', foo);
+end;
+
+procedure TMainForm.OriginalBoxeswithunknownweight1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('BoxesUnknownWeight', foo);
 end;
 
 end.

@@ -161,12 +161,22 @@ begin
         if Pos('BL ', scolor) = 1 then
         begin
           scolor := Copy(scolor, 4, Length(scolor) - 3);
-          scolor := IntToStr(db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0)));
+          scolor := IntToStr(db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0)));
         end
         else if Pos('BL', scolor) = 1 then
         begin
           scolor := Copy(scolor, 3, Length(scolor) - 2);
-          scolor := IntToStr(db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0)));
+          scolor := IntToStr(db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0)));
+        end
+        else if Pos('RB ', scolor) = 1 then
+        begin
+          scolor := Copy(scolor, 4, Length(scolor) - 3);
+          scolor := IntToStr(db.RebrickableColorToSystemColor(StrToIntDef(scolor, 0)));
+        end
+        else if Pos('RB', scolor) = 1 then
+        begin
+          scolor := Copy(scolor, 3, Length(scolor) - 2);
+          scolor := IntToStr(db.RebrickableColorToSystemColor(StrToIntDef(scolor, 0)));
         end;
       end;
 
@@ -174,7 +184,7 @@ begin
       for j := 1 to Length(scost) do
         if scost[j] in [',', '.'] then
           scost[j] := DecimalSeparator;
-      tdbl.value := StrToFloat(scost);
+      tdbl.value := atof(scost);
       fList.AddObject(spart + ',' + scolor, tdbl);
     end;
   end;

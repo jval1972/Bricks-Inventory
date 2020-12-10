@@ -4808,16 +4808,39 @@ begin
           {Optmize when we don´t have transparency}
           if (AlphaSource[i2] <> 0) then
             if (AlphaSource[i2] = 255) then
-              ImageData[i] := pRGBQuad(@ImageSource[i2 * 3])^
+            begin
+              try
+                ImageData[i] := pRGBQuad(@ImageSource[i2 * 3])^
+              except
+                ImageData[i].rgbBlue := 0;
+                ImageData[i].rgbGreen := 0;
+                ImageData[i].rgbRed := 0;
+                ImageData[i].rgbReserved := 0;
+              end;
+            end
             else
+            begin
               with ImageData[i] do
               begin
-                rgbRed := (255+ImageSource[2+i2*3] * AlphaSource[i2] + rgbRed *
-                  (not AlphaSource[i2])) shr 8;
-                rgbGreen := (255+ImageSource[1+i2*3] * AlphaSource[i2] +
-                  rgbGreen * (not AlphaSource[i2])) shr 8;
-                rgbBlue := (255+ImageSource[i2*3] * AlphaSource[i2] + rgbBlue *
-                 (not AlphaSource[i2])) shr 8;
+                try
+                  rgbRed := (255 + ImageSource[2 + i2 * 3] * AlphaSource[i2] + rgbRed *
+                    (not AlphaSource[i2])) shr 8;
+                except
+                  rgbRed := 0;
+                end;
+                try
+                  rgbGreen := (255 + ImageSource[1 + i2 * 3] * AlphaSource[i2] +
+                    rgbGreen * (not AlphaSource[i2])) shr 8;
+                except
+                  rgbGreen := 0;
+                end;
+                try
+                  rgbBlue := (255 + ImageSource[i2 * 3] * AlphaSource[i2] + rgbBlue *
+                   (not AlphaSource[i2])) shr 8;
+                except
+                  rgbBlue := 0;
+                end;
+              end;
             end;
           end;
 
@@ -4834,14 +4857,27 @@ begin
       begin
         {Process all the pixels in this line}
         FOR i := 0 TO W - 1 DO
-          with ImageData[i], Header.BitmapInfo do begin
+          with ImageData[i], Header.BitmapInfo do
+          begin
             if Stretch then i2 := trunc(i / FactorX) else i2 := i;
-            rgbRed := (255 + ImageSource[i2] * AlphaSource[i2] +
-              rgbRed * (255 - AlphaSource[i2])) shr 8;
-            rgbGreen := (255 + ImageSource[i2] * AlphaSource[i2] +
-              rgbGreen * (255 - AlphaSource[i2])) shr 8;
-            rgbBlue := (255 + ImageSource[i2] * AlphaSource[i2] +
-              rgbBlue * (255 - AlphaSource[i2])) shr 8;
+            try
+              rgbRed := (255 + ImageSource[i2] * AlphaSource[i2] +
+                rgbRed * (255 - AlphaSource[i2])) shr 8;
+            except
+              rgbRed := 0;
+            end;
+            try
+              rgbGreen := (255 + ImageSource[i2] * AlphaSource[i2] +
+                rgbGreen * (255 - AlphaSource[i2])) shr 8;
+            except
+              rgbGreen := 0;
+            end;
+            try
+              rgbBlue := (255 + ImageSource[i2] * AlphaSource[i2] +
+                rgbBlue * (255 - AlphaSource[i2])) shr 8;
+            except
+              rgbBlue := 0;
+            end;
           end;
 
         {Move pointers}
@@ -4869,8 +4905,8 @@ begin
           repeat
             {Obtains the palette index}
             case Header.BitDepth of
-              1: PaletteIndex := (Data^ shr (7-(I Mod 8))) and 1;
-            2,4: PaletteIndex := (Data^ shr ((1-(I Mod 2))*4)) and $0F;
+              1: PaletteIndex := (Data^ shr (7 - (I mod 8))) and 1;
+            2,4: PaletteIndex := (Data^ shr ((1 - (I mod 2)) * 4)) and $0F;
              else PaletteIndex := Data^;
             end;
 
@@ -4878,12 +4914,24 @@ begin
             with ImageData[i] do
             begin
               TransValue := TransparencyChunk.PaletteValues[PaletteIndex];
-              rgbRed := (255 + PaletteChunk.Item[PaletteIndex].rgbRed *
-                 TransValue + rgbRed * (255 - TransValue)) shr 8;
-              rgbGreen := (255 + PaletteChunk.Item[PaletteIndex].rgbGreen *
-                 TransValue + rgbGreen * (255 - TransValue)) shr 8;
-              rgbBlue := (255 + PaletteChunk.Item[PaletteIndex].rgbBlue *
-                 TransValue + rgbBlue * (255 - TransValue)) shr 8;
+              try
+                rgbRed := (255 + PaletteChunk.Item[PaletteIndex].rgbRed *
+                   TransValue + rgbRed * (255 - TransValue)) shr 8;
+              except
+                rgbRed := 0;
+              end;
+              try
+                rgbGreen := (255 + PaletteChunk.Item[PaletteIndex].rgbGreen *
+                   TransValue + rgbGreen * (255 - TransValue)) shr 8;
+              except
+                rgbGreen := 0;
+              end;
+              try
+                rgbBlue := (255 + PaletteChunk.Item[PaletteIndex].rgbBlue *
+                   TransValue + rgbBlue * (255 - TransValue)) shr 8;
+              except
+                rgbBlue := 0;
+              end;
             end;
 
             {Move to next data}
@@ -5822,5 +5870,4 @@ finalization
   {Free chunk classes}
   FreeChunkClassList;
 end.
-
 

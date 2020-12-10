@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -212,22 +212,22 @@ end;
 function TCompressorCache.Read(var Buf; Sz: Integer): integer;
 begin
   if fPosition + Sz > Size then
-    result := Size - fPosition
+    Result := Size - fPosition
   else
-    result := Sz;
+    Result := Sz;
 
-  memcpy(@buf, pointer(integer(data) + fPosition), result);
-  fPosition := fPosition + result;
+  memcpy(@buf, pointer(integer(data) + fPosition), Result);
+  fPosition := fPosition + Result;
 end;
 
 function TCompressorCache.Seek(pos: integer): boolean;
 begin
   if (pos < 0) or (pos > Size) then
-    result := false
+    Result := False
   else
   begin
     fPosition := pos;
-    result := true;
+    Result := True;
   end;
 end;
 
@@ -235,10 +235,10 @@ function MkHash(const s: string): integer;
 var
   i: integer;
 begin
-  result := 0;
+  Result := 0;
   for i := 1 to length(s) do
   begin
-    result := ((result shl 7) or (result shr 25)) + Ord(s[i]);
+    Result := ((Result shl 7) or (Result shr 25)) + Ord(s[i]);
   end;
 end;
 
@@ -372,7 +372,7 @@ end;
 
 function TPakManager.HashToHashTableIndex(const hash: integer): integer;
 begin
-  result := abs(hash) mod PAKHASHSIZE;
+  Result := abs(hash) mod PAKHASHSIZE;
 end;
 
 procedure TPakManager.AddEntryToHashTable(const idx: integer);
@@ -400,28 +400,28 @@ var
   pkid: integer;
   Fn: string;
 begin
-  result := false;
+  Result := False;
   Fn := strupper(FileName);
   if PAKS.IndexOf(Fn) > -1  then
-    exit;
+    Exit;
 
   pkid := PAKS.Add(Fn);
   PAKS.Objects[pkid] := nil;
 
   if not fopen(F, fn, fOpenReadOnly) then
-    exit;
+    Exit;
 
   Blockread(F, Id, 4, N);
   if N <> 4 then
   begin
     close(F);
-    exit;
+    Exit;
   end;
   if (Id <> Pakid) and (Id <> WAD2Id) and (Id <> WAD3Id) and (id <> ZIPFILESIGNATURE) then
   begin
-    result := false;
+    Result := False;
     close(F);
-    exit;
+    Exit;
   end;
 
   if Id = Pakid then // PAK file
@@ -430,13 +430,13 @@ begin
     if N <> 4 then
     begin
       close(F);
-      exit;
+      Exit;
     end;
     BlockRead(F, Nr, 4, N);
     if N <> 4 then
     begin
       close(F);
-      exit;
+      Exit;
     end;
     Nr := Nr div SizeOf(FPakHead);
     Seek(F, Ofs);
@@ -459,13 +459,13 @@ begin
     if N <> 4 then
     begin
       close(F);
-      exit;
+      Exit;
     end;
     BlockRead(F, Ofs, 4, N);
     if N <> 4 then
     begin
       close(F);
-      exit;
+      Exit;
     end;
     seek(F, Ofs);
     P := malloc(Nr * SizeOf(FWadHead));
@@ -476,7 +476,7 @@ begin
 
   end;
   close(F);
-  result := true;
+  Result := True;
   printf(' adding %s'#13#10, [FileName]);
 end;
 
@@ -498,7 +498,7 @@ var
   hashcheck: PPakHash;
   Name2: string;
 begin
-  result := false;
+  Result := False;
   F.Z := nil;
 
   if fopen(F.F, Name, fOpenReadOnly) then
@@ -540,12 +540,12 @@ begin
         else
         begin // Standard Quake1/2 pak file
           if not fopen(F.F, string(pe.Pak), fOpenReadOnly)  then
-            exit;
+            Exit;
           Seek(F.F, pe.Offset);
         end;
         F.Entry := hashcheck.index;
-        result := true;
-        exit;
+        Result := True;
+        Exit;
       end;
     hashcheck := hashcheck.next;
   end;
@@ -562,12 +562,12 @@ begin
         else
         begin // Standard Quake1/2 pak file
           if not fopen(F.F, string(pe.Pak), fOpenReadOnly)  then
-            exit;
+            Exit;
           Seek(F.F, pe.Offset);
         end;
         F.Entry := i;
-        result := true;
-        exit;
+        Result := True;
+        Exit;
       end;
   end;
 end;
@@ -580,13 +580,13 @@ var
   pe: PPakEntry;
   hashcheck: PPakHash;
 begin
-  result := false;
+  Result := False;
   F.Z := nil;
 
   if fopen(F.F, Name, fOpenReadOnly) then
   begin
     F.Entry := -1;
-    result := true;
+    Result := True;
     Exit;
   end; // Disk file Overrides Pak file
 
@@ -605,12 +605,12 @@ begin
         else
         begin // Standard Quake1/2 pak file
           if not fopen(F.F, string(pe.Pak), fOpenReadOnly)  then
-            exit;
+            Exit;
           Seek(F.F, pe.Offset);
         end;
         F.Entry := hashcheck.index;
-        result := true;
-        exit;
+        Result := True;
+        Exit;
       end;
     hashcheck := hashcheck.next;
   end;
@@ -627,11 +627,11 @@ begin
         else
         begin
           if not fopen(F.F, string(pe.Pak), fOpenReadOnly) then
-            exit;
+            Exit;
           Seek(F.F, pe.Offset);
         end;
         F.Entry := I;
-        result := true;
+        Result := True;
         Exit;
       end;
   end;
@@ -667,7 +667,7 @@ var
   bestpriority: integer;
   Name: string;
 begin
-  result := false;
+  Result := False;
   F.Z := nil;
 
   pref_head := malloc(SizeOf(pref_rec));
@@ -715,7 +715,7 @@ begin
   recourcefreememlist(pref_head);
 
   if i < 0 then
-    exit;
+    Exit;
 
   pe := @Entries[i];
   if pe.ZIP <> nil then
@@ -723,11 +723,11 @@ begin
   else
   begin
     if not fopen(F.F, string(pe.Pak), fOpenReadOnly) then
-      exit;
+      Exit;
     Seek(F.F, pe.Offset);
   end;
   F.Entry := I;
-  result := true;
+  Result := True;
 end;
 
 // Opens a file with extensive search prefering the pathname to be contained to prefdirs
@@ -744,13 +744,13 @@ var
   Name: string;
   hashcheck: PPakHash;
 begin
-  result := false;
+  Result := False;
   F.Z := nil;
 
   if fopen(F.F, aName, fOpenReadOnly) then
   begin
     F.Entry := -1;
-    result := true;
+    Result := True;
     Exit;
   end; // Disk file Overrides Pak file
 
@@ -802,7 +802,7 @@ begin
   recourcefreememlist(pref_head);
 
   if i < 0 then
-    exit;
+    Exit;
 
   pe := @Entries[i];
   if pe.ZIP <> nil then
@@ -810,18 +810,18 @@ begin
   else
   begin
     if not fopen(F.F, string(pe.Pak), fOpenReadOnly) then
-      exit;
+      Exit;
     Seek(F.F, pe.Offset);
   end;
   F.Entry := I;
-  result := true;
+  Result := True;
 end;
 
 function TPakManager.POpenPreferedFileName(var F: TPakFile; const aName: string; prefdirs: TDStringList): boolean;
 begin
-  result := POpenPreferedFileNameHash(F, aName, prefdirs);
-  if not result then
-    result := POpenPreferedFileNameSearch(F, aName, prefdirs);
+  Result := POpenPreferedFileNameHash(F, aName, prefdirs);
+  if not Result then
+    Result := POpenPreferedFileNameSearch(F, aName, prefdirs);
 end;
 
 function TPakManager.PClosefile(var F: TPakFile): boolean;
@@ -830,25 +830,25 @@ begin
   begin
     F.Z.Free;
     F.Z := nil;
-    result := true;
+    Result := True;
   end
   else
   begin
     {$I-}
     Close(F.F);
     {$I+}
-    result := IOResult = 0;
+    Result := IOResult = 0;
   end;
 end;
 
 function TPakManager.PBlockRead(var F: TPakFile; var Buf; const Size: Integer): integer;
 begin
   if F.Z <> nil then
-    result := F.Z.Read(Buf, Size)
+    Result := F.Z.Read(Buf, Size)
   else
   begin
     {$I-}
-    Blockread(F.F, Buf, Size, result);
+    Blockread(F.F, Buf, Size, Result);
     {$I+}
   end;
 end;
@@ -856,7 +856,7 @@ end;
 function TPakManager.PSeek(var F: TPakFile; const Pos: Integer): boolean;
 begin
   if F.Z <> nil then
-    result := F.Z.Seek(pos)
+    Result := F.Z.Seek(pos)
   else
   begin
   {$I-}
@@ -865,35 +865,35 @@ begin
     else
       Seek(F.F, Entries[F.Entry].Offset + Pos);
     {$I+}
-    result := IOResult = 0;
+    Result := IOResult = 0;
   end;
 end;
 
 function TPakManager.PFilePos(var F: TPakFile): Integer;
 begin
   if F.Z <> nil then
-    result := F.Z.Position
+    Result := F.Z.Position
   else
   begin
-    result := FilePos(F.F);
+    Result := FilePos(F.F);
     if F.Entry <> -1 then
-      result := result - Entries[F.Entry].Offset;
+      Result := Result - Entries[F.Entry].Offset;
   end;
 end;
 
 function TPakManager.PFileSize(var F: TPakFile): Integer;
 begin
   if F.Z <> nil then
-    result := F.Z.Size
+    Result := F.Z.Size
   else if F.Entry <> -1 then
-    result := Entries[F.Entry].Size
+    Result := Entries[F.Entry].Size
   else
   begin
   {$I-}
-    result := Filesize(F.F);
+    Result := Filesize(F.F);
   {$I+}
     if IOResult <> 0 then
-      result := 0;
+      Result := 0;
   end;
 end;
 
@@ -934,7 +934,7 @@ var
   stmp: string;
   stmp2: string;
 begin
-  result := TDStringList.Create;
+  Result := TDStringList.Create;
   if aprefdirs <> '' then
   begin
     stmp := '';
@@ -943,20 +943,20 @@ begin
         stmp := stmp + #13#10
       else
         stmp := stmp + toupper(aprefdirs[i]);
-    result.Text := stmp;
-    for i := result.count - 1 downto 0 do
-      if result.strings[i] = '' then
-        result.Delete(i);
+    Result.Text := stmp;
+    for i := Result.count - 1 downto 0 do
+      if Result.strings[i] = '' then
+        Result.Delete(i);
     stmp := '';
-    for i := 0 to result.Count - 1 do
+    for i := 0 to Result.Count - 1 do
     begin
-      stmp2 := result[i];
+      stmp2 := Result[i];
       if Length(stmp2) > 0 then
         if stmp2[Length(stmp2)] <> '\' then
           stmp := stmp + stmp2 + '\'#13#10;
       stmp := stmp + stmp2 + #13#10;
     end;
-    result.Text := stmp;
+    Result.Text := stmp;
   end;
 
 end;
@@ -989,7 +989,7 @@ begin
   else if mode = pm_prefered then
     ok := manager.POpenPreferedFileName(entry, FileName, prefdirs)
   else
-    ok := false;
+    ok := False;
   if not ok then
     FIOResult := 1
   else
@@ -1030,7 +1030,7 @@ end;
 
 function TPakStream.Read(var Buffer; Count: integer): integer;
 begin
-  result := manager.PBlockRead(entry, Buffer, Count);
+  Result := manager.PBlockRead(entry, Buffer, Count);
   if system.IOResult <> 0 then
     inc(FIOResult);
 end;
@@ -1039,7 +1039,7 @@ function TPakStream.Write(const Buffer; Count: integer): integer;
 begin
   I_Warning('TPakStream::Write(): Pak managment is read-only'#13#10);
   inc(FIOResult);
-  result := 0;
+  Result := 0;
 end;
 
 function TPakStream.Seek(Offset: integer; Origin: Word): integer;
@@ -1055,17 +1055,17 @@ begin
 
   if not manager.PSeek(entry, p) then
     inc(FIOResult);
-  result := p;
+  Result := p;
 end;
 
 function TPakStream.Size: integer;
 begin
-  result := manager.PFileSize(entry)
+  Result := manager.PFileSize(entry)
 end;
 
 function TPakStream.Position: integer;
 begin
-  result := manager.PFilePos(entry);
+  Result := manager.PFilePos(entry);
 end;
 
 //
@@ -1091,24 +1091,24 @@ function PAK_AddFile(const FileName: string): boolean;
 begin
   if I_DirectoryExists(FileName) then
   begin
-    result := true;
+    Result := True;
     PAK_AddDirectory(FileName)
   end
   else
-    result := pakmanager.PAddFile(FileName);
+    Result := pakmanager.PAddFile(FileName);
 end;
 
 function PAK_GetEntry(const i: integer): string;
 begin
   if (i >= 0) and (i < pakmanager.NumEntries) then
-    result := pakmanager.Entries[i].Name
+    Result := pakmanager.Entries[i].Name
   else
-    result := '';
+    Result := '';
 end;
 
 function PAK_NumEntries: integer;
 begin
-  result := pakmanager.NumEntries;
+  Result := pakmanager.NumEntries;
 end;
 
 procedure PAK_SetDefaultPath(const path: string);

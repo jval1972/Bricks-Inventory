@@ -31,6 +31,9 @@ type
     StatisticsLabel: TLabel;
     CheckBox2: TCheckBox;
     SuccessLabel: TLabel;
+    CheckBox3: TCheckBox;
+    Label7: TLabel;
+    Edit3: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure CrawlerTimerTimer(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -88,6 +91,8 @@ begin
     db.LoadFromDisk(basedefault + 'db\db_set_pieces.txt');
     crawling := false;
     cancrowl := true;
+    Edit3.Text := IntToStr(db.crawlerpriority.Count);
+    Edit3.Update;
   end
   else
   begin
@@ -123,6 +128,7 @@ begin
 
   Label1.Font.Color := clBlack;
   Label1.Update;
+
 
   if CheckBox1.Checked then
   begin
@@ -194,6 +200,8 @@ begin
     Edit1.Update;
     Edit2.Text := IntToStr(type2_pg_hits);
     Edit2.Update;
+    Edit3.Text := IntToStr(db.crawlerpriority.Count);
+    Edit3.Update;
     if cnt_total > 0 then
     begin
       StatisticsLabel.Caption := 'Success hits = ' + IntToStr(cnt_success) + '/' + IntToStr(cnt_total) + Format(' (%2.3f%s)', [cnt_success / cnt_total * 100, '%']);
@@ -226,14 +234,17 @@ end;
 procedure TForm1.CrawlerTimerTimer(Sender: TObject);
 begin
   CrawlerStep;
-  if (last_pg_hit = 2) {and (not FAILWarning)} then
+  if not CheckBox3.Checked then
   begin
-    CrawlerStep;
     if (last_pg_hit = 2) {and (not FAILWarning)} then
     begin
       CrawlerStep;
       if (last_pg_hit = 2) {and (not FAILWarning)} then
+      begin
         CrawlerStep;
+        if (last_pg_hit = 2) {and (not FAILWarning)} then
+          CrawlerStep;
+      end;
     end;
   end;
 end;

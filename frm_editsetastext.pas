@@ -46,7 +46,7 @@ type
     Label1: TLabel;
     Edit1: TEdit;
     Label2: TLabel;
-    Edit2: TEdit;
+    YearEdit: TEdit;
     CheckBox1: TCheckBox;
     EditPanel: TPanel;
     Label3: TLabel;
@@ -60,6 +60,7 @@ type
     ModifyButton: TButton;
     ImportButton: TButton;
     OpenDialog1: TOpenDialog;
+    UpdateYearSpeedButton: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure AddButtonClick(Sender: TObject);
@@ -67,12 +68,15 @@ type
     procedure txtNumKeyPress(Sender: TObject; var Key: Char);
     procedure ImportButtonClick(Sender: TObject);
     procedure Memo1Change(Sender: TObject);
+    procedure UpdateYearSpeedButtonClick(Sender: TObject);
+    procedure YearEditKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
     procedure PopulateColors;
     function GetEditLineInfo(var spart, scolor, snum: string): boolean;
   public
     { Public declarations }
+    setid: string;
   end;
 
 function EditSetAsTextForm(const setid: string; var data: string; var desc: string; var year: integer; var ismoc: boolean): boolean;
@@ -82,28 +86,30 @@ implementation
 {$R *.dfm}
 
 uses
+  urlmon,
   bi_delphi, bi_db, bi_globals, bi_utils, searchpart, ImportFileForm;
 
 function EditSetAsTextForm(const setid: string; var data: string; var desc: string; var year: integer; var ismoc: boolean): boolean;
 var
   f: TEditSetAsTextForm;
 begin
-  result := false;
+  Result := False;
   f := TEditSetAsTextForm.Create(nil);
   try
     f.Caption := f.Caption + ' - ' + setid;
+    f.setid := setid;
     f.Memo1.Text := data;
     f.Edit1.Text := desc;
-    f.Edit2.Text := itoa(year);
+    f.YearEdit.Text := itoa(year);
     f.CheckBox1.Checked := ismoc;
     f.ShowModal;
     if f.ModalResult = mrOK then
     begin
       data := f.Memo1.Text;
       desc := f.Edit1.Text;
-      year := atoi(trim(f.Edit2.Text));
+      year := atoi(trim(f.YearEdit.Text));
       ismoc := f.CheckBox1.Checked;
-      result := true;
+      Result := True;
     end;
   finally
     f.Free;
@@ -113,6 +119,7 @@ end;
 procedure TEditSetAsTextForm.FormCreate(Sender: TObject);
 begin
   PageControl1.ActivePageIndex := 0;
+  setid := '';
   PopulateColors;
 end;
 
@@ -153,14 +160,14 @@ begin
   begin
     ShowMessage(Format('Unknown piece %s', [spart]));
     try txtPart.SetFocus; except end;
-    exit;
+    Exit;
   end;
   p := Pos(':', boxColor.Text);
   if p = 0 then
   begin
     ShowMessage('Please specify the color');
     try boxColor.SetFocus; except end;
-    exit;
+    Exit;
   end;
   scolor :=  Trim(Copy(boxColor.Text, 0, p - 1));
   snum := txtNum.Text;
@@ -168,7 +175,7 @@ begin
   begin
     ShowMessage('Please type the quantity');
     try txtNum.SetFocus; except end;
-    exit;
+    Exit;
   end;
   Result := True;
 end;
@@ -262,6 +269,91 @@ begin
 
   s1 := Trim(Memo1.Lines.Strings[0]);
   EditPanel.Visible := Pos('Code,Num', s1) < 1;
+end;
+
+procedure TEditSetAsTextForm.UpdateYearSpeedButtonClick(Sender: TObject);
+var
+  fname: string;
+  urlstr: string;
+  yearnum: integer;
+  pci: TPieceColorInfo;
+  stry: string;
+begin
+  fname := basedefault + 'db\setmolds\' + Trim(setid) + '.htm';
+  if not fexists(fname) then
+  begin
+    fname := basedefault + 'db\molds\' + Trim(setid) + '.htm';
+    if not fexists(fname) then
+      fname := basedefault + 'db\minifigs\' + Trim(setid) + '.htm';
+  end;
+  if fexists(fname) then
+  begin
+    yearnum := db.GetSetYearFromDiskCache(fname);
+    if (yearnum >= 1932) and (yearnum <= 2050) then
+    begin
+      YearEdit.Text := itoa(yearnum);
+      Exit;
+    end;
+  end;
+
+  pci := db.PieceColorInfo(setid, -1);
+  if pci <> nil then
+  begin
+    if pci.sparttype = 'S' then
+      stry := 'SM'
+    else
+      stry := 'MS';
+  end
+  else
+    stry := 'SM';
+
+  Screen.Cursor := crHourglass;
+  try
+    fname := basedefault + 'db\molds\' + Trim(setid) + '.htm';
+    urlstr := sbricklink + 'v2/catalog/catalogitem.page?' + stry[1] + '=' + db.GetBLNetPieceName(Trim(setid));
+    UrlDownloadToFile(nil, PChar(urlstr), PChar(fname), 0, nil);
+  finally
+    Screen.Cursor := crDefault;
+  end;
+
+  if not fexists(fname) then
+    Exit;
+
+  yearnum := db.GetSetYearFromDiskCache(fname);
+  if (yearnum >= 1932) and (yearnum <= 2050) then
+  begin
+    YearEdit.Text := itoa(yearnum);
+    Exit;
+  end;
+
+  Screen.Cursor := crHourglass;
+  try
+    fname := basedefault + 'db\molds\' + Trim(setid) + '.htm';
+    urlstr := sbricklink + 'v2/catalog/catalogitem.page?' + stry[2] + '=' + db.GetBLNetPieceName(Trim(setid));
+    UrlDownloadToFile(nil, PChar(urlstr), PChar(fname), 0, nil);
+  finally
+    Screen.Cursor := crDefault;
+  end;
+
+  if not fexists(fname) then
+    Exit;
+
+  yearnum := db.GetSetYearFromDiskCache(fname);
+  if (yearnum >= 1932) and (yearnum <= 2050) then
+  begin
+    YearEdit.Text := itoa(yearnum);
+    Exit;
+  end;
+end;
+
+procedure TEditSetAsTextForm.YearEditKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if not (Key in [#8, '0'..'9']) then
+  begin
+    Key := #0;
+    Exit;
+  end;
 end;
 
 end.

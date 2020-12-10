@@ -90,7 +90,7 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=..\bin
+OutputDir=E:\BrickInventory\bin
 UnitOutputDir=..\dcu
 PackageDLLOutputDir=
 PackageDCPOutputDir=
@@ -114,8 +114,8 @@ IncludeVerInfo=1
 AutoIncBuild=1
 MajorVer=4
 MinorVer=1
-Release=1
-Build=318
+Release=2
+Build=335
 Debug=0
 PreRelease=0
 Special=0
@@ -126,20 +126,10 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=Jim Valavanis
 FileDescription=Bricks Inventory
-FileVersion=4.1.1.318
+FileVersion=4.1.2.335
 InternalName=BricksInventory
 LegalCopyright=Copyright 2014-2019 by Jim Valavanis
 LegalTrademarks=BricksInventory
 OriginalFilename=bi4.exe
 ProductName=Bricks Inventory
 ProductVersion=4.1
-[HistoryLists\hlUnitAliases]
-Count=1
-Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
-[HistoryLists\hlUnitOutputDirectory]
-Count=1
-Item0=..\dcu
-[HistoryLists\hlOutputDirectorry]
-Count=2
-Item0=..\bin
-Item1=E:\BrickInventory\bin

@@ -53,7 +53,7 @@ function NET_GetBricklinkCategory(const id: string; var fcat: integer; var fweig
 
 function NET_GetItemWeightFromDisk(const id: string; var fweight: double): boolean;
 
-function NET_GetItemWeightFromText(const id: string; const txt: string; var fweight: double): boolean;
+function NET_GetItemWeightFromText(const txt: string; var fweight: double): boolean;
 
 function NET_GetBricklinkMinifigCategory(const id: string; var fcat: integer; var fweight: double): boolean;
 
@@ -63,6 +63,8 @@ function NET_GetURLHeadByte(const URL: string; XXX: integer = 0): byte;
 
 function NET_GetURLString(const URL: string): string;
 
+function NET_DownloadFile(const URL: string; const fname: string): boolean;
+
 var
   AllowInternetAccess: Boolean = True;
 
@@ -70,14 +72,17 @@ function issticker(const part: string): Boolean;
 
 {$IFDEF CRAWLER}
 var
-  USDwarning: Boolean = false;
-  FAILwarning: Boolean = false;
+  USDwarning: Boolean = False;
+  FAILwarning: Boolean = False;
 {$ENDIF}
+
+function NET_ExistsCache(const id: string; const hits: string; out fname: string): boolean;
 
 implementation
 
 uses
-  Windows, bi_delphi, bi_script, bi_utils, bi_system, bi_globals, strutils;
+  Windows, bi_delphi, bi_script, bi_utils, bi_system, bi_globals, bi_cachefile,
+  strutils;
 
 var
   hSession: HInternet;
@@ -110,8 +115,8 @@ var
 begin
   if XXX > MAXRETRY then
   begin
-    result := 0;
-    exit;
+    Result := 0;
+    Exit;
   end;
 
   if XXX = MAXRETRY then
@@ -131,11 +136,11 @@ begin
   begin
     inc(XXX);
     sleep(DELAYR);
-    result := NET_GetURLHeadByte(URL, XXX);
-    exit;
+    Result := NET_GetURLHeadByte(URL, XXX);
+    Exit;
   end;
 
-  result := 0;
+  Result := 0;
 
   InternetReadFile(
         hURL,                  // File URL
@@ -143,7 +148,7 @@ begin
         SizeOf(Buffer),        // bytes to read
         BufferLen);            // bytes read
   if BufferLen > 0 then
-    result := Buffer;
+    Result := Buffer;
 end;
 
 function GetURLString(const URL: string; XXX: integer = 0): string;
@@ -156,14 +161,14 @@ var
 begin
   if not AllowInternetAccess then
   begin
-    result := '';
-    exit;
+    Result := '';
+    Exit;
   end;
 
   if XXX > MAXRETRY then
   begin
-    result := '';
-    exit;
+    Result := '';
+    Exit;
   end;
 
   if XXX = MAXRETRY then
@@ -183,11 +188,11 @@ begin
   begin
     inc(XXX);
     sleep(DELAYR);
-    result := GetURLString(URL, XXX);
-    exit;
+    Result := GetURLString(URL, XXX);
+    Exit;
   end;
 
-  result := '';
+  Result := '';
 
   repeat
     InternetReadFile(
@@ -198,9 +203,9 @@ begin
     if BufferLen > 0 then
     begin
       len := Length(Result);
-      SetLength(result, Length(Result) + BufferLen);
+      SetLength(Result, Length(Result) + BufferLen);
       for i := 1 to BufferLen do
-        result[len + i] := Buffer[i];
+        Result[len + i] := Buffer[i];
     end;
   until BufferLen = 0;
 end;
@@ -222,11 +227,11 @@ begin
 
   if hURL = nil then
   begin
-    result := '';
-    exit;
+    Result := '';
+    Exit;
   end;
 
-  result := '';
+  Result := '';
 
   repeat
     InternetReadFile(
@@ -237,11 +242,52 @@ begin
     if BufferLen > 0 then
     begin
       len := Length(Result);
-      SetLength(result, Length(Result) + BufferLen);
+      SetLength(Result, Length(Result) + BufferLen);
       for i := 1 to BufferLen do
-        result[len + i] := Buffer[i];
+        Result[len + i] := Buffer[i];
     end;
   until BufferLen = 0;
+end;
+
+function NET_DownloadFile(const URL: string; const fname: string): boolean;
+var
+  hURL: HInternet;
+  Buffer: array[1..BUFFERSIZE] of Char;
+  BufferLen: Cardinal;
+  f: TFileStream;
+  path: string;
+begin
+  hURL := InternetOpenURL(
+                 hSession,          // Handle to current session
+                 PChar(URL),        // URL to read
+                 nil,               // HTTP headers to send to server
+                 0,                 // Header length
+                 0, 0);             // flags   (might want to add some like INTERNET_FLAG_RELOAD with forces a reload from server and not from cache)
+
+  if hURL = nil then
+  begin
+    Result := False;
+    Exit;
+  end;
+
+  path := ExtractFilePath(fname);
+  if not DirectoryExists(path) then
+    ForceDirectories(path);
+    
+  f := TFileStream.Create(fname, fmCreate);
+
+  repeat
+    InternetReadFile(
+        hURL,                  // File URL
+        @Buffer,               // Buffer that receives data
+        SizeOf(Buffer),        // bytes to read
+        BufferLen);            // bytes read
+    if BufferLen > 0 then
+      f.Write(Buffer, BufferLen);
+  until BufferLen = 0;
+
+  Result := f.Size > 0;
+  f.Free;
 end;
 
 function issticker(const part: string): Boolean;
@@ -377,7 +423,22 @@ begin
       link2[2] := ' ';
       link2 := Trim(link2);
       if Length(link2) > 127 then
-        parec3.url := RightStr(link2, 127)
+      begin
+        if Pos('www.', link2) = 1 then
+        begin
+          link2[1] := ' ';
+          link2[2] := ' ';
+          link2[3] := ' ';
+          link2[4] := ' ';
+          link2 := Trim(link2);
+          if Length(link2) > 127 then
+            parec3.url := RightStr(link2, 127)
+          else
+            parec3.url := link2;
+        end
+        else
+          parec3.url := RightStr(link2, 127)
+      end
       else
         parec3.url := link2;
     end
@@ -489,7 +550,7 @@ var
     if (p1 > 0) and (p2 > 0) then
     begin
       if p2 < p1 then
-        if decimalseparator <> '.' then
+        if DecimalSeparator <> '.' then
         begin
           ss[p1] :='.';
           ss[p2] :=',';
@@ -504,13 +565,13 @@ var
 
     if (p1 > 0) and (p2 = 0) then
     begin
-      if ss[p1] <> decimalseparator then
-        ss[p1] := decimalseparator;
+      if ss[p1] <> DecimalSeparator then
+        ss[p1] := DecimalSeparator;
     end
     else if (p1 = 0) and (p2 > 0) then
     begin
-      if ss[p2] <> decimalseparator then
-        ss[p2] := decimalseparator;
+      if ss[p2] <> DecimalSeparator then
+        ss[p2] := DecimalSeparator;
     end;
     Result := atof(ss);
   end;
@@ -548,7 +609,7 @@ var
     if (p1 > 0) and (p2 > 0) then
     begin
       if p2 < p1 then
-        if decimalseparator <> '.' then
+        if DecimalSeparator <> '.' then
         begin
           ss[p1] :='.';
           ss[p2] :=',';
@@ -563,13 +624,13 @@ var
 
     if (p1 > 0) and (p2 = 0) then
     begin
-      if ss[p1] <> decimalseparator then
-        ss[p1] := decimalseparator;
+      if ss[p1] <> DecimalSeparator then
+        ss[p1] := DecimalSeparator;
     end
     else if (p1 = 0) and (p2 > 0) then
     begin
-      if ss[p2] <> decimalseparator then
-        ss[p2] := decimalseparator;
+      if ss[p2] <> DecimalSeparator then
+        ss[p2] := DecimalSeparator;
     end;
     Result := atof(ss);
   end;
@@ -651,7 +712,7 @@ begin
   if forcelink <> '' then
   begin
     link := forcelink;
-    savetyp := false;
+    savetyp := False;
   end
   else
     link := NET_MakePriceGuideLink2(typ, itemid, blcolor);
@@ -826,6 +887,9 @@ begin
   end;
 end;
 
+var
+  do_not_treat_as_gear: TStringList;
+
 function NET_GetPriceGuideForElement(const pci: TPieceColorInfo; id: string; const color: string;
   var ret1: priceguide_t; var ret2: availability_t; const cachefile: string;
   var clink: string): boolean;
@@ -857,9 +921,9 @@ var
   sRETRY: string;
   typ: string;
 begin
-  Result := false;
+  Result := False;
   cc := -1000;
-  decimalseparator := '.';
+  DecimalSeparator := '.';
   if color = '-1' then
   begin
     if db.IsMoc(id) then
@@ -879,13 +943,13 @@ begin
   end;
 
   tryparttype := ' ';
-  didbook := false;
-  didgear := false;
-  isdollar := false;
-  savelink := false;
+  didbook := False;
+  didgear := False;
+  isdollar := False;
+  savelink := False;
 {$IFDEF CRAWLER}
-  USDwarning := false;
-  FAILwarning := false;
+  USDwarning := False;
+  FAILwarning := False;
 {$ENDIF}
   FillChar(ret1, SizeOf(priceguide_t), 0);
   FillChar(ret2, SizeOf(availability_t), 0);
@@ -1164,20 +1228,24 @@ begin
       end;
     end;
 
-    if (typ = 'P') and (color <> '-1') and (color <> '9999') then
+    // Retry part as gear
+    if (typ = 'P') and (color <> '-1') and (color <> '9999') and (pci.sparttype <> 'P') then
     begin
-      cc := StrToIntDef(color, -2);
-      if (cc > -1) and (cc <= LASTNORMALCOLORINDEX) then
+      if do_not_treat_as_gear.IndexOf(pci.piece) < 0 then
       begin
-        forcelink := NET_MakePriceGuideLink2('G', db.GetBLNetPieceName(id), db.colors(cc).BrickLingColor, 6);
-        if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+        cc := StrToIntDef(color, -2);
+        if (cc > -1) and (cc <= LASTNORMALCOLORINDEX) then
         begin
-          Result := True;
-          inc(type2_pg_hits);
-          last_pg_hit := 2;
-          db.AddCrawlerLink(id, atoi(color), forcelink);
-          db.SetPartType(pci, 'G');
-          Exit;
+          forcelink := NET_MakePriceGuideLink2('G', db.GetBLNetPieceName(id), db.colors(cc).BrickLingColor, 6);
+          if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+          begin
+            Result := True;
+            inc(type2_pg_hits);
+            last_pg_hit := 2;
+            db.AddCrawlerLink(id, atoi(color), forcelink);
+            db.SetPartType(pci, 'G');
+            Exit;
+          end;
         end;
       end;
     end;
@@ -1214,15 +1282,15 @@ begin
   if Pos('catalogPriceGuide.asp', link) > 0 then
   begin
     link := '';
-    fixlink := true;
+    fixlink := True;
   end
   else
-    fixlink := false;
+    fixlink := False;
   if link <> '' then
     if Pos('&PRDEC=', UpperCase(link)) <= 0 then
     begin
       link := link + '&prdec=6';
-      fixlink := true;
+      fixlink := True;
     end;
   if link = '' then
   begin
@@ -1242,13 +1310,13 @@ begin
       else if db.isbook(id) then  // book
       begin
         link := 'https://' + BL_NET + '/catalogPG.asp?B=' + db.GetBLNetPieceName(id) + '&prdec=6';
-        didbook := true;
+        didbook := True;
         tryparttype := 'B';
       end
       else if db.IsGear(id) then
       begin
         link := 'https://' + BL_NET + '/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&prDec=6';
-        didgear := true;
+        didgear := True;
         tryparttype := 'G';
       end
       else  // minifigure
@@ -1279,7 +1347,7 @@ begin
       tryparttype := 'P';
     end;
   end;
-  loadedfromcache := false;
+  loadedfromcache := False;
   htm := GetURLString(link);
   if htm <> '' then
     skeep := htm
@@ -1291,7 +1359,7 @@ begin
       with TStringList.Create do
       try
         LoadFromFile(cachefile);
-        loadedfromcache := true;
+        loadedfromcache := True;
         skeep := Text;
         htm := skeep;
       finally
@@ -1300,7 +1368,7 @@ begin
     end;
   end;
   if htm = '' then
-    exit;
+    Exit;
 
   p := Pos('Last 6 Months Sales', htm);
   if p <= 0 then
@@ -1314,8 +1382,8 @@ begin
       else
         link := 'https://' + BL_NET + '/catalogPG.asp?P=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
       tryparttype := 'P';
-      savelink := true;
-      loadedfromcache := false;
+      savelink := True;
+      loadedfromcache := False;
       htm := GetURLString(link);
       if htm <> '' then
         skeep := htm
@@ -1324,8 +1392,8 @@ begin
     begin
       link := 'https://' + BL_NET + '/catalogPG.asp?M=' + db.GetBLNetPieceName(id) + '&prDec=6';
       tryparttype := 'M';
-      savelink := true;
-      loadedfromcache := false;
+      savelink := True;
+      loadedfromcache := False;
       htm := GetURLString(link);
       if htm <> '' then
         skeep := htm
@@ -1338,8 +1406,8 @@ begin
       else
         link := 'https://' + BL_NET + '/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
       tryparttype := 'G';
-      savelink := true;
-      loadedfromcache := false;
+      savelink := True;
+      loadedfromcache := False;
       htm := GetURLString(link);
       if htm <> '' then
         skeep := htm
@@ -1363,8 +1431,8 @@ begin
         link := 'https://' + BL_NET + '/catalogPriceGuide.asp?P=' + db.GetBLNetPieceName(id) + '&colorid=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
       tryparttype := 'P';
     end;
-    savelink := false;
-    loadedfromcache := false;
+    savelink := False;
+    loadedfromcache := False;
     htm := GetURLString(link);
     if htm <> '' then
       skeep := htm;
@@ -1379,8 +1447,8 @@ begin
       isdollar := False;
       link := 'https://' + BL_NET + '/catalogPG.asp?G=' + db.GetBLNetPieceName(id) + '&prDec=6';
       tryparttype := 'G';
-      savelink := true;
-      loadedfromcache := false;
+      savelink := True;
+      loadedfromcache := False;
       htm := GetURLString(link);
       if htm <> '' then
         skeep := htm;
@@ -1396,8 +1464,8 @@ begin
         isdollar := False;
         link := 'https://' + BL_NET + '/catalogPG.asp?B=' + db.GetBLNetPieceName(id) + '&prDec=6';
         tryparttype := 'B';
-        savelink := true;
-        loadedfromcache := false;
+        savelink := True;
+        loadedfromcache := False;
         htm := GetURLString(link);
         if htm <> '' then
           skeep := htm;
@@ -1410,7 +1478,7 @@ begin
   {$IFNDEF CRAWLER}
     I_Warning('NET_GetPriceGuideForElement(): Can not retrieve bricklink info for part = ' + id + ', color = ' + itoa(cc) + #13#10);
   {$ELSE}
-    FAILwarning := true;
+    FAILwarning := True;
   {$ENDIF}
     Exit;
   end;
@@ -1421,7 +1489,7 @@ begin
   htm := Copy(htm, p, Length(htm) - p + 1);
 
   lvl := 0;
-  instr := false;
+  instr := False;
   s1 := '';
   strsign := ' ';
   for i := 1 to Length(htm) do
@@ -1442,7 +1510,7 @@ begin
       if instr then
       begin
         if strsign = c then
-          instr := false
+          instr := False
       end
       else
       begin
@@ -1500,7 +1568,7 @@ begin
   sc.Free;
 
   if idx <= 24 then
-    exit;
+    Exit;
 
   if tryparttype <> ' ' then
     db.SetPartType(id, atoi(color), tryparttype);
@@ -1537,7 +1605,7 @@ begin
 
     USDval := db.ConvertCurrencyAt('USD', Now);
 {$IFDEF CRAWLER}
-    USDwarning := true;
+    USDwarning := True;
 {$ENDIF}
     result_t[3] := result_t[3] * USDval;
     result_t[4] := result_t[4] * USDval;
@@ -1600,7 +1668,7 @@ begin
 
   clink := link;
 
-  result := true;
+  Result := True;
 end;
 
 function NET_GetBricklinkAlias(const id: string): string;
@@ -1611,7 +1679,7 @@ var
   i: integer;
   id1: string;
 begin
-  result := '';
+  Result := '';
   id1 := strtrim(id);
   if UpperCase(id1) = '44302A' then
     Exit;
@@ -1635,12 +1703,12 @@ begin
       if (s[i] = '''') or (s[i] = '&') or (s[i] = '<') or (s[i] = '>') then
         break
       else
-        result := result + s[i];
+        Result := Result + s[i];
     end;
   end;
 end;
 
-function NET_GetItemWeightFromText(const id: string; const txt: string; var fweight: double): boolean;
+function NET_GetItemWeightFromText(const txt: string; var fweight: double): boolean;
 var
   s: string;
   s1: string;
@@ -1712,15 +1780,33 @@ var
   dotcnt, gcnt: integer;
   tmpweight: double;
   SL: TStringList;
+  fname: string;
 begin
   Result := False;
   fweight := 0.0;
 
-  if not fexists(basedefault + 'db\molds\' + id + '.htm') then
-    Exit;
+  fname := basedefault + 'db\molds\' + id + '.htm';
+  if not fexists(fname) then
+  begin
+    fname := basedefault + 'db\gears\' + id + '.htm';
+    if not fexists(fname) then
+    begin
+      fname := basedefault + 'db\setmolds\' + id + '.htm';
+      if not fexists(fname) then
+      begin
+        fname := basedefault + 'db\catalogs\' + id + '.htm';
+        if not fexists(fname) then
+        begin
+          fname := basedefault + 'db\books\' + id + '.htm';
+          if not fexists(fname) then
+            Exit;
+        end;
+      end;
+    end;
+  end;
 
   SL := TStringList.Create;
-  S_LoadFromFile(SL, basedefault + 'db\molds\' + id + '.htm');
+  S_LoadFromFile(SL, fname);
   s := SL.Text;
   SL.Free;
 
@@ -1788,7 +1874,7 @@ var
   SL: TStringList;
   ptype: char;
 begin
-  result := false;
+  Result := False;
   parttype := #0;
   if UpperCase(id) = '44302A' then
     Exit;
@@ -1798,19 +1884,19 @@ begin
   begin
     s := GetURLString('https://' + BL_NET + '/v2/catalog/catalogitem.page?B=' + db.GetBLNetPieceName(strtrim(id)));
     ptype := 'B';
-    didset := true;
+    didset := True;
   end
   else if Pos('-', id) > 0 then
   begin
     s := GetURLString('https://' + BL_NET + '/v2/catalog/catalogitem.page?S=' + db.GetBLNetPieceName(strtrim(id)));
     ptype := 'S';
-    didset := true;
+    didset := True;
   end
   else
   begin
     s := GetURLString('https://' + BL_NET + '/v2/catalog/catalogitem.page?P=' + db.GetBLNetPieceName(strtrim(id)));
     ptype := 'P';
-    didset := false;
+    didset := False;
   end;
   s1 := 'catString=';
   p := Pos(s1, s);
@@ -1852,7 +1938,7 @@ begin
   end;
   if p > 0 then
   begin
-    result := true;
+    Result := True;
     scat := '';
     p := p + Length(s1);
     for i := p to length(s) do
@@ -1864,7 +1950,7 @@ begin
     end;
     tmpcat := StrToIntDef(scat, -1);
     if (tmpcat < 0) or (tmpcat >= MAXCATEGORIES) then
-      result := false
+      Result := False
     else
       fcat := tmpcat;
   end;
@@ -1872,7 +1958,7 @@ begin
   p := Pos(s1, s);
   if p > 0 then
   begin
-    result := true;
+    Result := True;
     parttype := ptype;
     p := p + Length(s1);
     sweight := '';
@@ -1923,13 +2009,13 @@ var
   scat: string;
   tmpcat: integer;
 begin
-  result := false;
+  Result := False;
   s := GetURLString('https://' + BL_NET + '/v2/catalog/catalogitem.page?M=' + db.GetBLNetPieceName(strtrim(id)));
   s1 := 'catString=';
   p := Pos(s1, s);
   if p > 0 then
   begin
-    result := true;
+    Result := True;
     scat := '';
     p := p + Length(s1);
     for i := p to length(s) do
@@ -1941,7 +2027,7 @@ begin
     end;
     tmpcat := StrToIntDef(scat, -1);
     if (tmpcat < 0) or (tmpcat >= MAXCATEGORIES) then
-      result := false
+      Result := False
     else
       fcat := tmpcat;
   end;
@@ -1957,7 +2043,7 @@ var
   dotcnt, gcnt: integer;
   tmpweight: double;
 begin
-  result := false;
+  Result := False;
   if UpperCase(id) = '44302A' then
     Exit;
   if UpperCase(id) = '44302' then
@@ -1967,7 +2053,7 @@ begin
   p := Pos(s1, s);
   if p > 0 then
   begin
-    result := true;
+    Result := True;
     p := p + Length(s1);
     sweight := '';
     dotcnt := 0;
@@ -2008,11 +2094,126 @@ begin
   end;
 end;
 
+function NET_ExistsCache(const id: string; const hits: string; out fname: string): boolean;
+var
+  i: integer;
+  path1: string;
+begin
+  for i := 1 to Length(hits) do
+  begin
+    case toupper(hits[i]) of
+      'P': path1 := 'molds';
+      'G': path1 := 'gears';
+      'S': path1 := 'setmolds';
+      'B': path1 := 'books';
+      'M': path1 := 'minifigs';
+      'C': path1 := 'catalogs';
+    else
+      Continue;
+    end;
+    path1 := basedefault + 'db\' + path1 + '\' + id + '.htm';
+    if fexists(path1) then
+    begin
+      Result := True;
+      fname := path1;
+      Exit;
+    end;
+  end;
+
+  Result := False;
+  fname := '';
+end;
+
+const
+  S_DO_NOT_TREAT_AS_GEAR =
+    '93096'#13#10 +
+    '10050'#13#10 +
+    '11098'#13#10 +
+    '11126'#13#10 +
+    '14682'#13#10 +
+    '4006'#13#10 +
+    '16598'#13#10 +
+    '16599'#13#10 +
+    '18018'#13#10 +
+    '3865'#13#10 +
+    '3808'#13#10 +
+    '3811'#13#10 +
+    '3813'#13#10 +
+    '23983'#13#10 +
+    '2745'#13#10 +
+    '2921'#13#10 +
+    '30170'#13#10 +
+    '30407'#13#10 +
+    '30807'#13#10 +
+    '31007'#13#10 +
+    '33322'#13#10 +
+    '35494'#13#10 +
+    '3835'#13#10 +
+    '3836'#13#10 +
+    '3837'#13#10 +
+    '3838'#13#10 +
+    '3839'#13#10 +
+    '3840'#13#10 +
+    '3841'#13#10 +
+    '3844'#13#10 +
+    '3846'#13#10 +
+    '3847'#13#10 +
+    '3848'#13#10 +
+    '3849'#13#10 +
+    '3852'#13#10 +
+    '3853'#13#10 +
+    '3854'#13#10 +
+    '3855'#13#10 +
+    '3856'#13#10 +
+    '3857'#13#10 +
+    '3861'#13#10 +
+    '3901'#13#10 +
+    '3959'#13#10 +
+    '3960'#13#10 +
+    '3961'#13#10 +
+    '3962'#13#10 +
+    '3965'#13#10 +
+    '3966'#13#10 +
+    '4023'#13#10 +
+    '40389'#13#10 +
+    '40507'#13#10 +
+    '40607'#13#10 +
+    '4066'#13#10 +
+    '4080'#13#10 +
+    '4509'#13#10 +
+    '55306'#13#10 +
+    '6912'#13#10 +
+    '6936'#13#10 +
+    '6943'#13#10 +
+    '6992'#13#10 +
+    '6993'#13#10 +
+    '6994'#13#10 +
+    '6995'#13#10 +
+    '7930'#13#10 +
+    '93557'#13#10 +
+    '98279'#13#10 +
+    'bb215'#13#10 +
+    'bb237'#13#10 +
+    'bb256'#13#10 +
+    'bb768'#13#10 +
+    'clikits098'#13#10 +
+    'clikits099'#13#10 +
+    'pillow01'#13#10 +
+    'pri066'#13#10 +
+    'pri068'#13#10 +
+    'pri069'#13#10 +
+    'tractor'#13#10 +
+    '3861b'#13#10;
+
 
 initialization
   OpenInetConnection;
+  do_not_treat_as_gear := TStringList.Create;
+  do_not_treat_as_gear.Text := S_DO_NOT_TREAT_AS_GEAR;
+  do_not_treat_as_gear.Sorted := True;
 
 finalization
-  CloseInetConnection
+  CloseInetConnection;
+  do_not_treat_as_gear.Free;
 
 end.

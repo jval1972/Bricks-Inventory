@@ -96,15 +96,27 @@ procedure SplashProgress(const msg: string; d: Double);
   end;
 
 begin
+  SplashForm.Show;
+  SplashForm.BringToFront;
   if SplashForm.Label1.Caption <> msg then
   begin
     SplashForm.Label1.Caption := msg;
     SplashForm.Repaint;
     SplashMessageScan;
   end;
-  SplashForm.ProgressBar1.Position := Round(d * 100);
-  SplashForm.Label2.Caption := Format('%2.2f%s', [d * 100, '%']);
-  SplashForm.Label2.Font.Color := RGB(makec(1.0 - d), makec(d), 0);
+  if d < 0 then
+  begin
+    SplashForm.ProgressBar1.Visible := False;
+    SplashForm.Label2.Visible := False;
+  end
+  else
+  begin
+    SplashForm.ProgressBar1.Visible := True;
+    SplashForm.Label2.Visible := True;
+    SplashForm.ProgressBar1.Position := Round(d * 100);
+    SplashForm.Label2.Caption := Format('%2.2f%s', [d * 100, '%']);
+    SplashForm.Label2.Font.Color := RGB(makec(1.0 - d), makec(d), 0);
+  end;
   SplashForm.Repaint;
   SplashMessageScan;
 end;

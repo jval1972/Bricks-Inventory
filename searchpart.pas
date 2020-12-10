@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -73,17 +73,17 @@ var
   f: TSearchPartForm;
   idx: integer;
 begin
-  Result := false;
+  Result := False;
   f := TSearchPartForm.Create(nil);
   try
     f.Edit1.Text := pieceid;
-    idx := f.ListBox1.ItemIndex;
+    idx := f.ListBox1.Items.IndexOf(pieceid);
     if idx >= 0 then
       f.ListBox1.ItemIndex := idx;
     f.ShowModal;
     if f.ModalResult = mrOK then
     begin
-      result := True;
+      Result := True;
       pieceid := f.pieceret;
     end;
   finally
@@ -96,18 +96,18 @@ var
   f: TSearchPartForm;
   idx: integer;
 begin
-  Result := false;
+  Result := False;
   f := TSearchPartForm.Create(nil);
   try
-    f.existingpiece := true;
+    f.existingpiece := True;
     f.Edit1.Text := pieceid;
-    idx := f.ListBox1.ItemIndex;
+    idx := f.ListBox1.Items.IndexOf(pieceid);
     if idx >= 0 then
       f.ListBox1.ItemIndex := idx;
     f.ShowModal;
     if f.ModalResult = mrOK then
     begin
-      result := True;
+      Result := True;
       pieceid := f.pieceret;
     end;
   finally
@@ -126,7 +126,7 @@ begin
   ListBox1.Items.Clear;
   ListBox1.Items.AddStrings(db.AllPieces);
 
-  existingpiece := false;
+  existingpiece := False;
   pieceret := '';
 end;
 
@@ -144,8 +144,8 @@ var
 begin
   if modalresult <> mrOK then
   begin
-    CanClose := true;
-    exit;
+    CanClose := True;
+    Exit;
   end;
   
   check := Trim(Edit1.Text);
@@ -158,8 +158,8 @@ begin
 
   if not existingpiece then
   begin
-    CanClose := true;
-    exit;
+    CanClose := True;
+    Exit;
   end;
 
   CanClose := ListBox1.Items.IndexOf(pieceret) >= 0;

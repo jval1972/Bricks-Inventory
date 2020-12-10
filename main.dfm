@@ -1,8 +1,8 @@
 object MainForm: TMainForm
   Left = 147
   Top = 118
-  Width = 652
-  Height = 437
+  Width = 1106
+  Height = 535
   Caption = 'Bricks Inventory'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -556,8 +556,8 @@ object MainForm: TMainForm
   TextHeight = 12
   object Splitter1: TSplitter
     Left = 0
-    Top = 302
-    Width = 636
+    Top = 400
+    Width = 1090
     Height = 3
     Cursor = crVSplit
     Align = alBottom
@@ -565,15 +565,15 @@ object MainForm: TMainForm
   object Bevel1: TBevel
     Left = 0
     Top = 0
-    Width = 636
+    Width = 1090
     Height = 1
     Align = alTop
     Shape = bsTopLine
   end
   object Panel1: TPanel
     Left = 0
-    Top = 305
-    Width = 636
+    Top = 403
+    Width = 1090
     Height = 73
     Align = alBottom
     BevelOuter = bvNone
@@ -582,7 +582,7 @@ object MainForm: TMainForm
     object OutputMemo: TMemo
       Left = 0
       Top = 0
-      Width = 636
+      Width = 1090
       Height = 73
       Align = alClient
       Color = 12648447
@@ -595,7 +595,7 @@ object MainForm: TMainForm
   object Panel2: TPanel
     Left = 0
     Top = 1
-    Width = 636
+    Width = 1090
     Height = 27
     Align = alTop
     Caption = ' '
@@ -805,7 +805,7 @@ object MainForm: TMainForm
       OnClick = btn_CopyClick
     end
     object SpeedButton1: TSpeedButton
-      Left = 720
+      Left = 744
       Top = 3
       Width = 23
       Height = 21
@@ -887,8 +887,44 @@ object MainForm: TMainForm
       Transparent = False
       OnClick = btn_CatalogHomeClick
     end
+    object SpeedButton2: TSpeedButton
+      Left = 288
+      Top = 3
+      Width = 23
+      Height = 21
+      Flat = True
+      Glyph.Data = {
+        36030000424D3603000000000000360000002800000010000000100000000100
+        18000000000000030000130B0000130B00000000000000000000FFFFFFFFFFFF
+        FFFFFFFEFEFEC3C3C3626262262626191919191919444444909090F1F1F1FFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEEEEEE4F4F4F00000000000000000000
+        0000000000000000000000161616B0B0B0FFFFFFFFFFFFFFFFFFFFFFFFEDEDED
+        2B2B2B0000000000000000000000000000000000000000000000000000000202
+        029F9F9FFFFFFFFFFFFFFFFFFF494949000000000000000000434343A8A8A8D1
+        D1D1C6C6C67D7D7D0F0F0F000000000000040404CECECEFFFFFFB9B9B9000000
+        000000000000818181FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDCDCDC1D1D1D0000
+        00000000828282FFFFFF5656560000000000004A4A4AFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFC8C8C8202020272727D9D9D9FFFFFF191919000000
+        000000B4B4B4FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFF000000000000000000E4E4E4FFFFFFFFFFFFFFFFFFFF
+        FFFFD7D7D7BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF090909000000
+        000000D5D5D5FFFFFFFFFFFFFFFFFFCCCCCC0101010000000000000000000000
+        000000000000000000003030300000000000008B8B8BFFFFFFFFFFFFFFFFFFF7
+        F7F7343434000000000000000000000000000000000000000000818181000000
+        000000141414E3E3E3FFFFFFFFFFFFFFFFFFEBEBEB3030300000000000000000
+        00000000000000000000E5E5E50D0D0D000000000000232323C7C7C7FFFFFFFF
+        FFFFFFFFFFDFDFDF0C0C0C000000000000000000000000000000FFFFFFA3A3A3
+        0000000000000000000000003131315252524848481010100000000000000000
+        00000000000000000000FFFFFFFFFFFF8F8F8F04040400000000000000000000
+        0000000000000000000000000000060606000000000000000000FFFFFFFFFFFF
+        FFFFFFC7C7C7404040000000000000000000000000000000101010828282E8E8
+        E8343434000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFDFDFA2A2A28B
+        8B8B989898BEBEBEF9F9F9FFFFFFFFFFFFEFEFEF4949493A3A3A}
+      Transparent = False
+      OnClick = SpeedButton2Click
+    end
     object CheckBox1: TCheckBox
-      Left = 184
+      Left = 160
       Top = 4
       Width = 97
       Height = 17
@@ -896,14 +932,14 @@ object MainForm: TMainForm
       TabOrder = 0
     end
     object AddressEdit: TEdit
-      Left = 288
+      Left = 312
       Top = 4
       Width = 433
       Height = 20
       TabOrder = 1
     end
     object ProgressBar1: TProgressBar
-      Left = 752
+      Left = 776
       Top = 4
       Width = 257
       Height = 17
@@ -914,8 +950,8 @@ object MainForm: TMainForm
   object TabControl1: TTabControl
     Left = 0
     Top = 28
-    Width = 636
-    Height = 274
+    Width = 1090
+    Height = 372
     Align = alClient
     TabOrder = 2
     OnChange = TabControl1Change
@@ -923,8 +959,8 @@ object MainForm: TMainForm
     object HTML: THTMLViewer
       Left = 4
       Top = 6
-      Width = 628
-      Height = 264
+      Width = 1082
+      Height = 362
       OnHotSpotClick = HTMLHotSpotClick
       OnImageRequest = HTMLImageRequest
       OnProgress = HTMLProgress
@@ -1109,6 +1145,21 @@ object MainForm: TMainForm
       end
       object Weightqueries1: TMenuItem
         Caption = 'Weight queries'
+        object Pieceswithunknownweight1: TMenuItem
+          Caption = 'Pieces with unknown weight'
+          OnClick = Pieceswithunknownweight1Click
+        end
+        object Instructionswithunknownweight1: TMenuItem
+          Caption = 'Instructions with unknown weight'
+          OnClick = Instructionswithunknownweight1Click
+        end
+        object OriginalBoxeswithunknownweight1: TMenuItem
+          Caption = 'Original Boxes with unknown weight'
+          OnClick = OriginalBoxeswithunknownweight1Click
+        end
+        object N46: TMenuItem
+          Caption = '-'
+        end
         object UsedPiecesbelow10euroKgr1: TMenuItem
           Caption = 'Used Pieces below 10 euro/Kgr'
           OnClick = UsedPiecesbelow10euroKgr1Click
@@ -1811,6 +1862,13 @@ object MainForm: TMainForm
         Caption = 'Sets I can build'
         OnClick = Sets1Click
       end
+      object MinifiguresIcanbuild1: TMenuItem
+        Caption = 'Minifigures I can build'
+        OnClick = MinifiguresIcanbuild1Click
+      end
+      object N47: TMenuItem
+        Caption = '-'
+      end
       object Correntunknowncategoriesofmyinventory1: TMenuItem
         Caption = 'Correct unknown categories of my inventory'
         OnClick = Correntunknowncategoriesofmyinventory1Click
@@ -1913,6 +1971,13 @@ object MainForm: TMainForm
     object Openlinkinnewtab1: TMenuItem
       Caption = 'Open link in new tab'
       OnClick = Openlinkinnewtab1Click
+    end
+    object N48: TMenuItem
+      Caption = '-'
+    end
+    object OpenItemPU1: TMenuItem
+      Caption = 'Open item'
+      OnClick = OpenItemPU1Click
     end
     object N35: TMenuItem
       Caption = '-'

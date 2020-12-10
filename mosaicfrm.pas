@@ -235,7 +235,7 @@ begin
     if brick = C_bricks[i].brick then
     begin
       Result := i;
-      exit;
+      Exit;
     end;
   Result := -1;
 end;
@@ -248,7 +248,7 @@ begin
     if brick = C_bricks[i].brick then
     begin
       Result := C_bricks[i].x;
-      exit;
+      Exit;
     end;
   Result := -1;
 end;
@@ -261,7 +261,7 @@ begin
     if brick = C_bricks[i].brick then
     begin
       Result := C_bricks[i].y;
-      exit;
+      Exit;
     end;
   Result := -1;
 end;
@@ -274,7 +274,7 @@ begin
     if brick = C_bricks[i].brick then
     begin
       Result := C_bricks[i].x * C_bricks[i].y;
-      exit;
+      Exit;
     end;
   Result := -1;
 end;
@@ -554,7 +554,7 @@ begin
   c := fmosaic[x, y].coloridx;
   pcs := colorindexes[c].pieces;
   if pcs.Count = 0 then
-    exit;
+    Exit;
   for k := 0 to 0 do
   begin
     piece := (pcs.Objects[k] as TPieceColorInfo).piece;
@@ -756,7 +756,7 @@ begin
       if db.Colors(C_colorindexes[i].idx).name = name then
       begin
         Result := i;
-        exit;
+        Exit;
       end;
   Result := 0;
 end;
@@ -768,7 +768,7 @@ var
   tmpname: string;
 begin
   if updatelocked then
-    exit;
+    Exit;
 
   Screen.Cursor := crHourGlass;
   updatelocked := true;

@@ -42,7 +42,7 @@ type
   PBoolean = ^Boolean;
 
   PInteger = ^Integer;
-  
+
   PLongWord = ^LongWord;
 
   PShortInt = ^ShortInt;
@@ -495,6 +495,8 @@ procedure splitstring(const inp: string; var out1, out2, out3, out4, out5, out6,
 
 procedure splitstring(const inp: string; var out1, out2: string; const splitters: charset_t); overload;
 
+procedure splitstring(const inp: string; var out1, out2, out3: string; const splitters: charset_t); overload;
+
 function firstword(const inp: string; const splitter: char = ' '): string; overload;
 
 function firstword(const inp: string; const splitters: charset_t): string; overload;
@@ -526,6 +528,8 @@ function HexToInt(const s: string): integer;
 function IsNumeric(const s: string): boolean;
 
 function IsNumericC(const c: char): boolean;
+
+function CountNumbers(const s: string): integer;
 
 function between(const x: double; const x1, x2: double): Boolean;
 
@@ -575,9 +579,13 @@ function SaveDataToFile(const fname: string; const fdata: pointer; const size: i
 
 function IsIntegerInRange(const test, f1, f2: integer): boolean;
 
-function btoi(const b: boolean; const default: integer = 0): integer;
+function btoi(const b: boolean): integer;
 
 function itob(const i: integer): boolean;
+
+function btoa(const b: boolean): string;
+
+function atob(const s: string): boolean;
 
 function RemoveSpaces(const s: string): string;
 
@@ -637,14 +645,13 @@ end;
 
 function itoa(i: integer): string;
 begin
-  sprintf(result, '%d', [i]);
+  sprintf(Result, '%d', [i]);
 end;
 
 function ftoa(f: double): string;
 begin
-  result := FloatToStr(f);
+  Result := FloatToStr(f);
 end;
-
 
 function atoi(const s: string; const default: integer = 0): integer;
 var
@@ -653,7 +660,7 @@ var
   p: integer;
   s1: string;
 begin
-  val(s, result, code);
+  val(s, Result, code);
   if code <> 0 then
   begin
     if Pos('0x', s) = 1 then
@@ -661,7 +668,7 @@ begin
     else
       val('$' + s, ret2, code);
     if code = 0 then
-      result := ret2
+      Result := ret2
     else
     begin
       if Length(s) > 3 then
@@ -674,7 +681,7 @@ begin
           Result := atoi(s1, default);
           Exit;
         end;
-      result := default;
+      Result := default;
     end;
   end;
 end;
@@ -684,7 +691,7 @@ var
   code: integer;
   ret2: longword;
 begin
-  val(s, result, code);
+  val(s, Result, code);
   if code <> 0 then
   begin
     if Pos('0x', s) = 1 then
@@ -692,9 +699,9 @@ begin
     else
       val('$' + s, ret2, code);
     if code = 0 then
-      result := ret2
+      Result := ret2
     else
-      result := 0;
+      Result := 0;
   end;
 end;
 
@@ -703,7 +710,7 @@ var
   code: integer;
   ret2: longword;
 begin
-  val(s, result, code);
+  val(s, Result, code);
   if code <> 0 then
   begin
     if Pos('0x', s) = 1 then
@@ -711,9 +718,9 @@ begin
     else
       val('$' + s, ret2, code);
     if code = 0 then
-      result := ret2
+      Result := ret2
     else
-      result := default;
+      Result := default;
   end;
 end;
 
@@ -728,16 +735,16 @@ var
   i: integer;
   str: string;
 begin
-  val(s, result, code);
+  val(s, Result, code);
   if code <> 0 then
   begin
     str := s;
     for i := 1 to Length(str) do
       if str[i] in ['.', ','] then
-        str[i] := decimalseparator;
-    val(str, result, code);
+        str[i] := DecimalSeparator;
+    val(str, Result, code);
     if code <> 0 then
-      result := default;
+      Result := default;
   end;
 end;
 
@@ -860,7 +867,7 @@ end;
 function memmove(const destination, source: pointer; count: integer): pointer;
 begin
   Move(source^, destination^, count);
-  result := destination;
+  Result := destination;
 end;
 
 function memcpy(const dest0: pointer; const src0: pointer; count0: integer): pointer;
@@ -872,14 +879,14 @@ begin
   if mmxMachine = 0 then
   begin
     Move(src0^, dest0^, count0);
-    result := dest0;
-    exit;
+    Result := dest0;
+    Exit;
   end;
 
 {  if abs(integer(dest0) - integer(src0)) < 8 then
   begin
     printf('memcpy(): FUCK!!');
-    exit;
+    Exit;
   end;}
 
   // if copying more than 16 bytes and we can copy 8 byte aligned
@@ -924,7 +931,7 @@ begin
     // use the regular one if we cannot copy 8 byte aligned
     Move(src0^, dest0^, count0);
   end;
-  result := dest0;
+  Result := dest0;
 end;
 
 type
@@ -945,8 +952,8 @@ begin
   if mmxMachine = 0 then
   begin
     FillChar(dest0^, count0, val);
-    result := dest0;
-    exit;
+    Result := dest0;
+    Exit;
   end;
 
   dest := PByte(dest0);
@@ -961,8 +968,8 @@ begin
 
   if count = 0 then
   begin
-    result := dest0;
-    exit;
+    Result := dest0;
+    Exit;
   end;
 
   data.bytes[0] := val;
@@ -1053,16 +1060,16 @@ begin
     emms
   end;
 
-  result := dest0;
+  Result := dest0;
 end;
 
 function malloc(const size: integer): Pointer;
 begin
   if size = 0 then
-    result := nil
+    Result := nil
   else
   begin
-    GetMem(result, size);
+    GetMem(Result, size);
     memoryusage := memoryusage + size;
   end;
 end;
@@ -1070,17 +1077,17 @@ end;
 function mallocA(var Size: integer; const Align: integer; var original: pointer): pointer;
 begin
   Size := Size + Align;
-  result := malloc(Size);
-  original := result; 
-  if result <> nil then
-    result := pointer(integer(result) and (1 - Align) + Align);
+  Result := malloc(Size);
+  original := Result; 
+  if Result <> nil then
+    Result := pointer(integer(Result) and (1 - Align) + Align);
 end;
 
 function mallocz(const size: integer): Pointer;
 begin
-  result := malloc(size);
-  if result <> nil then
-    ZeroMemory(result, size);
+  Result := malloc(size);
+  if Result <> nil then
+    ZeroMemory(Result, size);
 end;
 
 procedure realloc(var p: pointer; const oldsize, newsize: integer);
@@ -1109,119 +1116,119 @@ var
   i: integer;
   len: integer;
 begin
-  result := itoa(x);
-  len := Length(result);
+  Result := itoa(x);
+  len := Length(Result);
   for i := len + 1 to z do
-    result := '0' + result;
+    Result := '0' + Result;
 end;
 
 function intval(const b: boolean): integer;
 begin
   if b then
-    result := 1
+    Result := 1
   else
-    result := 0;
+    Result := 0;
 end;
 
 function decided(const condition: boolean;
   const iftrue: double; const iffalse: double): double;
 begin
   if condition then
-    result := iftrue
+    Result := iftrue
   else
-    result := iffalse;
+    Result := iffalse;
 end;
 
 function decide(const condition: boolean;
   const iftrue: integer; const iffalse: integer): integer;
 begin
   if condition then
-    result := iftrue
+    Result := iftrue
   else
-    result := iffalse;
+    Result := iffalse;
 end;
 
 function decide(const condition: boolean;
   const iftrue: boolean; const iffalse: boolean): boolean;
 begin
   if condition then
-    result := iftrue
+    Result := iftrue
   else
-    result := iffalse;
+    Result := iffalse;
 end;
 
 function decide(const condition: boolean;
   const iftrue: string; const iffalse: string): string;
 begin
   if condition then
-    result := iftrue
+    Result := iftrue
   else
-    result := iffalse;
+    Result := iffalse;
 end;
 
 function decide(const condition: boolean;
   const iftrue: pointer; const iffalse: pointer): pointer;
 begin
   if condition then
-    result := iftrue
+    Result := iftrue
   else
-    result := iffalse;
+    Result := iffalse;
 end;
 
 function decide(const condition: integer;
   const iftrue: integer; const iffalse: integer): integer;
 begin
   if condition <> 0 then
-    result := iftrue
+    Result := iftrue
   else
-    result := iffalse;
+    Result := iffalse;
 end;
 
 function decide(const condition: integer;
   const iftrue: boolean; const iffalse: boolean): boolean;
 begin
   if condition <> 0 then
-    result := iftrue
+    Result := iftrue
   else
-    result := iffalse;
+    Result := iffalse;
 end;
 
 function decide(const condition: integer;
   const iftrue: string; const iffalse: string): string;
 begin
   if condition <> 0 then
-    result := iftrue
+    Result := iftrue
   else
-    result := iffalse;
+    Result := iffalse;
 end;
 
 function decide(const condition: integer;
   const iftrue: pointer; const iffalse: pointer): pointer;
 begin
   if condition <> 0 then
-    result := iftrue
+    Result := iftrue
   else
-    result := iffalse;
+    Result := iffalse;
 end;
 
 function decidef(const condition: boolean;
   const iftrue: single; const iffalse: single): single;
 begin
   if condition then
-    result := iftrue
+    Result := iftrue
   else
-    result := iffalse;
+    Result := iffalse;
 end;
 
 function incp(var p: pointer; const size: integer = 1): pointer;
 begin
-  result := Pointer(integer(p) + size);
-  p := result;
+  Result := Pointer(integer(p) + size);
+  p := Result;
 end;
 
 function pDiff(const p1, p2: pointer; const size: integer): integer;
 begin
-  result := (Integer(p1) - Integer(p2)) div size;
+  Result := (Integer(p1) - Integer(p2)) div size;
 end;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1233,7 +1240,7 @@ end;
 
 function TStream.IOResult: integer;
 begin
-  result := FIOResult;
+  Result := FIOResult;
   FIOResult := 0;
 end;
 
@@ -1267,12 +1274,12 @@ end;
 function TMemoryStream.Read(var Buffer; Count: Longint): Longint;
 begin
   if Count + FPosition > FSize then
-    result := FSize - FPosition
+    Result := FSize - FPosition
   else
-    result := Count;
+    Result := Count;
 
-  memcpy(@Buffer, pointer(integer(FMemory) + FPosition), result);
-  FPosition := FPosition + result;
+  memcpy(@Buffer, pointer(integer(FMemory) + FPosition), Result);
+  FPosition := FPosition + Result;
 end;
 
 function TMemoryStream.Write(const Buffer; Count: Longint): Longint;
@@ -1281,32 +1288,32 @@ begin
     resize(Count + FPosition);
   memcpy(pointer(integer(FMemory) + FPosition), @Buffer, Count);
   FPosition := FPosition + Count;
-  result := Count;
+  Result := Count;
 end;
 
 function TMemoryStream.Seek(Offset: Longint; Origin: Word): Longint;
 begin
   case Origin of
     sFromBeginning:
-      result := Offset;
+      Result := Offset;
     sFromCurrent:
-      result := FPosition + Offset;
+      Result := FPosition + Offset;
     sFromEnd:
-      result := FPosition - Offset;
+      Result := FPosition - Offset;
   else
-    result := 0;
+    Result := 0;
   end;
-  FPosition := result;
+  FPosition := Result;
 end;
 
 function TMemoryStream.Size: Longint;
 begin
-  result := FSize;
+  Result := FSize;
 end;
 
 function TMemoryStream.Position: integer;
 begin
-  result := FPosition;
+  Result := FPosition;
 end;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1332,7 +1339,7 @@ begin
   if Assigned(OnBeginBusy) then OnBeginBusy;
 
   {$I-}
-  BlockRead(f, Buffer, Count, result);
+  BlockRead(f, Buffer, Count, Result);
   {$I+}
   FIOResult := IOResult;
 
@@ -1344,7 +1351,7 @@ begin
   if Assigned(OnBeginBusy) then OnBeginBusy;
 
   {$I-}
-  BlockWrite(f, Buffer, Count, result);
+  BlockWrite(f, Buffer, Count, Result);
   {$I+}
   FIOResult := IOResult;
 
@@ -1355,16 +1362,16 @@ function TFile.Seek(Offset: Longint; Origin: Word): Longint;
 begin
   case Origin of
     sFromBeginning:
-      result := Offset;
+      Result := Offset;
     sFromCurrent:
-      result := FilePos(f) + Offset;
+      Result := FilePos(f) + Offset;
     sFromEnd:
-      result := FileSize(f) - Offset;
+      Result := FileSize(f) - Offset;
   else
-    result := 0;
+    Result := 0;
   end;
   {$I-}
-  system.Seek(f, result);
+  system.Seek(f, Result);
   {$I+}
   FIOResult := IOResult;
 end;
@@ -1372,7 +1379,7 @@ end;
 function TFile.Size: Longint;
 begin
   {$I-}
-  result := FileSize(f);
+  Result := FileSize(f);
   {$I+}
   FIOResult := IOResult;
 end;
@@ -1380,7 +1387,7 @@ end;
 function TFile.Position: integer;
 begin
   {$I-}
-  result := FilePos(f);
+  Result := FilePos(f);
   {$I+}
   FIOResult := IOResult;
 end;
@@ -1390,7 +1397,7 @@ end;
 // Cache read file class
 constructor TCachedFile.Create(const FileName: string; mode: word; ABufSize: integer = $FFFF);
 begin
-  fInitialized := false;
+  fInitialized := False;
   Inherited Create(FileName, mode);
   if ABufSize > Size then
     fBufSize := Size
@@ -1400,7 +1407,7 @@ begin
   fPosition := 0;
   ResetBuffer;
   fSize := Inherited Size;
-  fInitialized := true;
+  fInitialized := True;
 end;
 
 procedure TCachedFile.ResetBuffer;
@@ -1425,7 +1432,7 @@ begin
     x := LongInt(fBuffer) + fPosition - fBufferStart;
     Move(Pointer(x)^, Buffer, Count);
     fPosition := fPosition + Count;
-    result := Count;
+    Result := Count;
   end
 // Non Buffer hit, cache buffer
   else if Count <= fBufSize then
@@ -1433,28 +1440,28 @@ begin
     fPosition := Inherited Seek(fPosition, sFromBeginning);
     x := Inherited Read(fBuffer^, fBufSize);
     if x < Count then
-      result := x
+      Result := x
     else
-      result := Count;
+      Result := Count;
     Move(fBuffer^, Buffer, Count);
     fBufferStart := fPosition;
     fBufferEnd := fPosition + x;
-    fPosition := fPosition + result;
+    fPosition := fPosition + Result;
   end
 // Keep old buffer
   else
   begin
     fPosition := Inherited Seek(fPosition, sFromBeginning);
-    result := Inherited Read(Buffer, Count);
-    fPosition := fPosition + result;
+    Result := Inherited Read(Buffer, Count);
+    fPosition := fPosition + Result;
   end;
 end;
 
 function TCachedFile.Write(const Buffer; Count: Longint): Longint;
 begin
   fPosition := Inherited Seek(fPosition, sFromBeginning);
-  result := Inherited Write(Buffer, Count);
-  fPosition := fPosition + result;
+  Result := Inherited Write(Buffer, Count);
+  fPosition := fPosition + Result;
   if fSize < fPosition then
     fSize := fPosition;
 end;
@@ -1468,10 +1475,10 @@ begin
       sFromCurrent: Inc(fPosition, Offset);
       sFromEnd: fPosition := fSize + Offset;
     end;
-    result := fPosition;
+    Result := fPosition;
   end
   else
-    result := Inherited Seek(Offset, Origin);
+    Result := Inherited Seek(Offset, Origin);
 end;
 
 procedure TCachedFile.SetSize(NewSize: Longint);
@@ -1482,7 +1489,7 @@ end;
 
 function TCachedFile.Position: integer;
 begin
-  result := FPosition;
+  Result := FPosition;
 end;
 *)
 ////////////////////////////////////////////////////////////////////////////////
@@ -1504,9 +1511,9 @@ end;
 function TDNumberList.Get(Index: Integer): integer;
 begin
   if (Index < 0) or (Index >= fNumItems) then
-    result := 0
+    Result := 0
   else
-    result := fList[Index];
+    Result := fList[Index];
 end;
 
 procedure TDNumberList.Put(Index: Integer; const value: integer);
@@ -1567,15 +1574,15 @@ var
 begin
   if (Index < 0) or (Index >= fNumItems) then
   begin
-    result := false;
-    exit;
+    Result := False;
+    Exit;
   end;
 
   for i := Index + 1 to fNumItems - 1 do
     fList[i - 1] := fList[i];
 
   dec(fNumItems);
-  result := true;
+  Result := True;
 end;
 
 function TDNumberList.IndexOf(const value: integer): integer;
@@ -1585,10 +1592,10 @@ begin
   for i := 0 to fNumItems - 1 do
     if fList[i] = value then
     begin
-      result := i;
-      exit;
+      Result := i;
+      Exit;
     end;
-  result := -1;
+  Result := -1;
 end;
 
 procedure TDNumberList.Clear;
@@ -1620,9 +1627,9 @@ end;
 function TDTextList.Get(Index: Integer): string;
 begin
   if (Index < 0) or (Index >= fNumItems) then
-    result := ''
+    Result := ''
   else
-    result := fList[Index];
+    Result := fList[Index];
 end;
 
 procedure TDTextList.Put(Index: Integer; const value: string);
@@ -1651,8 +1658,8 @@ var
 begin
   if (Index < 0) or (Index >= fNumItems) then
   begin
-    result := false;
-    exit;
+    Result := False;
+    Exit;
   end;
 
   for i := Index + 1 to fNumItems - 1 do
@@ -1661,7 +1668,7 @@ begin
   realloc(pointer(fList), fNumItems * 256, (fNumItems - 1) * 256);
   dec(fNumItems);
 
-  result := true;
+  Result := True;
 end;
 
 function TDTextList.IndexOf(const value: string): integer;
@@ -1671,10 +1678,10 @@ begin
   for i := 0 to fNumItems - 1 do
     if fList[i] = value then
     begin
-      result := i;
-      exit;
+      Result := i;
+      Exit;
     end;
-  result := -1;
+  Result := -1;
 end;
 
 procedure TDTextList.Clear;
@@ -1688,8 +1695,8 @@ end;
 // TDStrings
 function TDStrings.Add(const S: string): Integer;
 begin
-  result := GetCount;
-  Insert(result, S);
+  Result := GetCount;
+  Insert(Result, S);
 end;
 
 function TDStrings.Add(const Fmt: string; const Args: array of const): integer;
@@ -1697,13 +1704,13 @@ var
   str: string;
 begin
   sprintf(str, Fmt, Args);
-  result := Add(str);
+  Result := Add(str);
 end;
 
 function TDStrings.AddObject(const S: string; AObject: TObject): Integer;
 begin
-  result := Add(S);
-  PutObject(result, AObject);
+  Result := Add(S);
+  PutObject(Result, AObject);
 end;
 
 procedure TDStrings.Append(const S: string);
@@ -1723,11 +1730,11 @@ function TDStrings.Equals(Strings: TDStrings): Boolean;
 var
   I, iCount: Integer;
 begin
-  result := false;
+  Result := False;
   iCount := GetCount;
   if iCount <> Strings.GetCount then Exit;
   for I := 0 to iCount - 1 do if Get(I) <> Strings.Get(I) then Exit;
-  result := true;
+  Result := True;
 end;
 
 procedure TDStrings.Exchange(Index1, Index2: Integer);
@@ -1745,7 +1752,7 @@ end;
 
 function TDStrings.GetCapacity: Integer;
 begin  // descendants may optionally override/replace this default implementation
-  result := Count;
+  Result := Count;
 end;
 
 function TDStrings.GetCommaText: string;
@@ -1756,19 +1763,19 @@ var
 begin
   iCount := GetCount;
   if (iCount = 1) and (Get(0) = '') then
-    result := '""'
+    Result := '""'
   else
   begin
-    result := '';
+    Result := '';
     for I := 0 to iCount - 1 do
     begin
       S := Get(I);
       P := PChar(S);
       while not (P^ in [#0..' ','"',',']) do P := CharNext(P);
       if (P^ <> #0) then S := AnsiQuotedStr(S, '"');
-      result := result + S + ',';
+      Result := Result + S + ',';
     end;
-    System.Delete(result, Length(result), 1);
+    System.Delete(Result, Length(Result), 1);
   end;
 end;
 
@@ -1776,22 +1783,22 @@ function TDStrings.GetName(Index: Integer): string;
 var
   P: Integer;
 begin
-  result := Get(Index);
-  P := AnsiPos('=', result);
+  Result := Get(Index);
+  P := AnsiPos('=', Result);
   if P <> 0 then
-    SetLength(result, P-1)
+    SetLength(Result, P-1)
   else
-    SetLength(result, 0);
+    SetLength(Result, 0);
 end;
 
 function TDStrings.GetObject(Index: Integer): TObject;
 begin
-  result := nil;
+  Result := nil;
 end;
 
 function TDStrings.GetText: PChar;
 begin
-  result := StrNew(PChar(GetTextStr));
+  Result := StrNew(PChar(GetTextStr));
 end;
 
 function TDStrings.GetTextStr: string;
@@ -1803,8 +1810,8 @@ begin
   iCount := GetCount;
   Size := 0;
   for I := 0 to iCount - 1 do Inc(Size, Length(Get(I)) + 2);
-  SetString(result, nil, Size);
-  P := Pointer(result);
+  SetString(Result, nil, Size);
+  P := Pointer(Result);
   for I := 0 to iCount - 1 do
   begin
     S := Get(I);
@@ -1827,15 +1834,15 @@ var
 begin
   I := IndexOfName(Name);
   if I >= 0 then
-    result := Copy(Get(I), Length(Name) + 2, MaxInt) else
-    result := '';
+    Result := Copy(Get(I), Length(Name) + 2, MaxInt) else
+    Result := '';
 end;
 
 function TDStrings.IndexOf(const S: string): Integer;
 begin
-  for result := 0 to GetCount - 1 do
-    if AnsiCompareText(Get(result), S) = 0 then Exit;
-  result := -1;
+  for Result := 0 to GetCount - 1 do
+    if AnsiCompareText(Get(Result), S) = 0 then Exit;
+  Result := -1;
 end;
 
 function TDStrings.IndexOfName(const Name: string): Integer;
@@ -1843,20 +1850,20 @@ var
   P: Integer;
   S: string;
 begin
-  for result := 0 to GetCount - 1 do
+  for Result := 0 to GetCount - 1 do
   begin
-    S := Get(result);
+    S := Get(Result);
     P := AnsiPos('=', S);
     if (P <> 0) and (AnsiCompareText(Copy(S, 1, P - 1), Name) = 0) then Exit;
   end;
-  result := -1;
+  Result := -1;
 end;
 
 function TDStrings.IndexOfObject(AObject: TObject): Integer;
 begin
-  for result := 0 to GetCount - 1 do
-    if GetObject(result) = AObject then Exit;
-  result := -1;
+  for Result := 0 to GetCount - 1 do
+    if GetObject(Result) = AObject then Exit;
+  Result := -1;
 end;
 
 procedure TDStrings.InsertObject(Index: Integer; const S: string;
@@ -1881,10 +1888,10 @@ begin
     SetTextStr(S);
     close(f);
     {$I+}
-    result := IOresult = 0;
+    Result := IOresult = 0;
   end
   else
-    result := false;
+    Result := False;
 end;
 
 function TDStrings.LoadFromStream(const strm: TStream): boolean;
@@ -1900,7 +1907,7 @@ begin
   SetByteStr(A, Size);
   memfree(pointer(A), Size);
   {$I+}
-  result := IOresult = 0;
+  Result := IOresult = 0;
 end;
 
 procedure TDStrings.Move(CurIndex, NewIndex: Integer);
@@ -1942,10 +1949,10 @@ begin
     BlockWrite(f, Pointer(S)^, Length(S));
     close(f);
     {$I+}
-    result := IOresult = 0;
+    Result := IOresult = 0;
   end
   else
-    result := false;
+    Result := False;
 end;
 
 procedure TDStrings.SetCapacity(NewCapacity: Integer);
@@ -2051,8 +2058,8 @@ end;
 
 function TDStringList.Add(const S: string): Integer;
 begin
-  result := FCount;
-  InsertItem(result, S);
+  Result := FCount;
+  InsertItem(Result, S);
 end;
 
 procedure TDStringList.Clear;
@@ -2079,8 +2086,8 @@ end;
 
 procedure TDStringList.Exchange(Index1, Index2: Integer);
 begin
-  if (Index1 < 0) or (Index1 >= FCount) then exit;
-  if (Index2 < 0) or (Index2 >= FCount) then exit;
+  if (Index1 < 0) or (Index1 >= FCount) then Exit;
+  if (Index2 < 0) or (Index2 >= FCount) then Exit;
   ExchangeItems(Index1, Index2);
 end;
 
@@ -2102,27 +2109,27 @@ end;
 function TDStringList.Get(Index: Integer): string;
 begin
   if (Index >= 0) and (Index < FCount) then
-    result := FList[Index].FString
+    Result := FList[Index].FString
   else
-    result := '';
+    Result := '';
 end;
 
 function TDStringList.GetCapacity: Integer;
 begin
-  result := FCapacity;
+  Result := FCapacity;
 end;
 
 function TDStringList.GetCount: Integer;
 begin
-  result := FCount;
+  Result := FCount;
 end;
 
 function TDStringList.GetObject(Index: Integer): TObject;
 begin
   if (Index >= 0) and (Index < FCount) then
-    result := FList[Index].FObject
+    Result := FList[Index].FObject
   else
-    result := nil;
+    Result := nil;
 end;
 
 procedure TDStringList.Grow;
@@ -2182,20 +2189,20 @@ var
 begin
   ZeroMemory(@buf, SizeOf(buf));
   GetEnvironmentVariable(PChar(env), buf, 255);
-  result := Trim(StringVal(buf));
+  Result := Trim(StringVal(buf));
 end;
 
 function fexists(const filename: string): boolean;
 begin
   if Trim(filename) = '' then
-    result := false
+    Result := False
   else
-    result := FileExists(filename);
+    Result := FileExists(filename);
 end;
 
 function fexpand(const filename: string): string;
 begin
-  result := ExpandFileName(filename);
+  Result := ExpandFileName(filename);
 end;
 
 procedure fdelete(const filename: string);
@@ -2206,19 +2213,19 @@ end;
 
 function fext(const filename: string): string;
 begin
-  result := ExtractFileExt(filename);
+  Result := ExtractFileExt(filename);
 end;
 
 function fname(const filename: string): string;
 begin
-  result := ExtractFileName(filename);
+  Result := ExtractFileName(filename);
 end;
 
 function fmask(const mask: string): string;
 begin
-  result := mask;
-  if result = '' then
-    result := '*.*';
+  Result := mask;
+  if Result = '' then
+    Result := '*.*';
 end;
 
 function findfile(const mask: string): string;
@@ -2229,11 +2236,11 @@ begin
   mask1 := fmask(mask);
   if FindFirst(mask1, faAnyFile, sr) = 0 then
   begin
-    result := sr.Name;
+    Result := sr.Name;
     FindClose(sr);
   end
   else
-    result := '';
+    Result := '';
 end;
 
 function findfiles(const mask: string): TDStringList;
@@ -2241,13 +2248,13 @@ var
   sr: TSearchRec;
   mask1: string;
 begin
-  result := TDStringList.Create;
+  Result := TDStringList.Create;
   mask1 := fmask(mask);
   if FindFirst(mask1, faAnyFile, sr) = 0 then
   begin
-    result.Add(sr.Name);
+    Result.Add(sr.Name);
     while FindNext(sr) = 0 do
-      result.Add(sr.Name);
+      Result.Add(sr.Name);
     FindClose(sr);
   end;
 end;
@@ -2262,10 +2269,10 @@ begin
   if b <> 0 then
   begin
     a := sin(x);
-    result := a / b;
+    Result := a / b;
   end
   else
-    result := 0.0;
+    Result := 0.0;
 end;
 
 function strupper(const S: string): string;
@@ -2275,9 +2282,9 @@ var
   Source, Dest: PChar;
 begin
   L := Length(S);
-  SetLength(result, L);
+  SetLength(Result, L);
   Source := Pointer(S);
-  Dest := Pointer(result);
+  Dest := Pointer(Result);
   while L <> 0 do
   begin
     Ch := Source^;
@@ -2296,9 +2303,9 @@ var
   Source, Dest: PChar;
 begin
   L := Length(S);
-  SetLength(result, L);
+  SetLength(Result, L);
   Source := Pointer(S);
-  Dest := Pointer(result);
+  Dest := Pointer(Result);
   while L <> 0 do
   begin
     Ch := Source^;
@@ -2313,37 +2320,37 @@ end;
 function toupper(ch: Char): Char;
 asm
 { ->    AL      Character       }
-{ <-    AL      result          }
+{ <-    AL      Result          }
 
   cmp al, 'a'
-  jb  @@exit
+  jb  @@Exit
   cmp al, 'z'
-  ja  @@exit
+  ja  @@Exit
   sub al, 'a' - 'A'
-@@exit:
+@@Exit:
 end;
 
 function tolower(ch: Char): Char;
 asm
 { ->    AL      Character       }
-{ <-    AL      result          }
+{ <-    AL      Result          }
 
   cmp al, 'A'
-  jb  @@exit
+  jb  @@Exit
   cmp al, 'Z'
-  ja  @@exit
+  ja  @@Exit
   sub al, 'A' - 'a'
-@@exit:
+@@Exit:
 end;
 
 function strremovespaces(const s: string): string;
 var
   i: integer;
 begin
-  result := '';
+  Result := '';
   for i := 1 to Length(s) do
     if s[i] <> ' ' then
-      result := result + s[i];
+      Result := Result + s[i];
 end;
 
 function _SHL(const x: integer; const bits: integer): integer; assembler;
@@ -2354,7 +2361,7 @@ end;
 
 function _SHLW(const x: LongWord; const bits: LongWord): LongWord;
 begin
-  result := x shl bits;
+  Result := x shl bits;
 end;
 
 function _SHR(const x: integer; const bits: integer): integer; assembler;
@@ -2400,12 +2407,12 @@ end;
 
 function _SHRW(const x: LongWord; const bits: LongWord): LongWord;
 begin
-  result := x shr bits;
+  Result := x shr bits;
 end;
 
 function StringVal(const Str: PChar): string;
 begin
-  result := Str;
+  Result := Str;
 end;
 
 procedure ZeroMemory(const dest0: pointer; const count0: integer);
@@ -2418,7 +2425,7 @@ begin
   if mmxMachine = 0 then
   begin
     FillChar(dest0^, count0, 0);
-    exit;
+    Exit;
   end;
 
   dest := PByte(dest0);
@@ -2433,7 +2440,7 @@ begin
 
   if count = 0 then
   begin
-    exit;
+    Exit;
   end;
 
   data.dwords[0] := 0;
@@ -2547,11 +2554,11 @@ begin
   end
   else
   begin
-    result := false;
-    exit;
+    Result := False;
+    Exit;
   end;
   {$I+}
-  result := IOresult = 0;
+  Result := IOresult = 0;
 end;
 
 function fsize(const FileName: string): integer;
@@ -2561,24 +2568,24 @@ begin
   if fopen(f, FileName, fOpenReadOnly) then
   begin
   {$I-}
-    result := FileSize(f);
+    Result := FileSize(f);
     close(f);
   {$I+}
   end
   else
-    result := 0;
+    Result := 0;
 end;
 
 function fshortname(const FileName: string): string;
 var
   i: integer;
 begin
-  result := '';
+  Result := '';
   for i := Length(FileName) downto 1 do
   begin
     if FileName[i] in ['\', '/'] then
       break;
-    result := FileName[i] + result;
+    Result := FileName[i] + Result;
   end;
 end;
 
@@ -2589,10 +2596,10 @@ begin
   L := Length(S);
   I := 1;
   while (I <= L) and (S[I] <= ' ') do Inc(I);
-  if I > L then result := '' else
+  if I > L then Result := '' else
   begin
     while S[L] <= ' ' do Dec(L);
-    result := Copy(S, I, L - I + 1);
+    Result := Copy(S, I, L - I + 1);
   end;
 end;
 
@@ -2603,17 +2610,17 @@ var
 begin
   if S = '' then
   begin
-    result := '';
-    exit;
+    Result := '';
+    Exit;
   end;
 
-  result := strlower(S);
-  result[1] := toupper(result[1]);
+  Result := strlower(S);
+  Result[1] := toupper(Result[1]);
   c := tolower(splitter);
-  for i := 2 to Length(result) do
+  for i := 2 to Length(Result) do
   begin
-    if result[i - 1] = c then
-      result[i] := toupper(result[i])
+    if Result[i - 1] = c then
+      Result[i] := toupper(Result[i])
   end;
 end;
 
@@ -2834,47 +2841,55 @@ begin
   end;
 end;
 
+procedure splitstring(const inp: string; var out1, out2, out3: string; const splitters: charset_t); 
+var
+  tmp: string;
+begin
+  splitstring(inp, out1, tmp, splitters);
+  splitstring(tmp, out2, out3, splitters);
+end;
+
 function firstword(const inp: string; const splitter: char = ' '): string;
 var
   tmp: string;
 begin
-  splitstring(inp, result, tmp, splitter);
+  splitstring(inp, Result, tmp, splitter);
 end;
 
 function firstword(const inp: string; const splitters: charset_t): string; overload;
 var
   tmp: string;
 begin
-  splitstring(inp, result, tmp, splitters);
+  splitstring(inp, Result, tmp, splitters);
 end;
 
 function secondword(const inp: string; const splitter: char = ' '): string;
 var
-  tmp: string;
+  tmp1, tmp2: string;
 begin
-  splitstring(inp, tmp, result, splitter);
+  splitstring(inp, tmp1, Result, tmp2, splitter);
 end;
 
-function secondword(const inp: string; const splitters: charset_t): string; overload;
+function secondword(const inp: string; const splitters: charset_t): string; 
 var
-  tmp: string;
+  tmp1, tmp2: string;
 begin
-  splitstring(inp, tmp, result, splitters);
+  splitstring(inp, tmp1, Result, tmp2, splitters);
 end;
 
 function lastword(const inp: string; const splitter: char = ' '): string;
 var
   i: integer;
 begin
-  result := '';
+  Result := '';
   i := length(inp);
   while i > 0 do
   begin
     if inp[i] = splitter then
-      exit
+      Exit
     else
     begin
-      result := inp[i] + result;
+      Result := inp[i] + Result;
       dec(i);
     end;
   end;
@@ -2884,15 +2899,15 @@ function lastword(const inp: string; const splitters: charset_t): string; overlo
 var
   i: integer;
 begin
-  result := '';
+  Result := '';
   i := length(inp);
   while i > 0 do
   begin
     if inp[i] in splitters then
-      exit
+      Exit
     else
     begin
-      result := inp[i] + result;
+      Result := inp[i] + Result;
       dec(i);
     end;
   end;
@@ -2944,13 +2959,13 @@ function fabs(const f: float): float;
 begin
   tmp := PInteger(@f)^;
   tmp := tmp and $7FFFFFFF;
-  result := Pfloat(@tmp)^;
+  Result := Pfloat(@tmp)^;
 end;}
 begin
   if f >= 0 then
-    result := f
+    Result := f
   else
-    result := -f;
+    Result := -f;
 end;
 
 procedure MakeDir(const dir: string);
@@ -2962,16 +2977,16 @@ function PascalText(src: PChar): string;
 var
   prev: char;
 begin
-  result := '';
+  Result := '';
   if src^ = #0 then
-    exit;
+    Exit;
   repeat
     prev := src^;
     inc(src);
     if (src^ = #10) and (prev <> #13) then
-      result := result + prev + #13#10
+      Result := Result + prev + #13#10
     else if not (prev in [#10, #13]) then
-      result := result + prev;
+      Result := Result + prev;
   until src^ = #0;
 end;
 
@@ -2985,7 +3000,7 @@ begin
   Result := False;
 
   if (Trim(sname) = '') or (Trim(dname) = '') then
-    exit;
+    Exit;
 
   if fexists(sname) then
   begin
@@ -3045,7 +3060,7 @@ begin
   if s = '' then
   begin
     Result := 0;
-    exit;
+    Exit;
   end;
   tmp := s;
   if tmp[1] = '#' then
@@ -3062,22 +3077,32 @@ begin
   for i := 1 to Length(s) do
     if not (s[i] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']) then
     begin
-      result := false;
-      exit;
+      Result := False;
+      Exit;
     end;
 
-  result := true;
+  Result := True;
 end;
 
 function IsNumericC(const c: char): boolean;
 begin
-  result := c in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  Result := c in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+end;
+
+function CountNumbers(const s: string): integer;
+var
+  i: integer;
+begin
+  Result := 0;
+  for i := 1 to Length(s) do
+    if s[i] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] then
+      inc(Result);
 end;
 
 function between(const x: double; const x1, x2: double): Boolean;
 begin
   if x1 < x2 then
-    result := (x >= x1) and (x <= x2)
+    Result := (x >= x1) and (x <= x2)
   else
     Result := (x >= x2) and (x <= x1);
 end;
@@ -3122,22 +3147,22 @@ begin
     else
       tmp := tmp + s[i];
   end;
-  result := TStringList.Create;
-  result.Text := tmp;
+  Result := TStringList.Create;
+  Result.Text := tmp;
 end;
 
 function stringlist2string(const s: TStringList; const c: char): string;
 var
   i: integer;
 begin
-  result := '';
+  Result := '';
   if s <> nil then
     for i := 0 to s.Count - 1 do
     begin
       if i = 0 then
-        result := s.Strings[0]
+        Result := s.Strings[0]
       else
-        result := result + c + s.Strings[i];
+        Result := Result + c + s.Strings[i];
     end;
 end;
 
@@ -3146,18 +3171,18 @@ const
 
 function dbl_equal(const dbl1, dbl2: double): boolean;
 begin
-  result := abs(dbl1 - dbl2) < EPSILON_DBL;
+  Result := abs(dbl1 - dbl2) < EPSILON_DBL;
 end;
 
 function dbl_safe_div(const a, b: double): double;
 begin
   if dbl_equal(b, 0.0) then
   begin
-    result := 0.0;
-    exit;
+    Result := 0.0;
+    Exit;
   end;
 
-  result := a / b;
+  Result := a / b;
 end;
 
 procedure QSortIntegers(const A: PIntegerArray; const Len: integer);
@@ -3207,7 +3232,7 @@ begin
   BlockWrite(f, Pointer(s)^, Length(s));
   CloseFile(f);
 {$I+}
-  result := IOResult = 0;
+  Result := IOResult = 0;
 end;
 
 function LoadStringFromFile(const fname: string): string;
@@ -3217,7 +3242,7 @@ var
   Buf: array[1..8192] of Char;
   i: integer;
 begin
-  result := '';
+  Result := '';
   if fexists(fname) then
   begin
     AssignFile(f, fname);
@@ -3225,7 +3250,7 @@ begin
     repeat
       BlockRead(f, Buf, SizeOf(Buf), NumRead);
       for i := 1 to NumRead do
-        result := result + Buf[i];
+        Result := Result + Buf[i];
     until NumRead = 0;
     CloseFile(f);
   end;
@@ -3241,18 +3266,18 @@ begin
   BlockWrite(f, PByteArray(fdata)^, size);
   CloseFile(f);
 {$I+}
-  result := IOResult = 0;
+  Result := IOResult = 0;
 end;
 
 function IsIntegerInRange(const test, f1, f2: integer): boolean;
 begin
   if f1 < f2 then
-    result := (test >= f1) and (test <= f2)
+    Result := (test >= f1) and (test <= f2)
   else
-    result := (test >= f2) and (test <= f1)
+    Result := (test >= f2) and (test <= f1)
 end;
 
-function btoi(const b: boolean; const default: integer = 0): integer;
+function btoi(const b: boolean): integer;
 begin
   if b then
     Result := 1
@@ -3263,6 +3288,19 @@ end;
 function itob(const i: integer): boolean;
 begin
   Result := i <> 0;
+end;
+
+function btoa(const b: boolean): string;
+begin
+  if b then
+    Result := '1'
+  else
+    Result := '0';
+end;
+
+function atob(const s: string): boolean;
+begin
+  Result := (s = '1') or (strupper(s) = 'TRUE');
 end;
 
 function RemoveSpaces(const s: string): string;
@@ -3276,7 +3314,7 @@ begin
 end;
 
 begin
-  decimalseparator := '.';
+  DecimalSeparator := '.';
 
 end.
 

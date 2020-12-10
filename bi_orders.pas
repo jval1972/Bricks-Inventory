@@ -126,8 +126,8 @@ begin
     for j := 0 to forders[i].Count - 1 do
       if forders[i].ORDER[j].ORDERID = index then
       begin
-        result := forders[i].ORDER[j];
-        exit;
+        Result := forders[i].ORDER[j];
+        Exit;
       end;
   Result := nil;
 end;
@@ -140,9 +140,9 @@ begin
   if idx < 0 then
   begin
     Result := nil;
-    exit;
+    Exit;
   end;
-  result := order(idx);
+  Result := order(idx);
 end;
 
 function TOrders.OrderInventory(const orderid: integer): TBrickInventory;
@@ -151,19 +151,19 @@ var
   oo: IXMLORDERType;
   ii: IXMLITEMType;
 begin
-  result := TBrickInventory.Create;
+  Result := TBrickInventory.Create;
   oo := order(orderid);
   if oo = nil then
-    exit;
+    Exit;
 
   for i := 0 to oo.ITEM.Count - 1 do
   begin
     ii := oo.ITEM.Items[i];
     if ii.ITEMTYPE = 'P' then
-      result.AddLoosePart(db.RebrickablePart(ii.ITEMID), db.BrickLinkColorToRebrickableColor(ii.COLOR), ii.QTY)
+      Result.AddLoosePart(db.RebrickablePart(ii.ITEMID), db.BrickLinkColorToSystemColor(ii.COLOR), ii.QTY)
     else if (ii.ITEMTYPE = 'S') or (ii.ITEMTYPE = 'M') then
       for j := 0 to ii.QTY - 1 do
-        result.AddSet(db.RebrickablePart(ii.ITEMID), false);
+        Result.AddSet(db.RebrickablePart(ii.ITEMID), False);
   end;
 end;
 
@@ -172,7 +172,7 @@ var
   idx: integer;
 begin
   idx := StrToIntDef(orderid, -1);
-  result := OrderInventory(idx);
+  Result := OrderInventory(idx);
 end;
 
 procedure TOrders.ProssesOrder(const oo: IXMLORDERType);
@@ -196,14 +196,14 @@ var
   tq1, tq2, tq3: integer;
   oname: string;
 begin
-  rcolor := db.BrickLinkColorToRebrickableColor(ii.COLOR);
+  rcolor := db.BrickLinkColorToSystemColor(ii.COLOR);
   scolor := IntToStr(rcolor);
   s := db.RebrickablePart(ii.ITEMID) + ',' + scolor;
   idx := fpieceorderinfo.IndexOf(s);
   if idx < 0 then
     idx := fpieceorderinfo.AddObject(s, TStringList.Create);
   lst := fpieceorderinfo.Objects[idx] as TStringList;
-  lst.Sorted := true;
+  lst.Sorted := True;
   oinf := TOrderItemInfo.Create;
   oname := itoa(oo.ORDERID);
   oinf.orderid := oo.ORDERID;
@@ -291,7 +291,7 @@ begin
     if idx < 0 then
     begin
       Result := nil;
-      exit;
+      Exit;
     end;
   end;
   Result := fpieceorderinfo.Objects[idx] as TStringList;
@@ -310,16 +310,16 @@ begin
 
   if oinf = nil then
   begin
-    result.num := 0;
-    result.totcost := 0.0;
-    exit;
+    Result.num := 0;
+    Result.totcost := 0.0;
+    Exit;
   end;
 
   if oinf.Count = 0 then
   begin
-    result.num := 0;
-    result.totcost := 0.0;
-    exit;
+    Result.num := 0;
+    Result.totcost := 0.0;
+    Exit;
   end;
 
   totbricks := 0;
@@ -335,8 +335,8 @@ begin
     totprice := totprice + oitem.num * oitem.pricetot * curconv;
   end;
 
-  result.num := totbricks;
-  result.totcost := totprice;
+  Result.num := totbricks;
+  Result.totcost := totprice;
 end;
 
 function TOrders.ItemCostDbl(const part: string; const color: Integer): double;
@@ -352,12 +352,12 @@ end;
 
 function TOrders.orderEvaluatedPrice(const index: integer): double;
 begin
-  result := EvaluatedPrice(order(index));
+  Result := EvaluatedPrice(order(index));
 end;
 
 function TOrders.orderEvaluatedPrice(const index: string): double;
 begin
-  result := EvaluatedPrice(order(index));
+  Result := EvaluatedPrice(order(index));
 end;
 
 procedure TOrders.StoreEvalHistory(const fn: string; const index: string);
@@ -386,14 +386,14 @@ var
   it: IXMLITEMType;
   pci: TPieceColorInfo;
 begin
-  result := 0.0;
+  Result := 0.0;
   if order = nil then
-    exit;
+    Exit;
 
   for i := 0 to order.ITEM.Count - 1 do
   begin
     it := order.ITEM.Items[i];
-    pci := db.piececolorinfo(db.RebrickablePart(it.ITEMID), db.BrickLinkColorToRebrickableColor(it.COLOR));
+    pci := db.piececolorinfo(db.RebrickablePart(it.ITEMID), db.BrickLinkColorToSystemColor(it.COLOR));
     if pci <> nil then
     begin
       if it.CONDITION = 'N' then

@@ -33,9 +33,13 @@ interface
 uses
   Windows, SysUtils, Classes, bi_hash, Graphics, ExtCtrls;
 
+{$IFNDEF CRAWLER}
 function findsimilarimagestring(const hash: THashTable; const s: string): string;
+{$ENDIF}
 
 function IndexOfString(const hash: THashTable; const s: string): integer;
+
+function IndexOfStart(const lst: TStringList; const s: string): integer;
 
 procedure RemoveDuplicates(const s: TStringList);
 
@@ -47,7 +51,9 @@ procedure SaveBmpToJpeg(const MyBitmap: TBitmap; const JPEGFName: string);
 
 function RGBInvert(const t: TColor): TColor;
 
+{$IFNDEF CRAWLER}
 function PieceToImage(const img: TImage; const piece: string; color: integer = -1): boolean;
+{$ENDIF}
 
 function filenamestring(const s: string): string;
 
@@ -57,15 +63,17 @@ type
     procedure AppendFromFile(const fname: string);
   end;
 
-procedure backupfile(const fn: string);
-
 function DownloadFile(SourceFile, DestFile: string): Boolean;
 
 function DownloadFileImg(SourceFile, DestFile: string): Boolean;
 
+function NET_DownloadFileImg(SourceFile, DestFile: string): Boolean;
+
 function DownloadJpgFileToPNG(SourceFile, DestFile: string): Boolean;
 
 function DownloadPngFileToJpg(SourceFile, DestFile: string): Boolean;
+
+function IsLikeJpeg(const fname: string): boolean;
 
 function DownloadGIFFileToPNG(SourceFile, DestFile: string): Boolean;
 
@@ -113,16 +121,6 @@ function GetAveCharSize(Canvas: TCanvas): TPoint;
 
 function RemoveSpecialTagsFromString(const s: string): string;
 
-function S_SaveToFile(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
-
-function S_LoadFromFile(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
-
-function SH_SaveToFile(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
-
-function SH_LoadFromFile(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
-
-procedure AppendLineToFile(const fname: string; const line: string);
-
 function ResizeJpg2Png(const fin, fout: string; const dograyscale: boolean = True;
   const maxWidth: integer = 64; const maxHeight: integer = 64): boolean;
 
@@ -155,11 +153,17 @@ function IsValidDBMask(const msk: string): boolean;
 
 procedure RemoveBlancLines(const lst: TStringList);
 
+procedure backupfile(const fn: string);
+
+function ftoadot(f: double): string;
+
+procedure S_FirstLine(const sl: TStringList; const line: string);
+
 implementation
 
 uses
   bi_delphi, bi_db, jpeg, bi_pak, bi_tmp, URLMon, Clipbrd, pngimage, GIFImage,
-  bi_globals, Forms, StdCtrls, Controls, bi_crawler, StrUtils;
+  bi_globals, bi_cachefile, Forms, StdCtrls, Controls, bi_crawler, StrUtils;
 
 function IndexOfString(const hash: THashTable; const s: string): integer;
 begin
@@ -172,6 +176,22 @@ begin
   if hash.List.Strings[Result] = s then
     Exit;
   Result := hash.List.IndexOf(s);
+end;
+
+function IndexOfStart(const lst: TStringList; const s: string): integer;
+var
+  i: integer;
+begin
+  Result := -1;
+  if lst = nil then
+    Exit;
+
+  for i := 0 to lst.Count - 1 do
+    if Pos(s, lst.Strings[i]) = 1 then
+    begin
+      Result := i;
+      Exit;
+    end;
 end;
 
 function MaxI(x, y: integer): integer;
@@ -271,6 +291,7 @@ begin
   SetLength(PatternB, 0);
 end;
 
+{$IFNDEF CRAWLER}
 function findsimilarimagestring(const hash: THashTable; const s: string): string;
 var
   check: string;
@@ -305,7 +326,7 @@ begin
       end;
     end;
   end;
-  
+
   s4 := '';
   for i := 1 to Length(s2) do
   begin
@@ -345,6 +366,7 @@ begin
 // not found!
   Result := s;
 end;
+{$ENDIF}
 
 procedure RemoveDuplicates(const s: TStringList);
 var
@@ -422,6 +444,7 @@ begin
   end;
 end;
 
+{$IFNDEF CRAWLER}
 function PieceToImage(const img: TImage; const piece: string; color: integer = -1): boolean;
 var
   ps: TPakStream;
@@ -536,6 +559,7 @@ begin
     m.Free;
   end;
 end;
+{$ENDIF}
 
 function filenamestring(const s: string): string;
 var
@@ -551,25 +575,6 @@ begin
   end;
 end;
 
-procedure backupfile(const fn: string);
-var
-  fbck: string;
-  fname: string;
-begin
-  fname := Trim(fn);
-
-  if fname = '' then
-    Exit;
-
-  if not fexists(fname) then
-    Exit;
-    
-  fbck := fname + '_' + FormatDateTime('yyyymmdd', Now);
-  if fexists(fbck) then
-    fbck := fbck + '_latest';
-  CopyFile(fname, fbck);
-end;
-
 function DownloadFile(SourceFile, DestFile: string): Boolean;
 begin
   try
@@ -582,6 +587,13 @@ end;
 function DownloadFileImg(SourceFile, DestFile: string): Boolean;
 begin
   Result := DownloadFile(SourceFile, DestFile);
+  if Result then
+    Result := CheckValidImageDonwload(DestFile);
+end;
+
+function NET_DownloadFileImg(SourceFile, DestFile: string): Boolean;
+begin
+  Result := NET_DownloadFile(SourceFile, DestFile);
   if Result then
     Result := CheckValidImageDonwload(DestFile);
 end;
@@ -1487,208 +1499,6 @@ begin
   Result := tmp2;
 end;
 
-function S_SaveToFile(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
-var
-  success: boolean;
-  i: integer;
-
-  procedure DoSave;
-  begin
-    success := True;
-    try
-      s.SaveToFile(fname);
-    except
-      success := False;
-    end;
-  end;
-
-begin
-  success := False;
-  for i := 1 to maxretry do
-  begin
-    DoSave;
-    if not success then
-      Sleep(msecs)
-    else
-      break;
-  end;
-  Result := success;
-end;
-
-function S_LoadFromFile(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
-var
-  success: boolean;
-  i: integer;
-
-  procedure DoLoad;
-  begin
-    success := True;
-    try
-      if fexists(fname) then
-        s.LoadFromFile(fname);
-    except
-      success := False;
-    end;
-  end;
-
-begin
-  success := False;
-  for i := 1 to maxretry do
-  begin
-    DoLoad;
-    if not success then
-      Sleep(msecs)
-    else
-      break;
-  end;
-  Result := success;
-end;
-
-function SH_SaveToFile(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
-var
-  success: boolean;
-  i: integer;
-
-  procedure DoSave;
-  begin
-    success := True;
-    try
-      s.SaveToFile(fname);
-    except
-      success := False;
-    end;
-  end;
-
-begin
-  success := False;
-  for i := 1 to maxretry do
-  begin
-    DoSave;
-    if not success then
-      Sleep(msecs)
-    else
-      break;
-  end;
-  Result := success;
-end;
-
-function SH_LoadFromFile(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
-var
-  success: boolean;
-  i: integer;
-
-  procedure DoLoad;
-  begin
-    success := True;
-    try
-      if fexists(fname) then
-        s.LoadFromFile(fname);
-    except
-      success := False;
-    end;
-  end;
-
-begin
-  success := False;
-  for i := 1 to maxretry do
-  begin
-    DoLoad;
-    if not success then
-      Sleep(msecs)
-    else
-      break;
-  end;
-  Result := success;
-end;
-
-function DoAppendLineToFile(const fname: string; const line: string): boolean;
-var
-  f: file;
-  i: integer;
-  oldmode: byte;
-  b, b1, b2: byte;
-  fsize: integer;
-begin
-  IOResult;
-{$I-}
-  oldmode := FileMode;
-  if not fexists(fname) then
-  begin
-    assignfile(f, fname);
-    FileMode := 2;
-    rewrite(f, 1);
-  end
-  else
-  begin
-    assignfile(f, fname);
-    FileMode := 2;
-    reset(f, 1);
-    fsize := FileSize(f);
-    if fsize >= 1 then
-    begin
-      if fsize > 1 then
-      begin
-        seek(f, FileSize(f) - 2);
-        BlockRead(f, b1, SizeOf(byte));
-        BlockRead(f, b2, SizeOf(byte));
-      end
-      else
-      begin
-        b1 := 0;
-        b2 := 0;
-      end;
-      if (b1 <> 13) or (b2 <> 10) then
-      begin
-        seek(f, fsize);
-        b1 := 13;
-        b2 := 10;
-        BlockWrite(f, b1, SizeOf(byte));
-        BlockWrite(f, b2, SizeOf(byte));
-      end;
-    end;
-  end;
-
-  seek(f, FileSize(f));
-  for i := 1 to length(line) do
-  begin
-    b := Ord(line[i]);
-    BlockWrite(f, b, SizeOf(byte));
-  end;
-  b1 := 13;
-  b2 := 10;
-  BlockWrite(f, b1, SizeOf(byte));
-  BlockWrite(f, b2, SizeOf(byte));
-  closeFile(f);
-
-  FileMode := oldmode;
-{$I+}
-  Result := IOResult = 0;
-end;
-
-procedure AppendLineToFile(const fname: string; const line: string);
-var
-  i: integer;
-begin
-  for i := 1 to 10 do
-  begin
-    if DoAppendLineToFile(fname, line) then
-      Exit;
-    Sleep(50);
-  end;
-  for i := 1 to 10 do
-  begin
-    if DoAppendLineToFile(fname, line) then
-      Exit;
-    Sleep(200);
-  end;
-  for i := 1 to 10 do
-  begin
-    if DoAppendLineToFile(fname, line) then
-      Exit;
-    Sleep(1000);
-  end;
-end;
-
 function ResizeJpg2Png(const fin, fout: string; const dograyscale: boolean = True;
   const maxWidth: integer = 64; const maxHeight: integer = 64): boolean;
 var
@@ -1960,6 +1770,46 @@ begin
   for i := lst.Count - 1 downto 0 do
     if Trim(lst.Strings[i]) = '' then
       lst.Delete(i);
+end;
+
+procedure backupfile(const fn: string);
+var
+  fbck: string;
+  fname: string;
+begin
+  fname := Trim(fn);
+
+  if fname = '' then
+    Exit;
+
+  if not fexists(fname) then
+    Exit;
+
+  fbck := fname + '_' + FormatDateTime('yyyymmdd', Now);
+  if fexists(fbck) then
+    fbck := fbck + '_latest';
+  CopyFile(fname, fbck);
+end;
+
+function ftoadot(f: double): string;
+var
+  i: integer;
+begin
+  Result := FloatToStr(f);
+  for i := 1 to Length(Result) do
+    if Result[i] = ',' then
+    begin
+      Result[i] := '.';
+      Exit;
+    end;
+end;
+
+procedure S_FirstLine(const sl: TStringList; const line: string);
+begin
+  if sl.Count = 0 then
+    sl.Add(line)
+  else if sl.Strings[0] <> line then
+    sl.Insert(0, line);
 end;
 
 end.

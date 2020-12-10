@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2018 by Jim Valavanis
+//  Copyright (C) 2014-2019 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -103,7 +103,7 @@ uses
   bi_system;
 
 var
-  mt_initialized: boolean = false;
+  mt_initialized: boolean = False;
 
 // JVAL: General purpose threads
 const
@@ -148,7 +148,7 @@ begin
   if (numgpthreads < 2) or (count0 < 1024) or not mt_initialized then
   begin
     ZeroMemory(dest0, count0);
-    exit;
+    Exit;
   end;
 
   if threadsuse < 2 then
@@ -209,7 +209,7 @@ begin
   if (numgpthreads < 2) or (count0 < 1024) or not mt_initialized then
   begin
     memset(dest0, val, count0);
-    exit;
+    Exit;
   end;
 
   if threadsuse < 2 then
@@ -267,7 +267,7 @@ begin
   if (numgpthreads < 2) or (count0 < 1024) or not mt_initialized then
   begin
     memcpy(dest0, src0, count0);
-    exit;
+    Exit;
   end;
 
   if threadsuse < 2 then
@@ -314,7 +314,7 @@ begin
     gp_threads[i] := TDThread.Create;
   for i := 0 to NUMEXECTHREADS - 1 do
     exec_threads[i] := TDThread.Create;
-  mt_initialized := true;
+  mt_initialized := True;
 end;
 
 procedure MT_ShutDown;
@@ -325,7 +325,7 @@ begin
     gp_threads[i].Free;
   for i := 0 to NUMEXECTHREADS - 1 do
     exec_threads[i].Free;
-  mt_initialized := false;
+  mt_initialized := False;
 end;
 
 var
@@ -335,11 +335,16 @@ procedure MT_Execute(
   const func1: threadfunc_t; const parms1: pointer;
   const func2: threadfunc_t = nil; const parms2: pointer = nil
   );
+var
+  oldm: boolean;
 begin
   if mt_execute_fetched then
     I_Error('MT_Execute(): Invalid recoursive call.'#13#10);
 
   mt_execute_fetched := True;
+
+  oldm := ismultithread;
+  ismultithread := True;
 
   if @func2 <> nil then
   begin
@@ -355,6 +360,8 @@ begin
   else
     func1(parms1);
 
+  ismultithread := oldm;
+
   mt_execute_fetched := False;
 end;
 
@@ -363,15 +370,19 @@ procedure MT_Execute(
   const func2: threadfunc_t; const parms2: pointer;
   const func3: threadfunc_t; const parms3: pointer;
   const func4: threadfunc_t = nil; const parms4: pointer = nil
-  ); 
+  );
 var
   nt: integer;
   i: integer;
+  oldm: boolean;
 begin
   if mt_execute_fetched then
     I_Error('MT_Execute(): Invalid recoursive call.'#13#10);
 
   mt_execute_fetched := True;
+
+  oldm := ismultithread;
+  ismultithread := True;
 
   nt := 0;
   if @func2 <> nil then
@@ -395,6 +406,9 @@ begin
     func1(parms1);
   for i := 0 to nt - 1 do
     exec_threads[i].Wait;
+
+  ismultithread := oldm;
+
   mt_execute_fetched := False;
 end;
 
@@ -411,11 +425,15 @@ procedure MT_Execute(
 var
   nt: integer;
   i: integer;
+  oldm: boolean;
 begin
   if mt_execute_fetched then
     I_Error('MT_Execute(): Invalid recoursive call.'#13#10);
 
   mt_execute_fetched := True;
+
+  oldm := ismultithread;
+  ismultithread := True;
 
   nt := 0;
   if @func2 <> nil then
@@ -459,6 +477,9 @@ begin
     func1(parms1);
   for i := 0 to nt - 1 do
     exec_threads[i].Wait;
+
+  ismultithread := oldm;
+
   mt_execute_fetched := False;
 end;
 
@@ -484,11 +505,15 @@ procedure MT_Execute(
 var
   nt: integer;
   i: integer;
+  oldm: boolean;
 begin
   if mt_execute_fetched then
     I_Error('MT_Execute(): Invalid recoursive call.'#13#10);
 
   mt_execute_fetched := True;
+
+  oldm := ismultithread;
+  ismultithread := True;
 
   nt := 0;
   if @func2 <> nil then
@@ -577,6 +602,9 @@ begin
     func1(parms1);
   for i := 0 to nt - 1 do
     exec_threads[i].Wait;
+
+  ismultithread := oldm;
+
   mt_execute_fetched := False;
 end;
 

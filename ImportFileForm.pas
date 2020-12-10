@@ -57,7 +57,7 @@ type
   end;
 
 type
-  sourcetype_t = (stUnsuported ,stBrickLink ,stRebrickable ,stLDCad ,stLDraw);
+  sourcetype_t = (stUnsuported ,stBrickLink ,stRebrickable ,stLDCad ,stLDraw, stBI);
 
 function GetDataFromFile(const filename: string; const source: sourcetype_t; var data: TStringList): boolean;
 
@@ -72,7 +72,7 @@ function GetDataFromFile(const filename: string; const source: sourcetype_t; var
 var
   delimeter: char;
   l: integer;
-  csvLine, partType, partPrefix: string;
+  csvLine, partType, partPrefix, colorPrefix: string;
   f: TImportFileForm;
   partData: TStringList;
 begin
@@ -81,7 +81,7 @@ begin
 
   case source of
     stBrickLink: delimeter := #9;
-    stRebrickable: delimeter := ',';
+    stRebrickable, stBI: delimeter := ',';
   else
     delimeter := ' ';
   end;
@@ -116,10 +116,24 @@ begin
             partPrefix := '';
             partType := Trim(partData[f.ComboBox1.itemIndex]);
             case source of
-              stBrickLink: partPrefix := 'BL ';
+              stBrickLink:
+                begin
+                  partPrefix := 'BL ';
+                  colorPrefix := 'BL';
+                end;
+              stBI:
+                begin
+                  partPrefix := '';
+                  colorPrefix := '';
+                end;
+              else
+                begin
+                  partPrefix := '';
+                  colorPrefix := 'RB';
+                end;
             end;
             csvLine := partPrefix + partType + ',' +
-                partPrefix + Trim(partData[f.ComboBox2.itemIndex]) + ',' +
+                colorPrefix + Trim(partData[f.ComboBox2.itemIndex]) + ',' +
                 Trim(partData[f.ComboBox3.itemIndex]);
             data.Add(csvLine);
           end;

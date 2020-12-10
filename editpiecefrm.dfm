@@ -570,7 +570,7 @@ object EditPieceForm: TEditPieceForm
     Width = 76
     Height = 16
     Caption = 'Num Pieces:'
-    FocusControl = Edit1
+    FocusControl = NumPiecesEdit
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
     Font.Height = -13
@@ -668,7 +668,7 @@ object EditPieceForm: TEditPieceForm
     Width = 43
     Height = 16
     Caption = 'Name: '
-    FocusControl = Edit2
+    FocusControl = NameEdit
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
     Font.Height = -13
@@ -729,7 +729,7 @@ object EditPieceForm: TEditPieceForm
     ParentFont = False
   end
   object UpdateYearSpeedButton: TSpeedButton
-    Left = 256
+    Left = 184
     Top = 280
     Width = 23
     Height = 22
@@ -764,7 +764,7 @@ object EditPieceForm: TEditPieceForm
     OnClick = UpdateYearSpeedButtonClick
   end
   object Label9: TLabel
-    Left = 336
+    Left = 224
     Top = 280
     Width = 39
     Height = 16
@@ -777,7 +777,65 @@ object EditPieceForm: TEditPieceForm
     Font.Style = []
     ParentFont = False
   end
-  object Edit1: TEdit
+  object EditBLLinkSpeedButton: TSpeedButton
+    Left = 496
+    Top = 248
+    Width = 25
+    Height = 25
+    Caption = '...'
+    Flat = True
+    OnClick = EditBLLinkSpeedButtonClick
+  end
+  object WeightLabel: TLabel
+    Left = 360
+    Top = 280
+    Width = 48
+    Height = 16
+    Caption = 'Weight: '
+    FocusControl = WeightEdit
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
+  object UpdateWeightSpeedButton: TSpeedButton
+    Left = 496
+    Top = 280
+    Width = 23
+    Height = 22
+    Flat = True
+    Glyph.Data = {
+      36030000424D3603000000000000360000002800000010000000100000000100
+      1800000000000003000000000000000000000000000000000000FFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFF8F8F8848484767676FFFFFFFFFFFF0606060606060606060606
+      06383838F8F8F8FFFFFFFFFFFFFFFFFFFFFFFFD6D6D6262626060606161616FF
+      FFFFFFFFFF060606060606060606383838F8F8F8FFFFFFFFFFFFFFFFFFFFFFFF
+      F8F8F8262626060606262626A8A8A8FFFFFFFFFFFF0606060606060606062626
+      26F8F8F8FFFFFFFFFFFFFFFFFFFFFFFF848484060606262626F8F8F8FFFFFFFF
+      FFFFFFFFFF060606666666262626060606848484FFFFFFFFFFFFFFFFFFFFFFFF
+      383838060606A8A8A8FFFFFFFFFFFFFFFFFFFFFFFF666666FFFFFFA8A8A80606
+      06383838FFFFFFFFFFFFFFFFFFFFFFFF060606060606FFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFF8F8F8060606060606FFFFFFFFFFFFFFFFFFFFFFFF
+      060606060606FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0606
+      06060606FFFFFFFFFFFFFFFFFFFFFFFF383838060606A8A8A8F8F8F8383838FF
+      FFFFFFFFFFFFFFFFFFFFFFA8A8A8060606383838FFFFFFFFFFFFFFFFFFFFFFFF
+      848484060606262626383838060606FFFFFFFFFFFFFFFFFFF8F8F82626260606
+      06848484FFFFFFFFFFFFFFFFFFFFFFFFF8F8F8262626060606060606060606FF
+      FFFFFFFFFFA8A8A8262626060606262626F8F8F8FFFFFFFFFFFFFFFFFFFFFFFF
+      F8F8F8383838060606060606060606FFFFFFFFFFFF161616060606262626D6D6
+      D6FFFFFFFFFFFFFFFFFFFFFFFFF8F8F8383838060606060606060606060606FF
+      FFFFFFFFFF767676848484F8F8F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
+    OnClick = UpdateWeightSpeedButtonClick
+  end
+  object NumPiecesEdit: TEdit
     Left = 128
     Top = 312
     Width = 121
@@ -792,7 +850,7 @@ object EditPieceForm: TEditPieceForm
     ParentFont = False
     TabOrder = 6
     Text = '0'
-    OnKeyPress = Edit1KeyPress
+    OnKeyPress = NumPiecesEditKeyPress
   end
   object Memo1: TMemo
     Left = 128
@@ -868,7 +926,7 @@ object EditPieceForm: TEditPieceForm
     ParentFont = False
     TabOrder = 2
   end
-  object Edit2: TEdit
+  object NameEdit: TEdit
     Left = 128
     Top = 184
     Width = 128
@@ -902,7 +960,7 @@ object EditPieceForm: TEditPieceForm
   object LinkEdit: TEdit
     Left = 128
     Top = 248
-    Width = 393
+    Width = 361
     Height = 24
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
@@ -964,7 +1022,7 @@ object EditPieceForm: TEditPieceForm
   object YearEdit: TEdit
     Left = 128
     Top = 280
-    Width = 121
+    Width = 49
     Height = 24
     BiDiMode = bdLeftToRight
     Font.Charset = GREEK_CHARSET
@@ -975,13 +1033,13 @@ object EditPieceForm: TEditPieceForm
     ParentBiDiMode = False
     ParentFont = False
     TabOrder = 5
-    Text = '0'
+    Text = '0000'
     OnKeyPress = YearEditKeyPress
   end
   object PartCodeEdit: TEdit
-    Left = 384
+    Left = 272
     Top = 280
-    Width = 137
+    Width = 73
     Height = 24
     BiDiMode = bdLeftToRight
     Font.Charset = GREEK_CHARSET
@@ -992,5 +1050,21 @@ object EditPieceForm: TEditPieceForm
     ParentBiDiMode = False
     ParentFont = False
     TabOrder = 13
+  end
+  object WeightEdit: TEdit
+    Left = 416
+    Top = 280
+    Width = 73
+    Height = 24
+    BiDiMode = bdLeftToRight
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentBiDiMode = False
+    ParentFont = False
+    TabOrder = 14
+    OnKeyPress = WeightEditKeyPress
   end
 end

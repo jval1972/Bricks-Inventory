@@ -264,13 +264,13 @@ begin
   if not (Key in [#8, '0'..'9']) then
   begin
     Key := #0;
-    exit;
+    Exit;
   end;
   if Key in ['0'..'9'] then
     if Length((Sender as TEdit).Text) > 3 then
     begin
       Key := #0;
-      exit;
+      Exit;
     end;
 end;
 
@@ -343,6 +343,12 @@ begin
       if tmp.Count > 0 then
         Memo1.Lines.AddStrings(tmp);
       Memo1.Lines.Add(stmp);
+      Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+      Label7.Update;
+    end;
+    if allparts.Count > 0 then
+    begin
+      Memo1.Lines.Add('AutoCorrectUnknownPieceYears');
       Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
       Label7.Update;
     end;

@@ -75,36 +75,36 @@ uses
 
 function ThreadWorker(p: Pointer): integer; stdcall;
 begin
-  result := 0;
-  while true do
+  Result := 0;
+  while True do
   begin
     while (Pthreadinfo_t(p).thread.fstatus = THR_IDLE) and (not Pthreadinfo_t(p).thread.fterminated) do
     begin
       sleep(0);
     end;
     if Pthreadinfo_t(p).thread.fterminated then
-      exit;
+      Exit;
     Pthreadinfo_t(p).thread.ffunc(Pthreadinfo_t(p).thread.fparms);
     if Pthreadinfo_t(p).thread.fterminated then
-      exit;
+      Exit;
     Pthreadinfo_t(p).thread.fstatus := THR_IDLE;
   end;
 end;
 
 constructor TDThread.Create(const func: threadfunc_t = nil);
 begin
-  fterminated := false;
+  fterminated := False;
   ffunc := func;
   fparms := nil;
   fstatus := THR_IDLE;
   info.thread := Self;
-  fid := I_CreateProcess(@ThreadWorker, @info, true);
-  suspended := true;
+  fid := I_CreateProcess(@ThreadWorker, @info, True);
+  suspended := True;
 end;
 
 destructor TDThread.Destroy;
 begin
-  fterminated := true;
+  fterminated := True;
   fstatus := THR_DEAD;
   I_WaitForProcess(fid, 100);
   Inherited Destroy;
@@ -117,7 +117,7 @@ begin
     I_Error('TDThread.Activate(): Null function pointer');
   fparms := parms;
   fstatus := THR_ACTIVE;
-  suspended := false;
+  suspended := False;
   ResumeThread(fid);
 end;
 
@@ -136,7 +136,7 @@ begin
   begin
     sleep(0);
   end;
-  suspended := true;
+  suspended := True;
   SuspendThread(fid);
 end;
 
@@ -146,18 +146,18 @@ begin
   begin
     if not suspended then
     begin
-      suspended := true;
+      suspended := True;
       SuspendThread(fid);
     end;
-    result := true;
+    Result := True;
   end
   else
-    result := false;
+    Result := False;
 end;
 
 function TDThread.IsIdle: Boolean;
 begin
-  result := fstatus = THR_IDLE;
+  Result := fstatus = THR_IDLE;
 end;
 
 end.

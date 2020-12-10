@@ -36,7 +36,6 @@ uses
 
 type
   TEditLugbulkPriceForm = class(TForm)
-    Image1: TImage;
     Button1: TButton;
     Button2: TButton;
     Edit1: TEdit;
@@ -46,7 +45,10 @@ type
     Panel1: TPanel;
     Label4: TLabel;
     Label2: TLabel;
+    ScrollBox1: TScrollBox;
+    Image1: TImage;
     procedure Edit1KeyPress(Sender: TObject; var Key: Char);
+    procedure Image1DblClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -90,7 +92,10 @@ begin
     f.Label5.Visible := true;
     f.Panel1.Visible := true;
     f.Label4.Caption := db.colors(color).name;
-    f.Edit1.Text := Format('%2.4f', [cost]);
+    if cost < 0.0 then
+      f.Edit1.Text := Format('%2.4f', [0.0])
+    else
+      f.Edit1.Text := Format('%2.4f', [cost]);
     pci := db.PieceColorInfo(part, color);
     PieceToImage(f.Image1, part, color);
     if pci <> nil then
@@ -138,6 +143,25 @@ begin
         Key := #0;
         Exit;
       end;
+  end;
+end;
+
+procedure TEditLugbulkPriceForm.Image1DblClick(Sender: TObject);
+begin
+  try
+    if Image1.Align = alClient then
+    begin
+      Image1.Align := alNone;
+      Image1.AutoSize := True;
+      Image1.Stretch := False;
+    end
+    else
+    begin
+      Image1.Align := alClient;
+      Image1.AutoSize := False;
+      Image1.Stretch := True;
+    end;
+  except
   end;
 end;
 

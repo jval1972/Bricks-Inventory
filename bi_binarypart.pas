@@ -82,7 +82,7 @@ type
 implementation
 
 uses
-  bi_globals, bi_utils, bi_db;
+  bi_globals, bi_utils, bi_db, bi_cachefile;
 
 constructor TBinaryPartCollection.Create(const aname: string);
 var
@@ -252,7 +252,13 @@ begin
         begin
           scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
-          rec.data[j].color := db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0));
+          rec.data[j].color := db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0));
+        end
+        else if Pos('RB', scolor) = 1 then
+        begin
+          scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
+
+          rec.data[j].color := db.RebrickableColorToSystemColor(StrToIntDef(scolor, 0));
         end
         else
         begin
@@ -317,9 +323,15 @@ begin
           rec.data[j].color := -2
         else if Pos('BL', scolor) = 1 then
         begin
-          scolor := Copy(scolor, 3, Length(scolor) - 2);
+          scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
-          rec.data[j].color := db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0));
+          rec.data[j].color := db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0));
+        end
+        else if Pos('RB', scolor) = 1 then
+        begin
+          scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
+
+          rec.data[j].color := db.RebrickableColorToSystemColor(StrToIntDef(scolor, 0));
         end
         else
         begin

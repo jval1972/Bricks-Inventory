@@ -4242,28 +4242,28 @@ end;
 procedure ThtmlViewer.Clear;
 {Note: because of Frames do not clear history list here}
 begin
-if FProcessing then Exit;
-HTMLTimer.Enabled := False;
-FSectionList.Clear;
-if LocalBitmapList then
-  FSectionList.BitmapList.Clear;
-FSectionList.SetFonts(FFontName, FPreFontName, FFontSize, FFontColor,
-           FHotSpotColor, FVisitedColor, FOverColor, FBackground,
-           htOverLinksActive in FOptions, not (htNoLinkUnderline in FOptions),
-           FCharSet, FMarginHeight, FMarginWidth);
-FBase := '';
-FBaseEx := '';
-FBaseTarget := '';
-FTitle := '';
-VScrollBar.Max := 0;
-VScrollBar.Visible := False;
-VScrollBar.Height := PaintPanel.Height;
-HScrollBar.Visible := False;
-CaretPos := 0;
-Sel1 := -1;
-if Assigned(FOnSoundRequest) then
-  FOnSoundRequest(Self, '', 0, True);
-Invalidate;
+  if FProcessing then Exit;
+  HTMLTimer.Enabled := False;
+  FSectionList.Clear;
+  if LocalBitmapList then
+    FSectionList.BitmapList.Clear;
+  FSectionList.SetFonts(FFontName, FPreFontName, FFontSize, FFontColor,
+             FHotSpotColor, FVisitedColor, FOverColor, FBackground,
+             htOverLinksActive in FOptions, not (htNoLinkUnderline in FOptions),
+             FCharSet, FMarginHeight, FMarginWidth);
+  FBase := '';
+  FBaseEx := '';
+  FBaseTarget := '';
+  FTitle := '';
+  VScrollBar.Max := 0;
+  VScrollBar.Visible := False;
+  VScrollBar.Height := PaintPanel.Height;
+  HScrollBar.Visible := False;
+  CaretPos := 0;
+  Sel1 := -1;
+  if Assigned(FOnSoundRequest) then
+    FOnSoundRequest(Self, '', 0, True);
+  Invalidate;
 end;
 
 procedure ThtmlViewer.PaintWindow(DC: HDC);
@@ -4490,7 +4490,7 @@ begin
   else
     EnSrc := EnSrc + 1;
   {Truncate beyond EnSrc}
-  HTML := Copy(HTML, 1, EnSrc-1);
+  HTML := Copy(HTML, 1, EnSrc - 1);
   {Also remove any tags on the end}
   BackupToContent;
   {insert the StartFrag string}
@@ -4509,7 +4509,7 @@ begin
   {Add Doctype tag at start}
   HTML := DocType + HTML;
   {Append the EndFrag string}
-  HTML := HTML+EndFrag;
+  HTML := HTML + EndFrag;
   {Add the header to start}
   HTML := GetHeader(HTML) + HTML;
 

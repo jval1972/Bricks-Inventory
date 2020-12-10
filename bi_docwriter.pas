@@ -66,6 +66,8 @@ type
     procedure writecheck(const AA, fromAA, toAA: integer; const i: integer); overload;
     procedure writecheck(const AA, fromAA, toAA: integer; const s: string); overload;
     procedure writecheck(const AA, fromAA, toAA: integer; const Fmt: string; const Args: array of const); overload;
+    procedure title(const s: string); overload;
+    procedure title(const Fmt: string; const Args: array of const); overload;
     procedure BlancColorCell(const RGB: LongWord; const width: integer);
     procedure SaveBufferToFile(const fname: string);
     procedure FlashMultiPageDocument(const akey: string; const pg: integer);
@@ -221,6 +223,19 @@ begin
   if AA >= fromAA then
     if AA <= toAA then
       write(Fmt, Args);
+end;
+
+procedure TDocument.title(const s: string);
+begin
+  write('<title>' + s + '</title>');
+end;
+
+procedure TDocument.title(const Fmt: string; const Args: array of const);
+var
+  stmp: string;
+begin
+  FmtStr(stmp, Fmt, Args);
+  title(stmp);
 end;
 
 procedure TDocument.BlancColorCell(const RGB: LongWord; const width: integer);

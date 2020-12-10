@@ -38,7 +38,6 @@ uses
 
 type
   TMainForm = class(TForm)
-    HTML: THTMLViewer;
     Panel1: TPanel;
     OutputMemo: TMemo;
     Splitter1: TSplitter;
@@ -47,7 +46,6 @@ type
     MainMenu1: TMainMenu;
     File1: TMenuItem;
     Exit1: TMenuItem;
-    Search1: TMenuItem;
     Set1: TMenuItem;
     Missingformultiplesets1: TMenuItem;
     Printpreview1: TMenuItem;
@@ -107,7 +105,7 @@ type
     N11: TMenuItem;
     iles1x1: TMenuItem;
     iles2x1: TMenuItem;
-    Edit1: TMenuItem;
+    Database1: TMenuItem;
     Set2: TMenuItem;
     N12: TMenuItem;
     echnicBricks1x1: TMenuItem;
@@ -126,7 +124,7 @@ type
     Rebrickableparts1: TMenuItem;
     N15: TMenuItem;
     Setswithunknownreleaseyear1: TMenuItem;
-    N20172: TMenuItem;
+    N20181: TMenuItem;
     LugBulk2018CheapInvertedSlopes1: TMenuItem;
     LugBulk2018CheapSlopes1: TMenuItem;
     LugBulk2018CheapTiles1: TMenuItem;
@@ -235,6 +233,25 @@ type
     Options1: TMenuItem;
     IdleTimer: TTimer;
     btn_CatalogHome: TSpeedButton;
+    FindDialog: TFindDialog;
+    N32: TMenuItem;
+    Edit1: TMenuItem;
+    HtmlCopy1: TMenuItem;
+    HtmlFind1: TMenuItem;
+    HtmlSelectAll1: TMenuItem;
+    TabControl1: TTabControl;
+    HTML: THTMLViewer;
+    PopupMenu1: TPopupMenu;
+    CloseTab1: TMenuItem;
+    N34: TMenuItem;
+    HtmlCopy2: TMenuItem;
+    HtmlFind2: TMenuItem;
+    HtmlSelectAll2: TMenuItem;
+    Openlinkinnewtab1: TMenuItem;
+    N35: TMenuItem;
+    PopupMenu2: TPopupMenu;
+    CloseTab2: TMenuItem;
+    Openlink1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String;
       var Stream: TMemoryStream);
@@ -384,6 +401,21 @@ type
     procedure Options1Click(Sender: TObject);
     procedure IdleTimerTimer(Sender: TObject);
     procedure btn_CatalogHomeClick(Sender: TObject);
+    procedure FindDialogFind(Sender: TObject);
+    procedure Edit1Click(Sender: TObject);
+    procedure HtmlFindClick(Sender: TObject);
+    procedure HtmlCopyClick(Sender: TObject);
+    procedure HtmlSelectAllClick(Sender: TObject);
+    procedure PopupMenu1Popup(Sender: TObject);
+    procedure CloseTabClick(Sender: TObject);
+    procedure TabControl1Changing(Sender: TObject;
+      var AllowChange: Boolean);
+    procedure TabControl1Change(Sender: TObject);
+    procedure HTMLRightClick(Sender: TObject;
+      Parameters: TRightClickParameters);
+    procedure Openlinkinnewtab1Click(Sender: TObject);
+    procedure Openlink1Click(Sender: TObject);
+    procedure LugBulks1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -402,6 +434,7 @@ type
     diskmirror: string;
     storagebinsupdatetime: double;
     thumbnailcache: array[0..127] of TStringList;
+    newtabUrl: string;
     function CheckAA(const AA, fromAA, toAA: integer): boolean;
     procedure Navigate(const akey: string; const pg: integer);
     procedure DrawColorCell(const cc: integer; const width: integer);
@@ -509,6 +542,7 @@ type
     procedure UpdateDismantaledsetsinv;
     procedure DrawPriceguide(const part: string; const color: integer = -1);
     procedure HTMLClick(const SRC1: String; var Handled: Boolean);
+    procedure doHTMLClick(const SRC1: String; var Handled: Boolean);
     procedure StoreInventoryStatsRec(const piece: string; const color: string = '');
     procedure DoEditSet(const setid: string);
     procedure ShowUniquePiecesOfMyInventory(const ntimes: integer);
@@ -521,6 +555,9 @@ type
     function MakeThumbnailImage2(const pcs: string; const ncolor: integer = -1000): string;
     function FindThumbnailImageFileName(const SRC: string): string;
     function FindThumbnailImageFileNameForHtmlReq(const SRC: string): string;
+    procedure StoreTab;
+    procedure RestoreTab;
+    function CanOpenInNewTab(const surl: string): boolean;
   public
     { Public declarations }
     activebits: integer;
@@ -577,6 +614,102 @@ begin
   y := ay;
 end;
 
+
+const
+  MAXNUMTABS = 50;
+
+type
+  TTabItem = class(TComponent)
+  protected
+    fgoback, fgofwd: TStringList;
+    fTitle: string;
+    fHtmlString: string;
+    fHScroll, fVScroll: integer;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Store(const HTML: THTMLViewer; const agoback, agofwd: TStringList);
+    procedure Restore(const HTML: THTMLViewer; const agoback, agofwd: TStringList);
+    property goback: TStringList read fgoback;
+    property gofwd: TStringList read fgofwd;
+    property Title: string read fTitle write fTitle;
+    property HtmlString: string read fHtmlString write fHtmlString;
+  end;
+
+constructor TTabItem.Create(AOwner: TComponent);
+begin
+  Inherited Create(AOwner);
+  fgoback := TStringList.Create;
+  fgofwd := TStringList.Create;
+  fTitle := '';
+  fHtmlString := '';
+  fHScroll := 0;
+  fVScroll := 0;
+end;
+
+destructor TTabItem.Destroy;
+begin
+  FreeList(fgoback);
+  FreeList(fgofwd);
+  fTitle := '';
+  fHtmlString := '';
+  Inherited;
+end;
+
+procedure TTabItem.Store(const HTML: THTMLViewer; const agoback, agofwd: TStringList);
+var
+  i: integer;
+begin
+  for i := 0 to fgoback.Count - 1 do
+    fgoback.Objects[i].Free;
+  fgoback.Clear;
+  for i := 0 to agoback.Count - 1 do
+    fgoback.AddObject(agoback.Strings[i],
+      TScrollPos.Create((agoback.Objects[i] as TScrollPos).x, (agoback.Objects[i] as TScrollPos).y));
+
+  for i := 0 to fgofwd.Count - 1 do
+    fgofwd.Objects[i].Free;
+  fgofwd.Clear;
+  for i := 0 to agofwd.Count - 1 do
+    fgofwd.AddObject(agofwd.Strings[i],
+      TScrollPos.Create((agofwd.Objects[i] as TScrollPos).x, (agofwd.Objects[i] as TScrollPos).y));
+
+  fTitle := HTML.DocumentTitle;
+  fHtmlString := HTML.DocumentSource;
+  fHScroll := HTML.HScrollBarPosition;
+  fVScroll := HTML.VScrollBarPosition;
+end;
+
+procedure TTabItem.Restore(const HTML: THTMLViewer; const agoback, agofwd: TStringList);
+var
+  i: integer;
+  dd: TDocument;
+begin
+  for i := 0 to agoback.Count - 1 do
+    agoback.Objects[i].Free;
+  agoback.Clear;
+  for i := 0 to fgoback.Count - 1 do
+    agoback.AddObject(fgoback.Strings[i],
+      TScrollPos.Create((fgoback.Objects[i] as TScrollPos).x, (fgoback.Objects[i] as TScrollPos).y));
+
+  for i := 0 to agofwd.Count - 1 do
+    agofwd.Objects[i].Free;
+  agofwd.Clear;
+  for i := 0 to fgofwd.Count - 1 do
+    agofwd.AddObject(fgofwd.Strings[i],
+      TScrollPos.Create((fgofwd.Objects[i] as TScrollPos).x, (fgofwd.Objects[i] as TScrollPos).y));
+
+  dd := TDocument.Create(HTML);
+  try
+    dd.write(fHtmlString);
+    dd.Flash;
+  finally
+    dd.Free;
+  end;
+  HTML.HScrollBarPosition := fHScroll;
+  HTML.VScrollBarPosition := fVScroll;
+end;
+
 const
   TBGCOLOR = '#FFFFFF'; // Table Background color
   THBGCOLOR = '#E0E0E0'; // Table Header background color
@@ -620,6 +753,7 @@ begin
   BI_LoadDefaults(basedefault + 'bi4.ini');
   activebits := 0;
   storagebinsupdatetime := 0.0;
+  newtabUrl := '';
 
   dismantaledsetsinv := nil;
 
@@ -792,6 +926,7 @@ end;
 procedure TMainForm.DrawNavigateCatalog;
 begin
   document.write('<body background="splash.jpg">');
+  document.title('Catalog');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -916,6 +1051,10 @@ begin
     document.NewMultiPageDocument('ShowOrders', seller);
 
   document.write('<body background="splash.jpg">');
+  if seller = '' then
+    document.title('Orders')
+  else
+    document.title('Orders (' + seller + ')');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -1056,6 +1195,7 @@ begin
     document.NewMultiPageDocument('ShowStorageBins', itoa(db.StorageBins.count));
 
   document.write('<body background="splash.jpg">');
+  document.title('Storage Bins');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -1160,6 +1300,10 @@ begin
     document.NewMultiPageDocument('ShowStorageInventory', st);
 
   document.write('<body background="splash.jpg">');
+  if st = '' then
+    document.title('Storage Bins Inventory')
+  else
+    document.title('Storage "' + st + '"');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -1278,6 +1422,7 @@ begin
     document.NewMultiPageDocument('ShowOrder', orderid);
 
   document.write('<body background="splash.jpg">');
+  document.title('Order #' + orderid);
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -1324,6 +1469,7 @@ end;
 procedure TMainForm.ShowHomePage;
 begin
   document.write('<body background="splash.jpg">');
+  document.title('Home');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -1741,6 +1887,7 @@ procedure TMainForm.FormShow(Sender: TObject);
 var
   i: integer;
   parts: TDStringList;
+  tb: TTabItem;
 begin
   if initialized then
     Exit;
@@ -1766,25 +1913,11 @@ begin
   PAK_GetEntries(entries);
   entries.Sort;
   entriesHash.AssignStringList(entries);
-  db := TSetsDatabase.Create;
-  progress_string := 'Loading database...';
-  db.progressfunc := dbloadprogress;
-  db.InitCreate;
-  db.LoadFromDisk(basedefault + 'db\db_set_pieces.txt');
-  inventory := TBrickInventory.Create;
-  inventory.CreateExtentedHashTable;
-  if FileExists(basedefault + 'myparts.txt') then
-    inventory.LoadLooseParts(basedefault + 'myparts.txt');
-  if FileExists(basedefault + 'mysets.txt') then
-    inventory.LoadSets(basedefault + 'mysets.txt');
-
-  initialized := True;
-  HideSplash;
-
-  orders.LoadFilesDirectory(basedefault + 'orders');
 
   if not DirectoryExists(basedefault + 'out') then
     MkDir(basedefault + 'out');
+  if not DirectoryExists(basedefault + 'db') then
+    MkDir(basedefault + 'db');
   if not DirectoryExists(basedefault + 'out\navigate') then
     MkDir(basedefault + 'out\navigate');
   if not DirectoryExists(basedefault + 'thg') then
@@ -1807,12 +1940,36 @@ begin
     MkDir(basedefault + 'storage');
   if not DirectoryExists(basedefault + 'images') then
     MkDir(basedefault + 'images');
+  if not DirectoryExists(basedefault + 'cache') then
+    MkDir(basedefault + 'cache');
+
+  db := TSetsDatabase.Create;
+  progress_string := 'Loading database...';
+  db.progressfunc := dbloadprogress;
+  db.InitCreate;
+  db.LoadFromDisk(basedefault + 'db\db_set_pieces.txt');
+  inventory := TBrickInventory.Create;
+  inventory.CreateExtentedHashTable;
+  if FileExists(basedefault + 'myparts.txt') then
+    inventory.LoadLooseParts(basedefault + 'myparts.txt');
+  if FileExists(basedefault + 'mysets.txt') then
+    inventory.LoadSets(basedefault + 'mysets.txt');
+
+  initialized := True;
+  HideSplash;
+
+  orders.LoadFilesDirectory(basedefault + 'orders');
+
   BI_CheckDefaultAssets(basedefault);
 
   document.savepath := basedefault + 'out\navigate\';
 
   goback.AddObject('home', TScrollPos.Create(0, 0));
   ShowHomePage;
+  Caption := Application.Title + ' - ' + HTML.DocumentTitle;
+  tb := TTabItem.Create(TabControl1);
+  tb.Store(HTML, goback, gofwd);
+  TabControl1.Tabs.AddObject(HTML.DocumentTitle, tb);
 {  db.CrawlerPriorityPart('15714', 15);
   db.CrawlerPriorityPart('15714', 41);
   db.CrawlerPriorityPart('15714', 14);
@@ -2461,6 +2618,7 @@ begin
   if header_flash then
   begin
     document.write('<body background="splash.jpg">');
+    document.title('Inventory Sets/Mocs');
     DrawNavigateBar;
     document.write('<div style="color:' + DFGCOLOR + '">');
     document.write('<p align=center>');
@@ -2727,6 +2885,7 @@ begin
       document.NewMultiPageDocument('ShowSetInventory', setid);}
 
   document.write('<body background="splash.jpg">');
+  document.title('Set ' + setid);
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -2935,6 +3094,7 @@ begin
   lastset := setid;
 
   document.write('<body background="splash.jpg">');
+  document.title('Set ' + setid + ' (preview)');
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
   inv := db.GetSetInventory(setid);
@@ -3044,6 +3204,7 @@ begin
   Screen.Cursor := crHourGlass;
 
   document.write('<body background="splash.jpg">');
+  document.title('Colors');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -3141,6 +3302,7 @@ begin
   Screen.Cursor := crHourGlass;
 
   document.write('<body background="splash.jpg">');
+  document.title(db.categories[cat].name);
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -3361,6 +3523,7 @@ begin
   Screen.Cursor := crHourGlass;
 
   document.write('<body background="splash.jpg">');
+  document.title('Categories');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -3551,6 +3714,7 @@ begin
     end;
 
     document.write('<body background="splash.jpg">');
+    document.title(pcs + ' - ' + db.PieceDesc(pcs));
     DrawNavigateBar;
     document.write('<div style="color:' + DFGCOLOR + '">');
     document.write('<p align=center>');
@@ -3593,6 +3757,7 @@ begin
   end;
 
   document.write('<body background="splash.jpg">');
+  document.title(pcs + ' - ' + db.PieceDesc(pcs));
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -3865,6 +4030,7 @@ begin
   SplashProgress('Working...', 0);
 
   document.write('<body background="splash.jpg">');
+  document.title('Molds');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -3934,6 +4100,7 @@ begin
     document.NewMultiPageDocument('DrawMoldListCatalog' + tit, lst.Text);
 
   document.write('<body background="splash.jpg">');
+  document.title('Catalog Molds');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -4179,6 +4346,7 @@ begin
   if (year < 0) and (catid < 0) then
   begin
     document.write('<body background="splash.jpg">');
+    document.title('Catalog');
     DrawNavigateBar;
     document.write('<div style="color:' + DFGCOLOR + '">');
     document.write('<p align=center>');
@@ -4324,6 +4492,7 @@ begin
     document.NewMultiPageDocument('DrawPieceList', tit + itoa(sortorder) + itoa(lst.count));
 
   document.write('<body background="splash.jpg">');
+  document.title('Piece list');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -4461,6 +4630,7 @@ begin
   if domultipagedocuments then
     document.NewMultiPageDocument('DrawPieceListSet', tit + settit + itoa(lst.count));
   document.write('<body background="splash.jpg">');
+  document.title(tit);
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -4734,6 +4904,7 @@ begin
     document.NewMultiPageDocument('DrawPieceListLugbulk', tit + itoa(lst.count));
 
   document.write('<body background="splash.jpg">');
+  document.title(tit);
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -4853,6 +5024,7 @@ begin
   UpdateDismantaledsetsinv;
 
   document.write('<body background="splash.jpg">');
+  document.title(db.Colors(color).name + ' ' + db.PieceDesc(pcs));
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -4988,6 +5160,7 @@ begin
   if domultipagedocuments then
     document.NewMultiPageDocument('ShowColorPiece', pcs + '_' + itoa(color) + '_' + itoa(ayear));
   document.write('<body background="splash.jpg">');
+  document.title(db.Colors(color).name + ' ' + db.PieceDesc(pcs));
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -5201,6 +5374,7 @@ begin
     document.NewMultiPageDocument('ShowSetsICanBuild', ftoa(pct));
 
   document.write('<body background="splash.jpg">');
+  document.title('Sets I can build');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -5303,6 +5477,7 @@ begin
     document.NewMultiPageDocument('ShowSetsAtUnknownYear', itoa(lsets.count));
 
   document.write('<body background="splash.jpg">');
+  document.title('Set with unknown release year');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -5373,6 +5548,7 @@ begin
     document.NewMultiPageDocument('ShowSetsAtYear', itoa(year));
 
   document.write('<body background="splash.jpg">');
+  document.title('Sets released at ' + itoa(year));
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -5526,6 +5702,7 @@ begin
     document.NewMultiPageDocument('ShowSetsForPartOutNew', itoa(minyear) + '_' + itoa(minavailablelots) + '_' + ftoa(mindemand) + '_' + ftoa(mincostmultiplier));
 
   document.write('<body background="splash.jpg">');
+  document.title('New sets to buy for partout');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -5693,6 +5870,7 @@ begin
     document.NewMultiPageDocument('ShowSetsForPartOutUsed', itoa(minyear) + '_' + itoa(minavailablelots) + '_' + ftoa(mindemand) + '_' + ftoa(mincostmultiplier));
 
   document.write('<body background="splash.jpg">');
+  document.title('Used sets to buy for partout');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -5854,6 +6032,7 @@ begin
     document.NewMultiPageDocument('ShowSetsForPartInUsed', itoa(posost));
 
   document.write('<body background="splash.jpg">');
+  document.title('Used sets to built from scratch');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -6067,6 +6246,7 @@ begin
       ftoa(mindemand) + '_' + ftoa(minpartscostmultiplier) + '_' + ftoa(minminifigscostmultiplier) + '_' + ftoa(minpartoutmultiplier) + '_' + itoa(list.Count));
 
   document.write('<body background="splash.jpg">');
+  document.title('New sets to buy for minifigures');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -6274,6 +6454,7 @@ begin
       ftoa(mindemand) + '_' + ftoa(minpartscostmultiplier) + '_' + ftoa(minminifigscostmultiplier) + '_' + ftoa(minpartoutmultiplier) + '_' + itoa(list.Count));
 
   document.write('<body background="splash.jpg">');
+  document.title('Used sets to buy for minifigures');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -6374,6 +6555,7 @@ begin
     document.NewMultiPageDocument('ShowMissingFromStorageBins', '');
 
   document.write('<body background="splash.jpg">');
+  document.title('Missing from Storage Bins');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -6432,6 +6614,7 @@ begin
     document.NewMultiPageDocument('ShowCheckStorageReport', report.Text);
 
   document.write('<body background="splash.jpg">');
+  document.title('Check Storage Bins For Errors');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -6543,6 +6726,7 @@ begin
     document.NewMultiPageDocument('ShowMissingToBuildSetInventory', setid + '_' + itoa(numsets) + '_' + itoa(intval(legacyignore)));
 
   document.write('<body background="splash.jpg">');
+  document.title('Missing to build set ' + setid);
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -6655,6 +6839,7 @@ begin
     document.NewMultiPageDocument('ShowExpensiveSetLotsNew', setid + '_' + itoa(numlots));
 
   document.write('<body background="splash.jpg">');
+  document.title('Expensive lots of set ' + setid + ' (NEW)');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -6781,6 +6966,7 @@ begin
     document.NewMultiPageDocument('ShowExpensiveSetLotsUsed', setid + '_' + itoa(numlots));
 
   document.write('<body background="splash.jpg">');
+  document.title('Expensive lots of set ' + setid + ' (USED)');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -6902,6 +7088,7 @@ begin
     document.NewMultiPageDocument('ShowExpensiveInvNew', atitle + '_' + itoa(numlots));
 
   document.write('<body background="splash.jpg">');
+  document.title('Expensive lots of my inventory (NEW)');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -6991,6 +7178,7 @@ begin
     document.NewMultiPageDocument('ShowExpensiveInvUsed', atitle + '_' + itoa(numlots));
 
   document.write('<body background="splash.jpg">');
+  document.title('Expensive lots of my inventory (USED)');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -7080,6 +7268,7 @@ begin
     document.NewMultiPageDocument('ShowExpensiveInvPartsNew', atitle + '_' + itoa(numlots));
 
   document.write('<body background="splash.jpg">');
+  document.title('Expensive parts of my inventory (NEW)');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -7168,6 +7357,7 @@ begin
     document.NewMultiPageDocument('ShowExpensiveInvPartsUsed', atitle + '_' + itoa(numlots));
 
   document.write('<body background="splash.jpg">');
+  document.title('Expensive parts of my inventory (USED)');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -7256,6 +7446,7 @@ begin
     document.NewMultiPageDocument('ShowMissingToBuilMultipledSets', decide(setids = nil, 'nil', setids.Text));
 
   document.write('<body background="splash.jpg">');
+  document.title('Missing to build multiple sets');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -7364,6 +7555,7 @@ begin
     document.NewMultiPageDocument('ShowInventoryForMultipledSets', decide(setids = nil, 'nil', setids.Text));
 
   document.write('<body background="splash.jpg">');
+  document.title('Inventory for multiple sets');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -7425,6 +7617,7 @@ begin
   Screen.Cursor := crHourGlass;
 
   document.write('<body background="splash.jpg">');
+  document.title('Compare 2 sets');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -7540,6 +7733,7 @@ begin
     document.NewMultiPageDocument('ShowLooseParts' + itoa(Integer(inv)), itoa(colormask) + '_' + partmask + '_' + itoa(cat));
 
   document.write('<body background="splash.jpg">');
+  document.title('My loose parts');
   DrawNavigateBar;
   document.write('<div style="color:#' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -7712,6 +7906,89 @@ begin
 end;
 
 procedure TMainForm.HTMLClick(const SRC1: String; var Handled: Boolean);
+var
+  idx: integer;
+begin
+  Screen.Cursor := crHourGlass;
+  try
+    doHTMLClick(SRC1, Handled);
+    Caption := Application.Title + ' - ' + HTML.DocumentTitle;
+    idx := TabControl1.TabIndex;
+    if (idx >= 0) and (idx < TabControl1.Tabs.Count) then
+      TabControl1.Tabs.Strings[idx] := HTML.DocumentTitle;
+  finally
+    Screen.Cursor := crDefault;
+  end;
+end;
+
+function TMainForm.CanOpenInNewTab(const surl: string): boolean;
+var
+  s1, s2: string;
+begin
+  Result := False;
+
+  s1 := UpperCase(Trim(surl));
+
+  if s1 = UpperCase('back') then Exit;
+  if s1 = UpperCase('fwd') then Exit;
+  if s1 = UpperCase('refresh') then Exit;
+  if s1 = UpperCase('refreshpieceall') then Exit;
+
+  splitstring(surl, s1, s2, '/');
+  s1 := UpperCase(Trim(s1)) + '/';
+
+  if s1 = UpperCase('editpiece/') then Exit;
+  if s1 = UpperCase('DoEditSet/') then Exit;
+  if s1 = UpperCase('editmold/') then Exit;
+  if s1 = UpperCase('removepiecefromstorage/') then Exit;
+  if s1 = UpperCase('StoreInventoryStatsRec/') then Exit;
+  if s1 = UpperCase('refreshset/') then Exit;
+  if s1 = UpperCase('refreshsetlite/') then Exit;
+  if s1 = UpperCase('refreshpiece/') then Exit;
+  if s1 = UpperCase('refreshpiececat/') then Exit;
+  if s1 = UpperCase('refreshpiecefrombricklink/') then Exit;
+  if s1 = UpperCase('refreshpiecefrombricklinkalias/') then Exit;
+  if s1 = UpperCase('refreshpiecefrombricklinknorefresh/') then Exit;
+  if s1 = UpperCase('refreshpiecefrombricklinkaliasnorefresh/') then Exit;
+  if s1 = UpperCase('UpdateCatalogFromBricklink/') then Exit;
+  if s1 = UpperCase('UpdateCatalogFromBricklinknorefresh/') then Exit;
+  if s1 = UpperCase('updatepartnamerebrickable/') then Exit;
+  if s1 = UpperCase('updatepartnamerebrickablenorefresh/') then Exit;
+  if s1 = UpperCase('UpdateSetAsPartFromBricklink/') then Exit;
+  if s1 = UpperCase('UpdateSetAsPartFromBricklinknorefresh/') then Exit;
+  if s1 = UpperCase('refreshminifigcat/') then Exit;
+  if s1 = UpperCase('refreshpiece100/') then Exit;
+  if s1 = UpperCase('refreshpiece1000/') then Exit;
+  if s1 = UpperCase('addset/') then Exit;
+  if s1 = UpperCase('AddNewSetAsPiece/') then Exit;
+  if s1 = UpperCase('DoAddNewSetAsPiece/') then Exit;
+  if s1 = UpperCase('RefreshUnKnownSetsCategoryAndWeight/') then Exit;
+  if s1 = UpperCase('RefreshUnKnownPiecesCategory/') then Exit;
+  if s1 = UpperCase('RefreshUnKnownPiecesWeight/') then Exit;
+  if s1 = UpperCase('RefreshUnKnownMinifigCategory/') then Exit;
+  if s1 = UpperCase('RefreshUnKnownMinifigWeight/') then Exit;
+  if s1 = UpperCase('RefreshUnKnownInventoryPiecesCategory') then Exit;
+  if s1 = UpperCase('downloadset/') then Exit;
+  if s1 = UpperCase('downloadsetnorefresh/') then Exit;
+  if s1 = UpperCase('downloadsetaltparts/') then Exit;
+  if s1 = UpperCase('downloadsetex/') then Exit;
+  if s1 = UpperCase('downloadsetandrefresh/') then Exit;
+  if s1 = UpperCase('downloadsetandrefreshex/') then Exit;
+  if s1 = UpperCase('addsetdismantaled/') then Exit;
+  if s1 = UpperCase('UpdatePartInventory/') then Exit;
+  if s1 = UpperCase('UpdatePartInventorynorefresh/') then Exit;
+  if s1 = UpperCase('DownloadPartInventorynorefresh/') then Exit;
+  if s1 = UpperCase('removeset/') then Exit;
+  if s1 = UpperCase('UpdateSetAssetsFromBricklink/') then Exit;
+  if s1 = UpperCase('removesetdismantaled/') then Exit;
+  if s1 = UpperCase('diagrampiece/') then Exit;
+  if s1 = UpperCase('diagramstorage/') then Exit;
+  if s1 = UpperCase('diagramorder/') then Exit;
+
+  Result := True;
+end;
+
+procedure TMainForm.doHTMLClick(const SRC1: String; var Handled: Boolean);
 var
   s1, s2, s3, s4, s5, s6, s7: string;
   slink: string;
@@ -9267,6 +9544,7 @@ begin
     document.NewMultiPageDocument('ShowMySetsPieces', itoa(inventory.numsets));
 
   document.write('<body background="splash.jpg">');
+  document.title('Pieces of my sets');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -9304,6 +9582,7 @@ begin
     document.NewMultiPageDocument('ShowMyMocsPieces', itoa(inventory.numsets));
 
   document.write('<body background="splash.jpg">');
+  document.title('Pieces of my mocs');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -9626,6 +9905,7 @@ begin
   Screen.Cursor := crHourglass;
 
   document.write('<body background="splash.jpg">');
+  document.title(id + 'Stats');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -9681,6 +9961,7 @@ begin
   Screen.Cursor := crHourglass;
 
   document.write('<body background="splash.jpg">');
+  document.title(id + 'Stats');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -10192,6 +10473,7 @@ begin
     document.NewMultiPageDocument('DrawPieceListLugbulkKnownCost', tit + itoa(lb.List.Count) + itoa(lst.Count) + ftoa(over) + itoa(Ord(dobrickorederinfo)) + itoa(catid));
 
   document.write('<body background="splash.jpg">');
+  document.title(tit);
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -13271,6 +13553,166 @@ var
   foo: Boolean;
 begin
   HTMLClick('cataloghome', foo);
+end;
+
+procedure TMainForm.FindDialogFind(Sender: TObject);
+begin
+  with FindDialog do
+    if not HTML.FindEx(FindText, frMatchCase in Options, not (frDown in Options)) then
+      MessageDlg('Search string ''' + FindText + ''' not found', mtInformation, [mbOK], 0);
+end;
+
+procedure TMainForm.Edit1Click(Sender: TObject);
+begin
+  HtmlCopy1.Enabled := HTML.SelLength <> 0;
+end;
+
+procedure TMainForm.HtmlFindClick(Sender: TObject);
+begin
+  FindDialog.Execute;
+end;
+
+procedure TMainForm.HtmlCopyClick(Sender: TObject);
+begin
+  if HTML.SelLength <> 0 then
+    HTML.CopyToClipboard;
+end;
+
+procedure TMainForm.HtmlSelectAllClick(Sender: TObject);
+begin
+  HTML.SelectAll;
+end;
+
+procedure TMainForm.PopupMenu1Popup(Sender: TObject);
+begin
+  HtmlCopy2.Enabled := HTML.SelLength <> 0;
+  CloseTab1.Enabled := TabControl1.Tabs.Count > 1;
+  Openlinkinnewtab1.Enabled := (newtabUrl <> '') and (TabControl1.Tabs.Count <= MAXNUMTABS) and (CanOpenInNewTab(newtabUrl));
+  Openlink1.Enabled := newtabUrl <> '';
+end;
+
+procedure TMainForm.CloseTabClick(Sender: TObject);
+var
+  idx: integer;
+begin
+  if TabControl1.Tabs.Count <= 1 then
+    Exit;
+
+  idx := TabControl1.TabIndex;
+  if (idx < 0) or (idx >= TabControl1.Tabs.Count) then
+    Exit;
+
+  TabControl1.Tabs.Objects[idx].Free;
+  TabControl1.Tabs.Delete(idx);
+  dec(idx);
+  if idx < 0 then
+    idx := 0;
+  if idx < TabControl1.Tabs.Count then
+  begin
+    TabControl1.TabIndex := idx;
+    RestoreTab;
+  end;
+end;
+
+procedure TMainForm.StoreTab;
+var
+  idx: integer;
+  tb: TTabItem;
+begin
+  idx := TabControl1.TabIndex;
+  if (idx < 0) or (idx >= TabControl1.Tabs.Count) then
+    Exit;
+
+  tb := TabControl1.Tabs.Objects[idx] as TTabItem;
+  tb.Store(HTML, goback, gofwd);
+end;
+
+procedure TMainForm.RestoreTab;
+var
+  idx: integer;
+  tb: TTabItem;
+begin
+  idx := TabControl1.TabIndex;
+  if (idx < 0) or (idx >= TabControl1.Tabs.Count) then
+    Exit;
+
+  tb := TabControl1.Tabs.Objects[idx] as TTabItem;
+  tb.Restore(HTML, goback, gofwd);
+  Caption := Application.Title + ' - ' + HTML.DocumentTitle;
+end;
+
+procedure TMainForm.TabControl1Changing(Sender: TObject;
+  var AllowChange: Boolean);
+begin
+  StoreTab;
+  AllowChange := True;
+end;
+
+procedure TMainForm.TabControl1Change(Sender: TObject);
+begin
+  RestoreTab;
+end;
+
+procedure TMainForm.HTMLRightClick(Sender: TObject;
+  Parameters: TRightClickParameters);
+var
+  p: TPoint;
+begin
+  newtabUrl := Parameters.URL;
+  GetCursorPos(p);
+  PopupMenu1.Popup(p.X, p.Y);
+end;
+
+procedure TMainForm.Openlinkinnewtab1Click(Sender: TObject);
+var
+  foo: boolean;
+  tb: TTabItem;
+  idx: integer;
+  i: integer;
+begin
+  if newtabUrl = '' then
+    Exit;
+
+  if TabControl1.Tabs.Count > MAXNUMTABS then
+    Exit;
+
+  if not CanOpenInNewTab(newtabUrl) then
+    Exit;
+    
+  StoreTab;
+
+  tb := TTabItem.Create(TabControl1);
+  idx := TabControl1.Tabs.AddObject('(loading...)', tb);
+  if (idx < 0) or (idx >= TabControl1.Tabs.Count) then
+    Exit;
+  TabControl1.Tabs.Objects[idx] := tb;
+  TabControl1.TabIndex := idx;
+  HTMLClick(newtabUrl, foo);
+
+  for i := 0 to goback.Count - 1 do
+    goback.Objects[i].Free;
+  goback.Clear;
+  goback.AddObject(newtabUrl, TScrollPos.Create(0, 0));
+
+  for i := 0 to gofwd.Count - 1 do
+    gofwd.Objects[i].Free;
+  gofwd.Clear;
+end;
+
+procedure TMainForm.Openlink1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  if newtabUrl = '' then
+    Exit;
+
+  HTMLClick(newtabUrl, foo);
+end;
+
+procedure TMainForm.LugBulks1Click(Sender: TObject);
+begin
+  N20171.Visible := FileExists(basedefault + 'lugbulks\2017.txt');
+  N20181.Visible := FileExists(basedefault + 'lugbulks\2018.txt');
 end;
 
 end.

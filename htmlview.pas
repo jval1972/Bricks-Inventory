@@ -39,9 +39,9 @@ uses
   GDIPL2A;
 
 const
-  wm_FormSubmit = wm_User+100;
-  wm_MouseScroll = wm_User+102;
-  wm_UrlAction = wm_User+103;   
+  wm_FormSubmit = wm_User + 100;
+  wm_MouseScroll = wm_User + 102;
+  wm_UrlAction = wm_User + 103;
 
 type
   THTMLViewer = class;
@@ -51,34 +51,32 @@ type
     URL, Target: string;
     Image: TImageObj;
     ImageX, ImageY: integer;
-    ClickWord: WideString;   
+    ClickWord: WideString;
     end;
   TRightClickEvent = procedure(Sender: TObject; Parameters: TRightClickParameters) of Object;
   THotSpotEvent = procedure(Sender: TObject; const SRC: string) of Object;
-  THotSpotClickEvent = procedure(Sender: TObject; const SRC: string;    
+  THotSpotClickEvent = procedure(Sender: TObject; const SRC: string;
                      var Handled: boolean) of Object;
   TProcessingEvent = procedure(Sender: TObject; ProcessingOn: boolean) of Object;
-  TPagePrinted = procedure( Sender: TObject;
-                              Canvas : TCanvas ;
-                              NumPage, W, H: Integer ;
+  TPagePrinted = procedure(Sender: TObject; Canvas: TCanvas; NumPage, W, H: Integer;
                               var StopPrinting : Boolean) of Object;
-  ThtmlPagePrinted = procedure(Sender: TObject; HFViewer: ThtmlViewer;   
+  ThtmlPagePrinted = procedure(Sender: TObject; HFViewer: ThtmlViewer;
                               NumPage: Integer; LastPage: boolean;
                               var XL, XR: integer;
                               var StopPrinting: Boolean) of Object;
   TImageClickEvent = procedure(Sender, Obj: TObject; Button: TMouseButton;
-                       Shift: TShiftState; X, Y: Integer) of Object;   
+                       Shift: TShiftState; X, Y: Integer) of Object;
   TImageOverEvent = procedure(Sender, Obj: TObject; Shift: TShiftState;
                        X, Y: Integer) of Object;
   TMetaRefreshType = procedure(Sender: TObject; Delay: integer; const URL: string) of Object;
-  TParseEvent = procedure(Sender: TObject; var Source: string) of Object;    
+  TParseEvent = procedure(Sender: TObject; var Source: string) of Object;
 
   htOptionEnum = (htOverLinksActive,htNoLinkUnderline,htPrintTableBackground,
                   htPrintBackground, htPrintMonochromeBlack, htShowDummyCaret,
                   htShowVScroll, htNoWheelMouse, htNoLinkHilite);
   ThtmlViewerOptions = set of htOptionEnum;
   ThtProgressEvent = procedure(Sender: TObject; Stage: TProgressStage;
-                   PercentDone: integer) of Object;  
+                   PercentDone: integer) of Object;
 
   TPaintPanel = class(TCustomPanel)
   private
@@ -117,7 +115,7 @@ type
     fScaleX, fScaleY: single;
     FCodePage: integer;
     function GetCursor: TCursor;   
-    procedure SetCursor(Value: TCursor);      
+    procedure SetCursor(Value: TCursor);
   protected
     InCreate: boolean;
     FOnDragDrop: TDragDropEvent;
@@ -240,17 +238,17 @@ type
     function GetScrollPos: integer;
     procedure SetScrollPos(Value: integer);
     function GetScrollBarRange: integer;
-    function GetHScrollPos: integer;      
-    procedure SetHScrollPos(Value: integer);  
-    function GetHScrollBarRange: integer;   
+    function GetHScrollPos: integer;
+    procedure SetHScrollPos(Value: integer);
+    function GetHScrollBarRange: integer;
     procedure SetHistoryIndex(Value: integer);
     function GetPreFontName: TFontName;
     procedure SetPreFontName(Value: TFontName);
     procedure SetFontSize(Value: integer);
     procedure SetHotSpotColor(Value: TColor);
     procedure SetActiveColor(Value: TColor);
-    procedure SetVisitedColor(Value: TColor);   
-    procedure SetVisitedMaxCount(Value: integer);  
+    procedure SetVisitedColor(Value: TColor);
+    procedure SetVisitedMaxCount(Value: integer);
     procedure SetOnBitmapRequest(Handler: TGetBitmapEvent);
     procedure SetOnImageRequest(Handler: TGetImageEvent);
     procedure SetOnScript(Handler: TScriptEvent);
@@ -266,15 +264,15 @@ type
     procedure SetImageCacheCount(Value: integer);
     procedure WMFormSubmit(var Message: TMessage); message WM_FormSubmit;
     procedure WMMouseScroll(var Message: TMessage); message WM_MouseScroll;
-    procedure WMUrlAction(var Message: TMessage); message WM_UrlAction; 
+    procedure WMUrlAction(var Message: TMessage); message WM_UrlAction;
     procedure SetSelLength(Value: integer);
-    procedure SetSelStart(Value: integer);  
-    function GetSelLength: integer;   
-    function GetSelText: WideString;  
+    procedure SetSelStart(Value: integer);
+    function GetSelLength: integer;
+    function GetSelText: WideString;
     procedure SetNoSelect(Value: boolean);
     procedure SetHistoryMaxCount(Value: integer);
     procedure DrawBorder;
-    procedure DoHilite(X, Y: integer); virtual;    
+    procedure DoHilite(X, Y: integer); virtual;
     procedure SetScrollBars(Value: TScrollStyle);
     procedure SetProcessing(Value: boolean);
     procedure SetCharset(Value: TFontCharset);
@@ -282,16 +280,16 @@ type
     function GetNameList: TStringList;
     function GetLinkList: TList;
     procedure SetServerRoot(Value: string);
-    procedure SetOnFileBrowse(Handler: TFileBrowseEvent);   
+    procedure SetOnFileBrowse(Handler: TFileBrowseEvent);
     procedure SetOnObjectClick(Handler: TObjectClickEvent);
     procedure SetOnObjectFocus(Handler: ThtObjectEvent);
     procedure SetOnObjectBlur(Handler: ThtObjectEvent);
-    procedure SetOnObjectChange(Handler: ThtObjectEvent);  
+    procedure SetOnObjectChange(Handler: ThtObjectEvent);
     procedure FormControlEnterEvent(Sender: TObject);
     procedure HandleMeta(Sender: TObject; const HttpEq, Name, Content: string);
     procedure SetOptions(Value: ThtmlViewerOptions);
     procedure DoImage(Sender: TObject; const SRC: string; var Stream: TMemoryStream);
-    procedure SetOnExpandName(Handler: TExpandNameEvent); 
+    procedure SetOnExpandName(Handler: TExpandNameEvent);
     function GetWordAtCursor(X, Y: integer; var St, En: integer; var AWord: WideString): boolean;
     procedure SetOnPanelCreate(Handler: TPanelCreateEvent);
     procedure SetOnPanelDestroy(Handler: TPanelDestroyEvent);
@@ -307,8 +305,8 @@ type
     procedure InitLoad;
     function GetFormData: TFreeList;
     procedure SetFormData(T: TFreeList);
-    function GetIDControl(const ID: string): TObject;    
-    function GetIDDisplay(const ID: string): boolean;    
+    function GetIDControl(const ID: string): TObject;
+    function GetIDDisplay(const ID: string): boolean;
     procedure SetIDDisplay(const ID: string; Value: boolean);
     procedure SetPrintScale(Value: double);
 
@@ -355,7 +353,7 @@ type
     TablePartRec: TTablePartRec;
     Visited: TStringList;     {visited URLs}
 
-    procedure AddVisitedLink(const S: string);  
+    procedure AddVisitedLink(const S: string);
     procedure CheckVisitedLinks;
     procedure UrlAction;
     procedure TriggerUrlAction;
@@ -975,7 +973,7 @@ begin
   if I > 0 then
   begin
     Dest := Copy(FName, I + 1, Length(FName) - I);  {positioning information}
-    FName := Copy(FName, 1, I-1);
+    FName := Copy(FName, 1, I - 1);
   end
   else
     Dest := '';

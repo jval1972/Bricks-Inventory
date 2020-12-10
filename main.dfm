@@ -592,35 +592,6 @@ object MainForm: TMainForm
       WordWrap = False
     end
   end
-  object HTML: THTMLViewer
-    Left = 0
-    Top = 28
-    Width = 1124
-    Height = 318
-    OnHotSpotClick = HTMLHotSpotClick
-    OnImageRequest = HTMLImageRequest
-    OnProgress = HTMLProgress
-    TabOrder = 1
-    Align = alClient
-    DefBackground = clWhite
-    BorderStyle = htNone
-    HistoryMaxCount = 0
-    DefFontName = 'Tahoma'
-    DefPreFontName = 'Courier New'
-    DefFontSize = 10
-    ImageCacheCount = 20
-    NoSelect = False
-    CharSet = DEFAULT_CHARSET
-    PrintMarginLeft = 2.000000000000000000
-    PrintMarginRight = 2.000000000000000000
-    PrintMarginTop = 2.000000000000000000
-    PrintMarginBottom = 2.000000000000000000
-    PrintScale = 1.000000000000000000
-    htOptions = [htPrintTableBackground, htPrintMonochromeBlack, htShowVScroll]
-    OnMouseMove = HTMLMouseMove
-    OnMouseWheel = HTMLMouseWheel
-    OnProcessing = HTMLProcessing
-  end
   object Panel2: TPanel
     Left = 0
     Top = 1
@@ -628,7 +599,7 @@ object MainForm: TMainForm
     Height = 27
     Align = alTop
     Caption = ' '
-    TabOrder = 2
+    TabOrder = 1
     object btn_back: TSpeedButton
       Left = 12
       Top = 6
@@ -940,14 +911,54 @@ object MainForm: TMainForm
       Visible = False
     end
   end
+  object TabControl1: TTabControl
+    Left = 0
+    Top = 28
+    Width = 1124
+    Height = 318
+    Align = alClient
+    TabOrder = 2
+    OnChange = TabControl1Change
+    OnChanging = TabControl1Changing
+    object HTML: THTMLViewer
+      Left = 4
+      Top = 6
+      Width = 1116
+      Height = 308
+      OnHotSpotClick = HTMLHotSpotClick
+      OnImageRequest = HTMLImageRequest
+      OnProgress = HTMLProgress
+      TabOrder = 0
+      Align = alClient
+      DefBackground = clWhite
+      BorderStyle = htNone
+      HistoryMaxCount = 0
+      DefFontName = 'Tahoma'
+      DefPreFontName = 'Courier New'
+      DefFontSize = 10
+      ImageCacheCount = 20
+      NoSelect = False
+      CharSet = DEFAULT_CHARSET
+      PrintMarginLeft = 2.000000000000000000
+      PrintMarginRight = 2.000000000000000000
+      PrintMarginTop = 2.000000000000000000
+      PrintMarginBottom = 2.000000000000000000
+      PrintScale = 1.000000000000000000
+      htOptions = [htPrintTableBackground, htPrintMonochromeBlack, htShowVScroll]
+      OnMouseMove = HTMLMouseMove
+      OnMouseWheel = HTMLMouseWheel
+      OnProcessing = HTMLProcessing
+      OnRightClick = HTMLRightClick
+    end
+  end
   object Timer1: TTimer
     OnTimer = Timer1Timer
-    Left = 136
-    Top = 129
+    Left = 120
+    Top = 41
   end
   object MainMenu1: TMainMenu
-    Left = 224
-    Top = 49
+    Left = 48
+    Top = 41
     object File1: TMenuItem
       Caption = 'File'
       object Import1: TMenuItem
@@ -1018,27 +1029,46 @@ object MainForm: TMainForm
     end
     object Edit1: TMenuItem
       Caption = 'Edit'
+      OnClick = Edit1Click
+      object HtmlCopy1: TMenuItem
+        Caption = 'Copy'
+        ShortCut = 16451
+        OnClick = HtmlCopyClick
+      end
+      object HtmlFind1: TMenuItem
+        Caption = 'Find'
+        ShortCut = 16454
+        OnClick = HtmlFindClick
+      end
+      object HtmlSelectAll1: TMenuItem
+        Caption = 'Select All'
+        ShortCut = 16449
+        OnClick = HtmlSelectAllClick
+      end
+    end
+    object Database1: TMenuItem
+      Caption = 'Database'
       object Set2: TMenuItem
-        Caption = 'Set'
+        Caption = 'Edit Set'
         OnClick = Set2Click
       end
       object Piece2: TMenuItem
-        Caption = 'Piece'
+        Caption = 'Edit Piece'
         OnClick = Piece2Click
       end
-    end
-    object Search1: TMenuItem
-      Caption = 'Search'
+      object N32: TMenuItem
+        Caption = '-'
+      end
       object Set1: TMenuItem
-        Caption = 'Set'
+        Caption = 'Search Set'
         OnClick = Set1Click
       end
       object Piece1: TMenuItem
-        Caption = 'Piece'
+        Caption = 'Search Piece'
         OnClick = Piece1Click
       end
       object Storage1: TMenuItem
-        Caption = 'Storage'
+        Caption = 'Search Storage'
         OnClick = Storage1Click
       end
       object N2: TMenuItem
@@ -1438,6 +1468,7 @@ object MainForm: TMainForm
     end
     object LugBulks1: TMenuItem
       Caption = 'LugBulks'
+      OnClick = LugBulks1Click
       object LUGBULKSuggestions1: TMenuItem
         Caption = 'LUGBULK Suggestions'
         OnClick = LUGBULKSuggestions1Click
@@ -1475,7 +1506,7 @@ object MainForm: TMainForm
           OnClick = LugBulk2017CheapInvertedSlopes1Click
         end
       end
-      object N20172: TMenuItem
+      object N20181: TMenuItem
         Caption = '2018'
         object LugBulk2018CheapParts1: TMenuItem
           Caption = 'LugBulk 2018 Cheap Parts'
@@ -1596,34 +1627,83 @@ object MainForm: TMainForm
     DefaultExt = 'xml'
     Filter = 'Bricklink orders|*.xml'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
-    Left = 72
-    Top = 52
+    Left = 216
+    Top = 44
   end
   object SaveToRebrickableDialog1: TSaveDialog
     DefaultExt = 'csv'
     Filter = 'Rebrickable files (*.csv)|*.csv|All files|*.*'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
-    Left = 312
-    Top = 76
+    Left = 216
+    Top = 156
   end
   object OpenDialog2: TOpenDialog
     DefaultExt = 'csv'
     Filter = 'Rebrickable csv|*.csv|Text files|*.txt'
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
-    Left = 144
-    Top = 52
+    Left = 216
+    Top = 100
   end
   object SaveDialog1: TSaveDialog
     DefaultExt = 'txt'
     Filter = 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
-    Left = 400
-    Top = 68
+    Left = 216
+    Top = 212
   end
   object IdleTimer: TTimer
     Enabled = False
     OnTimer = IdleTimerTimer
-    Left = 200
-    Top = 132
+    Left = 120
+    Top = 92
+  end
+  object FindDialog: TFindDialog
+    Options = [frDown, frHideWholeWord, frDisableWholeWord]
+    OnFind = FindDialogFind
+    Left = 217
+    Top = 271
+  end
+  object PopupMenu1: TPopupMenu
+    OnPopup = PopupMenu1Popup
+    Left = 52
+    Top = 98
+    object Openlink1: TMenuItem
+      Caption = 'Open link'
+      OnClick = Openlink1Click
+    end
+    object Openlinkinnewtab1: TMenuItem
+      Caption = 'Open link in new tab'
+      OnClick = Openlinkinnewtab1Click
+    end
+    object N35: TMenuItem
+      Caption = '-'
+    end
+    object HtmlCopy2: TMenuItem
+      Caption = 'Copy'
+      OnClick = HtmlCopyClick
+    end
+    object HtmlFind2: TMenuItem
+      Caption = 'Find'
+      OnClick = HtmlFindClick
+    end
+    object HtmlSelectAll2: TMenuItem
+      Caption = 'Select All'
+      OnClick = HtmlSelectAllClick
+    end
+    object N34: TMenuItem
+      Caption = '-'
+    end
+    object CloseTab1: TMenuItem
+      Caption = 'Close'
+      OnClick = CloseTabClick
+    end
+  end
+  object PopupMenu2: TPopupMenu
+    Left = 52
+    Top = 154
+    object CloseTab2: TMenuItem
+      Caption = 'Close'
+      OnClick = CloseTabClick
+    end
   end
 end

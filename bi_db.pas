@@ -6372,7 +6372,7 @@ begin
   begin
     ok := True;
     try
-      s.LoadFromFile(basedefault + 'db\db_pieces_alias.txt');
+      S_LoadFromFile(s, basedefault + 'db\db_pieces_alias.txt');
     except
       ok := False;
       Sleep(50);
@@ -6464,7 +6464,7 @@ begin
   begin
     ok := True;
     try
-      s.LoadFromFile(basedefault + 'db\db_pieces_alias.txt');
+      S_LoadFromFile(s, basedefault + 'db\db_pieces_alias.txt');
     except
       ok := False;
       Sleep(50);

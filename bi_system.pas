@@ -124,7 +124,7 @@ end;
 //
 procedure I_Quit;
 begin
-  printf('I_Quit: Terminating CDisplay3D');
+  printf('I_Quit: Terminating BrickInventory'#13#10);
   I_ShutDownTempFiles;
   I_ShutDownIO;
 end;
@@ -143,7 +143,7 @@ end;
 procedure I_FlashCachedOutput;
 begin
   if stdoutbuffer <> nil then
-    stdoutbuffer.SaveToFile('CDisplay3D_stdout.cachedbuffer.txt');
+    stdoutbuffer.SaveToFile('bi_stdout.cachedbuffer.txt');
 end;
 
 //

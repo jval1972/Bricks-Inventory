@@ -31,7 +31,11 @@ procedure backupfile(const fname: string);
 
 function DownloadFile(SourceFile, DestFile: string): Boolean;
 
+function DownloadFileImg(SourceFile, DestFile: string): Boolean;
+
 function DownloadJpgFileToPNG(SourceFile, DestFile: string): Boolean;
+
+function DownloadPngFileToJpg(SourceFile, DestFile: string): Boolean;
 
 function DownloadGIFFileToPNG(SourceFile, DestFile: string): Boolean;
 
@@ -42,11 +46,37 @@ function GetFileCreationTime(sFileName: string): TDateTime;
 function GetPrevAlphanumeric(const s: string): string;
 function GetNextAlphanumeric(const s: string): string;
 
+function InputQuery2(const ACaption, APrompt, APrompt2: string;
+  var Value, Value2: string): Boolean;
+
+function InputTwoIntegers(const ACaption, APrompt, APrompt2: string;
+  var Value, Value2: integer): Boolean;
+
+function CheckValidImageDonwload(const src: string): boolean;
+
+{ Count the number of occurrences of a certain character in a String. }
+function CountChars(const S: string; const C: char): integer;
+function LeftPad(PadString: string; HowMany: integer; PadValue: string): string;
+function RemoveChars(const str: string; numericOnly: boolean): string;
+function ReplaceWhiteSpace(const s: string; const c: char; const strictMode: boolean): string;
+function RemoveHTMLTags(S: string): string;
+{ Return the position of the last occurence of a substring in String. }
+function LastPos(SubStr, S: string): Integer;
+{ Create URI from template replace text between two % }
+function AbsoluteURI(const template, filename, color: string): string;
+function GetHost(s: string): string;
+{ Covert to file content to iner format }
+function LDCadToCSV(const filename: string): string;
+function LDrawToCSV(const filename: string): string;
+
+function MinI(x, y: integer): integer;
+function MaxI(x, y: integer): integer;
+
 implementation
 
 uses
   bi_delphi, bi_db, jpeg, bi_pak, bi_tmp, URLMon, Clipbrd, pngimage, GIFImage,
-  bi_globals;
+  bi_globals, Forms, StdCtrls, Controls, bi_crawler, StrUtils;
 
 function IndexOfString(const hash: THashTable; const s: string): integer;
 begin
@@ -64,7 +94,7 @@ end;
 function MaxI(x, y: integer): integer;
 begin
   if x > y then
-    result := x 
+    result := x
   else
     result := y;
 end;
@@ -310,7 +340,10 @@ var
   m: TMemoryStream;
   tmp: string;
   s1, s2: string;
+  sticker: boolean;
 begin
+  sticker := issticker(piece);
+
   if color = -1 then
     path := 's\'
   else
@@ -325,43 +358,87 @@ begin
   if ps.IOResult <> 0 then
   begin
     ps.Free;
-    entriesHash := THashTable.Create;
-    entries := TStringList.Create;
-
-    PAK_GetEntries(entries);
-    entries.Sort;
-    entriesHash.AssignStringList(entries);
-
-    sTmp := findsimilarimagestring(entriesHash, path);
-
-    entries.Free;
-    entriesHash.Free;
-
-    printf('Image %s not found, retrying ... [%s]'#13#10,[path, sTmp]);
-    if sTmp = path then
-      exit;
-    if sTmp = '' then
-      exit;
-    if sTmp[Length(sTmp)] = '\' then
-      exit;
-    ps := TPakStream.Create(sTmp, pm_full);
-    if ps.IOResult <> 0 then
+    if sticker then
     begin
-      ps.Free;
-      exit;
+      path := '-1\' + piece + '.png';
+      ps := TPakStream.Create(path, pm_full);
+      if ps.IOResult <> 0 then
+      begin
+        ps.Free;
+        path := '9999\' + piece + '.png';
+        ps := TPakStream.Create(path, pm_full);
+        if ps.IOResult <> 0 then
+        begin
+          ps.Free;
+          exit;
+        end;
+      end;
+    end
+    else
+    begin
+      if color = -1 then
+      begin
+        path := '-1\' + piece + '.png';
+        ps := TPakStream.Create(path, pm_full);
+        if ps.IOResult <> 0 then
+        begin
+          ps.Free;
+          path := '9999\' + piece + '.png';
+          ps := TPakStream.Create(path, pm_full);
+          if ps.IOResult <> 0 then
+          begin
+            ps.Free;
+            exit;
+          end;
+        end;
+      end
+      else
+      begin
+        entriesHash := THashTable.Create;
+        entries := TStringList.Create;
+
+        PAK_GetEntries(entries);
+        entries.Sort;
+        entriesHash.AssignStringList(entries);
+
+        sTmp := findsimilarimagestring(entriesHash, path);
+
+        entries.Free;
+        entriesHash.Free;
+
+        printf('Image %s not found, retrying ... [%s]'#13#10,[path, sTmp]);
+        if sTmp = path then
+          exit;
+        if sTmp = '' then
+          exit;
+        if sTmp[Length(sTmp)] = '\' then
+          exit;
+        ps := TPakStream.Create(sTmp, pm_full);
+        if ps.IOResult <> 0 then
+        begin
+          ps.Free;
+          exit;
+        end;
+      end;
     end;
   end;
 
   m := TMemoryStream.Create;
-  m.LoadFromStream(ps);
-  ps.Free;
+  try
+    m.LoadFromStream(ps);
+    ps.Free;
 
-  splitstring(path, s1, s2, '\');
-  tmp := I_NewTempFile(s2);
-  m.SaveToFile(tmp);
-  m.Free;
-  img.Picture.LoadFromFile(tmp);
-
+    splitstring(path, s1, s2, '\');
+    tmp := I_NewTempFile(s2);
+    m.SaveToFile(tmp);
+    try
+      img.Picture.LoadFromFile(tmp);
+    except
+      printf('Image %s is invalid '#13#10,[path]);
+    end;
+  finally
+    m.Free;
+  end;
 end;
 
 function filenamestring(const s: string): string;
@@ -399,6 +476,13 @@ begin
   end;
 end;
 
+function DownloadFileImg(SourceFile, DestFile: string): Boolean;
+begin
+  Result := DownloadFile(SourceFile, DestFile);
+  if Result then
+    Result := CheckValidImageDonwload(DestFile);
+end;
+
 procedure SetClipboardTextWideString(const Text: WideString);
 var
   Count: Integer;
@@ -426,7 +510,7 @@ var
   B: TBitmap;
   P: TPNGObject;
 begin
-  result := DownloadFile(SourceFile, 'tmp1.jpg');
+  result := DownloadFileImg(SourceFile, 'tmp1.jpg');
   if not result then
   begin
     if FileExists('tmp1.jpg') then
@@ -454,13 +538,104 @@ begin
     DeleteFile('tmp1.jpg');
 end;
 
+function DownloadPngFileToJpg(SourceFile, DestFile: string): Boolean;
+var
+  J: TJpegImage;
+  B: TBitmap;
+  P: TPNGObject;
+begin
+  result := DownloadFileImg(SourceFile, 'tmp1.png');
+  if not result then
+  begin
+    if FileExists('tmp1.png') then
+      DeleteFile('tmp1.png');
+    exit;
+  end;
+
+  result := true;
+  J := TJpegImage.Create;
+  B := TBitmap.Create;
+  P := TPNGObject.Create;
+  try
+    P.LoadFromFile('tmp1.png');
+    B.Assign(P);
+    J.Assign(B);
+    J.SaveToFile(DestFile);
+  except
+    result := false;
+  end;
+  J.Free;
+  B.Free;
+  P.Free;
+
+  if FileExists('tmp1.png') then
+    DeleteFile('tmp1.png');
+end;
+
+function IsLikeJpeg(const fname: string): boolean;
+var
+  f: TFileStream;
+  b: byte;
+begin
+  f := TFileStream.Create(fname, fmOpenRead);
+
+  f.Position := 6;
+  f.Read(b, 1);
+  if b <> 74 then
+  begin
+    result := false;
+    f.Free;
+    exit;
+  end;
+
+  f.Position := 7;
+  f.Read(b, 1);
+  if b <> 70 then
+  begin
+    result := false;
+    f.Free;
+    exit;
+  end;
+
+  f.Position := 7;
+  f.Read(b, 1);
+  if b <> 70 then
+  begin
+    result := false;
+    f.Free;
+    exit;
+  end;
+
+  f.Position := 8;
+  f.Read(b, 1);
+  if b <> 73 then
+  begin
+    result := false;
+    f.Free;
+    exit;
+  end;
+
+  f.Position := 9;
+  f.Read(b, 1);
+  if b <> 70 then
+  begin
+    result := false;
+    f.Free;
+    exit;
+  end;
+
+  result := true;
+  f.Free;
+
+end;
+
 function DownloadGIFFileToPNG(SourceFile, DestFile: string): Boolean;
 var
   J: TGIFImage;
   B: TBitmap;
   P: TPNGObject;
 begin
-  result := DownloadFile(SourceFile, 'tmp1.gif');
+  result := DownloadFileImg(SourceFile, 'tmp1.gif');
   if not result then
   begin
     if FileExists('tmp1.gif') then
@@ -468,21 +643,28 @@ begin
     exit;
   end;
 
-  result := true;
-  J := TGIFImage.Create;
-  B := TBitmap.Create;
-  P := TPNGObject.Create;
-  try
-    J.LoadFromFile('tmp1.gif');
-    B.Assign(J);
-    P.Assign(B);
-    P.SaveToFile(DestFile);
-  except
-    result := false;
+  if IsLikeJpeg('tmp1.gif') then
+  begin
+    Result := DownloadJpgFileToPNG(SourceFile, DestFile);
+  end
+  else
+  begin
+    result := true;
+    J := TGIFImage.Create;
+    B := TBitmap.Create;
+    P := TPNGObject.Create;
+    try
+      J.LoadFromFile('tmp1.gif');
+      B.Assign(J);
+      P.Assign(B);
+      P.SaveToFile(DestFile);
+    except
+      result := false;
+    end;
+    J.Free;
+    B.Free;
+    P.Free;
   end;
-  J.Free;
-  B.Free;
-  P.Free;
 
   if FileExists('tmp1.gif') then
     DeleteFile('tmp1.gif');
@@ -608,5 +790,440 @@ begin
   end;
 end;
 
+function GetAveCharSize(Canvas: TCanvas): TPoint;
+var
+  I: Integer;
+  Buffer: array[0..51] of Char;
+begin
+  for I := 0 to 25 do Buffer[I] := Chr(I + Ord('A'));
+  for I := 0 to 25 do Buffer[I + 26] := Chr(I + Ord('a'));
+  GetTextExtentPoint(Canvas.Handle, Buffer, 52, TSize(Result));
+  Result.X := Result.X div 52;
+end;
+
+function InputQuery2(const ACaption, APrompt, APrompt2: string;
+  var Value, Value2: string): Boolean;
+var
+  Form: TForm;
+  Prompt: TLabel;
+  Prompt2: TLabel;
+  Edit: TEdit;
+  Edit2: TEdit;
+  DialogUnits: TPoint;
+  ButtonTop, ButtonWidth, ButtonHeight: Integer;
+begin
+  Result := False;
+  Form := TForm.Create(Application);
+  with Form do
+    try
+      Canvas.Font := Font;
+      DialogUnits := GetAveCharSize(Canvas);
+      BorderStyle := bsDialog;
+      Caption := ACaption;
+      ClientWidth := MulDiv(180, DialogUnits.X, 4);
+      Position := poScreenCenter;
+
+      Prompt := TLabel.Create(Form);
+      with Prompt do
+      begin
+        Parent := Form;
+        Caption := APrompt;
+        Left := MulDiv(8, DialogUnits.X, 4);
+        Top := MulDiv(8, DialogUnits.Y, 8);
+        Constraints.MaxWidth := MulDiv(164, DialogUnits.X, 4);
+        WordWrap := True;
+      end;
+      Edit := TEdit.Create(Form);
+      with Edit do
+      begin
+        Parent := Form;
+        Left := Prompt.Left;
+        Top := Prompt.Top + Prompt.Height + 5;
+        Width := MulDiv(164, DialogUnits.X, 4);
+        MaxLength := 255;
+        Text := Value;
+        SelectAll;
+      end;
+
+      Prompt2 := TLabel.Create(Form);
+      with Prompt2 do
+      begin
+        Parent := Form;
+        Caption := APrompt2;
+        Left := MulDiv(8, DialogUnits.X, 4);
+        Top := MulDiv(8, DialogUnits.Y, 8) + Edit.Top + Edit.Height + 8;
+        Constraints.MaxWidth := MulDiv(164, DialogUnits.X, 4);
+        WordWrap := True;
+      end;
+
+      Edit2 := TEdit.Create(Form);
+      with Edit2 do
+      begin
+        Parent := Form;
+        Left := Prompt2.Left;
+        Top := Prompt2.Top + Prompt2.Height + 5;
+        Width := MulDiv(164, DialogUnits.X, 4);
+        MaxLength := 255;
+        Text := Value2;
+        SelectAll;
+      end;
+
+      ButtonTop := Edit2.Top + Edit2.Height + 15;
+      ButtonWidth := MulDiv(50, DialogUnits.X, 4);
+      ButtonHeight := MulDiv(14, DialogUnits.Y, 8);
+      with TButton.Create(Form) do
+      begin
+        Parent := Form;
+        Caption := 'OK';
+        ModalResult := mrOk;
+        Default := True;
+        SetBounds(MulDiv(38, DialogUnits.X, 4), ButtonTop, ButtonWidth,
+          ButtonHeight);
+      end;
+      with TButton.Create(Form) do
+      begin
+        Parent := Form;
+        Caption := 'Cancel';
+        ModalResult := mrCancel;
+        Cancel := True;
+        SetBounds(MulDiv(92, DialogUnits.X, 4), Edit2.Top + Edit2.Height + 15,
+          ButtonWidth, ButtonHeight);
+        Form.ClientHeight := Top + Height + 13;
+      end;
+      if ShowModal = mrOk then
+      begin
+        Value := Edit.Text;
+        Value2 := Edit2.Text;
+        Result := True;
+      end;
+    finally
+      Form.Free;
+    end;
+end;
+
+
+function InputTwoIntegers(const ACaption, APrompt, APrompt2: string;
+  var Value, Value2: integer): Boolean;
+var
+  Form: TForm;
+  Prompt: TLabel;
+  Prompt2: TLabel;
+  Edit: TEdit;
+  Edit2: TEdit;
+  DialogUnits: TPoint;
+  ButtonTop, ButtonWidth, ButtonHeight: Integer;
+begin
+  Result := False;
+  Form := TForm.Create(Application);
+  with Form do
+    try
+      Canvas.Font := Font;
+      DialogUnits := GetAveCharSize(Canvas);
+      BorderStyle := bsDialog;
+      Caption := ACaption;
+      ClientWidth := MulDiv(180, DialogUnits.X, 4);
+      Position := poScreenCenter;
+
+      Prompt := TLabel.Create(Form);
+      with Prompt do
+      begin
+        Parent := Form;
+        Caption := APrompt;
+        Left := MulDiv(8, DialogUnits.X, 4);
+        Top := MulDiv(8, DialogUnits.Y, 8);
+        Constraints.MaxWidth := MulDiv(164, DialogUnits.X, 4);
+        WordWrap := True;
+      end;
+      Edit := TEdit.Create(Form);
+      with Edit do
+      begin
+        Parent := Form;
+        Left := Prompt.Left;
+        Top := Prompt.Top + Prompt.Height + 5;
+        Width := MulDiv(164, DialogUnits.X, 4);
+        MaxLength := 255;
+        Text := itoa(Value);
+        SelectAll;
+      end;
+
+      Prompt2 := TLabel.Create(Form);
+      with Prompt2 do
+      begin
+        Parent := Form;
+        Caption := APrompt2;
+        Left := MulDiv(8, DialogUnits.X, 4);
+        Top := MulDiv(8, DialogUnits.Y, 8) + Edit.Top + Edit.Height + 8;
+        Constraints.MaxWidth := MulDiv(164, DialogUnits.X, 4);
+        WordWrap := True;
+      end;
+
+      Edit2 := TEdit.Create(Form);
+      with Edit2 do
+      begin
+        Parent := Form;
+        Left := Prompt2.Left;
+        Top := Prompt2.Top + Prompt2.Height + 5;
+        Width := MulDiv(164, DialogUnits.X, 4);
+        MaxLength := 255;
+        Text := itoa(Value2);
+        SelectAll;
+      end;
+
+      ButtonTop := Edit2.Top + Edit2.Height + 15;
+      ButtonWidth := MulDiv(50, DialogUnits.X, 4);
+      ButtonHeight := MulDiv(14, DialogUnits.Y, 8);
+      with TButton.Create(Form) do
+      begin
+        Parent := Form;
+        Caption := 'OK';
+        ModalResult := mrOk;
+        Default := True;
+        SetBounds(MulDiv(38, DialogUnits.X, 4), ButtonTop, ButtonWidth,
+          ButtonHeight);
+      end;
+      with TButton.Create(Form) do
+      begin
+        Parent := Form;
+        Caption := 'Cancel';
+        ModalResult := mrCancel;
+        Cancel := True;
+        SetBounds(MulDiv(92, DialogUnits.X, 4), Edit2.Top + Edit2.Height + 15,
+          ButtonWidth, ButtonHeight);
+        Form.ClientHeight := Top + Height + 13;
+      end;
+      if ShowModal = mrOk then
+      begin
+        Value := atoi(Edit.Text, -1);
+        Value2 := atoi(Edit2.Text, -1);
+        Result := True;
+      end;
+    finally
+      Form.Free;
+    end;
+end;
+
+function CheckValidImageDonwload(const src: string): boolean;
+var
+  f: TFileStream;
+  b: Byte;
+begin
+  result := false;
+  if not fexists(src) then
+    exit;
+  f := TFileStream.Create(src, fmOpenRead or fmShareDenyWrite);
+  if f.Size = 0 then
+  begin
+    f.Free;
+    fdelete(src);
+    Exit;
+  end;
+  f.Read(b, 1);
+  if b = Ord('<') then
+  begin
+    f.Free;
+    fdelete(src);
+    Exit;
+  end;
+  if b = 9 then
+  begin
+    f.Free;
+    fdelete(src);
+    Exit;
+  end;
+  f.free;
+  result := true;
+end;
+
+function CountChars(const S: string; const C: char): integer;
+var
+  i: Integer;
+begin
+  result := 0;
+  for i := 1 to Length(S) do
+    if S[i] = C then inc(result);
+end;
+
+function RemoveHTMLTags(S: string): string;
+var
+  TagBegin, TagEnd, TagLength: integer;
+begin
+  TagBegin := Pos( '<', S);      // search position of first < 
+
+  while (TagBegin > 0) do begin  // while there is a < in S
+    TagEnd := Pos('>', S);              // find the matching > 
+    TagLength := TagEnd - TagBegin + 1;
+    Delete(S, TagBegin, TagLength);     // delete the tag 
+    TagBegin:= Pos( '<', S);            // search for next <
+  end;
+
+  Result := S;                   // give the result
+end;
+
+function LastPos(SubStr, S: string): Integer;
+var
+  Found, Len, Pos: integer;
+begin
+  Pos := Length(S);
+  Len := Length(SubStr);
+  Found := 0;
+  while (Pos > 0) and (Found = 0) do
+  begin
+    if Copy(S, Pos, Len) = SubStr then
+      Found := Pos;
+    Dec(Pos);
+  end;
+  LastPos := Found;
+end;
+
+function LeftPad(PadString: string; HowMany: integer; PadValue: string): string;
+var
+   Counter : integer;
+   x : integer;
+   NewString : string;
+begin
+   Counter := HowMany - Length(PadString);
+   for x := 1 to Counter do
+   begin
+      NewString := NewString + PadValue;
+   end;
+   Result := NewString + PadString;
+end;
+
+function ReplaceWhiteSpace(const s: string; const c: char; const strictMode: boolean): string;
+var
+  i: integer;
+  InvalidChars : set of char;
+begin
+  Result := s;
+  InvalidChars := [#3..#10,#13];
+  if strictMode then
+    InvalidChars := InvalidChars +[#32];
+  for i := 1 to Length(Result) do
+    if Result[i] in InvalidChars then
+      Result[i] := c;
+end;
+
+function RemoveChars(const str: string; numericOnly: boolean): string;
+const
+  AlphaChars : set of char =
+    ['a'..'z','A'..'Z'];
+var
+  i, Count: Integer;
+  InvalidChars : set of char;
+begin
+  InvalidChars := eSpecialChars;
+  if numericOnly then
+    InvalidChars := InvalidChars + AlphaChars + [' '] - [DecimalSeparator];
+
+  SetLength(Result, Length(str));
+  Count := 0;
+  for i := 1 to Length(str) do
+    if not (str[i] in InvalidChars) then
+    begin
+      inc(Count);
+      Result[Count] := str[i];
+    end;
+  SetLength(Result, Count);
+end;
+
+function AbsoluteURI(const template, filename, color: string): string;
+var
+  ident: string;
+begin
+  ident:= ExtractFileName(filename);
+  if Pos('.',ident) > 0 then
+    ident := Copy(ident, 0, Pos('.', ident) - 1);
+
+  Result := StringReplace(template, '%file%', filename, [rfReplaceAll]);
+  Result := StringReplace(Result, '%color%', color, [rfReplaceAll]);
+  Result := StringReplace(Result, '%id%', ident, [rfReplaceAll]);
+end;
+
+function GetHost(s: string): string;
+var
+  l, n: integer;
+begin
+  n := Pos('//', s);
+  l := PosEx('/', s,n + 2);
+  Result := Copy(s, 0, l);
+end;
+
+function LDCadToCSV(const filename: string): string;
+var
+  str: TStringList;
+  i: integer;
+  line, part, color, npart, unused: string;
+begin
+  str := TStringList.Create;
+  Result := '';
+  try
+    str.LoadFromFile(filename);
+    for i := 0 to str.Count - 1 do
+    begin
+      line := ReplaceWhiteSpace(Trim(str[i]), '_', true);
+      if Pos(':', line) <> 0 then
+      begin
+        splitstring(line, part, line, ':');
+        splitstring(line, unused, color, npart, '_');
+        color := Copy(color, Pos('=', color) + 1, Length(color) - Pos('=', color) - 1);
+        npart := Copy(npart, Pos('=', npart) + 1, Length(npart) - Pos('=', npart) - 1);
+
+        Result := Format('%s%s, %s, %s%s',[Result, part, color, npart, sLineBreak]);
+      end;
+    end;
+  finally
+    str.Free;
+  end;
+end;
+
+function LDrawToCSV(const filename: string): string;
+var
+  str, ctx, inv: TStrings;
+  color, part, data, extension: string;
+  i, n, l: integer;
+begin
+  Result := '';
+  str := TStringList.Create;  // single line in file
+  ctx := TStringList.Create;  // content of file
+  inv := TStringList.Create;  // inventory part,color:count
+
+  if FileExists(filename) then
+  try
+    ctx.LoadFromFile(filename);
+    inv.NameValueSeparator := ',';
+    for i := 0 to ctx.Count - 1 do
+    begin
+      ctx[i] := ReplaceWhiteSpace(ctx[i], #32, false);
+      str.Clear;
+      ExtractStrings([#32], [], PChar(ctx[i]), str);
+
+      if str.Count > 2 then
+      begin
+        color := str[1];
+        part := TrimRight(str[str.Count - 1]);
+        extension := ExtractFileExt(part);
+        if (str[0] = '1') and (extension = '.dat') then
+        begin
+          part := Copy(part, 1, Length(part) - Length(extension));
+          data := part + inv.NameValueSeparator + color;
+          n := inv.IndexOf(data);
+          if n = -1 then
+            inv.AddObject(data, TObject(1))
+          else
+          begin
+            l := integer(inv.Objects[n]) + 1;
+            inv.Objects[n] := TObject(l);
+          end;
+        end;
+      end;
+    end;
+    for i := 0 to inv.Count - 1 do
+      Result := Format('%s%s, %d%s', [Result ,inv.Strings[i] ,integer(inv.Objects[i]), sLineBreak]);
+  finally
+    FreeAndNil(ctx);
+    FreeAndNil(str);
+    FreeAndNil(inv);
+  end;
+end;
 
 end.

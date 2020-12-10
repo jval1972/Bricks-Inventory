@@ -1,12 +1,11 @@
-object SplashForm: TSplashForm
-  Left = 317
-  Top = 126
+object MosaicFormPlates: TMosaicFormPlates
+  Left = 308
+  Top = 173
   BorderIcons = []
-  BorderStyle = bsNone
-  BorderWidth = 1
-  Caption = 'Loading...'
-  ClientHeight = 72
-  ClientWidth = 329
+  BorderStyle = bsDialog
+  Caption = 'Mosaic (Plates)'
+  ClientHeight = 561
+  ClientWidth = 984
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -546,35 +545,527 @@ object SplashForm: TSplashForm
     000000000000000000000000000000000000000000000000000000000000}
   OldCreateOrder = False
   Position = poScreenCenter
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 12
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 329
-    Height = 72
-    Align = alClient
+    Width = 984
+    Height = 121
+    Align = alTop
+    BevelOuter = bvNone
     Caption = ' '
     TabOrder = 0
-    object Label1: TLabel
-      Left = 18
+    object Label3: TLabel
+      Left = 36
       Top = 6
-      Width = 80
-      Height = 20
-      Caption = 'Loading...'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'MS Sans Serif'
-      Font.Style = [fsBold]
-      ParentFont = False
+      Width = 35
+      Height = 12
+      Caption = 'Image: '
+      FocusControl = Edit1
     end
-    object ProgressBar1: TProgressBar
-      Left = 18
-      Top = 36
-      Width = 295
-      Height = 15
+    object Image1: TImage
+      Left = 480
+      Top = 6
+      Width = 96
+      Height = 96
+      Picture.Data = {
+        07544269746D617036030000424D360300000000000036000000280000001000
+        000010000000010018000000000000030000130B0000130B0000000000000000
+        0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+        FFFF}
+    end
+    object Edit1: TEdit
+      Left = 78
+      Top = 6
+      Width = 325
+      Height = 20
+      ReadOnly = True
       TabOrder = 0
     end
+    object Button1: TButton
+      Left = 408
+      Top = 6
+      Width = 43
+      Height = 19
+      Caption = 'Load'
+      TabOrder = 1
+      OnClick = Button1Click
+    end
+    object Panel9: TPanel
+      Left = 180
+      Top = 30
+      Width = 127
+      Height = 73
+      Caption = ' '
+      TabOrder = 2
+      object Label4: TLabel
+        Left = 12
+        Top = 42
+        Width = 29
+        Height = 12
+        Caption = 'Used: '
+        FocusControl = EditCostUsed
+      end
+      object Label5: TLabel
+        Left = 12
+        Top = 24
+        Width = 27
+        Height = 12
+        Caption = 'New: '
+        FocusControl = EditCostNew
+      end
+      object Panel10: TPanel
+        Left = 1
+        Top = 1
+        Width = 125
+        Height = 18
+        Align = alTop
+        BevelOuter = bvNone
+        Caption = 'Estimated Cost'
+        Color = 8404992
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 0
+      end
+      object EditCostNew: TEdit
+        Left = 54
+        Top = 24
+        Width = 64
+        Height = 21
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 1
+        Text = ' '
+      end
+      object EditCostUsed: TEdit
+        Left = 54
+        Top = 42
+        Width = 64
+        Height = 21
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 2
+        Text = ' '
+      end
+    end
+    object Panel12: TPanel
+      Left = 12
+      Top = 30
+      Width = 151
+      Height = 73
+      Caption = ' '
+      TabOrder = 3
+      object Label1: TLabel
+        Left = 123
+        Top = 24
+        Width = 28
+        Height = 12
+        Caption = 'Label1'
+        FocusControl = TrackBar1
+      end
+      object Label2: TLabel
+        Left = 123
+        Top = 48
+        Width = 28
+        Height = 12
+        Caption = 'Label2'
+        FocusControl = TrackBar2
+      end
+      object Panel13: TPanel
+        Left = 1
+        Top = 1
+        Width = 149
+        Height = 18
+        Align = alTop
+        BevelOuter = bvNone
+        Caption = 'Dimentions'
+        Color = 8404992
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 0
+        OnDblClick = Panel13DblClick
+      end
+      object TrackBar1: TTrackBar
+        Left = 6
+        Top = 24
+        Width = 113
+        Height = 21
+        Max = 256
+        Min = 1
+        Frequency = 8
+        Position = 48
+        TabOrder = 1
+        OnChange = TrackBar1Change
+      end
+      object TrackBar2: TTrackBar
+        Left = 6
+        Top = 48
+        Width = 113
+        Height = 21
+        Max = 256
+        Min = 1
+        Frequency = 8
+        Position = 48
+        TabOrder = 2
+        OnChange = TrackBar2Change
+      end
+    end
+    object Panel14: TPanel
+      Left = 324
+      Top = 30
+      Width = 127
+      Height = 73
+      Caption = ' '
+      TabOrder = 4
+      object Panel15: TPanel
+        Left = 1
+        Top = 1
+        Width = 125
+        Height = 18
+        Align = alTop
+        BevelOuter = bvNone
+        Caption = 'Color Match Mode'
+        Color = 8404992
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 0
+      end
+      object RadioGroup1: TRadioGroup
+        Left = 19
+        Top = 19
+        Width = 90
+        Height = 48
+        ItemIndex = 0
+        Items.Strings = (
+          'RGV'
+          'YUV')
+        TabOrder = 1
+        OnClick = RadioGroup1Click
+      end
+    end
+  end
+  object Panel2: TPanel
+    Left = 0
+    Top = 531
+    Width = 984
+    Height = 30
+    Align = alBottom
+    BevelOuter = bvNone
+    Caption = ' '
+    TabOrder = 1
+    object Panel3: TPanel
+      Left = 794
+      Top = 0
+      Width = 190
+      Height = 30
+      Align = alRight
+      BevelOuter = bvNone
+      Caption = ' '
+      TabOrder = 0
+      object Button2: TButton
+        Left = 36
+        Top = 6
+        Width = 56
+        Height = 19
+        Caption = 'OK'
+        ModalResult = 1
+        TabOrder = 0
+      end
+      object Button3: TButton
+        Left = 108
+        Top = 6
+        Width = 56
+        Height = 19
+        Caption = 'Cancel'
+        ModalResult = 2
+        TabOrder = 1
+      end
+    end
+  end
+  object Panel4: TPanel
+    Left = 0
+    Top = 121
+    Width = 218
+    Height = 410
+    Align = alLeft
+    BevelOuter = bvNone
+    Caption = ' '
+    TabOrder = 2
+    object Panel5: TPanel
+      Left = 0
+      Top = 0
+      Width = 109
+      Height = 410
+      Align = alLeft
+      BevelOuter = bvNone
+      Caption = 'Panel5'
+      TabOrder = 0
+      object CheckListBox1: TCheckListBox
+        Left = 0
+        Top = 18
+        Width = 109
+        Height = 392
+        Align = alClient
+        ItemHeight = 12
+        Items.Strings = (
+          'Black')
+        TabOrder = 0
+        OnClick = CheckListBox1Click
+      end
+      object Panel6: TPanel
+        Left = 0
+        Top = 0
+        Width = 109
+        Height = 18
+        Align = alTop
+        Caption = 'Use Colors: '
+        Color = 8404992
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 1
+      end
+    end
+    object Panel7: TPanel
+      Left = 109
+      Top = 0
+      Width = 109
+      Height = 410
+      Align = alClient
+      BevelOuter = bvNone
+      Caption = 'Panel5'
+      TabOrder = 1
+      object CheckListBox2: TCheckListBox
+        Left = 0
+        Top = 18
+        Width = 109
+        Height = 392
+        Align = alClient
+        ItemHeight = 12
+        Items.Strings = (
+          '3024')
+        TabOrder = 0
+        OnClick = CheckListBox2Click
+      end
+      object Panel8: TPanel
+        Left = 0
+        Top = 0
+        Width = 109
+        Height = 18
+        Align = alTop
+        Caption = 'Use Parts: '
+        Color = 8404992
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 1
+      end
+    end
+  end
+  object Panel11: TPanel
+    Left = 218
+    Top = 121
+    Width = 766
+    Height = 410
+    Align = alClient
+    BevelOuter = bvNone
+    Caption = ' '
+    TabOrder = 3
+    object ScrollBox1: TScrollBox
+      Left = 0
+      Top = 18
+      Width = 766
+      Height = 392
+      Align = alClient
+      AutoSize = True
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      TabOrder = 0
+      object Image2: TImage
+        Left = 0
+        Top = 0
+        Width = 16
+        Height = 16
+        Cursor = crHandPoint
+        AutoSize = True
+        Picture.Data = {
+          07544269746D617036030000424D360300000000000036000000280000001000
+          000010000000010018000000000000030000130B0000130B0000000000000000
+          0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFF}
+        OnClick = Image2Resize
+      end
+    end
+    object Panel16: TPanel
+      Left = 0
+      Top = 0
+      Width = 766
+      Height = 18
+      Align = alTop
+      Caption = ' '
+      TabOrder = 1
+      object SpeedButton1: TSpeedButton
+        Left = 12
+        Top = 1
+        Width = 17
+        Height = 16
+        Glyph.Data = {
+          EE030000424DEE03000000000000360000002800000012000000110000000100
+          180000000000B8030000130B0000130B00000000000000000000FFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF800000800000800000
+          800000800000800000800000800000800000FFFFFFFFFFFF0000FFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF800000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFF800000FFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFF800000FFFFFF000000000000000000000000000000FFFFFF80
+          0000FFFFFFFFFFFF0000FFFFFF00000000000000000000000000000000000080
+          0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF800000FFFFFFFFFFFF
+          0000FFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF800000FFFFFF000000
+          000000000000000000000000FFFFFF800000FFFFFFFFFFFF0000FFFFFF000000
+          FFFFFF000000000000000000000000800000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFF800000FFFFFFFFFFFF0000FFFFFF000000FFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFF800000FFFFFF000000000000FFFFFF80000080000080000080
+          0000FFFFFFFFFFFF0000FFFFFF000000FFFFFF00000000000000000000000080
+          0000FFFFFFFFFFFFFFFFFFFFFFFF800000FFFFFF800000FFFFFFFFFFFFFFFFFF
+          0000FFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF800000FFFFFFFFFFFF
+          FFFFFFFFFFFF800000800000FFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFF000000
+          FFFFFF000000000000FFFFFF0000008000008000008000008000008000008000
+          00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFF000000FFFFFFFFFFFFFFFF
+          FFFFFFFF000000FFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFF0000FFFFFF000000FFFFFFFFFFFFFFFFFFFFFFFF00000000
+          0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          0000FFFFFF000000000000000000000000000000000000FFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000}
+        OnClick = SpeedButton1Click
+      end
+      object SpeedButton2: TSpeedButton
+        Left = 30
+        Top = 1
+        Width = 17
+        Height = 16
+        Glyph.Data = {
+          EE030000424DEE03000000000000360000002800000012000000110000000100
+          180000000000B8030000130B0000130B00000000000000000000FEFEFEF4F4F4
+          FBFBFBFFFFFFF9F9F9F6F6F6FEFEFEFFFFFFFFFFFFFAFAFAFDFDFDF9F9F9F9F9
+          F9FCFCFCB6B6B61717171414141414140080FFFFFFF1F1F1FAFAFAF4F4F4F4F4
+          F4FDFDFDFEFEFEFAFAFAFFFFFFFAFAFAFEFEFEFEFEFEFCFCFCA5A5A522222204
+          0404101010C5C5C50000F9F9F9F9F9F9FDFDFDFBFBFBF9F9F9F8F8F8F8F8F8FD
+          FDFDFDFDFDFDFDFDF1F1F1F8F8F8A0A0A0313131020202222222B4B4B4FBFBFB
+          0000FCFCFCF9F9F9FCFCFCFDFDFDB8B8B86C6C6C7070707272726C6C6CE4E4E4
+          F4F4F49C9C9C333333030303303030A8A8A8FEFEFEF8F8F8B204FFFFFFFAFAFA
+          ABABAB8C8C8C8181817676767676767272727474748585858A8A8A3333330202
+          02313131A0A0A0FFFFFFFEFEFEF8F8F8AB04FBFBFBB6B6B66F6F6F595959A6A6
+          A6FCFCFCF7F7F7F3F3F3F9F9F96D6D6D5959592020203131319D9D9DFDFDFDFE
+          FEFEFFFFFFFFFFFF0080F6F6F62C2C2CB4B4B4F9F9F9FAFAFAFFFFFFFEFEFEFB
+          FBFBF7F7F7F3F3F3FAFAFA5959598C8C8CFCFCFCFAFAFAFCFCFCFFFFFFFEFEFE
+          0000E2E2E2404040BBBBBBFDFDFDFEFEFEFEFEFEFCFCFCF2F2F2FEFEFEFEFEFE
+          F6F6F67171718C8C8CEAEAEAFEFEFEFFFFFFFFFFFFFAFAFAAB040C0C0CC7C7C7
+          FAFAFAFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF9F9F97474
+          746E6E6EF9F9F9FBFBFBFFFFFFF9F9F97000040404D3D3D3FAFAFAFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFBFBFB7171716C6C6CFBFBFBF4
+          F4F4F7F7F7FEFEFEAF04010101D3D3D3FEFEFEFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFF9F9F9787878646464EAEAEAFCFCFCFCFCFCF8F8F8
+          0080000000D3D3D3FDFDFDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFDFDFD767676686868F4F4F4FAFAFAF6F6F6FBFBFB00008787877A7A7A
+          D5D5D5FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA6A6A67C7C
+          7CB5B5B5FDFDFDFAFAFAF8F8F8FFFFFF0A00FFFFFF2C2C2CB3B3B3FFFFFFFFFF
+          FFFEFEFEFCFCFCFEFEFEF7F7F7F7F7F7FBFBFB595959878787F9F9F9FDFDFDF9
+          F9F9FEFEFEF9F9F9FA0BFEFEFE6A6A6A959595B3B3B3D7D7D7FCFCFCF8F8F8FC
+          FCFCFEFEFEBCBCBCAFAFAF707070AEAEAEFDFDFDFBFBFBF8F8F8FEFEFEF5F5F5
+          0000FDFDFDFEFEFE6A6A6A2C2C2C7A7A7AD3D3D3D1D1D1CBCBCBD1D1D13D3D3D
+          2C2C2CB2B2B2FBFBFBFCFCFCFCFCFCFEFEFEFFFFFFFFFFFF0080FEFEFEFBFBFB
+          FEFEFEFFFFFF878787020202070707080808040404DFDFDFFEFEFEFFFFFFF7F7
+          F7F7F7F7FFFFFFFFFFFFFFFFFFFCFCFC7400}
+        OnClick = Image2Resize
+      end
+    end
+  end
+  object OpenPictureDialog1: TOpenPictureDialog
+    Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
+    Left = 56
+    Top = 189
   end
 end

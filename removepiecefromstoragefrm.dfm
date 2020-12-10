@@ -1,9 +1,11 @@
 object RemovePieceFromStorageForm: TRemovePieceFromStorageForm
   Left = 490
   Top = 268
-  Width = 553
-  Height = 260
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
   Caption = 'Remove piece from storage'
+  ClientHeight = 221
+  ClientWidth = 537
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -554,28 +556,40 @@ object RemovePieceFromStorageForm: TRemovePieceFromStorageForm
   object Label5: TLabel
     Left = 16
     Top = 144
-    Width = 42
-    Height = 13
+    Width = 55
+    Height = 16
     Caption = 'Remove '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
   end
   object Label2: TLabel
-    Left = 128
+    Left = 144
     Top = 144
-    Width = 103
-    Height = 13
+    Width = 129
+    Height = 16
     Caption = 'pieces from storage? '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
   end
   object Label1: TLabel
     Left = 142
     Top = 16
-    Width = 345
+    Width = 355
     Height = 81
     AutoSize = False
     Caption = '       '
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -16
-    Font.Name = 'Tahoma'
+    Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
     ParentFont = False
     WordWrap = True
@@ -590,37 +604,55 @@ object RemovePieceFromStorageForm: TRemovePieceFromStorageForm
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -16
-    Font.Name = 'Tahoma'
+    Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
     ParentFont = False
     WordWrap = True
   end
   object Button1: TButton
-    Left = 340
+    Left = 420
     Top = 176
     Width = 75
     Height = 25
     Caption = 'OK'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
     ModalResult = 1
+    ParentFont = False
     TabOrder = 0
   end
   object Button2: TButton
-    Left = 252
+    Left = 332
     Top = 176
     Width = 75
     Height = 25
     Cancel = True
     Caption = 'Cancel'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
     ModalResult = 2
+    ParentFont = False
     TabOrder = 1
   end
   object Edit1: TEdit
-    Left = 64
+    Left = 80
     Top = 144
     Width = 57
-    Height = 21
+    Height = 24
     BiDiMode = bdLeftToRight
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
     ParentBiDiMode = False
+    ParentFont = False
     TabOrder = 2
     Text = '0'
   end
@@ -630,6 +662,12 @@ object RemovePieceFromStorageForm: TRemovePieceFromStorageForm
     Width = 33
     Height = 33
     Caption = ' '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 3
   end
 end

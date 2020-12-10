@@ -1,7 +1,7 @@
 object frmCompare2Sets: TfrmCompare2Sets
   Left = 325
   Top = 126
-  BorderIcons = []
+  BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Compare sets'
   ClientHeight = 132
@@ -550,37 +550,91 @@ object frmCompare2Sets: TfrmCompare2Sets
   object Label1: TLabel
     Left = 42
     Top = 24
-    Width = 26
-    Height = 12
+    Width = 33
+    Height = 16
     Caption = 'Set1: '
     FocusControl = Edit1
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
   end
   object Label2: TLabel
     Left = 42
     Top = 48
-    Width = 26
-    Height = 12
+    Width = 33
+    Height = 16
     Caption = 'Set2: '
     FocusControl = Edit2
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
+  object SpeedButton1: TSpeedButton
+    Left = 176
+    Top = 16
+    Width = 23
+    Height = 22
+    Caption = '...'
+    Flat = True
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    OnClick = SpeedButton1Click
+  end
+  object SpeedButton2: TSpeedButton
+    Left = 176
+    Top = 48
+    Width = 23
+    Height = 22
+    Caption = '...'
+    Flat = True
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    OnClick = SpeedButton2Click
   end
   object Button1: TButton
     Left = 54
     Top = 98
-    Width = 56
-    Height = 18
+    Width = 59
+    Height = 23
     Caption = 'OK'
     Default = True
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
     ModalResult = 1
+    ParentFont = False
     TabOrder = 2
   end
   object Button2: TButton
     Left = 132
     Top = 98
-    Width = 56
-    Height = 18
+    Width = 61
+    Height = 23
     Cancel = True
     Caption = 'Cancel'
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
     ModalResult = 2
+    ParentFont = False
     TabOrder = 3
   end
   object Edit1: TEdit
@@ -588,6 +642,12 @@ object frmCompare2Sets: TfrmCompare2Sets
     Top = 18
     Width = 91
     Height = 24
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 0
   end
   object Edit2: TEdit
@@ -595,6 +655,12 @@ object frmCompare2Sets: TfrmCompare2Sets
     Top = 48
     Width = 91
     Height = 24
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 1
   end
 end

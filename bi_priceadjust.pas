@@ -12,9 +12,13 @@ procedure PRICEADJUST(const part: string; const color: integer; const A: parecda
 implementation
 
 procedure PRICEADJUST(const part: string; const color: integer; var pg: priceguide_t; var av: availability_t; const t: TDateTime); overload;
+var
+  allmoney: extended;
 begin
   if color = 334 then
+  begin
     if part = '3001' then
+    begin
       if between(pg.uMaxPrice, 9999, 10000) then
       begin
         if pg.uTotalQty > 1 then
@@ -26,6 +30,26 @@ begin
           pg.uQtyAvgPrice := pg.nQtyAvgPrice * 0.8;
         pg.uAvgPrice := pg.uQtyAvgPrice;
       end;
+      Exit;
+    end;
+    Exit;
+  end;
+  if color = -1 then
+  begin
+    if part = '5766-1' then
+    begin
+      if av.nTotalQty > 50000 then
+      begin
+        allmoney := av.nTotalQty * av.nQtyAvgPrice;
+        av.nTotalQty := av.nTotalQty - 50000;
+        av.nTotalLots := av.nTotalLots - 1;
+        allmoney := allmoney - 50000 * 0.0008;
+        av.nQtyAvgPrice := dbl_safe_div(allmoney, av.nTotalQty);
+      end;
+      Exit;
+    end;
+    Exit;
+  end;
 end;
 
 procedure PRICEADJUST(const part: string; const color: integer; const A: parecdate_p); overload;

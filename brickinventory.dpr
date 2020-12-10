@@ -42,7 +42,13 @@ uses
   removepiecefromstoragefrm in 'removepiecefromstoragefrm.pas' {RemovePieceFromStorageForm},
   bi_binaryset in 'bi_binaryset.pas',
   bi_globals in 'bi_globals.pas',
-  frm_editsetastext in 'frm_editsetastext.pas' {EditSetAsTextForm};
+  frm_editsetastext in 'frm_editsetastext.pas' {EditSetAsTextForm},
+  bi_hash512 in 'bi_hash512.pas',
+  bi_lugbulk2017 in 'bi_lugbulk2017.pas',
+  ImportFileForm in 'ImportFileForm.pas' {ImportFileForm},
+  frm_setsforpartout_params in 'frm_setsforpartout_params.pas' {QueryPartOutParametersForm},
+  mosaicfrm_plates in 'mosaicfrm_plates.pas' {MosaicFormPlates},
+  mosaicfrm_tiles in 'mosaicfrm_tiles.pas' {MosaicFormTiles};
 
 {$R *.res}
 

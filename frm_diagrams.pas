@@ -12,7 +12,6 @@ type
     Label1: TLabel;
     Label4: TLabel;
     Panel1: TPanel;
-    Image1: TImage;
     Label2: TLabel;
     Edit1: TEdit;
     Series1: TLineSeries;
@@ -56,6 +55,8 @@ type
     Button37: TButton;
     Button38: TButton;
     Button39: TButton;
+    ScrollBox1: TScrollBox;
+    Image1: TImage;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -95,6 +96,7 @@ type
     procedure Button35Click(Sender: TObject);
     procedure Button36Click(Sender: TObject);
     procedure Button37Click(Sender: TObject);
+    procedure Image1DblClick(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -126,6 +128,163 @@ type
     dir: string[128];
     date: TDateTime;
   end;
+
+type
+  exclude_t = record
+    mindate: string[8];
+    maxdate: string[8];
+    part: string[64];
+    color: integer;
+    mindatedbl: double;
+    maxdatedbl: double;
+  end;
+  exclude_p = ^exclude_t;
+
+const
+  NUMEXCLUDES = 20;
+
+var
+  excludes: array[0..NUMEXCLUDES - 1] of exclude_t = (
+    (
+      mindate: '20180216';
+      maxdate: '20180216';
+      part:    '3023';
+      color:   4;
+    ),
+    (
+      mindate: '20180105';
+      maxdate: '20180106';
+      part:    '4070';
+      color:   2;
+    ),
+    (
+      mindate: '20171126';
+      maxdate: '20171127';
+      part:    '4070';
+      color:   4;
+    ),
+    (
+      mindate: '20180105';
+      maxdate: '20180106';
+      part:    '3666';
+      color:   2;
+    ),
+    (
+      mindate: '20171126';
+      maxdate: '20171127';
+      part:    '3666';
+      color:   4;
+    ),
+    (
+      mindate: '20180120';
+      maxdate: '20180121';
+      part:    '';
+      color:   -2;
+    ),
+    (
+      mindate: '20150902';
+      maxdate: '20150902';
+      part:    '10211-1';
+      color:   -1;
+    ),
+    (
+      mindate: '20170311';
+      maxdate: '20170311';
+      part:    '10211-1';
+      color:   -1;
+    ),
+    (
+      mindate: '20140610';
+      maxdate: '20150222';
+      part:    '2780';
+      color:   0;
+    ),
+    (
+      mindate: '20180120';
+      maxdate: '20180121';
+      part:    '3004';
+      color:   3;
+    ),
+    (
+      mindate: '20180120';
+      maxdate: '20180121';
+      part:    '3005';
+      color:   1;
+    ),
+    (
+      mindate: '20180120';
+      maxdate: '20180121';
+      part:    '3005';
+      color:   2;
+    ),
+    (
+      mindate: '20180120';
+      maxdate: '20180121';
+      part:    '3006';
+      color:   2;
+    ),
+    (
+      mindate: '20171126';
+      maxdate: '20171127';
+      part:    '3622';
+      color:   4;
+    ),
+    (
+      mindate: '20171126';
+      maxdate: '20171127';
+      part:    '6111';
+      color:   4;
+    ),
+    (
+      mindate: '20180120';
+      maxdate: '20180121';
+      part:    '3010';
+      color:   7;
+    ),
+    (
+      mindate: '20180120';
+      maxdate: '20180121';
+      part:    '3010';
+      color:   8;
+    ),
+    (
+      mindate: '20180120';
+      maxdate: '20180121';
+      part:    '3010';
+      color:   15;
+    ),
+    (
+      mindate: '20180120';
+      maxdate: '20180121';
+      part:    '3010';
+      color:   19;
+    ),
+    (
+      mindate: '20180120';
+      maxdate: '20180121';
+      part:    '3010';
+      color:   28;
+    )
+  );
+
+function mustexclude(const part: string; const color: integer; const date1: double): boolean;
+var
+  i: integer;
+  ep: exclude_p;
+begin
+  result := false;
+  for i := 0 to NUMEXCLUDES - 1 do
+  begin
+    ep := @excludes[i];
+    if (color = ep.color) or (ep.color = -2) then
+      if (date1 >= ep.mindatedbl) and (date1 <= ep.maxdatedbl + 1) then
+        if (part = ep.part) or (ep.part = '') then
+        begin
+          result := true;
+          exit;
+        end;
+  end;
+end;
 
 function s2date1(const s: string): TDateTime;
 var
@@ -273,6 +432,17 @@ var
   dd20151218: double;
   dd20160119: double;
   dd20160123: double;
+  dd20160604: double;
+  dd20170412: double;
+  dd20170426: double;
+  dd20170430: double;
+  dd20170510: double;
+  dd20170614: double;
+  dd20171220: double;
+  dd20170418: double;
+  dd20180207: double;
+  truncx: integer;
+  dd20170102: double;
   h: pieceinventoryhistory_t;
   h2: brickstatshistory_t;
   st: set_t;
@@ -359,6 +529,8 @@ begin
 
     if piece = 'Storage Bins' then
       fname := basedefault + 'storage\storagebins.stats'
+    else if piece = 'Loose Parts' then
+      fname := basedefault + 'out\looseparts\looseparts.stats'
     else
       fname := basedefault + 'storage\storage_' + filenamestring(piece) + '.stats';
     if fexists(fname) then
@@ -436,11 +608,23 @@ begin
     exit;
   end;
 
+  dd20170614 := s2date1('20170614');
+  dd20171220 := s2date1('20171220');
+  dd20170418 := s2date1('20170418');
+  dd20180207 := s2date1('20180207');
+
   if idx = 27 then
   begin
     dd20151218 := s2date1('20151218');
     dd20160119 := s2date1('20160119');
     dd20160123 := s2date1('20160123');
+    dd20160604 := s2date1('20160604');
+    dd20170102 := s2date1('20170102');
+    dd20170412 := s2date1('20170412');
+    dd20170426 := s2date1('20170426');
+    dd20170430 := s2date1('20170430');
+    dd20170510 := s2date1('20170510');
+
     if color = -1 then
       fname := basedefault + 'out\' + piece + '\' + piece + '.history'
     else
@@ -488,6 +672,11 @@ begin
                   if Trunc(date27) <> Trunc(dd20160119) then
                   begin
                     if (piece = '2431') and (color = 71) and (Trunc(date27) = Trunc(dd20160123)) then
+                    else if (piece = '44302') and (date27 >= dd20170412) and (date27 <= dd20170426) then
+                    else if (piece = '3069b') and (date27 >= dd20170430) and (date27 <= dd20170510) then
+                    else if (piece = '3069b') and (date27 >= dd20170614) and (date27 <= dd20171220) then
+                    else if (piece = '2412b') and (date27 >= dd20170418) and (date27 <= dd20180207) then
+                    else if mustexclude(piece, color, date27) then
                     else
                       c.Series[0].AddXY(date27, num27);
                   end;
@@ -505,12 +694,21 @@ begin
           y := h.nbuilded
         else
           y := h.nnew + h.nused;
-        if Trunc(x) <> Trunc(dd20151218) then
-          if Trunc(x) <> Trunc(dd20160119) then
+        truncx := Trunc(x);
+        if truncx <> Trunc(dd20151218) then
+          if truncx <> Trunc(dd20160119) then
           begin
-            if (piece = '2431') and (color = 71) and (Trunc(date27) = Trunc(dd20160123)) then
+            if (piece = '2431') and (color = 71) and (truncx = Trunc(dd20160123)) then
+            else if (piece = '44302') and (x >= dd20170412) and (x <= dd20170426) then
+            else if (piece = '3069b') and (x >= dd20170430) and (x <= dd20170510) then
+            else if (piece = '3069b') and (x >= dd20170614) and (x <= dd20171220) then
+            else if (piece = '3024') and (color = 320) and (truncx = Trunc(dd20160604)) then
+            else if (piece = '3023') and (color = 72) and (truncx = Trunc(dd20160604)) then
+            else if (piece = '2412b') and (truncx >= dd20170418) and (truncx <= dd20180207) then
+            else if (piece = '4073') and (truncx = Trunc(dd20170102)) then
+            else if mustexclude(piece, color, x) then
             else
-            c.Series[0].AddXY(x, y);
+              c.Series[0].AddXY(x, y);
           end;
       end;
       if color = -1 then
@@ -619,6 +817,8 @@ begin
   ddxxx := s2date1('20141101');
   dd20141216 := s2date1('20141216');
   dd20141220 := s2date1('20141220');
+  dd20170430 := s2date1('20170430');
+  dd20170510 := s2date1('20170510');
   for i := 0 to num - 1 do
   begin
     x := A[i].date;
@@ -626,6 +826,15 @@ begin
       continue;
     if (x >= dd20141216) and (x <= dd20141220) then
       continue;
+    if (piece = '3069b') and (x >= dd20170430) and (x <= dd20170510) then
+      continue;
+    if (piece = '3069b') and (x >= dd20170614) and (x <= dd20171220) then
+      continue;
+    if (piece = '2412b') and (x >= dd20170418) and (x <= dd20180207) then
+      continue;
+    if mustexclude(piece, color, x) then
+      continue;
+      
     case idx of
       PG_nTimesSold: y := A[i].priceguide.nTimesSold;
       PG_nTotalQty: y := A[i].priceguide.nTotalQty;
@@ -1036,5 +1245,35 @@ begin
   MakeChart(Chart1, piece, color, 37);
   Screen.Cursor := crDefault;
 end;
+
+procedure TDiagramForm.Image1DblClick(Sender: TObject);
+begin
+  try
+    if Image1.Align = alClient then
+    begin
+      Image1.Align := alNone;
+      Image1.AutoSize := True;
+      Image1.Stretch := False;
+    end
+    else
+    begin
+      Image1.Align := alClient;
+      Image1.AutoSize := False;
+      Image1.Stretch := True;
+    end;
+  except
+  end;
+end;
+
+var
+  ixxx: integer;
+
+initialization
+
+  for ixxx := 0 to NUMEXCLUDES - 1 do
+  begin
+    excludes[ixxx].mindatedbl := s2date1(excludes[ixxx].mindate);
+    excludes[ixxx].maxdatedbl := s2date1(excludes[ixxx].maxdate);
+  end;
 
 end.

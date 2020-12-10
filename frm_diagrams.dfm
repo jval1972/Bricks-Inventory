@@ -8,14 +8,14 @@ object DiagramForm: TDiagramForm
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Height = -13
+  Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 16
   object Label1: TLabel
-    Left = 136
+    Left = 240
     Top = 16
     Width = 329
     Height = 81
@@ -24,13 +24,13 @@ object DiagramForm: TDiagramForm
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -16
-    Font.Name = 'Tahoma'
+    Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
     ParentFont = False
     WordWrap = True
   end
   object Label4: TLabel
-    Left = 176
+    Left = 280
     Top = 96
     Width = 297
     Height = 25
@@ -39,25 +39,24 @@ object DiagramForm: TDiagramForm
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -16
-    Font.Name = 'Tahoma'
+    Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
     ParentFont = False
     WordWrap = True
   end
-  object Image1: TImage
-    Left = 16
-    Top = 16
-    Width = 105
-    Height = 105
-    AutoSize = True
-  end
   object Label2: TLabel
-    Left = 32
+    Left = 240
     Top = 144
-    Width = 58
-    Height = 13
+    Width = 76
+    Height = 16
     Caption = 'Num Pieces:'
     FocusControl = Edit1
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
   end
   object Chart1: TChart
     Left = 16
@@ -95,20 +94,32 @@ object DiagramForm: TDiagramForm
     end
   end
   object Panel1: TPanel
-    Left = 136
+    Left = 240
     Top = 96
     Width = 33
     Height = 33
     Caption = ' '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 1
   end
   object Edit1: TEdit
-    Left = 96
+    Left = 328
     Top = 144
-    Width = 273
-    Height = 21
+    Width = 249
+    Height = 24
     BiDiMode = bdLeftToRight
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
     ParentBiDiMode = False
+    ParentFont = False
     ReadOnly = True
     TabOrder = 2
     Text = '0'
@@ -130,6 +141,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_nAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 0
         OnClick = Button30Click
       end
@@ -139,6 +156,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_nQtyAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 1
         OnClick = Button31Click
       end
@@ -148,6 +171,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_uAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 2
         OnClick = Button32Click
       end
@@ -157,6 +186,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_uQtyAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 3
         OnClick = Button33Click
       end
@@ -166,6 +201,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_nAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 4
         OnClick = Button34Click
       end
@@ -175,6 +216,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_nQtyAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 5
         OnClick = Button35Click
       end
@@ -184,6 +231,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_uAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 6
         OnClick = Button36Click
       end
@@ -193,6 +246,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_uQtyAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 7
         OnClick = Button37Click
       end
@@ -202,6 +261,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'N_Demand'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 8
         OnClick = Button38Click
       end
@@ -211,6 +276,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'U_Demand'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 9
         OnClick = Button39Click
       end
@@ -225,6 +296,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_nTimesSold'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 0
         OnClick = Button1Click
       end
@@ -234,6 +311,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_nTotalQty'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 1
         OnClick = Button2Click
       end
@@ -243,6 +326,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_nMinPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 2
         OnClick = Button3Click
       end
@@ -252,6 +341,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_nAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 3
         OnClick = Button4Click
       end
@@ -261,6 +356,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_nQtyAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 4
         OnClick = Button5Click
       end
@@ -270,6 +371,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_nMaxPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 5
         OnClick = Button6Click
       end
@@ -279,6 +386,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_uTimesSold'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 6
         OnClick = Button7Click
       end
@@ -288,6 +401,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_uTotalQty'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 7
         OnClick = Button8Click
       end
@@ -297,6 +416,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_uMinPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 8
         OnClick = Button9Click
       end
@@ -306,6 +431,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_uAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 9
         OnClick = Button10Click
       end
@@ -315,6 +446,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_uQtyAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 10
         OnClick = Button11Click
       end
@@ -324,6 +461,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'PG_uMaxPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 11
         OnClick = Button12Click
       end
@@ -333,6 +476,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_nTotalLots'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 12
         OnClick = Button13Click
       end
@@ -342,6 +491,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_nTotalQty'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 13
         OnClick = Button14Click
       end
@@ -351,6 +506,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_nMinPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 14
         OnClick = Button15Click
       end
@@ -360,6 +521,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_nAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 15
         OnClick = Button16Click
       end
@@ -369,6 +536,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_nQtyAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 16
         OnClick = Button17Click
       end
@@ -378,6 +551,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_nMaxPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 17
         OnClick = Button18Click
       end
@@ -387,6 +566,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_uTotalLots'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 18
         OnClick = Button19Click
       end
@@ -396,6 +581,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_uTotalQty'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 19
         OnClick = Button20Click
       end
@@ -405,6 +596,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_uMinPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 20
         OnClick = Button21Click
       end
@@ -414,6 +611,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_uAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 21
         OnClick = Button22Click
       end
@@ -423,6 +626,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_uQtyAvgPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 22
         OnClick = Button23Click
       end
@@ -432,6 +641,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'AV_uMaxPrice'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 23
         OnClick = Button24Click
       end
@@ -441,6 +656,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'N_Demand'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 24
         OnClick = Button25Click
       end
@@ -450,6 +671,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'U_Demand'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 25
         OnClick = Button26Click
       end
@@ -459,6 +686,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'My Inventory'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 26
         OnClick = Button27Click
       end
@@ -468,6 +701,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'N_partout'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 27
         OnClick = Button28Click
       end
@@ -477,6 +716,12 @@ object DiagramForm: TDiagramForm
         Width = 137
         Height = 25
         Caption = 'U_partout'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 28
         OnClick = Button29Click
       end
@@ -485,6 +730,27 @@ object DiagramForm: TDiagramForm
       Left = 0
       Top = 0
       Caption = 'page3'
+    end
+  end
+  object ScrollBox1: TScrollBox
+    Left = 16
+    Top = 8
+    Width = 185
+    Height = 169
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 4
+    object Image1: TImage
+      Left = 0
+      Top = 0
+      Width = 105
+      Height = 105
+      AutoSize = True
+      OnDblClick = Image1DblClick
     end
   end
 end

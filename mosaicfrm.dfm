@@ -3,9 +3,9 @@ object MosaicForm: TMosaicForm
   Top = 6
   BorderIcons = []
   BorderStyle = bsDialog
-  Caption = 'Mosaic'
-  ClientHeight = 476
-  ClientWidth = 600
+  Caption = 'Mosaic (Bricks)'
+  ClientHeight = 561
+  ClientWidth = 984
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -552,7 +552,7 @@ object MosaicForm: TMosaicForm
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 600
+    Width = 984
     Height = 121
     Align = alTop
     BevelOuter = bvNone
@@ -660,7 +660,7 @@ object MosaicForm: TMosaicForm
       object EditCostNew: TEdit
         Left = 54
         Top = 24
-        Width = 55
+        Width = 64
         Height = 21
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -675,7 +675,7 @@ object MosaicForm: TMosaicForm
       object EditCostUsed: TEdit
         Left = 54
         Top = 42
-        Width = 55
+        Width = 64
         Height = 21
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -727,13 +727,14 @@ object MosaicForm: TMosaicForm
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 0
+        OnDblClick = Panel13DblClick
       end
       object TrackBar1: TTrackBar
         Left = 6
         Top = 24
         Width = 113
         Height = 21
-        Max = 128
+        Max = 256
         Min = 1
         Frequency = 8
         Position = 48
@@ -745,7 +746,7 @@ object MosaicForm: TMosaicForm
         Top = 48
         Width = 113
         Height = 21
-        Max = 128
+        Max = 256
         Min = 1
         Frequency = 8
         Position = 48
@@ -793,15 +794,15 @@ object MosaicForm: TMosaicForm
   end
   object Panel2: TPanel
     Left = 0
-    Top = 446
-    Width = 600
+    Top = 531
+    Width = 984
     Height = 30
     Align = alBottom
     BevelOuter = bvNone
     Caption = ' '
     TabOrder = 1
     object Panel3: TPanel
-      Left = 410
+      Left = 794
       Top = 0
       Width = 190
       Height = 30
@@ -833,7 +834,7 @@ object MosaicForm: TMosaicForm
     Left = 0
     Top = 121
     Width = 218
-    Height = 325
+    Height = 410
     Align = alLeft
     BevelOuter = bvNone
     Caption = ' '
@@ -842,7 +843,7 @@ object MosaicForm: TMosaicForm
       Left = 0
       Top = 0
       Width = 109
-      Height = 325
+      Height = 410
       Align = alLeft
       BevelOuter = bvNone
       Caption = 'Panel5'
@@ -851,7 +852,7 @@ object MosaicForm: TMosaicForm
         Left = 0
         Top = 18
         Width = 109
-        Height = 307
+        Height = 392
         Align = alClient
         ItemHeight = 12
         Items.Strings = (
@@ -880,7 +881,7 @@ object MosaicForm: TMosaicForm
       Left = 109
       Top = 0
       Width = 109
-      Height = 325
+      Height = 410
       Align = alClient
       BevelOuter = bvNone
       Caption = 'Panel5'
@@ -889,7 +890,7 @@ object MosaicForm: TMosaicForm
         Left = 0
         Top = 18
         Width = 109
-        Height = 307
+        Height = 392
         Align = alClient
         ItemHeight = 12
         Items.Strings = (
@@ -918,8 +919,8 @@ object MosaicForm: TMosaicForm
   object Panel11: TPanel
     Left = 218
     Top = 121
-    Width = 382
-    Height = 325
+    Width = 766
+    Height = 410
     Align = alClient
     BevelOuter = bvNone
     Caption = ' '
@@ -927,9 +928,10 @@ object MosaicForm: TMosaicForm
     object ScrollBox1: TScrollBox
       Left = 0
       Top = 18
-      Width = 382
-      Height = 307
+      Width = 766
+      Height = 392
       Align = alClient
+      AutoSize = True
       BevelInner = bvNone
       BevelOuter = bvNone
       TabOrder = 0
@@ -974,7 +976,7 @@ object MosaicForm: TMosaicForm
     object Panel16: TPanel
       Left = 0
       Top = 0
-      Width = 382
+      Width = 766
       Height = 18
       Align = alTop
       Caption = ' '
@@ -1063,7 +1065,7 @@ object MosaicForm: TMosaicForm
   end
   object OpenPictureDialog1: TOpenPictureDialog
     Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
-    Left = 48
-    Top = 117
+    Left = 56
+    Top = 189
   end
 end

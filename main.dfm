@@ -1,6 +1,6 @@
 object MainForm: TMainForm
-  Left = 195
-  Top = 201
+  Left = 263
+  Top = 279
   Width = 870
   Height = 480
   Caption = 'Bricks Inventory'
@@ -544,6 +544,7 @@ object MainForm: TMainForm
   Menu = MainMenu1
   OldCreateOrder = False
   Position = poDefault
+  Visible = True
   WindowState = wsMaximized
   OnActivate = FormActivate
   OnCreate = FormCreate
@@ -900,6 +901,46 @@ object MainForm: TMainForm
     Top = 49
     object File1: TMenuItem
       Caption = 'File'
+      object Import1: TMenuItem
+        Caption = 'Import'
+        object BricklinkOrder1: TMenuItem
+          Caption = 'Bricklink Order'
+          OnClick = BricklinkOrder1Click
+        end
+      end
+      object Export1: TMenuItem
+        Caption = 'Export'
+        object Rebrickableparts1: TMenuItem
+          Caption = 'Rebrickable parts'
+          OnClick = Rebrickableparts1Click
+        end
+        object Rebrickablesets1: TMenuItem
+          Caption = 'Rebrickable sets'
+          OnClick = Rebrickablesets1Click
+        end
+        object Rebrickablepartsofbuildedsets1: TMenuItem
+          Caption = 'Rebrickable parts of builded sets and mocs'
+          OnClick = Rebrickablepartsofbuildedsets1Click
+        end
+        object Rebrickablepartsofbuildedmocs1: TMenuItem
+          Caption = 'Rebrickable parts of builded mocs'
+          OnClick = Rebrickablepartsofbuildedmocs1Click
+        end
+        object N15: TMenuItem
+          Caption = '-'
+        end
+        object Priceguide1: TMenuItem
+          Caption = 'Price guide'
+          OnClick = Priceguide1Click
+        end
+        object Partoutguide1: TMenuItem
+          Caption = 'Part out guide'
+          OnClick = Partoutguide1Click
+        end
+      end
+      object N18: TMenuItem
+        Caption = '-'
+      end
       object Printpreview1: TMenuItem
         Caption = 'Print Preview'
         OnClick = Printpreview1Click
@@ -941,61 +982,9 @@ object MainForm: TMainForm
         OnClick = Missingfordismandaledsets1Click
       end
     end
-    object ools1: TMenuItem
-      Caption = 'Tools'
-      object Mosaic1: TMenuItem
-        Caption = 'Mosaic'
-        OnClick = Mosaic1Click
-      end
-      object Sets1: TMenuItem
-        Caption = 'Sets I can build'
-        OnClick = Sets1Click
-      end
-      object N3: TMenuItem
-        Caption = '-'
-      end
-      object SetstobuyNew1: TMenuItem
-        Caption = 'Sets to buy (New)'
-        OnClick = SetstobuyNew1Click
-      end
-      object SetstobuyUsed1: TMenuItem
-        Caption = 'Sets to buy (Used)'
-        OnClick = SetstobuyUsed1Click
-      end
-      object N4: TMenuItem
-        Caption = '-'
-      end
-      object Usedsetstobuiltfromscratch1: TMenuItem
-        Caption = 'Used sets to built from scratch'
-        OnClick = Usedsetstobuiltfromscratch1Click
-      end
-      object N8: TMenuItem
-        Caption = '-'
-      end
-      object N5: TMenuItem
-        Caption = '-'
-      end
-      object Missingfromstoragebins1: TMenuItem
-        Caption = 'Missing from storage bins'
-        OnClick = Missingfromstoragebins1Click
-      end
-      object N6: TMenuItem
-        Caption = '-'
-      end
-      object LUGBULKSuggestions1: TMenuItem
-        Caption = 'LUGBULK Suggestions'
-        OnClick = LUGBULKSuggestions1Click
-      end
-      object N7: TMenuItem
-        Caption = '-'
-      end
-      object Compare2sets1: TMenuItem
-        Caption = 'Compare 2 sets'
-        OnClick = Compare2sets1Click
-      end
-    end
     object Queries1: TMenuItem
       Caption = 'Queries'
+      OnClick = Queries1Click
       object Weightqueries1: TMenuItem
         Caption = 'Weight queries'
         object UsedPiecesbelow10euroKgr1: TMenuItem
@@ -1028,6 +1017,13 @@ object MainForm: TMainForm
         object Bricks2x1: TMenuItem
           Caption = 'Bricks 2x'
           OnClick = Bricks2x1Click
+        end
+        object N14: TMenuItem
+          Caption = '-'
+        end
+        object Specialbricks1x1: TMenuItem
+          Caption = 'Special bricks 1x'
+          OnClick = Specialbricks1x1Click
         end
         object N9: TMenuItem
           Caption = '-'
@@ -1063,10 +1059,149 @@ object MainForm: TMainForm
           Caption = 'Tiles 2x'
           OnClick = iles2x1Click
         end
+        object N12: TMenuItem
+          Caption = '-'
+        end
+        object echnicBricks1x1: TMenuItem
+          Caption = 'Technic Bricks 1x'
+          OnClick = TechnicBricks1x1Click
+        end
+      end
+      object LugBulks1: TMenuItem
+        Caption = 'LugBulks'
+        object N20171: TMenuItem
+          Caption = '2017'
+          object LugBulk20171: TMenuItem
+            Caption = 'LugBulk 2017 Cheap Parts'
+            OnClick = LugBulk20171Click
+          end
+          object N13: TMenuItem
+            Caption = '-'
+          end
+          object LugBulk2017CheapBricks1: TMenuItem
+            Caption = 'LugBulk 2017 Cheap Bricks'
+            OnClick = LugBulk2017CheapBricks1Click
+          end
+          object LugBulk2017CheapPlates1: TMenuItem
+            Caption = 'LugBulk 2017 Cheap Plates'
+            OnClick = LugBulk2017CheapPlates1Click
+          end
+          object LugBulk2017CheapTiles1: TMenuItem
+            Caption = 'LugBulk 2017 Cheap Tiles'
+            OnClick = LugBulk2017CheapTiles1Click
+          end
+          object LugBulk2017CheapSlopes1: TMenuItem
+            Caption = 'LugBulk 2017 Cheap Slopes'
+            OnClick = LugBulk2017CheapSlopes1Click
+          end
+          object LugBulk2017CheapInvertedSlopes1: TMenuItem
+            Caption = 'LugBulk 2017 Cheap Inverted Slopes'
+            OnClick = LugBulk2017CheapInvertedSlopes1Click
+          end
+        end
+        object N20172: TMenuItem
+          Caption = '2018'
+          object LugBulk2018CheapParts1: TMenuItem
+            Caption = 'LugBulk 2018 Cheap Parts'
+            OnClick = LugBulk2018CheapParts1Click
+          end
+          object N16: TMenuItem
+            Caption = '-'
+          end
+          object LugBulk2018CheapBricks1: TMenuItem
+            Caption = 'LugBulk 2018 Cheap Bricks'
+            OnClick = LugBulk2018CheapBricks1Click
+          end
+          object LugBulk2018CheapPlates1: TMenuItem
+            Caption = 'LugBulk 2018 Cheap Plates'
+            OnClick = LugBulk2018CheapPlates1Click
+          end
+          object LugBulk2018CheapTiles1: TMenuItem
+            Caption = 'LugBulk 2018 Cheap Tiles'
+            OnClick = LugBulk2018CheapTiles1Click
+          end
+          object LugBulk2018CheapSlopes1: TMenuItem
+            Caption = 'LugBulk 2018 Cheap Slopes'
+            OnClick = LugBulk2018CheapSlopes1Click
+          end
+          object LugBulk2018CheapInvertedSlopes1: TMenuItem
+            Caption = 'LugBulk 2018 Cheap Inverted Slopes'
+            OnClick = LugBulk2018CheapInvertedSlopes1Click
+          end
+        end
+      end
+    end
+    object MosaicMenuItem1: TMenuItem
+      Caption = 'Mosaic'
+      object Mosaic1: TMenuItem
+        Caption = 'Brick Mosaic'
+        OnClick = Mosaic1Click
+      end
+      object PlateMosaic1: TMenuItem
+        Caption = 'Plate Mosaic'
+        OnClick = PlateMosaic1Click
+      end
+      object TileMosaic1: TMenuItem
+        Caption = 'Tile Mosaic'
+        OnClick = TileMosaic1Click
+      end
+    end
+    object ools1: TMenuItem
+      Caption = 'Tools'
+      object Sets1: TMenuItem
+        Caption = 'Sets I can build'
+        OnClick = Sets1Click
+      end
+      object N3: TMenuItem
+        Caption = '-'
+      end
+      object SetstobuyNew1: TMenuItem
+        Caption = 'Sets to buy (New)'
+        OnClick = SetstobuyNew1Click
+      end
+      object SetstobuyUsed1: TMenuItem
+        Caption = 'Sets to buy (Used)'
+        OnClick = SetstobuyUsed1Click
+      end
+      object N4: TMenuItem
+        Caption = '-'
+      end
+      object Usedsetstobuiltfromscratch1: TMenuItem
+        Caption = 'Used sets to built from scratch'
+        OnClick = Usedsetstobuiltfromscratch1Click
+      end
+      object N8: TMenuItem
+        Caption = '-'
+      end
+      object Setswithunknownreleaseyear1: TMenuItem
+        Caption = 'Sets with unknown release year'
+        OnClick = Setswithunknownreleaseyear1Click
+      end
+      object N5: TMenuItem
+        Caption = '-'
+      end
+      object Missingfromstoragebins1: TMenuItem
+        Caption = 'Missing from storage bins'
+        OnClick = Missingfromstoragebins1Click
+      end
+      object N6: TMenuItem
+        Caption = '-'
+      end
+      object LUGBULKSuggestions1: TMenuItem
+        Caption = 'LUGBULK Suggestions'
+        OnClick = LUGBULKSuggestions1Click
+      end
+      object N7: TMenuItem
+        Caption = '-'
+      end
+      object Compare2sets1: TMenuItem
+        Caption = 'Compare 2 sets'
+        OnClick = Compare2sets1Click
       end
     end
     object S1: TMenuItem
       Caption = 'System'
+      OnClick = S1Click
       object Batchlink1: TMenuItem
         Caption = 'Batch link processing'
         OnClick = Batchlink1Click
@@ -1079,23 +1214,19 @@ object MainForm: TMainForm
         Caption = 'Check Cache Hash Efficiency'
         OnClick = CheckCacheHashEfficiency1Click
       end
-    end
-    object Import1: TMenuItem
-      Caption = 'Import'
-      object BricklinkOrder1: TMenuItem
-        Caption = 'Bricklink Order'
-        OnClick = BricklinkOrder1Click
+      object N17: TMenuItem
+        Caption = '-'
+      end
+      object Showorderinformation1: TMenuItem
+        Caption = 'Show storage and order information'
+        OnClick = Showorderinformation1Click
       end
     end
-    object Export1: TMenuItem
-      Caption = 'Export'
-      object Priceguide1: TMenuItem
-        Caption = 'Price guide'
-        OnClick = Priceguide1Click
-      end
-      object Partoutguide1: TMenuItem
-        Caption = 'Part out guide'
-        OnClick = Partoutguide1Click
+    object Help1: TMenuItem
+      Caption = 'Help'
+      object About1: TMenuItem
+        Caption = 'About'
+        OnClick = About1Click
       end
     end
   end
@@ -1105,5 +1236,12 @@ object MainForm: TMainForm
     Options = [ofHideReadOnly, ofFileMustExist, ofEnableSizing]
     Left = 72
     Top = 52
+  end
+  object SaveToRebrickableDialog1: TSaveDialog
+    DefaultExt = 'csv'
+    Filter = 'Rebrickable files (*.csv)|*.csv|All files|*.*'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
+    Left = 312
+    Top = 76
   end
 end

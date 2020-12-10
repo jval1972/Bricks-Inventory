@@ -553,6 +553,12 @@ object SelectSetsForm: TSelectSetsForm
     Align = alBottom
     BevelOuter = bvNone
     Caption = ' '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 0
     object Panel2: TPanel
       Left = 136
@@ -595,6 +601,12 @@ object SelectSetsForm: TSelectSetsForm
     BevelWidth = 5
     BorderWidth = 8
     Caption = ' '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 1
     object CheckListBox1: TCheckListBox
       Left = 8
@@ -602,7 +614,7 @@ object SelectSetsForm: TSelectSetsForm
       Width = 324
       Height = 232
       Align = alClient
-      ItemHeight = 13
+      ItemHeight = 16
       TabOrder = 0
     end
   end

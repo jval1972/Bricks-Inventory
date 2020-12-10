@@ -1,4 +1,4 @@
-unit bi_hash;
+unit bi_hash512;
 
 interface
 
@@ -6,10 +6,10 @@ uses
   SysUtils, Classes, bi_delphi;
 
 const
-  HASHSIZE = 2048;
+  HASHSIZE = 512;
 
 type
-  THashTable = class(TObject)
+  THashTable512 = class(TObject)
   private
     positions: array[0..HASHSIZE - 1] of TDNumberList;
     fList: TStringList;
@@ -25,9 +25,9 @@ type
   end;
 
 type
-  THashStringList = class(TStringList)
+  THashStringList512 = class(TStringList)
   protected
-    fhash: THashTable;
+    fhash: THashTable512;
     procedure InsertItem(Index: Integer; const S: string; AObject: TObject); override;
   public
     constructor Create;
@@ -36,7 +36,7 @@ type
     procedure RebuiltHash;
   end;
 
-procedure FreeHashList(var s: THashStringList);
+procedure FreeHashList512(var s: THashStringList512);
 
 implementation
 
@@ -66,14 +66,14 @@ begin
   result := result and (HASHSIZE - 1);
 end;
 
-constructor THashTable.Create;
+constructor THashTable512.Create;
 begin
   inherited;
   flist := nil;
   FillChar(positions, SizeOf(positions), 0);
 end;
 
-destructor THashTable.Destroy;
+destructor THashTable512.Destroy;
 var
   i: integer;
 begin
@@ -83,7 +83,7 @@ begin
   inherited;
 end;
 
-procedure THashTable.Insert(const str: string; const p: integer);
+procedure THashTable512.Insert(const str: string; const p: integer);
 var
   h: integer;
 begin
@@ -96,7 +96,7 @@ begin
   positions[h].Add(p);
 end;
 
-procedure THashTable.AssignStringList(const s: TStringList);
+procedure THashTable512.AssignStringList(const s: TStringList);
 var
   i: integer;
   h: integer;
@@ -112,7 +112,7 @@ begin
   end;
 end;
 
-procedure THashTable.Clear;
+procedure THashTable512.Clear;
 var
   i: integer;
 begin
@@ -121,7 +121,7 @@ begin
       positions[i].Clear;
 end;
 
-function THashTable.GetPos(const value: string): integer;
+function THashTable512.GetPos(const value: string): integer;
 var
   h: integer;
   i: integer;
@@ -160,7 +160,7 @@ begin
   result := fList.IndexOf(value);
 end;
 
-function THashTable.CheckPos(const value: string): integer;
+function THashTable512.CheckPos(const value: string): integer;
 var
   h: integer;
   i: integer;
@@ -187,20 +187,20 @@ begin
   result := -1;
 end;
 
-constructor THashStringList.Create;
+constructor THashStringList512.Create;
 begin
-  fhash := THashTable.Create;
+  fhash := THashTable512.Create;
   Inherited Create;
   fhash.AssignStringList(self);
 end;
 
-destructor THashStringList.Destroy;
+destructor THashStringList512.Destroy;
 begin
   Inherited;
   fhash.Free;
 end;
 
-procedure THashStringList.InsertItem(Index: Integer; const S: string; AObject: TObject);
+procedure THashStringList512.InsertItem(Index: Integer; const S: string; AObject: TObject);
 var
   rebuildhash: boolean;
 begin
@@ -215,7 +215,7 @@ begin
     fhash.Insert(s, Index);
 end;
 
-function THashStringList.IndexOf(const S: string): Integer;
+function THashStringList512.IndexOf(const S: string): Integer;
 begin
   if Sorted then
   begin
@@ -232,7 +232,7 @@ begin
   result := fhash.CheckPos(S);
 end;
 
-procedure FreeHashList(var s: THashStringList);
+procedure FreeHashList512(var s: THashStringList512);
 var
   i: integer;
 begin
@@ -244,7 +244,7 @@ begin
   s := nil;
 end;
 
-procedure THashStringList.RebuiltHash;
+procedure THashStringList512.RebuiltHash;
 begin
   fhash.AssignStringList(self);
 end;

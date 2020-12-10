@@ -19,6 +19,7 @@ type
     procedure write(const s: string); overload;
     procedure write(const Fmt: string; const Args: array of const); overload;
     procedure BlancColorCell(const RGB: LongWord; const width: integer);
+    procedure SaveBufferToFile(const fname: string);
     procedure Flash;
   end;
 
@@ -53,7 +54,7 @@ begin
   l1 := Length(s);
   if  capacity < l1 + size then
   begin
-    capacity := (l1 + size + 2048) and not 1023;
+    capacity := (l1 + size + 8192) and not 1023;
     SetLength(buffer, capacity);
   end;
   for i := 1 to l1 do
@@ -86,6 +87,21 @@ begin
   buffer := '';
   size := 0;
   capacity := 0;
+end;
+
+procedure TDocument.SaveBufferToFile(const fname: string);
+var
+  t: TextFile;
+begin
+  if fname = '' then
+    exit;
+    
+  assignFile(t, fname);
+  rewrite(t);
+  SetLength(buffer, size);
+  capacity := size;
+  writeln(t, buffer);
+  CloseFile(t);
 end;
 
 end.

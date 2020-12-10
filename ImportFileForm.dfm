@@ -1,17 +1,15 @@
-object SplashForm: TSplashForm
-  Left = 317
-  Top = 126
-  BorderIcons = []
-  BorderStyle = bsNone
-  BorderWidth = 1
-  Caption = 'Loading...'
-  ClientHeight = 72
-  ClientWidth = 329
+object ImportFileForm: TImportFileForm
+  Left = 489
+  Top = 270
+  BorderStyle = bsDialog
+  Caption = 'Import File'
+  ClientHeight = 200
+  ClientWidth = 590
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -10
-  Font.Name = 'Tahoma'
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
   Font.Style = []
   Icon.Data = {
     0000010001004040000001002000284200001600000028000000400000008000
@@ -545,36 +543,129 @@ object SplashForm: TSplashForm
     0000000000000000000000000000000000000000000000000000000000000000
     000000000000000000000000000000000000000000000000000000000000}
   OldCreateOrder = False
-  Position = poScreenCenter
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
-  TextHeight = 12
-  object Panel1: TPanel
-    Left = 0
-    Top = 0
-    Width = 329
-    Height = 72
-    Align = alClient
-    Caption = ' '
+  TextHeight = 13
+  object Label1: TLabel
+    Left = 16
+    Top = 11
+    Width = 49
+    Height = 16
+    Caption = 'Source: '
+    FocusControl = Edit1
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
+  object Edit1: TEdit
+    Left = 80
+    Top = 10
+    Width = 401
+    Height = 19
+    AutoSelect = False
+    Color = clSilver
+    Ctl3D = False
+    ParentCtl3D = False
+    ReadOnly = True
     TabOrder = 0
-    object Label1: TLabel
-      Left = 18
-      Top = 6
-      Width = 80
-      Height = 20
-      Caption = 'Loading...'
+  end
+  object Button1: TButton
+    Left = 496
+    Top = 8
+    Width = 75
+    Height = 25
+    Caption = 'Do It '
+    ModalResult = 1
+    TabOrder = 1
+  end
+  object Button2: TButton
+    Left = 496
+    Top = 40
+    Width = 75
+    Height = 25
+    Caption = 'Abort'
+    ModalResult = 3
+    TabOrder = 2
+  end
+  object GroupBox1: TGroupBox
+    Left = 16
+    Top = 88
+    Width = 513
+    Height = 89
+    Caption = ' Select Columns '
+    TabOrder = 3
+    object Label2: TLabel
+      Left = 76
+      Top = 24
+      Width = 30
+      Height = 16
+      Caption = 'Part: '
+      FocusControl = ComboBox1
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
+      Font.Height = -13
       Font.Name = 'MS Sans Serif'
-      Font.Style = [fsBold]
+      Font.Style = []
       ParentFont = False
     end
-    object ProgressBar1: TProgressBar
-      Left = 18
-      Top = 36
-      Width = 295
-      Height = 15
+    object Label3: TLabel
+      Left = 232
+      Top = 24
+      Width = 38
+      Height = 16
+      Caption = 'Color: '
+      FocusControl = ComboBox2
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label4: TLabel
+      Left = 384
+      Top = 24
+      Width = 54
+      Height = 16
+      Caption = 'Quantity: '
+      FocusControl = ComboBox3
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+    end
+    object ComboBox1: TComboBox
+      Left = 16
+      Top = 48
+      Width = 145
+      Height = 21
+      Style = csDropDownList
+      ItemHeight = 13
       TabOrder = 0
+    end
+    object ComboBox2: TComboBox
+      Left = 176
+      Top = 48
+      Width = 145
+      Height = 21
+      Style = csDropDownList
+      ItemHeight = 13
+      TabOrder = 1
+    end
+    object ComboBox3: TComboBox
+      Left = 336
+      Top = 48
+      Width = 145
+      Height = 21
+      Style = csDropDownList
+      ItemHeight = 13
+      TabOrder = 2
     end
   end
 end

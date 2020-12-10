@@ -16,14 +16,17 @@ type
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
+    CheckBox1: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure CrawlerTimerTimer(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
+    procedure FormHide(Sender: TObject);
   private
     { Private declarations }
  //   tr: TThreadComponent;
+    doabort: boolean;
     cancrowl: boolean;
   public
     { Public declarations }
@@ -38,22 +41,44 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_db, bi_globals, main;
+  bi_db, bi_globals, bi_crawler, main;
+
+function InputBox(const ACaption, APrompt, ADefault: string): string;
+begin
+  Result := ADefault;
+  InputQuery(ACaption, APrompt, Result);
+end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
   crfile: string;
+  ACaption, APrompt, ADefault: string;
 begin
   cancrowl := false;
-  crfile := Inputbox('Crawler file:', 'Give the crawler file', 'CR_CRAWLER');
-  Label1.Caption := crfile;
-  db := TSetsDatabase.Create;
-  db.InitCreate(crfile);
-  db.LoadFromDisk(basedefault + 'db\db_set_pieces.txt');
-  crawling := false;
-  cancrowl := true;
+  ACaption := 'Crawler file:';
+  APrompt := 'Give the crawler file';
+  ADefault := 'CR_CRAWLER';
+  doabort := not InputQuery(ACaption, APrompt, ADefault);
+  if not doabort then
+  begin
+    crfile := ADefault;
+    Label1.Caption := crfile;
+    Memo1.Lines.Clear;
+    db := TSetsDatabase.Create;
+    db.InitCreate(crfile);
+    db.LoadFromDisk(basedefault + 'db\db_set_pieces.txt');
+    crawling := false;
+    cancrowl := true;
+  end
+  else
+  begin
+    Label1.Caption := '';
+    Memo1.Lines.Clear;
+    CrawlerTimer.Interval := 1;
+    Close;
+  end;
+
   CrawlerTimer.Enabled := true;
-  Memo1.Lines.Clear;
  { tr := TThreadComponent.Create(nil);
   tr.Sleep := CrawlerTimer.Interval;
   tr.OnExecute := CrawlerTimerTimer;
@@ -62,8 +87,22 @@ end;
 
 procedure TForm1.CrawlerTimerTimer(Sender: TObject);
 begin
+  if doabort then
+  begin
+    Close;
+    exit;
+  end;
+
   Label1.Font.Color := clBlack;
   Label1.Update;
+
+  if CheckBox1.Checked then
+  begin
+    Caption := 'Bricklink Crawler (paused)';
+    Exit;
+  end
+  else
+    Caption := 'Bricklink Crawler';
 
   try
     if not cancrowl then
@@ -79,6 +118,18 @@ begin
     Label1.Font.Color := clMaroon;
     Label1.Update;
     db.Crawler;
+    if USDwarning then
+    begin
+      Beep;
+      Memo1.Lines.Add('Warnign - USD values (' + db.lastcrawlpiece + ') - time=' + FormatDateTime('c', Now));
+    end;
+    if FAILwarning then
+    begin
+      Beep;
+      Memo1.Lines.Add('Warnign - Failed to access priceguide (' + db.lastcrawlpiece + ') - time=' + FormatDateTime('c', Now));
+    end;
+    while Memo1.Lines.Count > 200 do
+      Memo1.Lines.Delete(0);
     Label1.Font.Color := clBlack;
     Label1.Update;
     Label2.Caption := db.lastcrawlpiece;
@@ -95,9 +146,12 @@ end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
-  cancrowl := false;
-  CrawlerTimer.Enabled := false;
-  db.Free;
+  if not doabort then
+  begin
+    cancrowl := false;
+    CrawlerTimer.Enabled := false;
+    db.Free;
+  end;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
@@ -108,6 +162,15 @@ end;
 procedure TForm1.TrackBar1Change(Sender: TObject);
 begin
   CrawlerTimer.Interval := 6000 - (TrackBar1.Position - 5) * 500;
+end;
+
+procedure TForm1.FormHide(Sender: TObject);
+begin
+  if doabort then
+  begin
+    Application.Terminate;
+    exit;
+  end;
 end;
 
 end.

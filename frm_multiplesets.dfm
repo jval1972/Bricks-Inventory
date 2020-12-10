@@ -1,11 +1,11 @@
 object MultipleSetsForm: TMultipleSetsForm
   Left = 718
   Top = 114
-  BorderIcons = []
+  BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Multiple Sets List'
-  ClientHeight = 198
-  ClientWidth = 232
+  ClientHeight = 250
+  ClientWidth = 229
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -550,63 +550,105 @@ object MultipleSetsForm: TMultipleSetsForm
   object Label1: TLabel
     Left = 18
     Top = 6
-    Width = 22
-    Height = 12
+    Width = 30
+    Height = 16
     Caption = 'Sets:'
     FocusControl = ListBox1
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
   end
   object ListBox1: TListBox
     Left = 18
     Top = 30
     Width = 121
-    Height = 103
-    ItemHeight = 12
+    Height = 155
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ItemHeight = 16
+    ParentFont = False
     TabOrder = 0
   end
   object Button1: TButton
-    Left = 72
-    Top = 156
+    Left = 48
+    Top = 204
     Width = 56
-    Height = 19
+    Height = 29
     Caption = 'OK'
     Default = True
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
     ModalResult = 1
+    ParentFont = False
     TabOrder = 1
   end
   object Button2: TButton
-    Left = 150
-    Top = 156
+    Left = 126
+    Top = 204
     Width = 56
-    Height = 19
+    Height = 29
     Cancel = True
     Caption = 'Cancel'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
     ModalResult = 2
+    ParentFont = False
     TabOrder = 2
   end
   object AddButton: TButton
     Left = 156
     Top = 30
-    Width = 56
-    Height = 19
+    Width = 61
+    Height = 27
     Caption = 'Add...'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 3
     OnClick = AddButtonClick
   end
   object RemoveButton: TButton
     Left = 156
-    Top = 54
-    Width = 56
-    Height = 19
+    Top = 62
+    Width = 61
+    Height = 27
     Caption = 'Remove'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 4
     OnClick = RemoveButtonClick
   end
   object Button3: TButton
     Left = 156
-    Top = 78
-    Width = 56
-    Height = 19
+    Top = 94
+    Width = 61
+    Height = 27
     Caption = 'Clear'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 5
     OnClick = Button3Click
   end

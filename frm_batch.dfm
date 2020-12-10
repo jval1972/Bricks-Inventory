@@ -554,6 +554,12 @@ object BatchLinkForm: TBatchLinkForm
     Align = alBottom
     BevelOuter = bvNone
     Caption = ' '
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 0
     object Panel2: TPanel
       Left = 200
@@ -595,12 +601,18 @@ object BatchLinkForm: TBatchLinkForm
     BevelOuter = bvNone
     BorderWidth = 8
     Caption = ' '
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 1
     object Memo1: TMemo
       Left = 8
-      Top = 24
+      Top = 33
       Width = 398
-      Height = 244
+      Height = 235
       Align = alClient
       ScrollBars = ssBoth
       TabOrder = 0
@@ -610,7 +622,7 @@ object BatchLinkForm: TBatchLinkForm
       Left = 8
       Top = 8
       Width = 398
-      Height = 16
+      Height = 25
       Align = alTop
       BevelOuter = bvNone
       Caption = ' '
@@ -618,8 +630,8 @@ object BatchLinkForm: TBatchLinkForm
       object Label1: TLabel
         Left = 8
         Top = 0
-        Width = 56
-        Height = 13
+        Width = 67
+        Height = 16
         Caption = 'Enter links: '
         FocusControl = Memo1
       end

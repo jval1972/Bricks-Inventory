@@ -90,7 +90,7 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=..\bin
+OutputDir=E:\BrickInventory\bin
 UnitOutputDir=..\dcu\crawler
 PackageDLLOutputDir=
 PackageDCPOutputDir=
@@ -105,6 +105,10 @@ HostApplication=
 Launcher=
 UseLauncher=0
 DebugCWD=
+[Language]
+ActiveLang=
+ProjectLang=
+RootDir=
 [Version Info]
 IncludeVerInfo=0
 AutoIncBuild=0
@@ -119,8 +123,6 @@ Private=0
 DLL=0
 Locale=1032
 CodePage=1253
-[Excluded Packages]
-c:\program files (x86)\borland\delphi7\Projects\Bpl\Package1.bpl=(untitled)
 [HistoryLists\hlConditionals]
 Count=1
 Item0=CRAWLER
@@ -131,5 +133,7 @@ Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 Count=1
 Item0=..\dcu\crawler
 [HistoryLists\hlOutputDirectorry]
-Count=1
-Item0=..\bin
+Count=3
+Item0=E:\BrickInventory\bin
+Item1=D:\LEGO\BrickInventory\bin
+Item2=..\bin

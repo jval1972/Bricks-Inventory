@@ -1,9 +1,11 @@
 object LugbulkSuggestForm: TLugbulkSuggestForm
   Left = 301
   Top = 177
-  Width = 865
-  Height = 282
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
   Caption = 'LUGBULK Suggestions'
+  ClientHeight = 243
+  ClientWidth = 849
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -549,46 +551,76 @@ object LugbulkSuggestForm: TLugbulkSuggestForm
   object Label1: TLabel
     Left = 16
     Top = 24
-    Width = 42
-    Height = 13
+    Width = 50
+    Height = 16
     Caption = 'Year(s): '
     FocusControl = Edit1
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
   end
   object Label2: TLabel
     Left = 16
     Top = 72
-    Width = 114
-    Height = 13
+    Width = 139
+    Height = 16
     Caption = 'Demand is higher than: '
     FocusControl = TrackBar1
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
   end
   object Label3: TLabel
     Left = 16
     Top = 104
-    Width = 118
-    Height = 13
+    Width = 148
+    Height = 16
     Caption = 'Pieces Sold are at least: '
     FocusControl = TrackBar2
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
   end
   object Label4: TLabel
     Left = 16
     Top = 136
-    Width = 92
-    Height = 13
+    Width = 114
+    Height = 16
     Caption = 'EUR/Kg is at least: '
     FocusControl = TrackBar3
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
   end
   object Edit1: TEdit
-    Left = 64
+    Left = 72
     Top = 24
     Width = 225
-    Height = 21
+    Height = 24
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 0
   end
   object TrackBar1: TTrackBar
-    Left = 136
+    Left = 168
     Top = 64
-    Width = 545
+    Width = 513
     Height = 33
     Max = 300
     Position = 100
@@ -596,9 +628,9 @@ object LugbulkSuggestForm: TLugbulkSuggestForm
     OnChange = TrackBar1Change
   end
   object TrackBar2: TTrackBar
-    Left = 136
+    Left = 168
     Top = 96
-    Width = 545
+    Width = 513
     Height = 33
     Max = 100
     Position = 10
@@ -606,9 +638,9 @@ object LugbulkSuggestForm: TLugbulkSuggestForm
     OnChange = TrackBar2Change
   end
   object TrackBar3: TTrackBar
-    Left = 136
+    Left = 168
     Top = 128
-    Width = 545
+    Width = 513
     Height = 33
     Max = 1000
     Min = 10
@@ -620,7 +652,13 @@ object LugbulkSuggestForm: TLugbulkSuggestForm
     Left = 688
     Top = 64
     Width = 128
-    Height = 21
+    Height = 24
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     ReadOnly = True
     TabOrder = 4
     Text = 'FEDIT1'
@@ -629,7 +667,13 @@ object LugbulkSuggestForm: TLugbulkSuggestForm
     Left = 688
     Top = 96
     Width = 128
-    Height = 21
+    Height = 24
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     ReadOnly = True
     TabOrder = 5
     Text = 'FEDIT2'
@@ -638,7 +682,13 @@ object LugbulkSuggestForm: TLugbulkSuggestForm
     Left = 688
     Top = 128
     Width = 128
-    Height = 21
+    Height = 24
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     ReadOnly = True
     TabOrder = 6
     Text = 'FEDIT3'
@@ -650,7 +700,13 @@ object LugbulkSuggestForm: TLugbulkSuggestForm
     Height = 25
     Caption = 'OK'
     Default = True
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
     ModalResult = 1
+    ParentFont = False
     TabOrder = 7
   end
   object Button2: TButton
@@ -660,7 +716,13 @@ object LugbulkSuggestForm: TLugbulkSuggestForm
     Height = 25
     Cancel = True
     Caption = 'Cancel'
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
     ModalResult = 2
+    ParentFont = False
     TabOrder = 8
   end
 end

@@ -1,5 +1,5 @@
 {$J+}
-unit mosaicfrm;
+unit mosaicfrm_tiles;
 
 interface
 
@@ -27,7 +27,7 @@ type
   end;
 
 const
-  NUMBRICKS = 15;
+  NUMTILES = 12;
 
 const
   MAXDIMENTION = 256;
@@ -43,10 +43,10 @@ type
   mosaic_t = array[0..MAXDIMENTION - 1, 0..MAXDIMENTION - 1] of mosaicitem_t;
   mosaic_p = ^mosaic_t;
 
-  TBrickMosaic = class
+  TBrickMosaicTiles = class
   private
     colorindexes: array[0..NUMCOLORINDEXES - 1] of mosaiccolorindex_t;
-    bricks: array[0..NUMBRICKS - 1] of mosaicbrick_t;
+    bricks: array[0..NUMTILES - 1] of mosaicbrick_t;
     fwidth, fheight: integer;
     fmosaic: mosaic_p;
     fbitmap: TBitmap;
@@ -71,7 +71,7 @@ type
   end;
 
 type
-  TMosaicForm = class(TForm)
+  TMosaicFormTiles = class(TForm)
     Panel1: TPanel;
     OpenPictureDialog1: TOpenPictureDialog;
     Edit1: TEdit;
@@ -130,7 +130,7 @@ type
     procedure MyUpdate;
   public
     { Public declarations }
-    mosaic: TBrickMosaic;
+    mosaic: TBrickMosaicTiles;
     function name: string;
   end;
 
@@ -142,22 +142,19 @@ uses
   clipbrd, bi_utils, bi_tmp, bi_globals;
 
 const
-  C_bricks: array[0..NUMBRICKS - 1] of mosaicbrick_t = (
-    (brick: '3001'; plate: '3020'; x: 2; y: 4; use: true),
-    (brick: '3002'; plate: '3021'; x: 2; y: 3; use: true),
-    (brick: '3003'; plate: '3022'; x: 2; y: 2; use: true),
-    (brick: '3004'; plate: '3023'; x: 1; y: 2; use: true),
-    (brick: '3005'; plate: '3024'; x: 1; y: 1; use: true),
-    (brick: '3006'; plate: '3832'; x: 2; y: 10; use: true),
-    (brick: '3007'; plate: '3034'; x: 2; y: 8; use: true),
-    (brick: '3008'; plate: '3460'; x: 1; y: 8; use: true),
-    (brick: '3009'; plate: '3666'; x: 1; y: 6; use: true),
-    (brick: '3010'; plate: '3710'; x: 1; y: 4; use: true),
-    (brick: '3622'; plate: '3623'; x: 1; y: 3; use: true),
-    (brick: '6111'; plate: '4477'; x: 1; y: 10; use: true),
-    (brick: '6112'; plate: '60479'; x: 1; y: 12; use: true),
-    (brick: '2465'; plate: 'Mx1616M'; x: 1; y: 16; use: true),
-    (brick: '2456'; plate: '3795'; x: 2; y: 6; use: true)
+  C_bricks: array[0..NUMTILES - 1] of mosaicbrick_t = (
+    (brick: '3070b'; plate: ''; x: 1; y: 1; use: true),
+    (brick: '3069b'; plate: ''; x: 1; y: 2; use: true),
+    (brick: '3068b'; plate: ''; x: 2; y: 2; use: true),
+    (brick: '63864'; plate: ''; x: 1; y: 3; use: true),
+    (brick: '2431'; plate: ''; x: 1; y: 4; use: true),
+    (brick: '6636'; plate: ''; x: 1; y: 6; use: true),
+    (brick: '4162'; plate: ''; x: 1; y: 8; use: true),
+    (brick: '26603'; plate: ''; x: 2; y: 3; use: true),
+    (brick: '87079'; plate: ''; x: 2; y: 4; use: true),
+    (brick: '6881'; plate: ''; x: 6; y: 6; use: true),
+    (brick: '90498'; plate: ''; x: 8; y: 16; use: true),
+    (brick: '48288'; plate: ''; x: 8; y: 16; use: true)
   );
 
 const
@@ -203,7 +200,7 @@ function brickindex(const brick: string): Integer;
 var
   i: integer;
 begin
-  for i := 0 to NUMBRICKS - 1 do
+  for i := 0 to NUMTILES - 1 do
     if brick = C_bricks[i].brick then
     begin
       Result := i;
@@ -216,7 +213,7 @@ function brickdimentionx(const brick: string): Integer;
 var
   i: integer;
 begin
-  for i := 0 to NUMBRICKS - 1 do
+  for i := 0 to NUMTILES - 1 do
     if brick = C_bricks[i].brick then
     begin
       Result := C_bricks[i].x;
@@ -229,7 +226,7 @@ function brickdimentiony(const brick: string): Integer;
 var
   i: integer;
 begin
-  for i := 0 to NUMBRICKS - 1 do
+  for i := 0 to NUMTILES - 1 do
     if brick = C_bricks[i].brick then
     begin
       Result := C_bricks[i].y;
@@ -242,7 +239,7 @@ function brickdimentions(const brick: string): Integer;
 var
   i: integer;
 begin
-  for i := 0 to NUMBRICKS - 1 do
+  for i := 0 to NUMTILES - 1 do
     if brick = C_bricks[i].brick then
     begin
       Result := C_bricks[i].x * C_bricks[i].y;
@@ -270,7 +267,7 @@ begin
     Result := -1;
 end;
 
-constructor TBrickMosaic.Create;
+constructor TBrickMosaicTiles.Create;
 var
   i, j: integer;
   pci: TPieceColorInfo;
@@ -289,7 +286,7 @@ begin
   fheight := 0;
   GetMem(fmosaic, SizeOf(mosaic_t));
 
-  for i := 0 to NUMBRICKS - 1 do
+  for i := 0 to NUMTILES - 1 do
   begin
     bricks[i] := C_bricks[i];
     bricks[i].colors := TDNumberList.Create;
@@ -298,10 +295,10 @@ begin
   begin
     colorindexes[i] := C_colorindexes[i];
     colorindexes[i].pieces := TStringList.Create;
-    pci := db.PieceColorInfo('3005', colorindexes[i].idx);
+    pci := db.PieceColorInfo('3070b', colorindexes[i].idx);
     if pci <> nil then
     begin
-      colorindexes[i].pieces.AddObject('3005', pci);
+      colorindexes[i].pieces.AddObject('3070b', pci);
 {      if pci.EvaluatePriceUsed > 0.10 then
         colorindexes[i].idx := -1;}
     end
@@ -312,7 +309,7 @@ begin
     if colorindexes[i].idx <> -1 then
     begin
       price_per_stud := (colorindexes[i].pieces.Objects[0] as TPieceColorInfo).EvaluatePriceUsed;
-      for j := 0 to NUMBRICKS - 1 do
+      for j := 0 to NUMTILES - 1 do
         if colorindexes[i].pieces.IndexOf(bricks[j].brick) = -1 then
         begin
           pci := db.PieceColorInfo(bricks[j].brick, colorindexes[i].idx);
@@ -324,11 +321,11 @@ begin
     end;
 end;
 
-destructor TBrickMosaic.Destroy;
+destructor TBrickMosaicTiles.Destroy;
 var
   i: integer;
 begin
-  for i := 0 to NUMBRICKS - 1 do
+  for i := 0 to NUMTILES - 1 do
     bricks[i].colors.Free;
   for i := 0 to NUMCOLORINDEXES - 1 do
     colorindexes[i].pieces.Free;
@@ -402,7 +399,7 @@ begin
   result.V := 0.615 * r - 0.51499 * g - 0.10001 * b;
 end;
 
-procedure TBrickMosaic.nearestcolorRGB(const c: LongWord; var ret: TColor; var color: integer);
+procedure TBrickMosaicTiles.nearestcolorRGB(const c: LongWord; var ret: TColor; var color: integer);
 var
   r, g, b: integer;
   rc, gc, bc: integer;
@@ -438,7 +435,7 @@ begin
     end;
 end;
 
-procedure TBrickMosaic.nearestcolorYUV(const c: LongWord; var ret: TColor; var color: integer);
+procedure TBrickMosaicTiles.nearestcolorYUV(const c: LongWord; var ret: TColor; var color: integer);
 var
   A: TYUV;
   i: integer;
@@ -464,13 +461,10 @@ begin
     end;
 end;
 
-procedure TBrickMosaic.BitmapDraw(const x, y, x2, y2: Integer; const color: Integer);
+procedure TBrickMosaicTiles.BitmapDraw(const x, y, x2, y2: Integer; const color: Integer);
 var
   bx1, bx2, by1, by2: integer;
   cinfo: colorinfo_p;
-  r, g, b: integer;
-  i, j: integer;
-  dxy: Integer;
 begin
   bx1 := x * MOSAICBITMAPZOOM;
   by1 := y * MOSAICBITMAPZOOM;
@@ -491,28 +485,9 @@ begin
   fplanebitmap.Canvas.Brush.Color := RGBInvert(cinfo.RGB);
   fplanebitmap.Canvas.Brush.Style := bsSolid;
   fplanebitmap.Canvas.Rectangle(bx1, by1, bx2, by2);
-
-  r := 255 - (255 - GetRValue(RGBInvert(cinfo.RGB))) div 2;
-  if r > 200 then
-    r := r div 2;
-  g := 255 - (255 - GetGValue(RGBInvert(cinfo.RGB))) div 2;
-  if g > 200 then
-    g := g div 2;
-  b := 255 - (255 - GetBValue(RGBInvert(cinfo.RGB))) div 2;
-  if b > 200 then
-    b := b div 2;
-  fbitmap.Canvas.Pen.Color := RGB(r, g, b);
-  dxy := MOSAICBITMAPZOOM div 5;
-  for i := x to x2 - 1 do
-    for j := y to y2 - 1 do
-      fbitmap.Canvas.Ellipse(
-        i * MOSAICBITMAPZOOM + dxy,
-        j * MOSAICBITMAPZOOM + dxy,
-        (i + 1) * MOSAICBITMAPZOOM - dxy,
-        (j + 1) * MOSAICBITMAPZOOM - dxy);
 end;
 
-procedure TBrickMosaic.CheckMosaicItemPass1(const x, y: integer);
+procedure TBrickMosaicTiles.CheckMosaicItemPass1(const x, y: integer);
 var
   i, j, k: integer;
   dx, dy: integer;
@@ -591,7 +566,7 @@ begin
 
 end;
 
-procedure TBrickMosaic.CheckMosaicItemPass2(const x, y: integer);
+procedure TBrickMosaicTiles.CheckMosaicItemPass2(const x, y: integer);
 var
   i, j, k: integer;
   dx, dy: integer;
@@ -668,7 +643,7 @@ begin
 
 end;
 
-procedure TBrickMosaic.BitmapColorTransform(const bmp: TBitmap);
+procedure TBrickMosaicTiles.BitmapColorTransform(const bmp: TBitmap);
 var
   x, y: integer;
   col: TColor;
@@ -719,7 +694,7 @@ begin
 end;
 
 ////////////////////////////////////////////////////////////////////////////////
-function TMosaicForm.MosaicColorIndexFromName(const name: string): integer;
+function TMosaicFormTiles.MosaicColorIndexFromName(const name: string): integer;
 var
   i: integer;
 begin
@@ -733,7 +708,7 @@ begin
   Result := 0;
 end;
 
-procedure TMosaicForm.MyUpdate;
+procedure TMosaicFormTiles.MyUpdate;
 var
   i, idx: integer;
   nchecked: integer;
@@ -774,7 +749,7 @@ begin
       end;
     end;
 
-    CheckListBox2.Checked[brickindex('3005')] := true;
+    CheckListBox2.Checked[brickindex('3070b')] := true;
     for i := 0 to CheckListBox2.Items.Count - 1 do
       mosaic.bricks[i].use := CheckListBox2.Checked[i];
 
@@ -785,7 +760,7 @@ begin
 
       mosaic.BitmapColorTransform(Image1.Picture.Bitmap);
 
-      tmpname := I_NewTempFile('mosaic') + '.bmp';
+      tmpname := I_NewTempFile('mosaic_tiles_') + '.bmp';
       mosaic.Bitmap.SaveToFile(tmpname);
       Image2.Picture.LoadFromFile(tmpname);
       DeleteFile(tmpname);
@@ -810,7 +785,7 @@ begin
   end;
 end;
 
-procedure TMosaicForm.Button1Click(Sender: TObject);
+procedure TMosaicFormTiles.Button1Click(Sender: TObject);
 begin
   if OpenPictureDialog1.Execute then
   begin
@@ -846,7 +821,7 @@ begin
   ChDir(basedir);
 end;
 
-procedure TMosaicForm.FormCreate(Sender: TObject);
+procedure TMosaicFormTiles.FormCreate(Sender: TObject);
 var
   i: integer;
 begin
@@ -857,39 +832,39 @@ begin
   TrackBar1.Max := MAXDIMENTION;
   TrackBar2.Min := 1;
   TrackBar2.Max := MAXDIMENTION;
-  mosaic := TBrickMosaic.Create;
+  mosaic := TBrickMosaicTiles.Create;
   CheckListBox1.Items.Clear;
   for i := 0 to NUMCOLORINDEXES - 1 do
     if mosaic.colorindexes[i].idx >= 0 then
       CheckListBox1.Checked[CheckListBox1.Items.Add(db.Colors(mosaic.colorindexes[i].idx).name)] := true;
   CheckListBox2.Items.Clear;
-  for i := 0 to NUMBRICKS - 1 do
+  for i := 0 to NUMTILES - 1 do
     CheckListBox2.Checked[CheckListBox2.Items.Add(mosaic.bricks[i].brick + ' (' + db.PieceDesc(mosaic.bricks[i].brick) + ')')] := mosaic.bricks[i].use;
   MyUpdate;
 end;
 
-procedure TMosaicForm.TrackBar1Change(Sender: TObject);
+procedure TMosaicFormTiles.TrackBar1Change(Sender: TObject);
 begin
   MyUpdate;
 end;
 
-procedure TMosaicForm.TrackBar2Change(Sender: TObject);
+procedure TMosaicFormTiles.TrackBar2Change(Sender: TObject);
 begin
   MyUpdate;
 end;
 
-procedure TMosaicForm.FormDestroy(Sender: TObject);
+procedure TMosaicFormTiles.FormDestroy(Sender: TObject);
 begin
   mosaic.Free;
   pic.Free;
 end;
 
-procedure TMosaicForm.CheckListBox1Click(Sender: TObject);
+procedure TMosaicFormTiles.CheckListBox1Click(Sender: TObject);
 begin
   MyUpdate;
 end;
 
-function TMosaicForm.name: string;
+function TMosaicFormTiles.name: string;
 begin
   result := ExtractFileName(Edit1.Text);
   if Pos('.', Result) > 0 then
@@ -897,17 +872,17 @@ begin
       SetLength(Result, Length(Result) - 1);
 end;
 
-procedure TMosaicForm.CheckListBox2Click(Sender: TObject);
+procedure TMosaicFormTiles.CheckListBox2Click(Sender: TObject);
 begin
   MyUpdate;
 end;
 
-procedure TMosaicForm.RadioGroup1Click(Sender: TObject);
+procedure TMosaicFormTiles.RadioGroup1Click(Sender: TObject);
 begin
   MyUpdate;
 end;
 
-procedure TMosaicForm.Image2Resize(Sender: TObject);
+procedure TMosaicFormTiles.Image2Resize(Sender: TObject);
 begin
   if Image2.AutoSize then
   begin
@@ -927,12 +902,12 @@ begin
   end
 end;
 
-procedure TMosaicForm.SpeedButton1Click(Sender: TObject);
+procedure TMosaicFormTiles.SpeedButton1Click(Sender: TObject);
 begin
   Clipboard.Assign(Image2.Picture.Bitmap);
 end;
 
-procedure TMosaicForm.Panel13DblClick(Sender: TObject);
+procedure TMosaicFormTiles.Panel13DblClick(Sender: TObject);
 var
   value1, value2: integer;
 begin

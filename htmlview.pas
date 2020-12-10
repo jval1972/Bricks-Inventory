@@ -907,15 +907,15 @@ end;
 {----------------THtmlViewer.LoadStrings}
 procedure THtmlViewer.LoadStrings(const Strings: TStrings; const Reference: string);
 begin
-LoadString(Strings.Text, Reference, HTMLType);
-if (FRefreshDelay > 0) and Assigned(FOnMetaRefresh) then
-  FOnMetaRefresh(Self, FRefreshDelay, FRefreshURL);
+  LoadString(Strings.Text, Reference, HTMLType);
+  if (FRefreshDelay > 0) and Assigned(FOnMetaRefresh) then
+    FOnMetaRefresh(Self, FRefreshDelay, FRefreshURL);
 end;
 
 {----------------THtmlViewer.LoadTextStrings}
 procedure THtmlViewer.LoadTextStrings(Strings: TStrings);
 begin
-LoadString(Strings.Text, '', TextType);
+  LoadString(Strings.Text, '', TextType);
 end;
 
 {----------------ThtmlViewer.LoadFromBuffer}
@@ -923,30 +923,30 @@ procedure ThtmlViewer.LoadFromBuffer(Buffer: PChar; BufSize: integer; const Refe
 var
   S: string;
 begin
-SetLength(S, BufSize);
-Move(Buffer^, S[1], BufSize);
-LoadString(S, Reference, HTMLType);
-if (FRefreshDelay > 0) and Assigned(FOnMetaRefresh) then
-  FOnMetaRefresh(Self, FRefreshDelay, FRefreshURL);
+  SetLength(S, BufSize);
+  Move(Buffer^, S[1], BufSize);
+  LoadString(S, Reference, HTMLType);
+  if (FRefreshDelay > 0) and Assigned(FOnMetaRefresh) then
+    FOnMetaRefresh(Self, FRefreshDelay, FRefreshURL);
 end;
 
 {----------------ThtmlViewer.LoadTextFromString}
 procedure ThtmlViewer.LoadTextFromString(const S: string);
 begin
-LoadString(S, '', TextType);
+  LoadString(S, '', TextType);
 end;
 
 procedure ThtmlViewer.LoadHtmlFromString(const S: string);
 begin
-LoadString(S, '', HtmlType);
+  LoadString(S, '', HtmlType);
 end;
 
 {----------------ThtmlViewer.LoadFromString}
 procedure ThtmlViewer.LoadFromString(const S: string; const Reference: string);
 begin
-LoadString(S, Reference, HTMLType);
-if (FRefreshDelay > 0) and Assigned(FOnMetaRefresh) then
-  FOnMetaRefresh(Self, FRefreshDelay, FRefreshURL);
+  LoadString(S, Reference, HTMLType);
+  if (FRefreshDelay > 0) and Assigned(FOnMetaRefresh) then
+    FOnMetaRefresh(Self, FRefreshDelay, FRefreshURL);
 end;
 
 {$ifdef Delphi6_Plus}
@@ -957,56 +957,56 @@ end;
 {$endif}
 
 {----------------ThtmlViewer.LoadString}
-procedure ThtmlViewer.LoadString(const Source, Reference: string; ft: ThtmlFileType);  
+procedure ThtmlViewer.LoadString(const Source, Reference: string; ft: ThtmlFileType);
 var
   I: integer;
   Dest, FName, OldFile: string;
-
 begin
-if FProcessing then Exit;
-SetProcessing(True);
-FRefreshDelay := 0;
-FName := Reference;
-I := Pos('#', FName);
-if I > 0 then
+  if FProcessing then Exit;
+  SetProcessing(True);
+  FRefreshDelay := 0;
+  FName := Reference;
+  I := Pos('#', FName);
+  if I > 0 then
   begin
-  Dest := Copy(FName, I+1, Length(FName)-I);  {positioning information} 
-  FName := Copy(FName, 1, I-1);
+    Dest := Copy(FName, I+1, Length(FName)-I);  {positioning information}
+    FName := Copy(FName, 1, I-1);
   end
-else Dest := '';
-DontDraw := True;    
-try
-  OldFile := FCurrentFile;
-  FCurrentFile := ExpandFileName(FName);
-  FCurrentFileType := ft;
-  FSectionList.ProgressStart := 75;
-  htProgressInit;    
-  InitLoad;
-  CaretPos := 0;
-  Sel1 := -1;
-  if Assigned(FOnSoundRequest) then
-    FOnSoundRequest(Self, '', 0, True);
-  FDocumentSource := Source;
-  if Assigned(FOnParseBegin) then
-    FOnParseBegin(Self, FDocumentSource);
-  if Ft = HTMLType then
-    ParseHTMLString(FDocumentSource, FSectionList, FOnInclude, FOnSoundRequest, HandleMeta, FOnLink)
   else
-    ParseTextString(FDocumentSource, FSectionList);
-  SetupAndLogic;
-  CheckVisitedLinks;
-  if (Dest <> '') and PositionTo(Dest) then  {change position, if applicable}
-  else if (FCurrentFile = '') or (FCurrentFile <> OldFile) then
-     begin
-     ScrollTo(0);
-     HScrollBar.Position := 0;
-     end;
-  {else if same file leave position alone}
-  PaintPanel.Invalidate;
-finally
-  htProgressEnd;
-  SetProcessing(False);
-  DontDraw := False;    
+    Dest := '';
+  DontDraw := True;
+  try
+    OldFile := FCurrentFile;
+    FCurrentFile := ExpandFileName(FName);
+    FCurrentFileType := ft;
+    FSectionList.ProgressStart := 75;
+    htProgressInit;
+    InitLoad;
+    CaretPos := 0;
+    Sel1 := -1;
+    if Assigned(FOnSoundRequest) then
+      FOnSoundRequest(Self, '', 0, True);
+    FDocumentSource := Source;
+    if Assigned(FOnParseBegin) then
+      FOnParseBegin(Self, FDocumentSource);
+    if Ft = HTMLType then
+      ParseHTMLString(FDocumentSource, FSectionList, FOnInclude, FOnSoundRequest, HandleMeta, FOnLink)
+    else
+      ParseTextString(FDocumentSource, FSectionList);
+    SetupAndLogic;
+    CheckVisitedLinks;
+    if (Dest <> '') and PositionTo(Dest) then  {change position, if applicable}
+    else if (FCurrentFile = '') or (FCurrentFile <> OldFile) then
+    begin
+      ScrollTo(0);
+      HScrollBar.Position := 0;
+    end;
+    {else if same file leave position alone}
+    PaintPanel.Invalidate;
+  finally
+    htProgressEnd;
+    SetProcessing(False);
+    DontDraw := False;
   end;
 end;
 

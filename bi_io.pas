@@ -24,7 +24,7 @@ procedure I_IOprintf(const s: string);
 implementation
 
 uses
-  Windows, Forms, main;
+  Windows, Forms, main, bi_utils;
 
 procedure I_IOMessageBox(const s: string);
 begin
@@ -104,6 +104,9 @@ begin
   efilename := 'bi_stderr.txt';
   sfilename := 'bi_stdout.txt';
 
+  backupfile(dfilename);
+  backupfile(efilename);
+  backupfile(sfilename);
   printf(' error output to: %s' + #13#10, [efilename]);
   stderr := TFileStream.Create(efilename, fCreate);
   printf(' debug output to: %s' + #13#10, [dfilename]);

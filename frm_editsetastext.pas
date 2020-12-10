@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls, ComCtrls;
+  Dialogs, ExtCtrls, StdCtrls, ComCtrls, Buttons;
 
 type
   TEditSetAsTextForm = class(TForm)
@@ -19,21 +19,43 @@ type
     Edit1: TEdit;
     Label2: TLabel;
     Edit2: TEdit;
+    CheckBox1: TCheckBox;
+    Panel2: TPanel;
+    Label3: TLabel;
+    txtPart: TEdit;
+    SpeedButton1: TSpeedButton;
+    boxColor: TComboBox;
+    Label4: TLabel;
+    Label5: TLabel;
+    txtNum: TEdit;
+    AddButton: TButton;
+    ModifyButton: TButton;
+    ImportButton: TButton;
+    OpenDialog1: TOpenDialog;
+    procedure FormCreate(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure AddButtonClick(Sender: TObject);
+    procedure ModifyButtonClick(Sender: TObject);
+    procedure txtNumKeyPress(Sender: TObject; var Key: Char);
+    procedure ImportButtonClick(Sender: TObject);
   private
     { Private declarations }
+    procedure PopulateColors;
+    function GetEditLineInfo(var spart, scolor, snum: string): boolean;
   public
     { Public declarations }
   end;
 
-function EditSetAsTextForm(const setid: string; var data: string; var desc: string; var year: integer): boolean;
+function EditSetAsTextForm(const setid: string; var data: string; var desc: string; var year: integer; var ismoc: boolean): boolean;
 
 implementation
 
 {$R *.dfm}
 
-uses bi_delphi;
+uses
+  bi_delphi, bi_db, bi_globals, bi_utils, searchpart, ImportFileForm;
 
-function EditSetAsTextForm(const setid: string; var data: string; var desc: string; var year: integer): boolean;
+function EditSetAsTextForm(const setid: string; var data: string; var desc: string; var year: integer; var ismoc: boolean): boolean;
 var
   f: TEditSetAsTextForm;
 begin
@@ -44,16 +66,157 @@ begin
     f.Memo1.Text := data;
     f.Edit1.Text := desc;
     f.Edit2.Text := itoa(year);
+    f.CheckBox1.Checked := ismoc;
     f.ShowModal;
     if f.ModalResult = mrOK then
     begin
       data := f.Memo1.Text;
       desc := f.Edit1.Text;
       year := atoi(trim(f.Edit2.Text));
+      ismoc := f.CheckBox1.Checked;
       result := true;
     end;
   finally
     f.Free;
+  end;
+end;
+
+procedure TEditSetAsTextForm.FormCreate(Sender: TObject);
+begin
+  PageControl1.ActivePageIndex := 0;
+  PopulateColors;
+end;
+
+procedure TEditSetAsTextForm.PopulateColors;
+var
+  n: integer;
+  color: colorinfo_p;
+begin
+  boxColor.Items.Clear;
+  for n := 0 to MAXINFOCOLOR do
+  begin
+    color := db.Colors(n);
+    if (color.id = n) and (Length(Trim(color.name)) > 0) then
+      boxColor.AddItem(LeftPad(IntToStr(color.id), 4, ' ') + ' : ' + color.name, TObject(color.id));
+  end;
+  if boxColor.Items.Count > 0 then
+    boxColor.ItemIndex := 0;
+end;
+
+procedure TEditSetAsTextForm.SpeedButton1Click(Sender: TObject);
+var
+  sp: string;
+begin
+  sp := txtPart.Text;
+  if GetPieceID(sp) then
+    txtPart.Text := sp;
+end;
+
+function TEditSetAsTextForm.GetEditLineInfo(var spart, scolor, snum: string): boolean;
+var
+  pi: TPieceInfo;
+  p: integer;
+begin
+  Result := False;
+  spart := txtPart.Text;
+  pi := db.PieceInfo(spart);
+  if pi.desc = '(Unknown)' then
+  begin
+    ShowMessage(Format('Unknown piece %s', [spart]));
+    try txtPart.SetFocus; except end;
+    exit;
+  end;
+  p := Pos(':', boxColor.Text);
+  if p = 0 then
+  begin
+    ShowMessage('Please specify the color');
+    try boxColor.SetFocus; except end;
+    exit;
+  end;
+  scolor :=  Trim(Copy(boxColor.Text, 0, p - 1));
+  snum := txtNum.Text;
+  if StrToIntDef(snum, -1) <= 0 then
+  begin
+    ShowMessage('Please type the quantity');
+    try txtNum.SetFocus; except end;
+    exit;
+  end;
+  Result := True;
+end;
+
+procedure TEditSetAsTextForm.AddButtonClick(Sender: TObject);
+var
+  spart, scolor, snum: string;
+begin
+  if GetEditLineInfo(spart, scolor, snum) then
+    Memo1.Lines.Insert(1, spart + ',' + scolor + ',' + snum);
+end;
+
+procedure TEditSetAsTextForm.ModifyButtonClick(Sender: TObject);
+var
+  spart, scolor, snum: string;
+  stmp: string;
+  i: integer;
+  idx: integer;
+begin
+  if GetEditLineInfo(spart, scolor, snum) then
+  begin
+    stmp := spart + ',' + scolor + ',';
+    idx := 0;
+    
+    for i := 1 to Memo1.Lines.Count - 1 do
+    begin
+      if Pos(UpperCase(stmp), UpperCase(Memo1.Lines.Strings[i])) = 1 then
+      begin
+        idx := i;
+        break;
+      end;
+    end;
+
+    if idx > 0 then
+    begin
+      if StrToIntDef(snum, 0) > 0 then
+        Memo1.Lines.Strings[idx] := stmp + snum
+      else
+        Memo1.Lines.Delete(idx);
+    end
+    else
+      ShowMessage('Current inventory does not contain the specified part');
+  end;
+end;
+
+procedure TEditSetAsTextForm.txtNumKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if not (Key in [#8, '0'..'9']) then
+    Key := #0;
+end;
+
+procedure TEditSetAsTextForm.ImportButtonClick(Sender: TObject);
+var
+  data: TStringList;
+  ordValue: integer;
+  source: sourcetype_t;
+begin
+  if OpenDialog1.Execute then
+  begin
+    data := TStringList.Create;
+    try
+      ordValue := OpenDialog1.FilterIndex;
+      if (ordValue >= Ord(Low(sourcetype_t))) and (ordValue <= Ord(High(sourcetype_t))) then
+        source := sourcetype_t(ordValue)
+       else
+        source := stBrickLink;
+
+      if source = stLDraw then
+        Memo1.Lines.Add(LDrawToCSV(OpenDialog1.FileName))
+      else if source = stLDCad then
+        Memo1.Lines.Add(LDCadToCSV(OpenDialog1.FileName))
+      else if GetDataFromFile(OpenDialog1.FileName, source, data) then
+        Memo1.Lines.AddStrings(data);
+    finally
+      data.Free;
+    end;
   end;
 end;
 

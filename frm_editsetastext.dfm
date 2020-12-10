@@ -2,7 +2,8 @@ object EditSetAsTextForm: TEditSetAsTextForm
   Left = 380
   Top = 263
   Width = 620
-  Height = 379
+  Height = 386
+  BorderIcons = [biSystemMenu, biMaximize]
   Caption = 'Edit Set As Text'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -542,6 +543,7 @@ object EditSetAsTextForm: TEditSetAsTextForm
     0000000000000000000000000000000000000000000000000000000000000000
     000000000000000000000000000000000000000000000000000000000000}
   OldCreateOrder = False
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
@@ -551,11 +553,17 @@ object EditSetAsTextForm: TEditSetAsTextForm
     Height = 41
     Align = alTop
     Caption = ' '
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 0
     object Button1: TButton
       Left = 16
       Top = 8
-      Width = 89
+      Width = 97
       Height = 25
       Caption = 'Save and exit'
       ModalResult = 1
@@ -570,14 +578,29 @@ object EditSetAsTextForm: TEditSetAsTextForm
       ModalResult = 2
       TabOrder = 1
     end
+    object ImportButton: TButton
+      Left = 496
+      Top = 8
+      Width = 81
+      Height = 25
+      Caption = 'Import...'
+      TabOrder = 2
+      OnClick = ImportButtonClick
+    end
   end
   object PageControl1: TPageControl
     Left = 0
     Top = 41
     Width = 604
-    Height = 299
+    Height = 306
     ActivePage = TabSheet1
     Align = alClient
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 1
     object TabSheet1: TTabSheet
       Caption = 'Parts'
@@ -585,11 +608,97 @@ object EditSetAsTextForm: TEditSetAsTextForm
         Left = 0
         Top = 0
         Width = 596
-        Height = 271
+        Height = 213
         Align = alClient
         ScrollBars = ssBoth
         TabOrder = 0
         WordWrap = False
+      end
+      object Panel2: TPanel
+        Left = 0
+        Top = 213
+        Width = 596
+        Height = 62
+        Align = alBottom
+        BevelOuter = bvNone
+        Caption = ' '
+        TabOrder = 1
+        object Label3: TLabel
+          Left = 32
+          Top = 8
+          Width = 30
+          Height = 16
+          Caption = 'Part: '
+          FocusControl = txtPart
+        end
+        object SpeedButton1: TSpeedButton
+          Left = 152
+          Top = 24
+          Width = 23
+          Height = 22
+          Caption = '...'
+          Flat = True
+          OnClick = SpeedButton1Click
+        end
+        object Label4: TLabel
+          Left = 176
+          Top = 8
+          Width = 38
+          Height = 16
+          Caption = 'Color: '
+          FocusControl = boxColor
+        end
+        object Label5: TLabel
+          Left = 320
+          Top = 8
+          Width = 34
+          Height = 16
+          Caption = 'Num: '
+          FocusControl = txtNum
+        end
+        object txtPart: TEdit
+          Left = 32
+          Top = 24
+          Width = 121
+          Height = 24
+          TabOrder = 0
+        end
+        object boxColor: TComboBox
+          Left = 176
+          Top = 24
+          Width = 145
+          Height = 24
+          Style = csDropDownList
+          ItemHeight = 16
+          TabOrder = 1
+        end
+        object txtNum: TEdit
+          Left = 320
+          Top = 24
+          Width = 57
+          Height = 24
+          TabOrder = 2
+          Text = '0'
+          OnKeyPress = txtNumKeyPress
+        end
+        object AddButton: TButton
+          Left = 384
+          Top = 24
+          Width = 75
+          Height = 25
+          Caption = 'Add'
+          TabOrder = 3
+          OnClick = AddButtonClick
+        end
+        object ModifyButton: TButton
+          Left = 464
+          Top = 24
+          Width = 75
+          Height = 25
+          Caption = 'Modify'
+          TabOrder = 4
+          OnClick = ModifyButtonClick
+        end
       end
     end
     object TabSheet2: TTabSheet
@@ -598,33 +707,50 @@ object EditSetAsTextForm: TEditSetAsTextForm
       object Label1: TLabel
         Left = 16
         Top = 8
-        Width = 60
-        Height = 13
+        Width = 74
+        Height = 16
         Caption = 'Description: '
       end
       object Label2: TLabel
         Left = 16
         Top = 32
-        Width = 29
-        Height = 13
+        Width = 35
+        Height = 16
         Caption = 'Year: '
       end
       object Edit1: TEdit
         Left = 88
         Top = 8
-        Width = 121
-        Height = 21
-        ReadOnly = True
+        Width = 345
+        Height = 24
         TabOrder = 0
       end
       object Edit2: TEdit
         Left = 88
         Top = 32
         Width = 121
-        Height = 21
-        ReadOnly = True
+        Height = 24
         TabOrder = 1
       end
+      object CheckBox1: TCheckBox
+        Left = 88
+        Top = 64
+        Width = 97
+        Height = 17
+        Caption = 'Moc'
+        TabOrder = 2
+      end
     end
+  end
+  object OpenDialog1: TOpenDialog
+    DefaultExt = 'csv'
+    Filter = 
+      'BrickLink CSV (Tab-Delimeted file)|*.csv;*.txt|Rebrickable CSV (' +
+      'Comma-Delimeted file)|*.csv;*.txt|LDCad PBG (Parts Bin)|*.pbg|LD' +
+      'raw Model|*.mpd;*.ldr'
+    Options = [ofReadOnly, ofPathMustExist, ofFileMustExist, ofNoNetworkButton, ofEnableSizing]
+    Title = 'Import File'
+    Left = 528
+    Top = 84
   end
 end

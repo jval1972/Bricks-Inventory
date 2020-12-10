@@ -1,11 +1,11 @@
 object SearchSetForm: TSearchSetForm
-  Left = 433
-  Top = 188
-  BorderIcons = []
+  Left = 539
+  Top = 128
+  BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Search Set'
-  ClientHeight = 155
-  ClientWidth = 257
+  ClientHeight = 534
+  ClientWidth = 229
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -551,44 +551,85 @@ object SearchSetForm: TSearchSetForm
   object Label1: TLabel
     Left = 18
     Top = 6
-    Width = 56
-    Height = 12
+    Width = 70
+    Height = 16
     Caption = 'Enter SetID:'
     FocusControl = Edit1
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
   end
   object Edit1: TEdit
-    Left = 78
+    Left = 104
     Top = 6
-    Width = 91
+    Width = 113
     Height = 24
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 0
   end
   object ListBox1: TListBox
     Left = 12
     Top = 36
-    Width = 229
-    Height = 73
-    ItemHeight = 12
+    Width = 205
+    Height = 421
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ItemHeight = 16
+    ParentFont = False
     TabOrder = 1
     OnClick = ListBox1Click
   end
-  object Button1: TButton
-    Left = 54
-    Top = 126
-    Width = 56
-    Height = 19
-    Caption = 'OK'
-    Default = True
-    ModalResult = 1
+  object Panel1: TPanel
+    Left = 0
+    Top = 472
+    Width = 229
+    Height = 62
+    Align = alBottom
+    BevelOuter = bvNone
+    Caption = ' '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 2
-  end
-  object Button2: TButton
-    Left = 132
-    Top = 126
-    Width = 56
-    Height = 19
-    Caption = 'Cancel'
-    ModalResult = 2
-    TabOrder = 3
+    object Label2: TLabel
+      Left = 8
+      Top = -1
+      Width = 41
+      Height = 16
+      Caption = 'Label2'
+    end
+    object Button1: TButton
+      Left = 40
+      Top = 24
+      Width = 65
+      Height = 25
+      Caption = 'OK'
+      Default = True
+      ModalResult = 1
+      TabOrder = 0
+    end
+    object Button2: TButton
+      Left = 124
+      Top = 24
+      Width = 61
+      Height = 25
+      Caption = 'Cancel'
+      ModalResult = 2
+      TabOrder = 1
+    end
   end
 end

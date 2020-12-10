@@ -12,7 +12,15 @@ function NET_GetBricklinkAlias(const id: string): string;
 
 var
   AllowInternetAccess: Boolean = True;
-  
+
+function issticker(const part: string): Boolean;
+
+{$IFDEF CRAWLER}
+var
+  USDwarning: Boolean = false;
+  FAILwarning: Boolean = false;
+{$ENDIF}
+
 implementation
 
 uses
@@ -100,6 +108,21 @@ begin
   until BufferLen = 0;
 end;
 
+function issticker(const part: string): Boolean;
+var
+  p: integer;
+begin
+  p := Pos('stk', part);
+  if (p > 1) and (p + 3 <= Length(part)) then
+    if IsNumericC(part[p - 1]) then
+      if IsNumericC(part[p + 3]) then
+      begin
+        result := true;
+        exit;
+      end;
+  result := false;
+end;
+
 function NET_GetPriceGuideForElement(id: string; const color: string;
   var ret1: priceguide_t; var ret2: availability_t; const cachefile: string): boolean;
 var
@@ -117,8 +140,15 @@ var
   idx: integer;
   skeep: string;
   loadedfromcache: boolean;
+  isdollar: Boolean;
+  USDval: Double;
 begin
   Result := false;
+  isdollar := false;
+{$IFDEF CRAWLER}
+  USDwarning := false;
+  FAILwarning := false;
+{$ENDIF}  
   FillChar(ret1, SizeOf(priceguide_t), 0);
   FillChar(ret2, SizeOf(availability_t), 0);
   link := db.CrawlerLink(id, atoi(color));
@@ -127,15 +157,22 @@ begin
     id := db.BrickLinkPart(id);
     if (color = '89') or (color = '') or ((color = '-1') and (Pos('-', id) > 0))  then // set
       link := 'http://www.bricklink.com/catalogPG.asp?S=' + id + '--&colorID=0&v=D&viewExclude=Y&cID=Y&prDec=6'
-    else if color = '-1' then // minifigure
-      link := 'http://www.bricklink.com/catalogPG.asp?M=' + id + '&prDec=6'
+    else if color = '-1' then // minifigure - sticker
+    begin
+      if issticker(id) then // sticker
+        link := 'https://www.bricklink.com/catalogPG.asp?P=' + id + '&colorID=0&prDec=6'
+      else if db.isbook(id) then  // book
+        link := 'https://www.bricklink.com/catalogPG.asp?B=' + id + '&prdec=6'
+      else  // minifigure
+        link := 'https://www.bricklink.com/catalogPG.asp?M=' + id + '&prDec=6';
+    end
     else // part
     begin
       cc := StrToIntDef(color, -2);
       if (cc < -1) or (cc > MAXINFOCOLOR) then
-        link := 'http://www.bricklink.com/catalogPG.asp?P=' + id + '&colorID=0&prDec=6'
+        link := 'https://www.bricklink.com/catalogPG.asp?P=' + id + '&colorID=0&prDec=6'
       else
-        link := 'http://www.bricklink.com/catalogPG.asp?P=' + id + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+        link := 'https://www.bricklink.com/catalogPG.asp?P=' + id + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
     end;
   end;
   loadedfromcache := false;
@@ -170,9 +207,9 @@ begin
       id := '3068bpb0' + id[8] + id[9] + id[10];
       cc := StrToIntDef(color, -2);
       if (cc < -1) or (cc > MAXINFOCOLOR) then
-        link := 'http://www.bricklink.com/catalogPG.asp?P=' + id + '&colorID=0&prDec=6'
+        link := 'https://www.bricklink.com/catalogPG.asp?P=' + id + '&colorID=0&prDec=6'
       else
-        link := 'http://www.bricklink.com/catalogPG.asp?P=' + id + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+        link := 'https://www.bricklink.com/catalogPG.asp?P=' + id + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
       loadedfromcache := false;
       htm := GetURLString(link);
       if htm <> '' then
@@ -181,7 +218,7 @@ begin
     else if color = '9999' then
     begin
       cc := StrToIntDef(color, -2);
-      link := 'http://www.bricklink.com/catalogPG.asp?M=' + id + '&prDec=6';
+      link := 'https://www.bricklink.com/catalogPG.asp?M=' + id + '&prDec=6';
       loadedfromcache := false;
       htm := GetURLString(link);
       if htm <> '' then
@@ -191,21 +228,53 @@ begin
     begin
       cc := StrToIntDef(color, -2);
       if (cc < -1) or (cc > MAXINFOCOLOR) then
-        link := 'http://www.bricklink.com/catalogPG.asp?G=' + id + '&colorID=0&prDec=6'
+        link := 'https://www.bricklink.com/catalogPG.asp?G=' + id + '&colorID=0&prDec=6'
       else
-        link := 'http://www.bricklink.com/catalogPG.asp?G=' + id + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
+        link := 'https://www.bricklink.com/catalogPG.asp?G=' + id + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=6';
       loadedfromcache := false;
       htm := GetURLString(link);
       if htm <> '' then
         skeep := htm
     end;
   end;
-  
+
+  p := Pos('Last 6 Months Sales', htm);
+  if p <= 0 then
+  begin
+    cc := StrToIntDef(color, -2);
+    if (cc < -1) or (cc > MAXINFOCOLOR) then
+      link := 'https://www.bricklink.com/catalogPriceGuide.asp?S=' + id
+    else
+      link := 'https://www.bricklink.com/catalogPriceGuide.asp?P=' + id + '&colorid=' + color;
+    loadedfromcache := false;
+    htm := GetURLString(link);
+    if htm <> '' then
+      skeep := htm;
+    isdollar := True;
+  end;
+
+  p := Pos('Last 6 Months Sales', htm);
+  if p <= 0 then
+  begin
+    if color = '9999' then
+    begin
+      isdollar := False;
+      cc := 9999;
+      link := 'https://www.bricklink.com/catalogPG.asp?G=' + id + '&prDec=6';
+      loadedfromcache := false;
+      htm := GetURLString(link);
+      if htm <> '' then
+        skeep := htm
+    end;
+  end;
+
   p := Pos('Last 6 Months Sales', htm);
   if p <= 0 then
   begin
   {$IFNDEF CRAWLER}
     I_Warning('NET_GetPriceGuideForElement(): Can not retrieve bricklink info for part = ' + id + ', color = ' + itoa(cc) + #13#10);
+  {$ELSE}
+    FAILwarning := true;
   {$ENDIF}
     Exit;
   end;
@@ -261,6 +330,9 @@ begin
   s1 := StringReplace(s1, 'Avg Price' , 'AvgPrice',  [rfReplaceAll, rfIgnoreCase]);
   s1 := StringReplace(s1, 'Max Price' , 'MaxPrice',  [rfReplaceAll, rfIgnoreCase]);
 
+  if isdollar then
+    s1 := StringReplace(s1, '$' , '',  [rfReplaceAll, rfIgnoreCase]);
+
   FillChar(result_t, SizeOf(result_t), 0);
 
   idx := 1;
@@ -290,6 +362,31 @@ begin
 
   if idx <= 24 then
     exit;
+
+  if isdollar then
+  begin
+    USDval := db.ConvertCurrency('USD');
+{$IFDEF CRAWLER}
+    USDwarning := true;
+{$ENDIF}
+    result_t[3] := result_t[3] * USDval;
+    result_t[4] := result_t[4] * USDval;
+    result_t[5] := result_t[5] * USDval;
+    result_t[6] := result_t[6] * USDval;
+    result_t[9] := result_t[9] * USDval;
+    result_t[10] := result_t[10] * USDval;
+    result_t[11] := result_t[11] * USDval;
+    result_t[12] := result_t[12] * USDval;
+
+    result_t[12 + 3] := result_t[12 + 3] * USDval;
+    result_t[12 + 4] := result_t[12 + 4] * USDval;
+    result_t[12 + 5] := result_t[12 + 5] * USDval;
+    result_t[12 + 6] := result_t[12 + 6] * USDval;
+    result_t[12 + 9] := result_t[12 + 9] * USDval;
+    result_t[12 + 10] := result_t[12 + 10] * USDval;
+    result_t[12 + 11] := result_t[12 + 11] * USDval;
+    result_t[12 + 12] := result_t[12 + 12] * USDval;
+  end;
 
   ret1.nTimesSold := Round(result_t[1]);
   ret1.nTotalQty := Round(result_t[2]);
@@ -325,7 +422,7 @@ begin
     try
       SaveToFile(cachefile);
     except
-      
+
     end;
   finally
     Free;
@@ -341,15 +438,19 @@ var
   i: integer;
 begin
   result := '';
+  if UpperCase(id) = '44302A' then
+    Exit;
+  if UpperCase(id) = '44302' then
+    Exit;
   s := GetURLString('http://rebrickable.com/parts/' + strtrim(id));
-  s1 := 'http://www.bricklink.com/catalogItem.asp?P=';
+  s1 := 'http://www.bricklink.com/v2/search.page?q=';
   p := Pos(s1, s);
   if p > 0 then
   begin
     p := p + Length(s1);
     for i := p to length(s) do
     begin
-      if s[i] = '''' then
+      if (s[i] = '''') or (s[i] = '&') then
         break
       else
         result := result + s[i];

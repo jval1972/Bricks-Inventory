@@ -91,8 +91,8 @@ begin
   {$IFDEF CRAWLER}
   f := TFileStream.Create(fname, fmOpenRead or fmShareDenyNone);
   {$ELSE}
-  if fexists(fname) then
-    backupfile(fname);
+{  if fexists(fname) then
+    backupfile(fname);}
   f := TFileStream.Create(fname, fmOpenReadWrite or fmShareDenyWrite);
   {$ENDIF}
   for i := 0 to (f.Size div SizeOf(TBinarySetRecord)) - 1 do
@@ -119,6 +119,7 @@ end;
 function TBinarySetCollection.GetSet(const setname: string): PBinarySetRecord;
 var
   idx: integer;
+  i: integer;
 begin
   idx := fsets.IndexOf(setname);
   if idx < 0 then
@@ -129,6 +130,11 @@ begin
 
   f.Position := (fsets.Objects[idx] as TRecordInfo).position;
   f.Read(cache[cacheidx], SizeOf(TBinarySetRecord));
+
+  for i := 0 to cache[cacheidx].numitems - 1 do
+    if cache[cacheidx].data[i].piece = '6141' then
+      cache[cacheidx].data[i].piece := '4073';
+
   Result := @cache[cacheidx];
   Inc(cacheidx);
   if cacheidx >= CACHESIZE then
@@ -148,7 +154,11 @@ begin
   f.Position := (fsets.Objects[idx] as TRecordInfo).position;
   f.Read(rec, SizeOf(TBinarySetRecord));
   for i := 0 to rec.numitems - 1 do
+  begin
+    if rec.data[i].piece = '6141' then
+      rec.data[i].piece := '4073';
     result := result + #13#10 + rec.data[i].piece + ',' + itoa(rec.data[i].color) + ',' + itoa(rec.data[i].num);
+  end;
 end;
 
 function TBinarySetCollection.UpdateSetFromTextFile(const aset, aTextFileName: string): boolean;
@@ -201,6 +211,11 @@ begin
     result := false;
     exit;
   end;
+  if Length(aset) > RECNAMESIZE then
+  begin
+    result := false;
+    exit;
+  end;
   if fvoids.Count = 0 then
     if f.Size > 2147418112 - 2 * SizeOf(TBinarySetRecord) then
     begin
@@ -217,15 +232,15 @@ begin
     begin
       splitstring(str.Strings[i], spart, scolor, snum, ',');
       if Pos('BL ', spart) = 1 then
-        rec.data[i - 1].piece := db.RebricablePart(Copy(spart, 4, Length(spart) - 3))
+        rec.data[i - 1].piece := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
       else
-        rec.data[i - 1].piece := db.RebricablePart(spart);
+        rec.data[i - 1].piece := db.RebrickablePart(spart);
 
       if Pos('BL', scolor) = 1 then
       begin
         scolor := Copy(scolor, 3, Length(scolor) - 2);
 
-        rec.data[i - 1].color := db.BrickLinkColorToRebricableColor(StrToIntDef(scolor, 0));
+        rec.data[i - 1].color := db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0));
       end
       else
       begin
@@ -242,15 +257,15 @@ begin
     begin
       splitstring(str.Strings[i], spart, scolor, snum, scost, ',');
       if Pos('BL ', spart) = 1 then
-        rec.data[i - 1].piece := db.RebricablePart(Copy(spart, 4, Length(spart) - 3))
+        rec.data[i - 1].piece := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
       else
-        rec.data[i - 1].piece := db.RebricablePart(spart);
+        rec.data[i - 1].piece := db.RebrickablePart(spart);
 
       if Pos('BL', scolor) = 1 then
       begin
         scolor := Copy(scolor, 3, Length(scolor) - 2);
 
-        rec.data[i - 1].color := db.BrickLinkColorToRebricableColor(StrToIntDef(scolor, 0));
+        rec.data[i - 1].color := db.BrickLinkColorToRebrickableColor(StrToIntDef(scolor, 0));
       end
       else
       begin
@@ -295,6 +310,7 @@ begin
   f.Write(rec, RECNAMESIZE * SizeOf(Char));
   fsets.Delete(idx);
   fsets.RebuiltHash;
+  result := true;
 end;
 
 end.

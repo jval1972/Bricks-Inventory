@@ -8,7 +8,6 @@ uses
 
 type
   TEditPieceForm = class(TForm)
-    Image1: TImage;
     Label1: TLabel;
     Label2: TLabel;
     Edit1: TEdit;
@@ -26,6 +25,8 @@ type
     AutodetectButton: TButton;
     LinkEdit: TEdit;
     Label5: TLabel;
+    ScrollBox1: TScrollBox;
+    Image1: TImage;
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -125,7 +126,7 @@ var
   value: string;
 begin
   value := '1';
-  if InputQuery(Caption, 'Add pieces', value) then
+  if InputQuery2(Caption, 'Add pieces', 'Storage bin', value, last_pos) then
   begin
     Edit1.Text := itoa(atoi(Edit1.Text) + atoi(value));
     if last_pos <> '' then
@@ -139,7 +140,7 @@ var
   num: integer;
 begin
   value := '1';
-  if InputQuery(Caption, 'Remove pieces', value) then
+  if InputQuery2(Caption, 'Remove pieces', 'Storage bin', value, last_pos) then
   begin
     num := atoi(Edit1.Text) - atoi(value);
     if num < 0 then
@@ -178,7 +179,9 @@ end;
 procedure TEditPieceForm.AutodetectButtonClick(Sender: TObject);
 var
   s: string;
+  spiece: string;
 begin
+  spiece := Trim(Edit2.Text);
   Screen.Cursor := crHourglass;
   s := NET_GetBricklinkAlias(Edit2.Text);
   Screen.Cursor := crDefault;

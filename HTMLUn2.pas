@@ -250,12 +250,12 @@ type
                 ROP: DWord);
     end;
 
-  IndentRec = Class(TObject)
+  IndentRec = class(TObject)
     X: integer;       {indent for this record}
     YT, YB: integer;  {top and bottom Y values for this record}
     ID: TObject;      {level inicator for this record, 0 for not applicable}
     Float: boolean;   {set if Floating block boundary}
-    end;
+  end;
 
   IndentManagerBasic = class(TObject)
     Width, ClipWidth: Integer;
@@ -275,19 +275,19 @@ type
     function GetNextWiderY(Y: integer): integer;
     function SetLeftIndent(XLeft, Y: integer): integer;
     function SetRightIndent(XRight, Y: integer): integer;
-    procedure FreeLeftIndentRec(I: integer);   
-    procedure FreeRightIndentRec(I: integer);   
-    end;
+    procedure FreeLeftIndentRec(I: integer);
+    procedure FreeRightIndentRec(I: integer);
+  end;
 
-  AllocRec = Class(TObject)
+  AllocRec = class(TObject)
     Ptr: Pointer;
     ASize: integer;
     AHandle: THandle;
-    end;
+  end;
 
   IndexArray = array[1..TokenLeng] of integer;
   PIndexArray = ^IndexArray;
-  ChrArray = array[1..TokenLeng] of WideChar;     
+  ChrArray = array[1..TokenLeng] of WideChar;
 
   {Simplified variant of TokenObj, to temporarily keep a string of ANSI
    characters along with their original indices.}
@@ -311,7 +311,7 @@ type
     property Size: Integer read GetSize;
   end;
 
-  TokenObj= class
+  TokenObj = class
   private
     St: WideString;
     StringOK: boolean;
@@ -330,7 +330,7 @@ type
     procedure Replace(N: integer; Ch: WideChar);
 
     property S: WideString read GetString;
-    end;
+  end;
 
   TIDObject = class(TObject)
   protected
@@ -338,7 +338,7 @@ type
   public
     property YPosition: integer read GetYPosition;
     destructor Destroy; override;
-    end;
+  end;
 
   TChPosObj = class (TIDObject)
   private
@@ -346,7 +346,7 @@ type
     List: TList;
   protected
     function GetYPosition: integer; override;
-    end;
+  end;
 
   TIDNameList = class(TStringList)
   private
@@ -357,7 +357,7 @@ type
     procedure Clear; override;
     function AddObject(const S: string; AObject: TObject): Integer; override;
     procedure AddChPosObject(const S: string; Pos: integer);
-    end;
+  end;
 
 {$ifndef NoMetafile}
   ThtMetaFile = class(TMetaFile)
@@ -372,8 +372,8 @@ type
     destructor Destroy; override;
     property Bitmap: TBitmap read GetBitmap;
     property Mask: TBitmap read GetMask;
-    property WhiteBGBitmap: TBitmap read GetWhiteBGBitmap;   
-    end;
+    property WhiteBGBitmap: TBitmap read GetWhiteBGBitmap;
+  end;
 {$endif}
 
   ImageType = (NoImage, Bmp, Gif, Gif89, Png, Jpg);
@@ -385,7 +385,7 @@ type
 var
   ColorBits: Byte;
   ThePalette: HPalette;       {the rainbow palette for 256 colors}
-  PalRelative: integer;    
+  PalRelative: integer;
   DefBitMap, ErrorBitMap, ErrorBitmapMask: TBitMap;
   ABitmapList: TStringBitmapList; {the image cache}
   WaitStream: TMemoryStream;
@@ -403,24 +403,24 @@ function WideUpperCase1(const S: WideString): WideString;
 function WideLowerCase1(const S: WideString): WideString;
 function WideSameText1(const S1, S2: WideString): boolean;
 function WideSameStr1(const S1, S2: WideString): boolean;
-function PosX(const SubStr, S: string; Offset: integer = 1): Integer; 
+function PosX(const SubStr, S: string; Offset: integer = 1): Integer;
    {find substring in S starting at Offset}
 
 function IntMin(A, B: Integer): Integer;
 function IntMax(A, B: Integer): Integer;
 procedure GetClippingRgn(Canvas: TCanvas; ARect: TRect; Printing: boolean;
-          var Rgn, SaveRgn: HRgn);    
+          var Rgn, SaveRgn: HRgn);
 
 function GetImageAndMaskFromFile(const Filename: string; var Transparent: Transparency;
-                            var Mask: TBitmap): TgpObject; 
+                            var Mask: TBitmap): TgpObject;
 function HTMLToDos(FName: string): string;
   {convert an HTML style filename to one for Dos}
 function HTMLServerToDos(FName, Root: string): string;
 
-procedure WrapTextW(Canvas: TCanvas; X1, Y1, X2, Y2: integer; S: WideString); 
+procedure WrapTextW(Canvas: TCanvas; X1, Y1, X2, Y2: integer; S: WideString);
 
 procedure FinishTransparentBitmap (ahdc: HDC;
-            InImage, Mask: TBitmap; xStart, yStart, W, H: integer);  
+            InImage, Mask: TBitmap; xStart, yStart, W, H: integer);
 function GetImageMask(Image: TBitmap; ColorValid: boolean; AColor: TColor): TBitmap;
 function TransparentGIF(const FName: string; var Color: TColor): boolean;
 function Allocate(Size: integer): AllocRec;
@@ -430,7 +430,7 @@ procedure SetGlobalPalette(Value: HPalette);
 function GetImageFromFile(const Filename: String): TBitmap;
 function GetImageAndMaskFromStream(Stream: TMemoryStream;
         var Transparent: Transparency; var AMask: TBitmap): TgpObject;
-function KindOfImageFile(FName: String): ImageType;  
+function KindOfImageFile(FName: String): ImageType;
 function KindOfImage(Start: Pointer): ImageType;
 procedure FillRectWhite(Canvas: TCanvas; X1, Y1, X2, Y2: integer; Color: TColor);
 procedure FormControlRect(Canvas: TCanvas; X1: integer;
@@ -475,7 +475,7 @@ implementation
 uses
    jpeg, DitherUnit,
   {$ifndef NoOldPng}
-     PngImage1,   
+     PngImage1,
   {$endif}
      htmlview, htmlsubs, HtmlGif2, StylePars, ActiveX;
 
@@ -487,7 +487,7 @@ type
   end;
 
 var
-  DC: HDC; 
+  DC: HDC;
 
 {----------------StrLenW}
 function StrLenW(Str: PWideChar): Cardinal;
@@ -610,46 +610,46 @@ var
   ExtS: TSize;
   Ints: ^Integers;
   L, H, I: integer;
-
 begin
-Extent := 0;   
-Result := 0;
-if (Width <= 0) or (Max = 0) then
-  Exit;
+  Extent := 0;
+  Result := 0;
+  if (Width <= 0) or (Max = 0) then
+    Exit;
 
-if not IsWin32Platform then
+  if not IsWin32Platform then
   begin
-  GetMem(Ints, Sizeof(Integer)* Max);
-  try
-    {$ifdef ver120_plus}
-    if GetTextExtentExPointW(DC, S, Max, Width, @Result, @Ints^, ExtS) then
-    {$else}
-    if GetTextExtentExPointW(DC, S, Max, Width, Result, Integer(Ints^), ExtS) then
-    {$endif}
-    if Result > 0 then
-      Extent := Ints^[Result]
-    else Extent := 0;
-  finally
-    FreeMem(Ints);
+    GetMem(Ints, Sizeof(Integer)* Max);
+    try
+      {$ifdef ver120_plus}
+      if GetTextExtentExPointW(DC, S, Max, Width, @Result, @Ints^, ExtS) then
+      {$else}
+      if GetTextExtentExPointW(DC, S, Max, Width, Result, Integer(Ints^), ExtS) then
+      {$endif}
+      if Result > 0 then
+        Extent := Ints^[Result]
+      else
+        Extent := 0;
+    finally
+      FreeMem(Ints);
     end;
   end
-else       {GetTextExtentExPointW not available in win98, 95}
+  else       {GetTextExtentExPointW not available in win98, 95}
   begin          {optimize this by looking for Max to fit first -- it usually does}
-  L := 0;
-  H := Max;
-  I := H;
-  while L <= H do
+    L := 0;
+    H := Max;
+    I := H;
+    while L <= H do
     begin
-    GetTextExtentPoint32W(DC, S, I, ExtS);
-    if ExtS.cx < Width then
-      L := I+1
-    else H := I-1;
-    if ExtS.cx = Width then
-      Break;
-    I := (L+H) shr 1;
+      GetTextExtentPoint32W(DC, S, I, ExtS);
+      if ExtS.cx < Width then
+        L := I+1
+      else H := I-1;
+      if ExtS.cx = Width then
+        Break;
+      I := (L+H) shr 1;
     end;
-  Result := I;
-  Extent := ExtS.cx;
+    Result := I;
+    Extent := ExtS.cx;
   end;
 end;
 
@@ -1274,14 +1274,14 @@ function TAttributeList.Find(Sy: Symb; var T: TAttribute): boolean;
 var
   I: integer;
 begin
-for I := 0 to Count-1 do
+  for I := 0 to Count - 1 do
   if TAttribute(Items[I]).which = Sy then
-    begin
+  begin
     Result := True;
     T := Items[I];
     Exit;
-    end;
-Result := False;
+  end;
+  Result := False;
 end;
 
 function TAttributeList.CreateStringList: TStringList;

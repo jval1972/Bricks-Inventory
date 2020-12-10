@@ -125,10 +125,10 @@ begin
   begin
     ii := oo.ITEM.Items[i];
     if ii.ITEMTYPE = 'P' then
-      result.AddLoosePart(db.RebricablePart(ii.ITEMID), db.BrickLinkColorToRebricableColor(ii.COLOR), ii.QTY)
+      result.AddLoosePart(db.RebrickablePart(ii.ITEMID), db.BrickLinkColorToRebrickableColor(ii.COLOR), ii.QTY)
     else if ii.ITEMTYPE = 'S' then
       for j := 0 to ii.QTY - 1 do
-        result.AddSet(db.RebricablePart(ii.ITEMID), false);
+        result.AddSet(db.RebrickablePart(ii.ITEMID), false);
   end;
 end;
 
@@ -161,9 +161,9 @@ var
   tq1, tq2, tq3: integer;
   oname: string;
 begin
-  rcolor := db.BrickLinkColorToRebricableColor(ii.COLOR);
+  rcolor := db.BrickLinkColorToRebrickableColor(ii.COLOR);
   scolor := IntToStr(rcolor);
-  s := db.RebricablePart(ii.ITEMID) + ',' + scolor;
+  s := db.RebrickablePart(ii.ITEMID) + ',' + scolor;
   idx := fpieceorderinfo.IndexOf(s);
   if idx < 0 then
     idx := fpieceorderinfo.AddObject(s, TStringList.Create);
@@ -241,7 +241,7 @@ begin
   idx := fpieceorderinfo.IndexOf(s);
   if idx < 0 then
   begin
-    s := db.RebricablePart(part) + ',' + IntToStr(color);
+    s := db.RebrickablePart(part) + ',' + IntToStr(color);
     idx := fpieceorderinfo.IndexOf(s);
     if idx < 0 then
     begin
@@ -342,7 +342,7 @@ begin
   for i := 0 to order.ITEM.Count - 1 do
   begin
     it := order.ITEM.Items[i];
-    pci := db.piececolorinfo(db.RebricablePart(it.ITEMID), db.BrickLinkColorToRebricableColor(it.COLOR));
+    pci := db.piececolorinfo(db.RebrickablePart(it.ITEMID), db.BrickLinkColorToRebrickableColor(it.COLOR));
     if pci <> nil then
     begin
       if it.CONDITION = 'N' then

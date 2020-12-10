@@ -90,7 +90,7 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=..\bin
+OutputDir=E:\BrickInventory\bin
 UnitOutputDir=..\dcu
 PackageDLLOutputDir=
 PackageDCPOutputDir=
@@ -105,22 +105,34 @@ HostApplication=
 Launcher=
 UseLauncher=0
 DebugCWD=
+[Language]
+ActiveLang=
+ProjectLang=
+RootDir=
 [Version Info]
-IncludeVerInfo=0
-AutoIncBuild=0
-MajorVer=1
+IncludeVerInfo=1
+AutoIncBuild=1
+MajorVer=3
 MinorVer=0
-Release=0
-Build=0
+Release=1
+Build=206
 Debug=0
 PreRelease=0
 Special=0
 Private=0
 DLL=0
-Locale=1032
-CodePage=1253
-[Excluded Packages]
-c:\program files (x86)\borland\delphi7\Projects\Bpl\Package1.bpl=(untitled)
+Locale=1033
+CodePage=1252
+[Version Info Keys]
+CompanyName=Jim Valavanis
+FileDescription=Bricks Inventory
+FileVersion=3.0.1.206
+InternalName=brickinventory
+LegalCopyright=Copyright 2015-2018 by Jim Valavanis
+LegalTrademarks=Copyright 2015-2018 by Jim Valavanis
+OriginalFilename=brickinventory.exe
+ProductName=Bricks Inventory
+ProductVersion=3.0
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
@@ -132,7 +144,9 @@ Count=2
 Item0=..\dcu
 Item1=dcu
 [HistoryLists\hlOutputDirectorry]
-Count=3
-Item0=..\bin
-Item1=bin
-Item2=release\bin
+Count=5
+Item0=E:\BrickInventory\bin
+Item1=D:\LEGO\BrickInventory\bin
+Item2=..\bin
+Item3=bin
+Item4=release\bin

@@ -183,6 +183,8 @@ const
   sFromCurrent = soFromCurrent;
   sFromEnd = soFromEnd;
 
+  eSpecialChars = [',','.',PathDelim,'!','@','#','$','%','^','&','*','''','"',';','_','(',')',':','|','[',']'];
+
 {type
   TStream = class
   protected
@@ -257,6 +259,7 @@ type
   private
     fList: PIntegerArray;
     fNumItems: integer;
+    fRealNumItems: integer;
   protected
     function Get(Index: Integer): integer; virtual;
     procedure Put(Index: Integer; const value: integer); virtual;
@@ -1416,6 +1419,7 @@ constructor TDNumberList.Create;
 begin
   fList := nil;
   fNumItems := 0;
+  fRealNumItems := 0;
   Inherited;
 end;
 
@@ -1439,8 +1443,24 @@ begin
 end;
 
 procedure TDNumberList.Add(const value: integer);
+var
+  newrealitems: integer;
 begin
-  realloc(pointer(fList), fNumItems * SizeOf(integer), (fNumItems + 1) * SizeOf(integer));
+  if fNumItems >= fRealNumItems then
+  begin
+    if fRealNumItems < 4 then
+      newrealitems := 4
+    else if fRealNumItems < 8 then
+      newrealitems := 8
+    else if fRealNumItems < 16 then
+      newrealitems := 16
+    else if fRealNumItems < 128 then
+      newrealitems := fRealNumItems + 16
+    else
+      newrealitems := fRealNumItems + 32;
+    realloc(pointer(fList), fRealNumItems * SizeOf(integer), newrealitems * SizeOf(integer));
+    fRealNumItems := newrealitems;
+  end;
   Put(fNumItems, value);
   inc(fNumItems);
 end;
@@ -1466,9 +1486,7 @@ begin
   for i := Index + 1 to fNumItems - 1 do
     fList[i - 1] := fList[i];
 
-  realloc(pointer(fList), fNumItems * SizeOf(integer), (fNumItems - 1) * SizeOf(integer));
   dec(fNumItems);
-
   result := true;
 end;
 
@@ -1487,9 +1505,10 @@ end;
 
 procedure TDNumberList.Clear;
 begin
-  realloc(pointer(fList), fNumItems * SizeOf(integer), 0);
+  realloc(pointer(fList), fRealNumItems * SizeOf(integer), 0);
   fList := nil;
   fNumItems := 0;
+  fRealNumItems := 0;
 end;
 
 
@@ -2018,8 +2037,8 @@ procedure TDStringList.Grow;
 var
   Delta: Integer;
 begin
-  if FCapacity > 64 then Delta := FCapacity div 4 else
-    if FCapacity > 8 then Delta := 16 else
+  if FCapacity > 64 then Delta := FCapacity div 8 else
+    if FCapacity > 8 then Delta := 8 else
       Delta := 4;
   SetCapacity(FCapacity + Delta);
 end;
@@ -2864,7 +2883,7 @@ begin
       if i = 0 then
         result := s.Strings[0]
       else
-        result := result + ',' + s.Strings[i];
+        result := result + c + s.Strings[i];
     end;
 end;
 

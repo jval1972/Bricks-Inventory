@@ -1,16 +1,15 @@
-object SplashForm: TSplashForm
-  Left = 317
-  Top = 126
+object QueryPartOutParametersForm: TQueryPartOutParametersForm
+  Left = 740
+  Top = 259
   BorderIcons = []
-  BorderStyle = bsNone
-  BorderWidth = 1
-  Caption = 'Loading...'
-  ClientHeight = 72
-  ClientWidth = 329
+  BorderStyle = bsDialog
+  Caption = 'Query parameters'
+  ClientHeight = 314
+  ClientWidth = 399
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -10
+  Font.Height = -13
   Font.Name = 'Tahoma'
   Font.Style = []
   Icon.Data = {
@@ -545,36 +544,142 @@ object SplashForm: TSplashForm
     0000000000000000000000000000000000000000000000000000000000000000
     000000000000000000000000000000000000000000000000000000000000}
   OldCreateOrder = False
-  Position = poScreenCenter
+  Position = poMainFormCenter
+  OnCreate = FormCreate
   PixelsPerInch = 96
-  TextHeight = 12
+  TextHeight = 16
+  object Label1: TLabel
+    Left = 32
+    Top = 24
+    Width = 91
+    Height = 16
+    Caption = 'Minimum Year: '
+    FocusControl = Edit1
+  end
+  object Label2: TLabel
+    Left = 32
+    Top = 56
+    Width = 143
+    Height = 16
+    Caption = 'Minimum Available Lots: '
+    FocusControl = Edit2
+  end
+  object Label3: TLabel
+    Left = 32
+    Top = 96
+    Width = 112
+    Height = 16
+    Caption = 'Minimum Demand: '
+    FocusControl = TrackBar1
+  end
+  object Label4: TLabel
+    Left = 32
+    Top = 176
+    Width = 142
+    Height = 16
+    Caption = 'Minimum Part-Out Gain: '
+    FocusControl = TrackBar2
+  end
+  object Label5: TLabel
+    Left = 192
+    Top = 96
+    Width = 18
+    Height = 16
+    Caption = '0.5'
+  end
+  object Label6: TLabel
+    Left = 192
+    Top = 176
+    Width = 25
+    Height = 16
+    Caption = '1.25'
+  end
   object Panel1: TPanel
     Left = 0
-    Top = 0
-    Width = 329
-    Height = 72
-    Align = alClient
+    Top = 273
+    Width = 399
+    Height = 41
+    Align = alBottom
+    BevelOuter = bvNone
     Caption = ' '
     TabOrder = 0
-    object Label1: TLabel
-      Left = 18
-      Top = 6
-      Width = 80
-      Height = 20
-      Caption = 'Loading...'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'MS Sans Serif'
-      Font.Style = [fsBold]
-      ParentFont = False
-    end
-    object ProgressBar1: TProgressBar
-      Left = 18
-      Top = 36
-      Width = 295
-      Height = 15
+    object Panel2: TPanel
+      Left = 152
+      Top = 0
+      Width = 247
+      Height = 41
+      Align = alRight
+      BevelOuter = bvNone
+      Caption = ' '
       TabOrder = 0
+      object Button1: TButton
+        Left = 30
+        Top = 10
+        Width = 59
+        Height = 23
+        Caption = 'OK'
+        Default = True
+        Font.Charset = GREEK_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ModalResult = 1
+        ParentFont = False
+        TabOrder = 0
+      end
+      object Button2: TButton
+        Left = 108
+        Top = 10
+        Width = 61
+        Height = 23
+        Cancel = True
+        Caption = 'Cancel'
+        Font.Charset = GREEK_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ModalResult = 2
+        ParentFont = False
+        TabOrder = 1
+      end
     end
+  end
+  object Edit1: TEdit
+    Left = 192
+    Top = 24
+    Width = 65
+    Height = 24
+    TabOrder = 1
+    Text = '2000'
+  end
+  object Edit2: TEdit
+    Left = 192
+    Top = 56
+    Width = 65
+    Height = 24
+    TabOrder = 2
+    Text = '10'
+  end
+  object TrackBar1: TTrackBar
+    Left = 32
+    Top = 120
+    Width = 345
+    Height = 45
+    Max = 40
+    Position = 10
+    TabOrder = 3
+    OnChange = TrackBar1Change
+  end
+  object TrackBar2: TTrackBar
+    Left = 32
+    Top = 200
+    Width = 345
+    Height = 45
+    Max = 40
+    Position = 25
+    TabOrder = 4
+    OnChange = TrackBar2Change
   end
 end

@@ -1,11 +1,11 @@
 object Form1: TForm1
-  Left = 634
-  Top = 247
+  Left = 534
+  Top = 179
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  Caption = 'CR_CRAWLER'
-  ClientHeight = 264
-  ClientWidth = 297
+  Caption = 'Bricklink Crawler'
+  ClientHeight = 427
+  ClientWidth = 457
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -185,61 +185,86 @@ object Form1: TForm1
     00000000000000000000000000000000000000000000}
   OldCreateOrder = False
   OnCreate = FormCreate
+  OnHide = FormHide
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
     Left = 32
     Top = 8
-    Width = 42
+    Width = 48
     Height = 16
     Caption = 'Label1'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clMaroon
     Font.Height = -13
-    Font.Name = 'Tahoma'
+    Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
     ParentFont = False
   end
   object Label2: TLabel
     Left = 24
-    Top = 136
-    Width = 3
-    Height = 13
-    Caption = ' '
+    Top = 152
+    Width = 18
+    Height = 16
+    Caption = '      '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
   end
   object Label3: TLabel
     Left = 32
     Top = 88
-    Width = 22
-    Height = 13
+    Width = 29
+    Height = 16
     Caption = 'Slow'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
   end
   object Label4: TLabel
-    Left = 216
+    Left = 400
     Top = 88
-    Width = 19
-    Height = 13
-    Caption = 'fast'
+    Width = 26
+    Height = 16
+    Caption = 'Fast'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
   end
   object Button1: TButton
     Left = 88
     Top = 32
-    Width = 121
+    Width = 265
     Height = 41
     Caption = 'Close'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 0
     OnClick = Button1Click
   end
   object Memo1: TMemo
     Left = 0
-    Top = 152
-    Width = 297
-    Height = 112
+    Top = 184
+    Width = 457
+    Height = 243
     Align = alBottom
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clMaroon
-    Font.Height = -11
-    Font.Name = 'Tahoma'
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
     Lines.Strings = (
       'Memo1'
@@ -255,17 +280,31 @@ object Form1: TForm1
   object TrackBar1: TTrackBar
     Left = 64
     Top = 88
-    Width = 150
+    Width = 313
     Height = 33
     Position = 5
     TabOrder = 1
     OnChange = TrackBar1Change
   end
+  object CheckBox1: TCheckBox
+    Left = 72
+    Top = 128
+    Width = 121
+    Height = 17
+    Caption = 'Pause crawling'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 3
+  end
   object CrawlerTimer: TTimer
     Enabled = False
     Interval = 6000
     OnTimer = CrawlerTimerTimer
-    Left = 48
-    Top = 32
+    Left = 32
+    Top = 40
   end
 end

@@ -353,6 +353,9 @@ type
     OpenDialog3: TOpenDialog;
     UpdatePriceGuideDisklist1: TMenuItem;
     N53: TMenuItem;
+    SaveLugbulkBLCostDialog: TSaveDialog;
+    N54: TMenuItem;
+    SaveLugbulk2021database1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -583,6 +586,7 @@ type
     procedure LugBulk2021CheapSlopes1Click(Sender: TObject);
     procedure LugBulk2021CheapInvertedSlopes1Click(Sender: TObject);
     procedure UpdatePriceGuideDisklist1Click(Sender: TObject);
+    procedure SaveLugbulk2021database1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -775,6 +779,7 @@ type
     procedure DoUpdateInstructionsFromPdf(const sset: string);
     function RemoveImageFromCache(const simg: string): boolean;
     procedure DoUpdatePriceGuideFromDiskList(const fn: string; const days: integer);
+    procedure SaveLugbulkDatabase(const fn: string; const year: integer);
   public
     { Public declarations }
     activebits: integer;
@@ -18587,6 +18592,50 @@ procedure TMainForm.UpdatePriceGuideDisklist1Click(Sender: TObject);
 begin
   if OpenDialog3.Execute then
     DoUpdatePriceGuideFromDiskList(OpenDialog3.FileName, 1);
+end;
+
+procedure TMainForm.SaveLugbulkDatabase(const fn: string; const year: integer);
+var
+  sL: TStringList;
+  i: integer;
+  pci: TPieceColorInfo;
+  spart, scolor: string;
+  lb: TLugBulk2017;
+  slugbulkfile: string;
+begin
+  slugbulkfile := basedefault + 'lugbulks\' + itoa(year) + '.txt';
+  if not fexists(slugbulkfile) then
+  begin
+    ShowMessage('File ' + slugbulkfile + #13#10 + 'not found!');
+    Exit;
+  end;
+
+  lb := TLugBulk2017.Create;
+  lb.LoadFromFile(slugbulkfile);
+
+  sL := TStringList.Create;
+  try
+    sL.Add('Part,Color,Code,Lugbulk_Cost,Bricklink_Cost');
+    for i := 0 to lb.List.Count - 1 do
+    begin
+      splitstring(lb.List.Strings[i], spart, scolor, ',');
+      pci := db.PieceColorInfo(spart, atoi(scolor, -1));
+      if pci <> nil then
+        if pci.code <> '' then
+          sL.Add(Format('%s,%s,%2.2f,%2.4f', [lb.List.Strings[i], pci.code, (lb.List.Objects[i] as TLugBulkDouble).value, pci.EvaluatePriceNew]));
+    end;
+    sL.SaveToFile(fn);
+  finally
+    sL.Free;
+  end;
+
+  lb.Free;
+end;
+
+procedure TMainForm.SaveLugbulk2021database1Click(Sender: TObject);
+begin
+  if SaveLugbulkBLCostDialog.Execute then
+    SaveLugbulkDatabase(SaveLugbulkBLCostDialog.Filename, 2021);
 end;
 
 end.

@@ -1851,6 +1851,13 @@ object MainForm: TMainForm
           Caption = 'LugBulk 2021 Cheap Inverted Slopes'
           OnClick = LugBulk2021CheapInvertedSlopes1Click
         end
+        object N54: TMenuItem
+          Caption = '-'
+        end
+        object SaveLugbulk2021database1: TMenuItem
+          Caption = 'Save Lugbulk 2021 database'
+          OnClick = SaveLugbulk2021database1Click
+        end
       end
     end
     object Inventory1: TMenuItem
@@ -2125,5 +2132,12 @@ object MainForm: TMainForm
     Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
     Left = 420
     Top = 50
+  end
+  object SaveLugbulkBLCostDialog: TSaveDialog
+    DefaultExt = 'txt'
+    Filter = 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
+    Left = 412
+    Top = 218
   end
 end

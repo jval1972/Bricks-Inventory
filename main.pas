@@ -350,6 +350,9 @@ type
     LugBulk2021CheapTiles1: TMenuItem;
     LugBulk2021CheapSlopes1: TMenuItem;
     LugBulk2021CheapInvertedSlopes1: TMenuItem;
+    OpenDialog3: TOpenDialog;
+    UpdatePriceGuideDisklist1: TMenuItem;
+    N53: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -579,6 +582,7 @@ type
     procedure LugBulk2021CheapTiles1Click(Sender: TObject);
     procedure LugBulk2021CheapSlopes1Click(Sender: TObject);
     procedure LugBulk2021CheapInvertedSlopes1Click(Sender: TObject);
+    procedure UpdatePriceGuideDisklist1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -636,7 +640,7 @@ type
     procedure DrawPieceList(const tit: string; const lst: TStringList; const sortorder: integer = 0; const extratit: string = '');
     procedure DrawPieceListSet(const tit: string; const settit: string; const lst: TStringList);
     procedure DrawPieceListLugbulk(const tit: string; const lst: TStringList);
-    procedure DrawPieceListLugbulkKnownCost(const tit: string; const lb: TLugBulk2017;
+    procedure DrawPieceListLugbulkKnownCost(const tit: string; const lb: TLugBulk2017; const year: integer;
       const over: double; const dobrickorederinfo: boolean; const catid: Integer = -1);
     procedure DrawSetAlternatePieceList(const tit: string; const lst: TStringList);
     procedure PiecesWithDaysToUpdate(const x: integer);
@@ -769,6 +773,7 @@ type
     procedure DoUpdateInstructionsFromNetHost(const sset: string; const host: string);
     procedure DoUpdateInstructionsFromPdf(const sset: string);
     function RemoveImageFromCache(const simg: string): boolean;
+    procedure DoUpdatePriceGuideFromDiskList(const fn: string; const days: integer);
   public
     { Public declarations }
     activebits: integer;
@@ -13379,7 +13384,7 @@ begin
   HTMLClick('lengthquery/technic1x', foo);
 end;
 
-procedure TMainForm.DrawPieceListLugbulkKnownCost(const tit: string; const lb: TLugBulk2017;
+procedure TMainForm.DrawPieceListLugbulkKnownCost(const tit: string; const lb: TLugBulk2017; const year: integer;
   const over: double; const dobrickorederinfo: boolean; const catid: Integer = -1);
 var
   i, cl: integer;
@@ -13398,6 +13403,7 @@ var
   lprice: Double;
   syear, lugcostedit: string;
   www: double;
+  fn: string;
 begin
   UpdateDismantaledsetsinv;
   ShowSplash;
@@ -13582,6 +13588,10 @@ begin
 
   HideSplash;
 
+  lst.Insert(0, 'Part,Color');
+  fn := basedefault + 'lugbulks\' + IntToStr(year) + '_' + FloatToStr(over) + '_' + IntToStr(catid) + '.txt';
+  BackUpFile(fn);
+  lst.SaveToFile(fn);
   lst.Free;
 end;
 
@@ -13614,7 +13624,7 @@ begin
       if db.categories[catid].fetched then
         catname := ' (' + db.categories[catid].name + ')';
 
-  DrawPieceListLugbulkKnownCost('Lugbulk ' + year + catname, lb, 0.0, True, catid);
+  DrawPieceListLugbulkKnownCost('Lugbulk ' + year + catname, lb, StrToIntDef(year, 2020), 0.0, True, catid);
 
   lb.Free;
 end;
@@ -13644,7 +13654,7 @@ begin
       if db.categories[catid].fetched then
         catname := ' (' + db.categories[catid].name + ')';
 
-  DrawPieceListLugbulkKnownCost('Lugbulk suggestions ' + year + catname, lb, over, True, catid);
+  DrawPieceListLugbulkKnownCost('Lugbulk suggestions ' + year + catname, lb, StrToIntDef(year, 2020), over, True, catid);
 
   lb.Free;
 end;
@@ -13674,7 +13684,7 @@ begin
       if db.categories[catid].fetched then
         catname := ' (' + db.categories[catid].name + ')';
 
-  DrawPieceListLugbulkKnownCost('Lugbulk suggestions ' + year, lb, over, False, catid);
+  DrawPieceListLugbulkKnownCost('Lugbulk suggestions ' + year, lb, StrToIntDef(year, 2020), over, False, catid);
 
   lb.Free;
 end;
@@ -18515,6 +18525,49 @@ var
   foo: boolean;
 begin
   HTMLClick('lugbulkbstprice/2021/5.0/32', foo);
+end;
+
+procedure TMainForm.DoUpdatePriceGuideFromDiskList(const fn: string; const days: integer);
+var
+  s: TStringList;
+  s1, s2, s3: string;
+  i: integer;
+  pci: TPieceColorInfo;
+begin
+  if not fexists(fn) then
+    Exit;
+
+  Screen.Cursor := crHourglass;
+  s := TStringList.Create;
+  try
+    s.LoadFromFile(fn);
+    if s.Count > 1 then
+    begin
+      splitstring(s.Strings[0], s1, s2, s3, ',');
+      if (strupper(s1) = 'PART') and (strupper(s2) = 'COLOR') then
+      begin
+        for i := 1 to s.Count - 1 do
+        begin
+          splitstring(s.Strings[i], s1, s2, s3, ',');
+          pci := db.PieceColorInfo(s1, atoi(s2));
+          if pci <> nil then
+          begin
+            if DaysBetween(Now(), pci.date) >= days then
+              pci.InternetUpdate;
+          end
+        end;
+      end;
+    end;
+  finally
+    s.Free;
+    Screen.Cursor := crDefault;
+  end;
+end;
+
+procedure TMainForm.UpdatePriceGuideDisklist1Click(Sender: TObject);
+begin
+  if OpenDialog3.Execute then
+    DoUpdatePriceGuideFromDiskList(OpenDialog3.FileName, 1);
 end;
 
 end.

@@ -852,6 +852,7 @@ type
     function Availability(const piece: string; const color: integer = -1): availability_t; overload;
     {$IFNDEF CRAWLER}
     function PArecAt(const piece: string; const color: integer; const at: TDateTime): parecdate_t;
+    function GetPartLastUpdateDate(const piece: string; const color: integer): TDateTime;
     {$ENDIF}
     function ConvertCurrency(const cur: string): double;
     function ConvertCurrencyAt(const cur: string; const dd: TDateTime): double;
@@ -1041,7 +1042,7 @@ implementation
 
 uses
   bi_system, bi_utils, bi_crawler, StrUtils, bi_priceadjust, bi_tmp, bi_globals,
-  UrlMon, bi_multithread, bi_cachefile{$IFNDEF CRAWLER}, bi_pghistory{$ENDIF};
+  UrlMon, bi_multithread, bi_cachefile{$IFNDEF CRAWLER}, DateUtils, bi_pghistory{$ENDIF};
 
 function fixpartname(const spart: string): string;
 var
@@ -14980,6 +14981,19 @@ begin
   memfree(pointer(A), Asize * SizeOf(parecdate_t));
   memfree(pointer(Q), Asize * SizeOf(qtydate_t));
   memfree(pointer(P), Asize * SizeOf(pricedate_t));
+end;
+
+function TSetsDatabase.GetPartLastUpdateDate(const piece: string; const color: integer): TDateTime;
+var
+  A: parecarray_p;
+  Asize: integer;
+  i: integer;
+begin
+  PG_MakeHistoryParecArray(piece, color, A, Asize);
+  if Asize > 0 then
+    Result := A[Asize - 1].date
+  else if not TryEncodeDateTime(2014, 1, 1, 0, 0, 0, 0, Result) then
+    Result := Now;
 end;
 {$ENDIF}
 

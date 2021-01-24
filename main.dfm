@@ -1628,6 +1628,13 @@ object MainForm: TMainForm
       end
       object Prise1: TMenuItem
         Caption = 'Price Guide Cache'
+        object UpdatePriceGuideDisklist1: TMenuItem
+          Caption = 'Update disk list'
+          OnClick = UpdatePriceGuideDisklist1Click
+        end
+        object N53: TMenuItem
+          Caption = '-'
+        end
         object Reloadcache1: TMenuItem
           Caption = 'Reload cache'
           OnClick = Reloadcache1Click
@@ -2111,5 +2118,12 @@ object MainForm: TMainForm
     Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
     Left = 356
     Top = 218
+  end
+  object OpenDialog3: TOpenDialog
+    DefaultExt = 'txt'
+    Filter = 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*'
+    Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
+    Left = 420
+    Top = 50
   end
 end

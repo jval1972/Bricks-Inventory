@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2019 by Jim Valavanis
+//  Copyright (C) 2014-2021 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -340,6 +340,16 @@ type
     LugBulk2020CheapTiles1: TMenuItem;
     LugBulk2020CheapSlopes1: TMenuItem;
     LugBulk2020CheapInvertedSlopes1: TMenuItem;
+    N20211: TMenuItem;
+    Lugbulk2021items1: TMenuItem;
+    N51: TMenuItem;
+    LugBulk2021CheapParts1: TMenuItem;
+    N52: TMenuItem;
+    LugBulk2020CheapBricks2: TMenuItem;
+    LugBulk2021CheapPlates1: TMenuItem;
+    LugBulk2021CheapTiles1: TMenuItem;
+    LugBulk2021CheapSlopes1: TMenuItem;
+    LugBulk2021CheapInvertedSlopes1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -562,6 +572,13 @@ type
     procedure LugBulk2020CheapTiles1Click(Sender: TObject);
     procedure LugBulk2020CheapInvertedSlopes1Click(Sender: TObject);
     procedure LugBulk2020CheapSlopes1Click(Sender: TObject);
+    procedure Lugbulk2021items1Click(Sender: TObject);
+    procedure LugBulk2021CheapParts1Click(Sender: TObject);
+    procedure LugBulk2020CheapBricks2Click(Sender: TObject);
+    procedure LugBulk2021CheapPlates1Click(Sender: TObject);
+    procedure LugBulk2021CheapTiles1Click(Sender: TObject);
+    procedure LugBulk2021CheapSlopes1Click(Sender: TObject);
+    procedure LugBulk2021CheapInvertedSlopes1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -18448,7 +18465,56 @@ procedure TMainForm.LugBulk2020CheapSlopes1Click(Sender: TObject);
 var
   foo: boolean;
 begin
-  HTMLClick('lugbulkbstprice/2019/5.0/31', foo);
+  HTMLClick('lugbulkbstprice/2020/5.0/31', foo);
+end;
+
+procedure TMainForm.Lugbulk2021items1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('ShowLugbulk/2021', foo);
+end;
+
+procedure TMainForm.LugBulk2021CheapParts1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('lugbulkbstprice/2021/5.0', foo);
+end;
+
+procedure TMainForm.LugBulk2020CheapBricks2Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('lugbulkbstprice/2021/5.0/5', foo);
+end;
+
+procedure TMainForm.LugBulk2021CheapPlates1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('lugbulkbstprice/2021/5.0/26', foo);
+end;
+
+procedure TMainForm.LugBulk2021CheapTiles1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('lugbulkbstprice/2021/5.0/37', foo);
+end;
+
+procedure TMainForm.LugBulk2021CheapSlopes1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('lugbulkbstprice/2021/5.0/31', foo);
+end;
+
+procedure TMainForm.LugBulk2021CheapInvertedSlopes1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('lugbulkbstprice/2021/5.0/32', foo);
 end;
 
 end.

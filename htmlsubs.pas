@@ -6236,7 +6236,8 @@ if BitmapLoaded and (BitmapName <> '') then
   BitmapList.DecUsage(BitmapName);
 BitmapName := '';
 BitmapLoaded := False;
-AGifList.Clear;
+if AGifList <> nil then
+  AGifList.Clear;
 Timer.Free;
 Timer := Nil;
 SelB := 0;

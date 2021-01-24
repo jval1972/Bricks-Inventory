@@ -623,6 +623,7 @@ type
     procedure ShowCategoryColors(const cat: integer);
     function HtmlDrawInvImgLink(const pcs: string; const color: integer;
       const pi: TPieceInfo): string;
+    function HtmlDrawInvCode(const pci: TPieceColorInfo; const extras1, extras2: string): string;
     procedure ShowCategories;
     procedure ShowPiece(pcs: string; const year: integer = -1);
     procedure DoAddNewSetAsPiece(const pcs: string; const desc: string);
@@ -4310,6 +4311,23 @@ begin
   end
   else
     Result := '';
+end;
+
+function TMainForm.HtmlDrawInvCode(const pci: TPieceColorInfo; const extras1, extras2: string): string;
+begin
+  if pci = nil then
+  begin
+    Result := '';
+    Exit;
+  end;
+
+  if pci.code = '' then
+  begin
+    Result := '';
+    Exit;
+  end;
+
+  Result := extras1 + 'Code: <a href=spiece/' + pci.code + '>' + pci.code + '</a>' + extras2;
 end;
 
 procedure TMainForm.ShowCategories;
@@ -13520,6 +13538,7 @@ begin
         ' (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLingColor) + ')' + GetRebrickableColorHtml(cl) +
         '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
+        HtmlDrawInvCode(pci, '<br>', '') +
          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
       document.write(
         '<td width=15% align=right>' + Format('%2.3f', [pci.nDemand]) +

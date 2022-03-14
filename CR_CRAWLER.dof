@@ -90,7 +90,7 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=E:\BrickInventory\bin
+OutputDir=H:\BrickInventory\bin
 UnitOutputDir=..\dcu\crawler
 PackageDLLOutputDir=
 PackageDCPOutputDir=
@@ -133,7 +133,8 @@ Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 Count=1
 Item0=..\dcu\crawler
 [HistoryLists\hlOutputDirectorry]
-Count=3
-Item0=E:\BrickInventory\bin
-Item1=D:\LEGO\BrickInventory\bin
-Item2=..\bin
+Count=4
+Item0=H:\BrickInventory\bin
+Item1=E:\BrickInventory\bin
+Item2=D:\LEGO\BrickInventory\bin
+Item3=..\bin

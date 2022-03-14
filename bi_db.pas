@@ -5623,7 +5623,7 @@ begin
   pc.parec.availability := p.availability;
   pc.parec.date := p.fdate;
   waitlist.Add(idx2);
-  if waitlist.Count > {$IFDEF CRAWLER}25{$ELSE}5{$ENDIF} then
+  if waitlist.Count > {$IFDEF CRAWLER}50{$ELSE}5{$ENDIF} then
     Flash;
   Result := True;
 end;
@@ -15124,7 +15124,11 @@ end;
 
 procedure TSetsDatabase.TmpSaveCrawler;
 begin
+  {$IFDEF CRAWLER}
+  if fcrawlerpriority.Count mod 50 = 49 then
+  {$ELSE}
   if fcrawlerpriority.Count mod 10 = 9 then
+  {$ENDIF}
   try
     S_BackupFile(basedefault + 'cache\' + fcrawlerfilename);
     S_SaveToFile(fcrawlerpriority, basedefault + 'cache\' + fcrawlerfilename);

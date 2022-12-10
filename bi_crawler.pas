@@ -47,7 +47,7 @@ function NET_GetPriceGuideForElement(const pci: TPieceColorInfo; id: string; con
   var ret1: priceguide_t; var ret2: availability_t; const cachefile: string;
   var clink: string): boolean;
 
-function NET_GetBricklinkAlias(const id: string): string;
+function NET_GetBricklinkAlias(const id: string; const typ: char = 'P'): string;
 
 function NET_GetBricklinkCategory(const id: string; var fcat: integer; var fweight: double; var parttype: char): boolean;
 
@@ -1671,7 +1671,7 @@ begin
   Result := True;
 end;
 
-function NET_GetBricklinkAlias(const id: string): string;
+function NET_GetBricklinkAlias(const id: string; const typ: char = 'P'): string;
 var
   s: string;
   s1: string;
@@ -1694,7 +1694,7 @@ begin
     if Pos('dupupn', id1) = 1 then
       if IsNumericC(id1[7]) and IsNumericC(id1[8]) and
          (id1[9] = 'c') and IsNumericC(id1[10]) and IsNumericC(id1[11]) and
-         (id1[12] = 'p') and (id1[13] = 'r') and 
+         (id1[12] = 'p') and (id1[13] = 'r') and
          IsNumericC(id1[14]) and IsNumericC(id1[15]) then
           id1 := 'dupupn00' + id1[7] + id1[8] + 'c' + id1[10] + id1[11] + 'pr00' + id1[14] + id1[15];
 
@@ -1703,8 +1703,14 @@ begin
   if UpperCase(id1) = '44302' then
     Exit;
   s := GetURLString('https://rebrickable.com/parts/' + id1);
+  SaveStringToFile(basedefault + 'db\rmolds\rebrickable_' + id1 + '.htm', s);
   s1 := '' + BL_NET + '/v2/search.page?q=';
   p := Pos(s1, s);
+  if p <= 0 then
+  begin
+    s1 := 'href="https://www.bricklink.com/v2/catalog/catalogitem.page?' + typ + '=';
+    p := Pos(s1, s);
+  end;
   if p <= 0 then
   begin
     s := GetURLString('https://rebrickable.com/sets/' + id1);
@@ -1717,7 +1723,7 @@ begin
     p := p + Length(s1);
     for i := p to length(s) do
     begin
-      if (s[i] = '''') or (s[i] = '&') or (s[i] = '<') or (s[i] = '>') then
+      if (s[i] = '''') or (s[i] = '"') or (s[i] = '&') or (s[i] = '<') or (s[i] = '>') then
         break
       else
         Result := Result + s[i];

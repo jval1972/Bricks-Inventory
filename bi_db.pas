@@ -923,6 +923,7 @@ type
     {$IFNDEF CRAWLER}
     function UpdateNameFromRebrickable(const pid: string): boolean;
     function UpdatePartNameFromRebrickable(const pid: string): boolean;
+    function TryUpdatePartNameFromRebrickable(const pid: string): boolean;
     function UpdateSetNameFromRebrickable(const pid: string): boolean;
     function SetMoldName(const spart: string; const adesc: string): boolean;
     function AddMoldColor(const spart: string; const color: integer): boolean;
@@ -11945,6 +11946,57 @@ begin
   fname := basedefault + 'db\rmolds\' + spart + '.htm';
   urlstr := 'http://mail.rebrickable.com/parts/' + Trim(spart) + '/';
   if UrlDownloadToFile(nil, PChar(urlstr), PChar(fname), 0, nil) <> 0 then
+    Exit;
+
+  SL := TStringList.Create;
+  S_LoadFromFile(SL, fname);
+  htm := SL.Text;
+  htm1 := UpperCase(htm);
+  SL.Free;
+  check := '<H1>LEGO PART ' + UpperCase(spart) + ' ';
+  p1 := Pos(check, htm1);
+  if p1 > 0 then
+  begin
+    newpartname := '';
+    for j := p1 + Length(check) to Length(htm) do
+    begin
+      if htm[j] = '<' then
+        Break
+      else
+      begin
+        if htm[j] = ',' then
+          newpartname := newpartname + ' '
+        else
+          newpartname := newpartname + htm[j];
+      end;
+    end;
+    newpartname := Trim(RemoveSpecialTagsFromString(newpartname));
+    if newpartname <> '' then
+    begin
+      SetMoldName(spart, newpartname);
+      Result := True;
+    end;
+  end;
+end;
+
+function TSetsDatabase.TryUpdatePartNameFromRebrickable(const pid: string): boolean;
+var
+  fname: string;
+  SL: TStringList;
+  urlstr: string;
+  j, p1: integer;
+  newpartname: string;
+  spart: string;
+  htm, htm1: string;
+  check: string;
+begin
+  Result := False;
+  spart := Trim(pid);
+  if spart = '' then
+    Exit;
+  fname := basedefault + 'db\rmolds\' + spart + '.htm';
+  urlstr := 'http://mail.rebrickable.com/parts/' + Trim(spart) + '/';
+  if not fexists(fname) then
     Exit;
 
   SL := TStringList.Create;

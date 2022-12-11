@@ -9995,6 +9995,8 @@ begin
   if s1 = UpperCase('UpdatePartsWithUnknownYearFromDisk/') then Exit;
   if s1 = UpperCase('UpdatePartFromDisk/') then Exit;
   if s1 = UpperCase('refreshpieceorgearfrombricklink/') then Exit;
+  if s1 = UpperCase('refreshpieceorgearfromrebrickable/') then Exit;
+  if s1 = UpperCase('refreshpieceorgearfromrebrickablenorefresh/') then Exit;
   if s1 = UpperCase('refreshpiecefrombricklinkalias/') then Exit;
   if s1 = UpperCase('tryrefreshpiecefrombricklinkalias/') then Exit;
   if s1 = UpperCase('refreshpiecefrombricklinknorefresh/') then Exit;
@@ -10471,6 +10473,48 @@ begin
       else if db.UpdateGearKnownColorsFromBricklink(s2) then
         HTMLClick('refresh', Handled);
       HideSplash;
+      Screen.Cursor := crDefault;
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('refreshpieceorgearfromrebrickable/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      Screen.Cursor := crHourglass;
+      s3 := NET_GetBricklinkAlias(s2);
+      if s3 <> '' then
+      begin
+        ShowSplash;
+        db.SetMoldName(s2, db.PieceInfo(s2).desc);
+        db.SetNewPieceName(s2, s3);
+        db.TryUpdatePartNameFromRebrickable(s2);
+        if db.UpdatePartKnownColorsFromBricklink(s2) then
+          HTMLClick('refresh', Handled)
+        else if db.UpdateGearKnownColorsFromBricklink(s2) then
+          HTMLClick('refresh', Handled);
+        HideSplash;
+      end;
+      Screen.Cursor := crDefault;
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos('refreshpieceorgearfromrebrickablenorefresh/', SRC) = 1 then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      Screen.Cursor := crHourglass;
+      s3 := NET_GetBricklinkAlias(s2);
+      if s3 <> '' then
+      begin
+        ShowSplash;
+        db.SetMoldName(s2, db.PieceInfo(s2).desc);
+        db.SetNewPieceName(s2, s3);
+        db.TryUpdatePartNameFromRebrickable(s2);
+        if not db.UpdatePartKnownColorsFromBricklink(s2) then
+          db.UpdateGearKnownColorsFromBricklink(s2);
+        HideSplash;
+      end;
       Screen.Cursor := crDefault;
       Handled := True;
       Exit;

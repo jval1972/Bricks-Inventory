@@ -4242,6 +4242,7 @@ function TMainForm.HtmlDrawInvImgLink(const pcs: string; const color: integer;
 var
   inv: TBrickInventory;
   pci: TPieceColorInfo;
+  instructions_exist: Boolean;
 begin
   if (color = -1) or (color = 9999) or (color = 89) then
   begin
@@ -4281,8 +4282,11 @@ begin
   begin
     Result := ' <a href=updateinstructionsfromnet/' + pcs + '>' + '<img src="images\refresh.png"></img></a>' +
               ' <a href=updateinstructionsfrompdf/' + pcs + '>' + '<img src="images\pdf.png"></img></a>';
-    if InstructionsExist(pcs) or (findfile(basedefault + InstructionDir(pcs) + '*.pdf') <> '') then
-      Result := Result + ' <a href=instructions/' + pcs + '>' + '<img src="images\instructions.png"></img></a>';
+    instructions_exist := InstructionsExist(pcs);
+    if instructions_exist or (findfile(basedefault + InstructionDir(pcs) + '*.pdf') <> '') then
+      Result := Result + ' <a href=instructions/' + pcs + '>' + '<img src="images\instructions.png"></img></a>'
+    else if not instructions_exist then
+      Result := Result + ' <a href=instructions/' + pcs + '>' + '<img src="images\instructions_query.png"></img></a>';
     Exit;
   end;
 

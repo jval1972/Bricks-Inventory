@@ -9987,7 +9987,7 @@ var
   idx: integer;
 begin
   Result := TStringList.Create;
-  fname := I_NewTempFile(itoa(random(1000)) + '.htm');
+  fname := I_NewTempFile(itoa(random(10000)) + '.htm');
   if UrlDownloadToFile(nil, PChar(path), PChar(fname), 0, nil) <> 0 then
     Exit;
 
@@ -10032,7 +10032,7 @@ var
   idx: integer;
 begin
   Result := TStringList.Create;
-  fname := I_NewTempFile('qnsap' + itoa(random(1000)) + '.htm');
+  fname := I_NewTempFile('qnsap' + itoa(random(10000)) + '.htm');
   if UrlDownloadToFile(nil, PChar(path), PChar(fname), 0, nil) <> 0 then
     Exit;
 
@@ -10079,7 +10079,7 @@ var
   idx: integer;
 begin
   Result := TStringList.Create;
-  fname := I_NewTempFile('qncfb' + itoa(random(1000)) + '.htm');
+  fname := I_NewTempFile('qncfb' + itoa(random(10000)) + '.htm');
   if UrlDownloadToFile(nil, PChar(path), PChar(fname), 0, nil) <> 0 then
     Exit;
 
@@ -10126,7 +10126,7 @@ var
   idx: integer;
 begin
   Result := TStringList.Create;
-  fname := I_NewTempFile('qnpfb' + itoa(random(1000)) + '.htm');
+  fname := I_NewTempFile('qnpfb' + itoa(random(10000)) + '.htm');
   if UrlDownloadToFile(nil, PChar(path), PChar(fname), 0, nil) <> 0 then
     Exit;
 
@@ -10208,7 +10208,7 @@ var
 begin
   if savelink = '' then
   begin
-    fname := I_NewTempFile('qnpfb' + itoa(random(1000)) + '.htm');
+    fname := I_NewTempFile('qnpfb' + itoa(random(10000)) + '.htm');
     if UrlDownloadToFile(nil, PChar(path), PChar(fname), 0, nil) <> 0 then
     begin
       Result := TStringList.Create;

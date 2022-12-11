@@ -116,7 +116,7 @@ var
   part: string;
   pt: string;
   initialstorage: string;
-  initialyear: integer;
+  initialyear, newyear: integer;
   initialcode: string;
   initialweight: string;
 begin
@@ -223,12 +223,13 @@ begin
         Screen.Cursor := crHourglass;
         try
           Result := True;
-          if initialyear <> atoi(strtrim(f.YearEdit.Text)) then
+          newyear := atoi(strtrim(f.YearEdit.Text));
+          if initialyear <> newyear then
           begin
             if db.HasSetColorsOnly(pci.piece) then
-              db.UpdateYearForAllColors(pci.piece, atoi(strtrim(f.YearEdit.Text)))
+              db.UpdateYearForAllColors(pci.piece, newyear)
             else
-              db.SetItemYear(pci, atoi(strtrim(f.YearEdit.Text)));
+              db.SetItemYear(pci, newyear);
           end;
           if strupper(strtrim(f.AliasEdit.Text)) <> strupper(strtrim(initialalias)) then
             db.AddPieceAlias(f.AliasEdit.Text, part);

@@ -8131,25 +8131,29 @@ var
   s: TStringList;
   i, idx: integer;
   stmp: string;
-  s1, s2, s3: string;
+  s1, s3, last: string;
   ss: TString;
 begin
   fCrawlerLinks := TStringList.Create;
   s := TStringList.Create;
   S_LoadFromFile(s, basedefault + 'db\db_crawlerlinks.txt');
+  last := '';
 
   if s.Count > 0 then
     if Trim(s.Strings[0]) = 'part,color,bllink' then
     begin
-      for i := s.Count - 1 downto 1 do
+      s.Delete(0);
+      s.Sort;
+      for i := s.Count - 1 downto 0 do
       begin
         stmp := Trim(s.Strings[i]);
-        splitstring(stmp, s1, s2, s3, ',');
-        if fCrawlerLinks.IndexOf(s1 + ',' + s2) < 0 then
+        splitstring2nd(stmp, s1, s3, ',');
+        if last <> s1 then
         begin
           ss := TString.Create;
-          idx := fCrawlerLinks.AddObject(s1 + ',' + s2, ss);
+          idx := fCrawlerLinks.AddObject(s1, ss);
           (fCrawlerLinks.Objects[idx] as TString).Text := s3;
+          last := s1;
         end;
       end;
     end;
@@ -8157,7 +8161,6 @@ begin
   fCrawlerLinks.Sorted := True;
   s.Free;
 end;
-
 
 procedure TSetsDatabase.AddPieceAlias(const bl, rb: string);
 var

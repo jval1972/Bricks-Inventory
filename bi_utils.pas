@@ -159,6 +159,8 @@ function ftoadot(f: double): string;
 
 procedure S_FirstLine(const sl: TStringList; const line: string);
 
+function SortListAndFindFirstLeftMatch(const l: TStringList; const s: string): integer;
+
 implementation
 
 uses
@@ -1810,6 +1812,43 @@ begin
     sl.Add(line)
   else if sl.Strings[0] <> line then
     sl.Insert(0, line);
+end;
+
+function FindListLeft(const lst: TStringList; S: string; var Index: Integer): Boolean;
+var
+  L, H, I, C: Integer;
+  test: string;
+  len: integer;
+begin
+  Result := False;
+  L := 0;
+  len := Length(S);
+  H := lst.Count - 1;
+  while L <= H do
+  begin
+    I := (L + H) shr 1;
+    test := LeftStr(lst.strings[i], len);
+    C := AnsiCompareText(test, S);
+    if C < 0 then L := I + 1 else
+    begin
+      H := I - 1;
+      if C = 0 then
+      begin
+        Result := True;
+        if lst.Duplicates <> dupAccept then L := I;
+      end;
+    end;
+  end;
+  Index := L;
+end;
+
+function SortListAndFindFirstLeftMatch(const l: TStringList; const s: string): integer;
+var
+  idx: integer;
+begin
+  l.sorted := True;
+  if not FindListLeft(l, s, result) then
+    result := -1;
 end;
 
 end.

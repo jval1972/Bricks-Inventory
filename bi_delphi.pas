@@ -481,6 +481,8 @@ function capitalizedstring(const S: string; const splitter: char = ' '): string;
 
 procedure splitstring(const inp: string; var out1, out2: string; const splitter: char); overload;
 
+procedure splitstring2nd(const inp: string; var out1, out2: string; const splitter: char); overload;
+
 procedure splitstring(const inp: string; var out1, out2, out3: string; const splitter: char); overload;
 
 procedure splitstring(const inp: string; var out1, out2, out3, out4: string; const splitter: char); overload;
@@ -2638,6 +2640,25 @@ begin
   begin
     out1 := strtrim(Copy(inp, 1, p - 1));
     out2 := strtrim(Copy(inp, p + 1, Length(inp) - p));
+  end;
+end;
+
+procedure splitstring2nd(const inp: string; var out1, out2: string; const splitter: char); overload;
+var
+  i: integer;
+  aa: integer;
+begin
+  out1 := '';
+  out2 := '';
+  aa := 1;
+  for i := 1 to length(inp) do
+  begin
+    if (aa < 3) and (inp[i] = splitter) then
+      inc(aa)
+    else if (aa = 1) or (aa = 2) then
+      out1 := out1 + inp[i]
+    else
+      out2 := out2 + inp[i]
   end;
 end;
 

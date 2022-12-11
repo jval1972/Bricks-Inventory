@@ -10377,7 +10377,10 @@ begin
       Screen.Cursor := crHourglass;
       ShowSplash;
       if db.RefreshPart(s2) then
+      begin
+        db.UpdatePartInventory(s2, True);
         HTMLClick('refresh', Handled);
+      end;
       HideSplash;
       Screen.Cursor := crDefault;
       Handled := True;

@@ -2654,7 +2654,11 @@ begin
   for i := 1 to length(inp) do
   begin
     if (aa < 3) and (inp[i] = splitter) then
-      inc(aa)
+    begin
+      inc(aa);
+      if aa = 2 then
+        out1 := out1 + ',';
+    end
     else if (aa = 1) or (aa = 2) then
       out1 := out1 + inp[i]
     else

@@ -68,7 +68,7 @@ function NET_DownloadFile(const URL: string; const fname: string): boolean;
 var
   AllowInternetAccess: Boolean = True;
 
-function issticker(const part: string): Boolean;
+function issticker(const part: string; const pci: TPieceColorInfo = nil): Boolean;
 
 {$IFDEF CRAWLER}
 var
@@ -290,9 +290,10 @@ begin
   f.Free;
 end;
 
-function issticker(const part: string): Boolean;
+function issticker(const part: string; const pci: TPieceColorInfo = nil): Boolean;
 var
   p: integer;
+  pi: TPieceInfo;
 begin
   p := Pos('stk', part);
   if (p > 1) and (p + 3 <= Length(part)) then
@@ -302,6 +303,18 @@ begin
         Result := True;
         Exit;
       end;
+
+  if pci <> nil then
+  begin
+    pi := TPieceInfo(pci.pieceinfo);
+    if pi <> nil then
+      if pi.category = 160 then // Sticker
+      begin
+        Result := True;
+        Exit;
+      end;
+  end;
+
   Result := False;
 end;
 
@@ -657,7 +670,7 @@ begin
     end
     else if color = '-1' then
     begin
-      if issticker(id) then // sticker
+      if issticker(id, pci) then // sticker
       begin
         typ := 'P';
         blcolor := 0;
@@ -1302,7 +1315,7 @@ begin
     end
     else if color = '-1' then // minifigure - sticker
     begin
-      if issticker(id) then // sticker
+      if issticker(id, pci) then // sticker
       begin
         link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=4';
         tryparttype := 'P';

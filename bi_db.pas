@@ -16922,7 +16922,7 @@ begin
     Result := 'O'
   else if Pos('-', fpiece) > 0 then
     Result := 'S'
-  else if issticker(fpiece) or iscardboard(self) then
+  else if issticker(fpiece, self) or iscardboard(self) then
     Result := 'P'
   else if fcolor = -1 then
     Result := 'M'

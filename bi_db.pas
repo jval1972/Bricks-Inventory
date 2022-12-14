@@ -16894,8 +16894,19 @@ end;
 function TPieceColorInfo.ItemType: string;
 begin
   if fsparttype in ['P', 'S', 'M', 'C', 'B', 'I', 'O', 'G'] then
-    Result := fsparttype
-  else if (fparttype = TYPE_CATALOG) or (fcolor = CATALOGCOLORINDEX) then
+  begin
+    Result := fsparttype;
+    Exit;
+  end;
+
+  if fpieceinfo <> nil then
+    if (pieceinfo as TPieceInfo).category = 160 then // sticker
+    begin
+      Result := 'P';
+      Exit;
+    end;
+
+  if (fparttype = TYPE_CATALOG) or (fcolor = CATALOGCOLORINDEX) then
     Result := 'C'
   else if fparttype = TYPE_SET then
     Result := 'S'

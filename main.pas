@@ -4597,7 +4597,6 @@ begin
       begin
         if MatchesMask(db.AllPieces.Strings[i], pcs) then
           tmpsets.Add(db.AllPieces.Strings[i])
-//        else if MatchesMask(db.PieceDesc(db.AllPieces.Strings[i]), pcs) then
         else if MatchesMask(db.PieceDesc(db.AllPieces.Objects[i] as TPieceInfo), pcs) then
           tmpsets.Add(db.AllPieces.Strings[i])
         else if MatchesMask(db.GetNewPieceName(db.AllPieces.Strings[i]), pcs) then
@@ -4616,7 +4615,6 @@ begin
 
       for i := 0 to db.AllPieces.Count - 1 do
       begin
-//        desc := db.PieceDesc(db.AllPieces.Strings[i]);
         desc := db.PieceDesc(db.AllPieces.Objects[i] as TPieceInfo);
         if Pos(upcs, strupper(desc)) > 0 then
           tmpsets.Add(db.AllPieces.Strings[i]);

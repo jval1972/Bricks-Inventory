@@ -7894,19 +7894,19 @@ end;
 
 function TSetsDatabase.GetNewPieceName(const pcs: string): string;
 var
-  check: string;
+  check1, check2, check3: string;
   idx: integer;
 begin
-  check := UpperCase(pcs);
+  check1 := UpperCase(pcs);
   if lastgnpnidx >= 0 then
     if lastgnpnidx < fpiecenewnames.Count then
-      if fpiecenewnames.Strings[lastgnpnidx] = check then
+      if fpiecenewnames.Strings[lastgnpnidx] = check1 then
       begin
         Result := (fpiecenewnames.Objects[lastgnpnidx] as TString).Text;
         Exit;
       end;
 
-  idx := fpiecenewnames.IndexOf(check);
+  idx := fpiecenewnames.IndexOf(check1);
   if idx >= 0 then
   begin
     Result := (fpiecenewnames.Objects[idx] as TString).Text;
@@ -7914,23 +7914,30 @@ begin
     Exit;
   end;
 
-  check := UpperCase(BrickLinkPart(pcs));
-  idx := fpiecenewnames.IndexOf(check);
-  if idx >= 0 then
+  check2 := UpperCase(BrickLinkPart(pcs));
+  if check2 <> check1 then
   begin
-    Result := (fpiecenewnames.Objects[idx] as TString).Text;
-    lastgnpnidx := idx;
-    Exit;
+    idx := fpiecenewnames.IndexOf(check2);
+    if idx >= 0 then
+    begin
+      Result := (fpiecenewnames.Objects[idx] as TString).Text;
+      lastgnpnidx := idx;
+      Exit;
+    end;
   end;
 
-  check := UpperCase(RebrickablePart(pcs));
-  idx := fpiecenewnames.IndexOf(check);
-  if idx >= 0 then
-  begin
-    Result := (fpiecenewnames.Objects[idx] as TString).Text;
-    lastgnpnidx := idx;
-    Exit;
-  end;
+  check3 := UpperCase(RebrickablePart(pcs));
+  if check3 <> check1 then
+    if check3 <> check2 then
+    begin
+      idx := fpiecenewnames.IndexOf(check3);
+      if idx >= 0 then
+      begin
+        Result := (fpiecenewnames.Objects[idx] as TString).Text;
+        lastgnpnidx := idx;
+        Exit;
+      end;
+    end;
 
   Result := pcs;
   lastgnpnidx := -1;

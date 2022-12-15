@@ -6149,9 +6149,9 @@ begin
   {$ENDIF}
 
   fcolors[-1].knownpieces := THashStringList.Create;
-  fcolors[CATALOGCOLORINDEX].knownpieces := THashStringList.Create;
-  fcolors[INSTRUCTIONCOLORINDEX].knownpieces := THashStringList.Create;
-  fcolors[BOXCOLORINDEX].knownpieces := THashStringList.Create;
+  for i := 0 to MAXINFOCOLOR do
+    if fcolors[i].id = i then
+      fcolors[i].knownpieces := THashStringList.Create;
 
   s.Free;
   s1.Free;

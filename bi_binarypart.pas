@@ -187,7 +187,7 @@ function TBinaryPartCollection.UpdatePartFromText(const apart: string; str: TStr
 var
   rec: TBinaryPartRecord;
   i, j, idx: integer;
-  spart, scolor, snum, scost, scode: string;
+  spart, scolor, snum, scost, scode, sspare: string;
   cc: integer;
   tmppart: string;
 begin
@@ -274,8 +274,8 @@ begin
       end;
     end;
     rec.numitems := j;
-  end;
-  if str.Strings[0] = 'Code,Num' then
+  end
+  else if str.Strings[0] = 'Code,Num' then
   begin
     j := 0;
     for i := 1 to str.count - 1 do
@@ -300,8 +300,55 @@ begin
       end;
     end;
     rec.numitems := j;
-  end;
-  if (str.Strings[0] = 'Part,Color,Num,Cost') then
+  end
+  else if str.Strings[0] = 'Part,Color,Quantity,Is Spare' then
+  begin
+    j := 0;
+    for i := 1 to str.count - 1 do
+    begin
+      splitstring(str.Strings[i], spart, scolor, snum, sspare, ',');
+      spart := fixpartname(spart);
+      scolor := Trim(scolor);
+      if spart <> '' then
+      begin
+        if Pos('BL ', spart) = 1 then
+          tmppart := db.RebrickablePart(Trim(Copy(spart, 4, Length(spart) - 3)))
+        else
+          tmppart := db.RebrickablePart(spart);
+        rec.data[j].piece := tmppart;
+        if length(tmppart) > RECPARTNAMESIZE then
+          Result := False;
+
+        if (scolor = 'BL 0') or (scolor = '-2') or (scolor = '') then
+          rec.data[j].color := -2
+        else if Pos('BL', scolor) = 1 then
+        begin
+          scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
+
+          rec.data[j].color := db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0));
+        end
+        else if Pos('RB', scolor) = 1 then
+        begin
+          scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
+
+          rec.data[j].color := db.RebrickableColorToSystemColor(StrToIntDef(scolor, 0));
+        end
+        else
+        begin
+          rec.data[j].color := StrToIntDef(scolor, 0);
+        end;
+        if rec.data[j].color = -2 then
+          rec.hasstubcolor := True;
+
+        rec.data[j].num := atoi(snum);
+
+        rec.data[j].cost := 0.0;
+        inc(j);
+      end;
+    end;
+    rec.numitems := j;
+  end
+  else if (str.Strings[0] = 'Part,Color,Num,Cost') then
   begin
     j := 0;
     for i := 1 to str.count - 1 do

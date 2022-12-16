@@ -1345,7 +1345,7 @@ var
   s: TStringList;
   check: string;
   i: integer;
-  spart, scolor, snum, scost: string;
+  spart, scolor, snum, scost, sspare: string;
 begin
   Result := False;
   if not fexists(fname) then
@@ -1381,6 +1381,16 @@ begin
         end;
         Result := LoadLooseParts(s);
       end
+      else if check = 'Part,Color,Quantity,Is Spare' then
+      begin
+        for i := 1 to s.Count - 1 do
+        begin
+          splitstring(s.strings[i], spart, scolor, snum, sspare, ',');
+          if Pos('RB', scolor) < 1 then
+            s.Strings[i] := spart + ',' + 'RB ' + scolor + ',' + snum + ',' + sspare
+        end;
+        Result := LoadLooseParts(s);
+      end
       else if check = 'Code,Num' then
       begin
         Result := LoadLooseParts(s);
@@ -1395,7 +1405,7 @@ end;
 function TBrickInventory.LoadLooseParts(const S: TStringList): boolean;
 var
   i: integer;
-  spart, scolor, snum, scost, scode: string;
+  spart, scolor, snum, scost, scode, sspare: string;
   cc, np: integer;
 
   procedure _load_one_item;
@@ -1455,6 +1465,16 @@ begin
     for i := 1 to s.Count - 1 do
     begin
       splitstring(s.Strings[i], spart, scolor, snum, scost, ',');
+      _load_one_item;
+    end;
+    Reorganize;
+    Result := True;
+  end
+  else if s.Strings[0] = 'Part,Color,Quantity,Is Spare' then
+  begin
+    for i := 1 to s.Count - 1 do
+    begin
+      splitstring(s.Strings[i], spart, scolor, snum, sspare, ',');
       _load_one_item;
     end;
     Reorganize;

@@ -392,7 +392,7 @@ function TBinarySetCollection.UpdateSetFromText(const aset: string; str: TString
 var
   rec: TBinarySetRecord;
   i, j, idx: integer;
-  spart, scolor, snum, scost, scode: string;
+  spart, scolor, snum, scost, scode, sspare: string;
   cc: integer;
 begin
   {$IFDEF CRAWLER}
@@ -483,8 +483,8 @@ begin
       end;
     end;
     rec.numitems := j;
-  end;
-  if str.Strings[0] = 'Code,Num' then
+  end
+  else if str.Strings[0] = 'Code,Num' then
   begin
     j := 0;
     for i := 1 to str.count - 1 do
@@ -509,8 +509,47 @@ begin
       end;
     end;
     rec.numitems := j;
-  end;
-  if (str.Strings[0] = 'Part,Color,Num,Cost') then
+  end
+  else if str.Strings[0] = 'Part,Color,Quantity,Is Spare' then
+  begin
+    j := 0;
+    for i := 1 to str.count - 1 do
+    begin
+      splitstring(str.Strings[i], spart, scolor, snum, sspare, ',');
+      spart := fixpartname(spart);
+      scolor := Trim(scolor);
+      if spart <> '' then
+      begin
+        if Pos('BL ', spart) = 1 then
+          rec.data[j].piece := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
+        else
+          rec.data[j].piece := db.RebrickablePart(spart);
+
+        if Pos('BL', scolor) = 1 then
+        begin
+          scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
+
+          rec.data[j].color := db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0));
+        end
+        else if Pos('RB', scolor) = 1 then
+        begin
+          scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
+
+          rec.data[j].color := db.RebrickableColorToSystemColor(StrToIntDef(scolor, 0));
+        end
+        else
+        begin
+          rec.data[j].color := StrToIntDef(scolor, 0);
+        end;
+        rec.data[j].num := atoi(snum);
+
+        rec.data[j].cost := 0.0;
+        inc(j);
+      end;
+    end;
+    rec.numitems := j;
+  end
+  else if (str.Strings[0] = 'Part,Color,Num,Cost') then
   begin
     j := 0;
     for i := 1 to str.count - 1 do

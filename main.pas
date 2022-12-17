@@ -2036,24 +2036,26 @@ begin
           pnewblname := NewBlFileName(pngfilename);
           if not DownloadFileImg('https://' + BL_NET + '/BL/' + jnewblname, outfname) then
             if not DownloadFileImg('https://' + BL_NET + '/BN/' + pnewblname, outfname) then
-              if not DownloadFileImg('http://' + BL_NET + '/SL/' + jnewblname, outfname) then
-                if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/SL/' + jnewblname, outfname) then
-                  if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/PN/0/' + pnewblname, outfname) then
-                    if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SL/' + pnewblname, outfname) then
-                      if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/MN/0/' + pnewblname, outfname) then
-                        if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/ON/0/' + pnewblname, outfname) then
-                          if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SN/0/' + pnewblname, outfname) then
-                            if not DownloadFileImg('http://' + BL_NET + '/ML/' + jnewblname, outfname) then
-                              if not DownloadFileImg('http://www.1000steine.com/brickset/images/' + jnewblname, outfname) then
-                                if not DownloadFileImg('https://images.brickset.com/sets/images/' + jnewblname, outfname) then
-                                  if not DownloadFileImg('http://img.rebrickable.com/img/sets-b/' + jnewblname, outfname) then;
+              if searchdownloadimg then
+                if not DownloadFileImg('http://' + BL_NET + '/SL/' + jnewblname, outfname) then
+                  if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/SL/' + jnewblname, outfname) then
+                    if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/PN/0/' + pnewblname, outfname) then
+                      if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SL/' + pnewblname, outfname) then
+                        if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/MN/0/' + pnewblname, outfname) then
+                          if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/ON/0/' + pnewblname, outfname) then
+                            if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SN/0/' + pnewblname, outfname) then
+                              if not DownloadFileImg('http://' + BL_NET + '/ML/' + jnewblname, outfname) then
+                                if not DownloadFileImg('http://www.1000steine.com/brickset/images/' + jnewblname, outfname) then
+                                  if not DownloadFileImg('https://images.brickset.com/sets/images/' + jnewblname, outfname) then
+                                    if not DownloadFileImg('http://img.rebrickable.com/img/sets-b/' + jnewblname, outfname) then;
         end
         else if db.IsGear(firstword(ExtractFileName(SRC), '.')) then
         begin
           pnewblname := NewBlFileName(pngfilename);
           if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/GL/' + pnewblname, outfname) then
             if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/GN/0/' + pnewblname, outfname) then
-              if not DownloadFileImg('https://' + BL_NET + '/BL/' + NewBlFileName(jpgfilename), outfname) then;
+              if searchdownloadimg then
+                if not DownloadFileImg('https://' + BL_NET + '/BL/' + NewBlFileName(jpgfilename), outfname) then;
         end
         else if db.IsMinifigure(firstword(ExtractFileName(SRC), '.')) then
         begin
@@ -2061,17 +2063,37 @@ begin
           pnewblname := NewBlFileName(pngfilename);
           if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/MN/0/' + pnewblname, outfname) then
             if not DownloadFileImg('http://' + BL_NET + '/ML/' + jnewblname, outfname) then
-              if not DownloadFileImg('http://' + BL_NET + '/SL/' + jnewblname, outfname) then
-                if not DownloadFileImg('https://' + BL_NET + '/BL/' + jnewblname, outfname) then
+              if searchdownloadimg then
+                if not DownloadFileImg('http://' + BL_NET + '/SL/' + jnewblname, outfname) then
+                  if not DownloadFileImg('https://' + BL_NET + '/BL/' + jnewblname, outfname) then
+                    if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/SL/' + jnewblname, outfname) then
+                      if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/PN/0/' + pnewblname, outfname) then
+                        if not DownloadFileImg('https://' + BL_NET + '/BN/' + pnewblname, outfname) then
+                          if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SL/' + pnewblname, outfname) then
+                            if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/ON/0/' + pnewblname, outfname) then
+                              if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SN/0/' + pnewblname, outfname) then
+                                if not DownloadFileImg('http://www.1000steine.com/brickset/images/' + jpgfilename, outfname) then
+                                  if not DownloadFileImg('https://images.brickset.com/sets/images/' + jpgfilename, outfname) then
+                                    if not DownloadFileImg('http://img.rebrickable.com/img/sets-b/' + jpgfilename, outfname) then;
+        end
+        else if db.IsPart(firstword(ExtractFileName(SRC), '.')) then
+        begin
+          jnewblname := NewBlFileName(jpgfilename);
+          pnewblname := NewBlFileName(pngfilename);
+          if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/PN/0/' + pnewblname, outfname) then
+            if not DownloadFileImg('https://' + BL_NET + '/BL/' + jnewblname, outfname) then
+              if searchdownloadimg then
+                if not DownloadFileImg('http://' + BL_NET + '/SL/' + jnewblname, outfname) then
                   if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/SL/' + jnewblname, outfname) then
-                    if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/PN/0/' + pnewblname, outfname) then
-                      if not DownloadFileImg('https://' + BL_NET + '/BN/' + pnewblname, outfname) then
-                        if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SL/' + pnewblname, outfname) then
-                          if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/ON/0/' + pnewblname, outfname) then
-                            if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SN/0/' + pnewblname, outfname) then
-                              if not DownloadFileImg('http://www.1000steine.com/brickset/images/' + jpgfilename, outfname) then
-                                if not DownloadFileImg('https://images.brickset.com/sets/images/' + jpgfilename, outfname) then
-                                  if not DownloadFileImg('http://img.rebrickable.com/img/sets-b/' + jpgfilename, outfname) then;
+                    if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SL/' + pnewblname, outfname) then
+                      if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/MN/0/' + pnewblname, outfname) then
+                        if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/ON/0/' + pnewblname, outfname) then
+                          if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SN/0/' + pnewblname, outfname) then
+                            if not DownloadFileImg('http://' + BL_NET + '/ML/' + jnewblname, outfname) then
+                              if not DownloadFileImg('https://' + BL_NET + '/BN/' + pnewblname, outfname) then
+                                  if not DownloadFileImg('http://www.1000steine.com/brickset/images/' + jpgfilename, outfname) then
+                                    if not DownloadFileImg('https://images.brickset.com/sets/images/' + jpgfilename, outfname) then
+                                      if not DownloadFileImg('http://img.rebrickable.com/img/sets-b/' + jpgfilename, outfname) then;
         end
         else
         begin
@@ -2087,9 +2109,10 @@ begin
                         if not DownloadPngFileToJpg('https://img.' + s_bricklink + '.com/ItemImage/SN/0/' + pnewblname, outfname) then
                           if not DownloadFileImg('http://' + BL_NET + '/ML/' + jnewblname, outfname) then
                             if not DownloadFileImg('https://' + BL_NET + '/BN/' + pnewblname, outfname) then
-                              if not DownloadFileImg('http://www.1000steine.com/brickset/images/' + jpgfilename, outfname) then
-                                if not DownloadFileImg('https://images.brickset.com/sets/images/' + jpgfilename, outfname) then
-                                  if not DownloadFileImg('http://img.rebrickable.com/img/sets-b/' + jpgfilename, outfname) then;
+                              if searchdownloadimg then
+                                if not DownloadFileImg('http://www.1000steine.com/brickset/images/' + jpgfilename, outfname) then
+                                  if not DownloadFileImg('https://images.brickset.com/sets/images/' + jpgfilename, outfname) then
+                                    if not DownloadFileImg('http://img.rebrickable.com/img/sets-b/' + jpgfilename, outfname) then;
         end;
         if fexists(outfname) then
           MakeThumbnailImage(firstword(ExtractFileName(SRC), '.'), -1);
@@ -2204,21 +2227,86 @@ begin
             end;
 
             if not imgfound then
-              if not DownloadJpgFileToPNG('http://img.' + s_bricklink + '.com/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
-                if not DownloadJpgFileToPNG('http://img.' + s_bricklink + '.com/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(firstword(ExtractFileName(SRC), '.')) + '.jpg', outfname) then
-                  if not DownloadJpgFileToPNG('http://' + BL_NET + '/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
-                    if not DownloadGIFFileToPNG('http://' + BL_NET + '/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then
+              if searchdownloadimg then
+              begin
+                if not DownloadJpgFileToPNG('http://img.' + s_bricklink + '.com/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
+                  if not DownloadJpgFileToPNG('http://img.' + s_bricklink + '.com/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(firstword(ExtractFileName(SRC), '.')) + '.jpg', outfname) then
+                    if not DownloadJpgFileToPNG('http://' + BL_NET + '/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
+                      if not DownloadGIFFileToPNG('http://' + BL_NET + '/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then
+                        if not DownloadGIFFileToPNG('http://' + BL_NET + '/M/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then
+                          if not DownloadJpgFileToPNG('http://' + BL_NET + '/M/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
+                            if not DownloadGIFFileToPNG('https://' + BL_NET + '/ML/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then
+                              if not DownloadJpgFileToPNG('https://' + BL_NET + '/ML/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
+                                if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/BN/' + BLCOLOR1 + '/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
+                                  if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/PN/' + BLCOLOR1 + '/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
+                                    if not didgear then
+                                    begin
+                                      if not DownloadFile('https://img.' + s_bricklink + '.com/ItemImage/GN/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.png', outfname) then
+                                        DownloadFile('https://img.' + s_bricklink + '.com/ItemImage/GL/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.png', outfname)
+                                    end;
+              end
+              else
+              begin
+                if db.IsPart(firstword(ExtractFileName(SRC), '.')) then
+                begin
+                  if not DownloadJpgFileToPNG('http://img.' + s_bricklink + '.com/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
+                    if not DownloadJpgFileToPNG('http://img.' + s_bricklink + '.com/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(firstword(ExtractFileName(SRC), '.')) + '.jpg', outfname) then
+                      if not DownloadJpgFileToPNG('http://' + BL_NET + '/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
+                        if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/PN/' + BLCOLOR1 + '/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
+                          if not DownloadGIFFileToPNG('http://' + BL_NET + '/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then;
+                end
+                else if db.IsMinifigure(firstword(ExtractFileName(SRC), '.')) then
+                begin
+                  if not DownloadGIFFileToPNG('http://' + BL_NET + '/M/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then
+                    if not DownloadJpgFileToPNG('http://' + BL_NET + '/M/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
+                      if not DownloadGIFFileToPNG('https://' + BL_NET + '/ML/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then
+                        if not DownloadJpgFileToPNG('https://' + BL_NET + '/ML/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then;
+                end
+                else
+                begin
+                  if not didgear then
+                    if db.IsPossibleGear(firstword(ExtractFileName(SRC), '.')) then
+                    begin
+                      if not DownloadFile('https://img.' + s_bricklink + '.com/ItemImage/GN/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.png', outfname) then
+                        DownloadFile('https://img.' + s_bricklink + '.com/ItemImage/GL/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.png', outfname)
+                  end
+                  else
+                  begin
+                    if db.IsPossiblePart(firstword(ExtractFileName(SRC), '.')) then
+                    begin
+                      if not DownloadJpgFileToPNG('http://img.' + s_bricklink + '.com/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
+                        if not DownloadJpgFileToPNG('http://img.' + s_bricklink + '.com/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(firstword(ExtractFileName(SRC), '.')) + '.jpg', outfname) then
+                          if not DownloadJpgFileToPNG('http://' + BL_NET + '/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
+                            if not DownloadGIFFileToPNG('http://' + BL_NET + '/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then
+                              if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/PN/' + BLCOLOR1 + '/' + NewBlFileName(ExtractFileName(SRC)), outfname) then;
+                    end
+                    else if db.IsPossibleMinifigure(firstword(ExtractFileName(SRC), '.')) then
+                    begin
                       if not DownloadGIFFileToPNG('http://' + BL_NET + '/M/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then
                         if not DownloadJpgFileToPNG('http://' + BL_NET + '/M/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
                           if not DownloadGIFFileToPNG('https://' + BL_NET + '/ML/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then
-                            if not DownloadJpgFileToPNG('https://' + BL_NET + '/ML/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
-                              if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/BN/' + BLCOLOR1 + '/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
-                                if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/PN/' + BLCOLOR1 + '/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
-                                  if not didgear then
-                                  begin
-                                    if not DownloadFile('https://img.' + s_bricklink + '.com/ItemImage/GN/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.png', outfname) then
-                                      DownloadFile('https://img.' + s_bricklink + '.com/ItemImage/GL/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.png', outfname)
-                                  end;
+                            if not DownloadJpgFileToPNG('https://' + BL_NET + '/ML/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then;
+                    end
+                    else if db.IsPossibleSet(firstword(ExtractFileName(SRC), '.')) then  // Search box
+                    begin
+                      if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/BN/' + BLCOLOR1 + '/' + NewBlFileName(ExtractFileName(SRC)), outfname) then;
+                    end
+                    else
+                    begin
+                      if not DownloadJpgFileToPNG('http://img.' + s_bricklink + '.com/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
+                        if not DownloadJpgFileToPNG('http://img.' + s_bricklink + '.com/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(firstword(ExtractFileName(SRC), '.')) + '.jpg', outfname) then
+                          if not DownloadJpgFileToPNG('http://' + BL_NET + '/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
+                            if not DownloadGIFFileToPNG('http://' + BL_NET + '/P/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then
+                              if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/PN/' + BLCOLOR1 + '/' + NewBlFileName(ExtractFileName(SRC)), outfname) then
+                                if not DownloadGIFFileToPNG('http://' + BL_NET + '/M/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then
+                                  if not DownloadJpgFileToPNG('http://' + BL_NET + '/M/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
+                                    if not DownloadGIFFileToPNG('https://' + BL_NET + '/ML/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.gif', outfname) then
+                                      if not DownloadJpgFileToPNG('https://' + BL_NET + '/ML/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.jpg', outfname) then
+                                        if not DownloadFileImg('https://img.' + s_bricklink + '.com/ItemImage/BN/' + BLCOLOR1 + '/' + NewBlFileName(ExtractFileName(SRC)), outfname) then;
+                    end;
+                  end;
+                end
+              end;
           end
         end;
 

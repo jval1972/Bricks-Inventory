@@ -4,7 +4,7 @@ object OptionsForm: TOptionsForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 264
+  ClientHeight = 289
   ClientWidth = 354
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -550,7 +550,7 @@ object OptionsForm: TOptionsForm
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 223
+    Top = 248
     Width = 354
     Height = 41
     Align = alBottom
@@ -610,7 +610,7 @@ object OptionsForm: TOptionsForm
     Left = 24
     Top = 8
     Width = 313
-    Height = 193
+    Height = 217
     ActivePage = TabSheet1
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
@@ -660,6 +660,14 @@ object OptionsForm: TOptionsForm
         Height = 17
         Caption = 'Silent warnings'
         TabOrder = 4
+      end
+      object CheckBox7: TCheckBox
+        Left = 8
+        Top = 144
+        Width = 273
+        Height = 17
+        Caption = 'Extended search of image files on net'
+        TabOrder = 5
       end
     end
     object TabSheet2: TTabSheet

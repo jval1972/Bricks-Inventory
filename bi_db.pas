@@ -942,6 +942,12 @@ type
     {$ENDIF}
     function IsGear(const sid: string): boolean;
     function IsMinifigure(const mid: string): boolean;
+    function IsPart(const pid: string): boolean;
+    function IsSet(const sid: string): boolean;
+    function IsPossibleGear(const sid: string): boolean;
+    function IsPossibleMinifigure(const mid: string): boolean;
+    function IsPossiblePart(const pid: string): boolean;
+    function IsPossibleSet(const sid: string): boolean;
     {$IFNDEF CRAWLER}
     function AutoFixSticker(const stk: string): boolean;
     function DownloadPartInventory(const s: string): boolean;
@@ -12812,6 +12818,68 @@ begin
       Result := True;
 end;
 
+function TSetsDatabase.IsPart(const pid: string): boolean;
+var
+  pci: TPieceColorInfo;
+begin
+  Result := False;
+  pci := PieceColorInfo(pid, -1);
+  if pci <> nil then
+    if pci.sparttype = 'P' then
+      Result := True;
+end;
+
+function TSetsDatabase.IsSet(const sid: string): boolean;
+var
+  pci: TPieceColorInfo;
+begin
+  Result := False;
+  pci := PieceColorInfo(sid, -1);
+  if pci <> nil then
+    if pci.sparttype = 'S' then
+      Result := True;
+end;
+
+function TSetsDatabase.IsPossibleGear(const sid: string): boolean;
+var
+  pci: TPieceColorInfo;
+begin
+  Result := False;
+  pci := PieceColorInfo(sid, -1);
+  if pci <> nil then
+    if pci.ItemType = 'G' then
+end;
+
+function TSetsDatabase.IsPossibleMinifigure(const mid: string): boolean;
+var
+  pci: TPieceColorInfo;
+begin
+  Result := False;
+  pci := PieceColorInfo(mid, -1);
+  if pci <> nil then
+    if pci.ItemType = 'M' then
+end;
+
+function TSetsDatabase.IsPossiblePart(const pid: string): boolean;
+var
+  pci: TPieceColorInfo;
+begin
+  Result := False;
+  pci := PieceColorInfo(pid, -1);
+  if pci <> nil then
+    if pci.ItemType = 'P' then
+end;
+
+function TSetsDatabase.IsPossibleSet(const sid: string): boolean;
+var
+  pci: TPieceColorInfo;
+begin
+  Result := False;
+  pci := PieceColorInfo(sid, -1);
+  if pci <> nil then
+    if pci.ItemType = 'S' then
+end;
+
 {$IFNDEF CRAWLER}
 function TSetsDatabase.AutoFixSticker(const stk: string): boolean;
 var
@@ -16950,6 +17018,16 @@ begin
   else if Pos('-', fpiece) > 0 then
     Result := 'S'
   else if issticker(fpiece, self) or iscardboard(self) then
+    Result := 'P'
+  else if (Pos('970p', fpiece) = 1) or
+    (Pos('970c', fpiece) = 1) or
+    (Pos('973p', fpiece) = 1) or
+    (Pos('3010p', fpiece) = 1) or
+    (Pos('3068b', fpiece) = 1) or
+    (Pos('3069b', fpiece) = 1) or
+    (Pos('3070b', fpiece) = 1) or
+    (Pos('3626b', fpiece) = 1) or
+    (Pos('3626c', fpiece) = 1) then
     Result := 'P'
   else if fcolor = -1 then
     Result := 'M'

@@ -53,9 +53,10 @@ var
   savealwayspartinvinfo: boolean;
   generatethumbnailsondemand: boolean;
   silentwarnings: boolean;
+  searchdownloadimg: boolean;
 
 const
-  NUMDEFAULTS = 9;
+  NUMDEFAULTS = 10;
 
   defaults: array[0..NUMDEFAULTS - 1] of default_t = (
     (name: 'General';
@@ -104,6 +105,14 @@ const
      defaultsvalue: '0';
      defaultivalue: 0;
      defaultbvalue: False;
+     _type: tBoolean),
+
+    (name: 'searchdownloadimg';
+     location: @searchdownloadimg;
+     setable: true;
+     defaultsvalue: '0';
+     defaultivalue: 0;
+     defaultbvalue: True;
      _type: tBoolean),
 
     (name: 'MultiPage';

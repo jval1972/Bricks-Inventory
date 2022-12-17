@@ -561,6 +561,12 @@ object BatchLinkForm: TBatchLinkForm
     Font.Style = []
     ParentFont = False
     TabOrder = 0
+    object CounterLabel: TLabel
+      Left = 24
+      Top = 8
+      Width = 3
+      Height = 16
+    end
     object Panel2: TPanel
       Left = 200
       Top = 0
@@ -617,6 +623,7 @@ object BatchLinkForm: TBatchLinkForm
       ScrollBars = ssBoth
       TabOrder = 0
       WordWrap = False
+      OnChange = Memo1Change
     end
     object Panel4: TPanel
       Left = 8

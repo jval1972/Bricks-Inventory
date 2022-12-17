@@ -44,6 +44,8 @@ type
     Memo1: TMemo;
     Panel4: TPanel;
     Label1: TLabel;
+    CounterLabel: TLabel;
+    procedure Memo1Change(Sender: TObject);
   private
     { Private declarations }
   public
@@ -73,6 +75,11 @@ begin
   finally
     f.Free;
   end;
+end;
+
+procedure TBatchLinkForm.Memo1Change(Sender: TObject);
+begin
+  CounterLabel.Caption := Format('(%d commands)', [Memo1.Lines.Count]);
 end;
 
 end.

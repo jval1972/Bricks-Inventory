@@ -324,7 +324,7 @@ begin
   if Memo1.Lines.Count = 0 then
     Exit;
   s := Memo1.Lines.Strings[Memo1.Lines.Count - 1];
-  p := Pos(':', s);
+  p := CharPos(':', s);
   if p <= 0 then
     Exit;
   splitstring(s, s1, s2, ':');

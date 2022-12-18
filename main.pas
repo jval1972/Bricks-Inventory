@@ -1961,7 +1961,7 @@ var
     n: string;
   begin
     Result := '';
-    p := Pos('\', SRC);
+    p := CharPos('\', SRC);
     if p < 1 then
       Exit;
     n := Copy(SRC, 1, p - 1);
@@ -1973,7 +1973,7 @@ var
     p: integer;
   begin
     Result := '';
-    p := Pos('\', SRC);
+    p := CharPos('\', SRC);
     if p < 1 then
       Exit;
     Result := Copy(SRC, 1, p - 1);
@@ -1986,7 +1986,7 @@ begin
   if scheck = '' then
     Exit;
 
-  if Pos('//static.bricklink', SRC) = 1 then
+  if Pos1('//static.bricklink', SRC) then
     Exit;
 
   if IsThumbImageLink(scheck) then
@@ -2856,9 +2856,9 @@ begin
             break;
           inc(j);
         end;
-        if Pos('-', sset) = 0 then
+        if CharPos('-', sset) = 0 then
           sset := sset + '-1'
-        else if Pos('-', sset) = Length(sset) then
+        else if CharPos('-', sset) = Length(sset) then
           sset := sset + '1';
         if db.SetDesc(sset) = '' then
           stmp3 := stmp
@@ -6156,12 +6156,12 @@ begin
         continue;
     inc(aa);
     splitstring(lst.Strings[i], pcs, col, foo, ',');
-    if Pos('BL ', pcs) = 1 then
+    if Pos1('BL ', pcs) then
       pcs := Trim(db.RebrickablePart(Copy(pcs, 4, Length(pcs) - 3)))
     else
       pcs := db.RebrickablePart(Trim(pcs));
 
-    if Pos('BL', col) = 1 then
+    if Pos1('BL', col) then
     begin
       col := Trim(Copy(col, 3, Length(col) - 2));
       cl := db.BrickLinkColorToSystemColor(StrToIntDef(col, 0))
@@ -10233,7 +10233,7 @@ begin
   scrolly := 0;
   if SRC <> 'refresh' then
   begin
-    if Pos('editpiece/', SRC) = 1 then
+    if Pos1('editpiece/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, '/');
       inventory.StorePieceInventoryStatsRec(basedefault + 'cache\' + decide(s3 = '-1', '9999', s3) + '\' + s2 + '.history', s2, atoi(s3));
@@ -10253,7 +10253,7 @@ begin
       Exit;
     end;
 
-    if Pos('DoEditSet/', SRC) = 1 then
+    if Pos1('DoEditSet/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       DoEditSet(s2);
@@ -10261,7 +10261,7 @@ begin
       Exit;
     end;
 
-    if Pos('EditLugbulkPrice/', SRC) = 1 then
+    if Pos1('EditLugbulkPrice/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, s4, '/');
       if EditLugbulkPrice(s2, atoi(s3), atoi(s4)) then
@@ -10270,7 +10270,7 @@ begin
       Exit;
     end;
 
-    if Pos('editmold/', SRC) = 1 then
+    if Pos1('editmold/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       if EditMold(s2) then
@@ -10282,7 +10282,7 @@ begin
       Exit;
     end;
 
-    if Pos('updateinstructionweight/', SRC) = 1 then
+    if Pos1('updateinstructionweight/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       if db.UpdateAssetWeightFromNET(s2, 9997) then
@@ -10291,7 +10291,7 @@ begin
       Exit;
     end;
 
-    if Pos('updateinstructionweightnorefresh/', SRC) = 1 then
+    if Pos1('updateinstructionweightnorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       db.UpdateAssetWeightFromNET(s2, 9997);
@@ -10299,7 +10299,7 @@ begin
       Exit;
     end;
 
-    if Pos('updateboxweight/', SRC) = 1 then
+    if Pos1('updateboxweight/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       if db.UpdateAssetWeightFromNET(s2, 9998) then
@@ -10308,7 +10308,7 @@ begin
       Exit;
     end;
 
-    if Pos('updateboxweightnorefresh/', SRC) = 1 then
+    if Pos1('updateboxweightnorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       db.UpdateAssetWeightFromNET(s2, 9998);
@@ -10316,7 +10316,7 @@ begin
       Exit;
     end;
 
-    if Pos('updateinstructionsfromnet/', SRC) = 1 then
+    if Pos1('updateinstructionsfromnet/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       DoUpdateInstructionsFromNet(s2);
@@ -10324,7 +10324,7 @@ begin
       Exit;
     end;
 
-    if Pos('updateinstructionsfromnethost/', SRC) = 1 then
+    if Pos1('updateinstructionsfromnethost/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, '/');
       DoUpdateInstructionsFromNetHost(s2, s3);
@@ -10332,7 +10332,7 @@ begin
       Exit;
     end;
 
-    if Pos('updateinstructionsfrompdf/', SRC) = 1 then
+    if Pos1('updateinstructionsfrompdf/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       DoUpdateInstructionsFromPdf(s2);
@@ -10340,7 +10340,7 @@ begin
       Exit;
     end;
 
-    if Pos('pdfreader/', SRC) = 1 then
+    if Pos1('pdfreader/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, '/');
       s4 := InstructionDir(s2) + s3 + '.pdf';
@@ -10349,7 +10349,7 @@ begin
       Exit;
     end;
 
-    if Pos('rotatejpegright/', SRC) = 1 then
+    if Pos1('rotatejpegright/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       ChDir(basedefault);
@@ -10362,7 +10362,7 @@ begin
       Exit;
     end;
 
-    if Pos('rotatejpegleft/', SRC) = 1 then
+    if Pos1('rotatejpegleft/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       ChDir(basedefault);
@@ -10375,7 +10375,7 @@ begin
       Exit;
     end;
 
-    if Pos('UpdateSetYearFromNet/', SRC) = 1 then
+    if Pos1('UpdateSetYearFromNet/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       if db.UpdateSetYearFromNet(s2) then
@@ -10384,7 +10384,7 @@ begin
       Exit;
     end;
 
-    if Pos('UpdateMoldYearsFromNet/', SRC) = 1 then
+    if Pos1('UpdateMoldYearsFromNet/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       if db.UpdateMoldYearsFromNet(s2) then
@@ -10393,7 +10393,7 @@ begin
       Exit;
     end;
 
-    if Pos('removepiecefromstorageset/', SRC) = 1 then
+    if Pos1('removepiecefromstorageset/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, s4, s5, '/');
       inventory.StorePieceInventoryStatsRec(basedefault + 'cache\' + decide(s3 = '-1', '9999', s3) + '\' + s2 + '.history', s2, atoi(s3));
@@ -10413,7 +10413,7 @@ begin
       Exit;
     end;
 
-    if Pos('removepiecefromstoragenum/', SRC) = 1 then
+    if Pos1('removepiecefromstoragenum/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, s4, s5, '/');
       inventory.StorePieceInventoryStatsRec(basedefault + 'cache\' + decide(s3 = '-1', '9999', s3) + '\' + s2 + '.history', s2, atoi(s3));
@@ -10433,7 +10433,7 @@ begin
       Exit;
     end;
 
-    if Pos('StoreInventoryStatsRec/', SRC) = 1 then
+    if Pos1('StoreInventoryStatsRec/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, '/');
       StoreInventoryStatsRec(s2, s3);
@@ -10441,7 +10441,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshset/', SRC) = 1 then
+    if Pos1('refreshset/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10454,7 +10454,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshsetlite/', SRC) = 1 then
+    if Pos1('refreshsetlite/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10465,7 +10465,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshpiece/', SRC) = 1 then
+    if Pos1('refreshpiece/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10481,7 +10481,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshpiececat/', SRC) = 1 then
+    if Pos1('refreshpiececat/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10526,7 +10526,7 @@ begin
       Exit;
     end;
 
-    if Pos('UpdatePartFromDisk/', SRC) = 1 then
+    if Pos1('UpdatePartFromDisk/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10538,7 +10538,7 @@ begin
       Exit;
     end;
 
-    if Pos('UpdateItemYearFromDiskCache/', SRC) = 1 then
+    if Pos1('UpdateItemYearFromDiskCache/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10551,7 +10551,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshpieceorgearfrombricklink/', SRC) = 1 then
+    if Pos1('refreshpieceorgearfrombricklink/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10566,7 +10566,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshpieceorgearfromrebrickable/', SRC) = 1 then
+    if Pos1('refreshpieceorgearfromrebrickable/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10588,7 +10588,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshpieceorgearfromrebrickablenorefresh/', SRC) = 1 then
+    if Pos1('refreshpieceorgearfromrebrickablenorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10608,7 +10608,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshpiecefrombricklink/', SRC) = 1 then
+    if Pos1('refreshpiecefrombricklink/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10621,7 +10621,7 @@ begin
       Exit;
     end;
 
-    if Pos('tryrefreshpiecefrombricklinkalias/', SRC) = 1 then
+    if Pos1('tryrefreshpiecefrombricklinkalias/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, '/');
       Screen.Cursor := crHourglass;
@@ -10637,7 +10637,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshpiecefrombricklinkalias/', SRC) = 1 then
+    if Pos1('refreshpiecefrombricklinkalias/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, '/');
       Screen.Cursor := crHourglass;
@@ -10651,7 +10651,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshpiecefrombricklinknorefresh/', SRC) = 1 then
+    if Pos1('refreshpiecefrombricklinknorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10664,7 +10664,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshgearfrombricklinknorefresh/', SRC) = 1 then
+    if Pos1('refreshgearfrombricklinknorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10677,7 +10677,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshbookfrombricklinknorefresh/', SRC) = 1 then
+    if Pos1('refreshbookfrombricklinknorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10690,7 +10690,7 @@ begin
       Exit;
     end;
 
-    if Pos('tryrefreshpiecefrombricklinkaliasnorefresh/', SRC) = 1 then
+    if Pos1('tryrefreshpiecefrombricklinkaliasnorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, '/');
       Screen.Cursor := crHourglass;
@@ -10711,7 +10711,7 @@ begin
       Exit;
     end;
 
-    if Pos('tryrefreshpiecerebrickable/', SRC) = 1 then
+    if Pos1('tryrefreshpiecerebrickable/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10739,7 +10739,7 @@ begin
       Exit;
     end;
 
-    if Pos('tryrefreshpiecerebrickablenorefresh/', SRC) = 1 then
+    if Pos1('tryrefreshpiecerebrickablenorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10765,7 +10765,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshpiecefrombricklinkaliasnorefresh/', SRC) = 1 then
+    if Pos1('refreshpiecefrombricklinkaliasnorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, '/');
       Screen.Cursor := crHourglass;
@@ -10779,7 +10779,7 @@ begin
       Exit;
     end;
 
-    if Pos('UpdateCatalogFromBricklink/', SRC) = 1 then
+    if Pos1('UpdateCatalogFromBricklink/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10792,7 +10792,7 @@ begin
       Exit;
     end;
 
-    if Pos('UpdateCatalogFromBricklinknorefresh/', SRC) = 1 then
+    if Pos1('UpdateCatalogFromBricklinknorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10805,7 +10805,7 @@ begin
       Exit;
     end;
 
-    if Pos('updatepartnamerebrickable/', SRC) = 1 then
+    if Pos1('updatepartnamerebrickable/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10818,7 +10818,7 @@ begin
       Exit;
     end;
 
-    if Pos('updatepartnamerebrickablenorefresh/', SRC) = 1 then
+    if Pos1('updatepartnamerebrickablenorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10831,7 +10831,7 @@ begin
       Exit;
     end;
 
-    if Pos('UpdateSetAsPartFromBricklink/', SRC) = 1 then
+    if Pos1('UpdateSetAsPartFromBricklink/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10844,7 +10844,7 @@ begin
       Exit;
     end;
 
-    if Pos('UpdateSetAsPartFromBricklinknorefresh/', SRC) = 1 then
+    if Pos1('UpdateSetAsPartFromBricklinknorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10857,7 +10857,7 @@ begin
       Exit;
     end;
 
-    if Pos('UpdateMinifigAsPartFromBricklink/', SRC) = 1 then
+    if Pos1('UpdateMinifigAsPartFromBricklink/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10870,7 +10870,7 @@ begin
       Exit;
     end;
 
-    if Pos('UpdateMinifigAsPartFromBricklinknorefresh/', SRC) = 1 then
+    if Pos1('UpdateMinifigAsPartFromBricklinknorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10883,7 +10883,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshminifigcat/', SRC) = 1 then
+    if Pos1('refreshminifigcat/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10896,7 +10896,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshpiece100/', SRC) = 1 then
+    if Pos1('refreshpiece100/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10913,7 +10913,7 @@ begin
       Exit;
     end;
 
-    if Pos('refreshpiece1000/', SRC) = 1 then
+    if Pos1('refreshpiece1000/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -10942,7 +10942,7 @@ begin
       Exit;
     end;
 
-    if Pos('addset/', SRC) = 1 then
+    if Pos1('addset/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       inventory.StorePieceInventoryStatsRec(basedefault + 'out\' + s2 + '\' + s2 + '.history', s2, -1);
@@ -10954,7 +10954,7 @@ begin
       Exit;
     end;
 
-    if Pos('AddNewSetAsPiece/', SRC) = 1 then
+    if Pos1('AddNewSetAsPiece/', SRC) then
     begin
       Screen.Cursor := crHourglass;
       splitstring(SRC, s1, s2, s3, '/');
@@ -10964,7 +10964,7 @@ begin
       Exit;
     end;
 
-    if Pos('DoAddNewSetAsPiece/', SRC) = 1 then
+    if Pos1('DoAddNewSetAsPiece/', SRC) then
     begin
       Screen.Cursor := crHourglass;
       splitstring(SRC, s1, s2, s3, '/');
@@ -10974,7 +10974,7 @@ begin
       Exit;
     end;
 
-    if Pos('RefreshUnKnownSetsCategoryAndWeight/', SRC) = 1 then
+    if Pos1('RefreshUnKnownSetsCategoryAndWeight/', SRC) then
     begin
       Screen.Cursor := crHourglass;
       splitstring(SRC, s1, s2, '/');
@@ -10985,7 +10985,7 @@ begin
       Exit;
     end;
 
-    if Pos('RefreshUnKnownPiecesCategory/', SRC) = 1 then
+    if Pos1('RefreshUnKnownPiecesCategory/', SRC) then
     begin
       Screen.Cursor := crHourglass;
       splitstring(SRC, s1, s2, '/');
@@ -10996,7 +10996,7 @@ begin
       Exit;
     end;
 
-    if Pos('RefreshUnKnownPiecesWeight/', SRC) = 1 then
+    if Pos1('RefreshUnKnownPiecesWeight/', SRC) then
     begin
       Screen.Cursor := crHourglass;
       splitstring(SRC, s1, s2, '/');
@@ -11007,7 +11007,7 @@ begin
       Exit;
     end;
 
-    if Pos('RefreshUnKnownMinifigCategory/', SRC) = 1 then
+    if Pos1('RefreshUnKnownMinifigCategory/', SRC) then
     begin
       Screen.Cursor := crHourglass;
       splitstring(SRC, s1, s2, '/');
@@ -11018,7 +11018,7 @@ begin
       Exit;
     end;
 
-    if Pos('RefreshUnKnownMinifigWeight/', SRC) = 1 then
+    if Pos1('RefreshUnKnownMinifigWeight/', SRC) then
     begin
       Screen.Cursor := crHourglass;
       splitstring(SRC, s1, s2, '/');
@@ -11039,7 +11039,7 @@ begin
       Exit;
     end;
 
-    if Pos('downloadset/', SRC) = 1 then
+    if Pos1('downloadset/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       if db.DownloadSetFromBricklinkNew(s2) then
@@ -11050,7 +11050,7 @@ begin
       Exit;
     end;
 
-    if Pos('downloadgear/', SRC) = 1 then
+    if Pos1('downloadgear/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       if db.DownloadSetFromBricklinkNew(s2, 'G') then
@@ -11061,7 +11061,7 @@ begin
       Exit;
     end;
 
-    if Pos('downloadsetnorefresh/', SRC) = 1 then
+    if Pos1('downloadsetnorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       if not db.DownloadSetFromBricklinkNew(s2) then
@@ -11070,7 +11070,7 @@ begin
       Exit;
     end;
 
-    if Pos('downloadgearnorefresh/', SRC) = 1 then
+    if Pos1('downloadgearnorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       if not db.DownloadSetFromBricklinkNew(s2, 'G') then
@@ -11079,7 +11079,7 @@ begin
       Exit;
     end;
 
-    if Pos('downloadminifig/', SRC) = 1 then
+    if Pos1('downloadminifig/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       if db.DownloadSetFromBricklinkNew(s2, 'M') then
@@ -11090,7 +11090,7 @@ begin
       Exit;
     end;
 
-    if Pos('downloadminifignorefresh/', SRC) = 1 then
+    if Pos1('downloadminifignorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       if not db.DownloadSetFromBricklinkNew(s2, 'M') then
@@ -11099,7 +11099,7 @@ begin
       Exit;
     end;
 
-    if Pos('downloadsetaltparts/', SRC) = 1 then
+    if Pos1('downloadsetaltparts/', SRC) then
     begin
       Screen.Cursor := crHourglass;
       splitstring(SRC, s1, s2, '/');
@@ -11112,7 +11112,7 @@ begin
       Exit;
     end;
 
-    if Pos('autofixstickernorefresh/', SRC) = 1 then
+    if Pos1('autofixstickernorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -11123,7 +11123,7 @@ begin
       Exit;
     end;
 
-    if Pos('autofixsticker/', SRC) = 1 then
+    if Pos1('autofixsticker/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
@@ -11136,7 +11136,7 @@ begin
       Exit;
     end;
 
-    if Pos('downloadsetex/', SRC) = 1 then
+    if Pos1('downloadsetex/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, s4, '/');
       Screen.Cursor := crHourglass;
@@ -11152,7 +11152,7 @@ begin
       Exit;
     end;
 
-    if Pos('downloadsetandrefresh/', SRC) = 1 then
+    if Pos1('downloadsetandrefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       if db.DownloadSetFromBricklinkNew(s2) then
@@ -11170,7 +11170,7 @@ begin
       Exit;
     end;
 
-    if Pos('downloadsetandrefreshex/', SRC) = 1 then
+    if Pos1('downloadsetandrefreshex/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, s4, '/');
       if db.DownloadSetFromBricklinkNew(s2) then
@@ -11189,7 +11189,7 @@ begin
       Exit;
     end;
 
-    if Pos('addsetdismantaled/', SRC) = 1 then
+    if Pos1('addsetdismantaled/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       inventory.StorePieceInventoryStatsRec(basedefault + 'out\' + s2 + '\' + s2 + '.history', s2, -1);
@@ -11209,7 +11209,7 @@ begin
       Exit;
     end;
 
-    if Pos('UpdatePartInventory/', SRC) = 1 then
+    if Pos1('UpdatePartInventory/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       if db.UpdatePartInventory(s2, False) then
@@ -11218,7 +11218,7 @@ begin
       Exit;
     end;
 
-    if Pos('UpdatePartInventorynorefresh/', SRC) = 1 then
+    if Pos1('UpdatePartInventorynorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       db.UpdatePartInventory(s2, False);
@@ -11226,7 +11226,7 @@ begin
       Exit;
     end;
 
-    if Pos('DownloadPartInventorynorefresh/', SRC) = 1 then
+    if Pos1('DownloadPartInventorynorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       db.UpdatePartInventory(s2, True);
@@ -11234,7 +11234,7 @@ begin
       Exit;
     end;
 
-    if Pos('removeset/', SRC) = 1 then
+    if Pos1('removeset/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       inventory.RemoveSet(s2, False);
@@ -11244,7 +11244,7 @@ begin
       Exit;
     end;
 
-    if Pos('UpdateSetAssetsFromBricklink/', SRC) = 1 then
+    if Pos1('UpdateSetAssetsFromBricklink/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       UpdateSetAssetsFromBricklink(s2);
@@ -11253,7 +11253,7 @@ begin
       Exit;
     end;
 
-    if Pos('UpdateSetAssetsFromBricklinknorefresh/', SRC) = 1 then
+    if Pos1('UpdateSetAssetsFromBricklinknorefresh/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       UpdateSetAssetsFromBricklink(s2);
@@ -11261,7 +11261,7 @@ begin
       Exit;
     end;
 
-    if Pos('removesetdismantaled/', SRC) = 1 then
+    if Pos1('removesetdismantaled/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       inventory.RemoveSet(s2, True);
@@ -11271,7 +11271,7 @@ begin
       Exit;
     end;
 
-    if Pos('diagrampiece/', SRC) = 1 then
+    if Pos1('diagrampiece/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, '/');
       DiagramPiece(s2, atoi(s3));
@@ -11279,7 +11279,7 @@ begin
       Exit;
     end;
 
-    if Pos('diagrampieceex/', SRC) = 1 then
+    if Pos1('diagrampieceex/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, s4, '/');
       DiagramPiece(s2, atoi(s3), atoi(s4));
@@ -11287,7 +11287,7 @@ begin
       Exit;
     end;
 
-    if Pos('diagramstorage/', SRC) = 1 then
+    if Pos1('diagramstorage/', SRC) then
     begin
       if SRC = 'diagramstorage/Storage Bins' then
       begin
@@ -11304,7 +11304,7 @@ begin
       Exit;
     end;
 
-    if Pos('diagramorder/', SRC) = 1 then
+    if Pos1('diagramorder/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
       DiagramOrder(s2);
@@ -11380,12 +11380,12 @@ begin
 
   Handled := True;
   AddressEdit.Text := slink;
-  if Pos('navigate/', slink) = 1 then
+  if Pos1('navigate/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     Navigate(s2, atoi(s3));
   end
-  else if Pos('inv/', slink) = 1 then
+  else if Pos1('inv/', slink) then
   begin
     splitstring(slink, s1, s2, s3, s4, '/');
     if s3 = 'C' then
@@ -11395,32 +11395,32 @@ begin
     else if s3 = 'CAT' then
       ShowLooseParts(TBrickInventory(StrToInt(s2)), -1, '', StrToInt(s4));
   end
-  else if Pos('invex/', slink) = 1 then
+  else if Pos1('invex/', slink) then
   begin
     splitstring(slink, s1, s2, s3, s4, '/');
     ShowLooseParts(TBrickInventory(StrToInt(s2)), StrToInt(s3), '', StrToInt(s4));
   end
-  else if Pos('lugbulksuggest/', slink) = 1 then
+  else if Pos1('lugbulksuggest/', slink) then
   begin
     splitstring(slink, s1, s2, s3, s4, s5, '/');
     ShowLugbulkSuggestions(s2, atoi(s3), atoi(s4), atof(s5));
   end
-  else if Pos('ShowLugbulk/', slink) = 1 then
+  else if Pos1('ShowLugbulk/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowLugbulk(s2, atoi(s3, -1));
   end
-  else if Pos('lugbulkbstprice/', slink) = 1 then
+  else if Pos1('lugbulkbstprice/', slink) then
   begin
     splitstring(slink, s1, s2, s3, s4, '/');
     ShowLugbulkBestPrice(s2, atof(s3, -1.0), atoi(s4, -1));
   end
-  else if Pos('lugbulkbstpricelt/', slink) = 1 then
+  else if Pos1('lugbulkbstpricelt/', slink) then
   begin
     splitstring(slink, s1, s2, s3, s4, '/');
     ShowLugbulkBestPriceNoBrickOrder(s2, atof(s3, -1.0), atoi(s4, -1));
   end
-  else if Pos('ShowSetsAtYear/', slink) = 1 then
+  else if Pos1('ShowSetsAtYear/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowSetsAtYear(atoi(s2));
@@ -11429,17 +11429,17 @@ begin
   begin
     ShowSetsAtUnknownYear;
   end
-  else if Pos('multymissing/', slink) = 1 then
+  else if Pos1('multymissing/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowMissingToBuilMultipledSets(TStringList(atoi(s2)));
   end
-  else if Pos('ShowSetsDataCompare/', slink) = 1 then
+  else if Pos1('ShowSetsDataCompare/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowSetsDataCompare(s3, TStringList(atoi(s2)));
   end
-  else if Pos('multysetinv/', slink) = 1 then
+  else if Pos1('multysetinv/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowInventoryForMultipledSets(TStringList(atoi(s2)));
@@ -11448,12 +11448,12 @@ begin
   begin
     ShowStorageBins;
   end
-  else if Pos('storage/', slink) = 1 then
+  else if Pos1('storage/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowStorageInventory(s2);
   end
-  else if Pos('sinv/', slink) = 1 then
+  else if Pos1('sinv/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowSetInventory(s2);
@@ -11502,102 +11502,102 @@ begin
   begin
     ShowCatalogList('B', -1, -1, false);
   end
-  else if Pos('ShowCatalogList/', slink) = 1 then
+  else if Pos1('ShowCatalogList/', slink) then
   begin
     splitstring(slink, s1, s2, s3, s4, '/');
     ShowCatalogList(s2, atoi(s3, -1), atoi(s4, -1), false);
   end
-  else if Pos('ShowCatalogListAll/', slink) = 1 then
+  else if Pos1('ShowCatalogListAll/', slink) then
   begin
     splitstring(slink, s1, s2, s3, s4, '/');
     ShowCatalogList(s2, atoi(s3, -1), atoi(s4, -1), true);
   end
-  else if Pos('PreviewSetInventory/', slink) = 1 then
+  else if Pos1('PreviewSetInventory/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     PreviewSetInventory(s2);
   end
-  else if Pos('PiecesDiscontinuedAtYear/', slink) = 1 then
+  else if Pos1('PiecesDiscontinuedAtYear/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     PiecesDiscontinuedAtYear(atoi(s2));
   end
-  else if Pos('MinifigurePiecesDiscontinuedAtYear/', slink) = 1 then
+  else if Pos1('MinifigurePiecesDiscontinuedAtYear/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     PiecesDiscontinuedAtYear_Minifigure(atoi(s2));
   end
-  else if Pos('PiecesDiscontinuedAtYearExcludingVariations/', slink) = 1 then
+  else if Pos1('PiecesDiscontinuedAtYearExcludingVariations/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     PiecesDiscontinuedAtYearExcludingVariations(atoi(s2));
   end
-  else if Pos('MoldsFirstAppearedAtYear/', slink) = 1 then
+  else if Pos1('MoldsFirstAppearedAtYear/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     MoldsYearQry(atoi(s2), True);
   end
-  else if Pos('MoldsDiscontinuedAtYear/', slink) = 1 then
+  else if Pos1('MoldsDiscontinuedAtYear/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     MoldsYearQry(atoi(s2), False);
   end
-  else if Pos('PiecesNewAtYear/', slink) = 1 then
+  else if Pos1('PiecesNewAtYear/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     PiecesNewAtYear(atoi(s2));
   end
-  else if Pos('MinifigurePiecesNewAtYear/', slink) = 1 then
+  else if Pos1('MinifigurePiecesNewAtYear/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     PiecesNewAtYear_Minifigure(atoi(s2));
   end
-  else if Pos('PiecesNewAtYearExcludingVariations/', slink) = 1 then
+  else if Pos1('PiecesNewAtYearExcludingVariations/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     PiecesNewAtYearExcludingVariations(atoi(s2));
   end
-  else if Pos('ShowUniquePiecesOfMyInventory/', slink) = 1 then
+  else if Pos1('ShowUniquePiecesOfMyInventory/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowUniquePiecesOfMyInventory(atoi(s2));
   end
-  else if Pos('ShowMoldsWithNumColors/', slink) = 1 then
+  else if Pos1('ShowMoldsWithNumColors/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowMoldsWithNumColors(atoi(s2));
   end
-  else if Pos('ShowMoldsWithMoreThanColors/', slink) = 1 then
+  else if Pos1('ShowMoldsWithMoreThanColors/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowMoldsWithMoreThanColors(atoi(s2));
   end
-  else if Pos('ShowFamilyMolds/', slink) = 1 then
+  else if Pos1('ShowFamilyMolds/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowFamilyMolds(s2);
   end
-  else if Pos('ShowMoldVariations/', slink) = 1 then
+  else if Pos1('ShowMoldVariations/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowMoldVariations(s2);
   end
-  else if Pos('ShowPieceAlternates/', slink) = 1 then
+  else if Pos1('ShowPieceAlternates/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowPieceAlternates(s2);
   end
-  else if Pos('ShowPiecePatterns/', slink) = 1 then
+  else if Pos1('ShowPiecePatterns/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowPiecePatterns(s2);
   end
-  else if Pos('ShowPiecePrints/', slink) = 1 then
+  else if Pos1('ShowPiecePrints/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowPiecePrints(s2);
   end
-  else if Pos('ShowChildMolds/', slink) = 1 then
+  else if Pos1('ShowChildMolds/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowChildMolds(s2);
@@ -11606,101 +11606,101 @@ begin
   begin
     ShowNameswithbothpartandsetcolorindexes;
   end
-  else if Pos('ShowExpensiveSetLotsNew/', slink) = 1 then
+  else if Pos1('ShowExpensiveSetLotsNew/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowExpensiveSetLotsNew(s2, atoi(s3));
   end
-  else if Pos('ShowExpensiveSetLotsUsed/', slink) = 1 then
+  else if Pos1('ShowExpensiveSetLotsUsed/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowExpensiveSetLotsUsed(s2, atoi(s3));
   end
-  else if Pos('ShowExpensiveInvNew/', slink) = 1 then
+  else if Pos1('ShowExpensiveInvNew/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowExpensiveInvNew(s2, atoi(s3));
   end
-  else if Pos('ShowExpensiveInvUsed/', slink) = 1 then
+  else if Pos1('ShowExpensiveInvUsed/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowExpensiveInvUsed(s2, atoi(s3));
   end
-  else if Pos('ShowExpensiveInvPartsNew/', slink) = 1 then
+  else if Pos1('ShowExpensiveInvPartsNew/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowExpensiveInvPartsNew(s2, atoi(s3));
   end
-  else if Pos('ShowExpensiveInvPartsUsed/', slink) = 1 then
+  else if Pos1('ShowExpensiveInvPartsUsed/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowExpensiveInvPartsUsed(s2, atoi(s3));
   end
-  else if Pos('ShowBigInvLots/', slink) = 1 then
+  else if Pos1('ShowBigInvLots/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowBigInvLots(atoi(s2));
   end
-  else if Pos('sinvl/', slink) = 1 then
+  else if Pos1('sinvl/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowSetInventory(s2, True);
   end
-  else if Pos('spiece/', slink) = 1 then
+  else if Pos1('spiece/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowPiece(s2, atoi(s3, -1));
   end
-  else if Pos('spiecec/', slink) = 1 then
+  else if Pos1('spiecec/', slink) then
   begin
     splitstring(slink, s1, s2, s3, s4, '/');
     ShowColorPiece(s2, atoi(s3, 0), atoi(s4, -1));
   end
-  else if Pos('spiececlt/', slink) = 1 then
+  else if Pos1('spiececlt/', slink) then
   begin
     splitstring(slink, s1, s2, s3, s4, '/');
     ShowColorPiece(s2, atoi(s3, 0), atoi(s4, -1), false);
   end
-  else if Pos('instructions/', slink) = 1 then
+  else if Pos1('instructions/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowInstructions(s2);
   end
-  else if Pos('spiececinv/', slink) = 1 then
+  else if Pos1('spiececinv/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowPieceCInventory(s2, atoi(s3, 0));
   end
-  else if Pos('buildset/', slink) = 1 then
+  else if Pos1('buildset/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     inventory.BuildSet(s2);
     btn_SaveClick(nil);
     ShowSetInventory(s2);
   end
-  else if Pos('dismantleset/', slink) = 1 then
+  else if Pos1('dismantleset/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     inventory.DismandalSet(s2);
     btn_SaveClick(nil);
     ShowSetInventory(s2);
   end
-  else if Pos('missingtobuildset/', slink) = 1 then
+  else if Pos1('missingtobuildset/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowMissingToBuildSetInventory(s2, StrToIntDef(s3, 1), False);
   end
-  else if Pos('missingtobuildsetLI/', slink) = 1 then
+  else if Pos1('missingtobuildsetLI/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowMissingToBuildSetInventory(s2, StrToIntDef(s3, 1), True);
   end
-  else if Pos('PiecesWithDaysToUpdate/', slink) = 1 then
+  else if Pos1('PiecesWithDaysToUpdate/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     PiecesWithDaysToUpdate(atoi(s2));
   end
-  else if Pos('PiecesWithDaysToUpdateRange/', slink) = 1 then
+  else if Pos1('PiecesWithDaysToUpdateRange/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     PiecesWithDaysToUpdateRange(atoi(s2), atoi(s3));
@@ -11717,47 +11717,47 @@ begin
   begin
     BoxesUnknownWeight;
   end
-  else if Pos('UsedPiecesbeloweuroKgr/', slink) = 1 then
+  else if Pos1('UsedPiecesbeloweuroKgr/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     UsedPiecesbeloweuroKgr(atoi(s2));
   end
-  else if Pos('NewPiecesbeloweuroKgr/', slink) = 1 then
+  else if Pos1('NewPiecesbeloweuroKgr/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     NewPiecesbeloweuroKgr(atoi(s2));
   end
-  else if Pos('UsedPiecesaboveeuroKgr/', slink) = 1 then
+  else if Pos1('UsedPiecesaboveeuroKgr/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     UsedPiecesaboveeuroKgr(atoi(s2));
   end
-  else if Pos('NewPiecesaboveeuroKgr/', slink) = 1 then
+  else if Pos1('NewPiecesaboveeuroKgr/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     NewPiecesaboveeuroKgr(atoi(s2));
   end
-  else if Pos('NewPiecesPriceAbove/', slink) = 1 then
+  else if Pos1('NewPiecesPriceAbove/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     NewPiecesPriceAbove(atof(s2));
   end
-  else if Pos('UsedPiecesPriceAbove/', slink) = 1 then
+  else if Pos1('UsedPiecesPriceAbove/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     UsedPiecesPriceAbove(atof(s2));
   end
-  else if Pos('NewPiecesPriceAboveEvaluated/', slink) = 1 then
+  else if Pos1('NewPiecesPriceAboveEvaluated/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     NewPiecesPriceAboveEvaluated(atof(s2));
   end
-  else if Pos('UsedPiecesPriceAboveEvaluated/', slink) = 1 then
+  else if Pos1('UsedPiecesPriceAboveEvaluated/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     UsedPiecesPriceAboveEvaluated(atof(s2));
   end
-  else if Pos('PriceGuideQry/', slink) = 1 then
+  else if Pos1('PriceGuideQry/', slink) then
   begin
     splitstring(slink, s1, s2, s3, s4, s5, s6, s7, '/');
     PriceGuideQry(atoi(s2), s3, itob(atoi(s4)), itob(atoi(s5)), itob(atoi(s6)), itob(atoi(s7)));
@@ -11766,7 +11766,7 @@ begin
   begin
     NewPiecesCheaperUsed;
   end
-  else if Pos('NewPiecesMuchMoreExpensiveThanUsed/', slink) = 1 then
+  else if Pos1('NewPiecesMuchMoreExpensiveThanUsed/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     NewPiecesMuchMoreExpensiveThanUsed(atof(s2));
@@ -11779,7 +11779,7 @@ begin
   begin
     ShowMyMinifiguresMenu;
   end
-  else if Pos('ShowMyMinifigInventory/', slink) = 1 then
+  else if Pos1('ShowMyMinifigInventory/', slink) then
   begin
     splitstring(slink, s1, s2, s3, s4, '/');
     ShowMyMinifigInventory(atob(s2), atob(s3), atob(s4));
@@ -11792,12 +11792,12 @@ begin
   begin
     ShowMyPiecesValue;
   end
-  else if Pos('order/', slink) = 1 then
+  else if Pos1('order/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowOrder(s2);
   end
-  else if Pos('catcolors/', slink) = 1 then
+  else if Pos1('catcolors/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowCategoryColors(StrToInt(s2));
@@ -11849,32 +11849,32 @@ begin
   begin
     ShowOrders;
   end
-  else if Pos('sellerorders/', slink) = 1 then
+  else if Pos1('sellerorders/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowOrders(s2);
   end
-  else if Pos('compare2sets/', slink) = 1 then
+  else if Pos1('compare2sets/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowCompare2Sets(s2, s3);
   end
-  else if Pos('setsIcanbuild/', slink) = 1 then
+  else if Pos1('setsIcanbuild/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowSetsICanBuild(atoi(s2) / atoi(s3), True, True);
   end
-  else if Pos('figsIcanbuild/', slink) = 1 then
+  else if Pos1('figsIcanbuild/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowSetsICanBuild(atoi(s2) / atoi(s3), False, True);
   end
-  else if Pos('ShowSetsForPartOutNew/', slink) = 1 then
+  else if Pos1('ShowSetsForPartOutNew/', slink) then
   begin
     splitstring(slink, stmp, s1, s2, s3, s4, '/');
     ShowSetsForPartOutNew(atoi(s1), atoi(s2), atoi(s3) / 100, atoi(s4) / 100);
   end
-  else if Pos('ShowSetsForPartOutUsed/', slink) = 1 then
+  else if Pos1('ShowSetsForPartOutUsed/', slink) then
   begin
     splitstring(slink, stmp, s1, s2, s3, s4, '/');
     ShowSetsForPartOutUsed(atoi(s1), atoi(s2), atoi(s3) / 100, atoi(s4) / 100);
@@ -11887,42 +11887,42 @@ begin
   begin
     ShowSetStatsByNumPieces;
   end
-  else if Pos('ShowSetStatsByNumPieces2/', slink) = 1 then
+  else if Pos1('ShowSetStatsByNumPieces2/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowSetStatsByNumPieces2(atoi(s2));
   end
-  else if Pos('ShowSetsLotsBetween/', slink) = 1 then
+  else if Pos1('ShowSetsLotsBetween/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowSetsLotsBetween(atoi(s2), atoi(s3));
   end
-  else if Pos('ShowSetsPartsBetween/', slink) = 1 then
+  else if Pos1('ShowSetsPartsBetween/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowSetsPartsBetween(atoi(s2), atoi(s3));
   end
-  else if Pos('ShowSetsForPartInUsed/', slink) = 1 then
+  else if Pos1('ShowSetsForPartInUsed/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowSetsForPartInUsed(atoi(s2));
   end
-  else if Pos('ShowSetsForPartOutWithMiniFigsNew/', slink) = 1 then
+  else if Pos1('ShowSetsForPartOutWithMiniFigsNew/', slink) then
   begin
     splitstring(slink, stmp, s1, s2, s3, s4, s5, s6, s7, '/');
     ShowSetsForPartOutWithMiniFigsNew(atoi(s1), atoi(s2), atoi(s3), atoi(s4) / 100, atoi(s5) / 100, atoi(s6) / 100, atoi(s7) / 100);
   end
-  else if Pos('ShowSetsForPartOutWithMiniFigsUsed/', slink) = 1 then
+  else if Pos1('ShowSetsForPartOutWithMiniFigsUsed/', slink) then
   begin
     splitstring(slink, stmp, s1, s2, s3, s4, s5, s6, s7, '/');
     ShowSetsForPartOutWithMiniFigsUsed(atoi(s1), atoi(s2), atoi(s3), atoi(s4) / 100, atoi(s5) / 100, atoi(s6) / 100, atoi(s7) / 100);
   end
-  else if Pos('lengthquery/', slink) = 1 then
+  else if Pos1('lengthquery/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowLengthQuery(s2);
   end
-  else if Pos('lengthqueryslopes/', slink) = 1 then
+  else if Pos1('lengthqueryslopes/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
     ShowLengthQuerySlopes(s2);

@@ -153,27 +153,27 @@ begin
       begin
         splitstring(lst.Strings[i], spart, scolor, scost, ',');
 
-        if Pos('BL ', spart) = 1 then
+        if Pos1('BL ', spart) then
           spart := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
         else
           spart := db.RebrickablePart(spart);
 
-        if Pos('BL ', scolor) = 1 then
+        if Pos1('BL ', scolor) then
         begin
           scolor := Copy(scolor, 4, Length(scolor) - 3);
           scolor := IntToStr(db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0)));
         end
-        else if Pos('BL', scolor) = 1 then
+        else if Pos1('BL', scolor) then
         begin
           scolor := Copy(scolor, 3, Length(scolor) - 2);
           scolor := IntToStr(db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0)));
         end
-        else if Pos('RB ', scolor) = 1 then
+        else if Pos1('RB ', scolor) then
         begin
           scolor := Copy(scolor, 4, Length(scolor) - 3);
           scolor := IntToStr(db.RebrickableColorToSystemColor(StrToIntDef(scolor, 0)));
         end
-        else if Pos('RB', scolor) = 1 then
+        else if Pos1('RB', scolor) then
         begin
           scolor := Copy(scolor, 3, Length(scolor) - 2);
           scolor := IntToStr(db.RebrickableColorToSystemColor(StrToIntDef(scolor, 0)));

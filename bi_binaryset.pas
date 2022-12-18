@@ -243,7 +243,7 @@ begin
     for i := 0 to cache[cacheidx].numitems - 1 do
       if cache[cacheidx].data[i].piece = '6141' then
         cache[cacheidx].data[i].piece := '4073'
-      else if Pos('Mx', cache[cacheidx].data[i].piece) = 1 then
+      else if Pos1('Mx', cache[cacheidx].data[i].piece) then
         cache[cacheidx].data[i].piece[1] := 'm'
       else
         cache[cacheidx].data[i].piece := fixpartname(cache[cacheidx].data[i].piece);
@@ -261,7 +261,7 @@ begin
     for i := 0 to cache[cacheidx].numitems - 1 do
       if cache[cacheidx].data[i].piece = '6141' then
         cache[cacheidx].data[i].piece := '4073'
-      else if Pos('Mx', cache[cacheidx].data[i].piece) = 1 then
+      else if Pos1('Mx', cache[cacheidx].data[i].piece) then
         cache[cacheidx].data[i].piece[1] := 'm'
       else
         cache[cacheidx].data[i].piece := fixpartname(cache[cacheidx].data[i].piece);
@@ -279,7 +279,7 @@ begin
     for i := 0 to cache[cacheidx].numitems - 1 do
       if cache[cacheidx].data[i].piece = '6141' then
         cache[cacheidx].data[i].piece := '4073'
-      else if Pos('Mx', cache[cacheidx].data[i].piece) = 1 then
+      else if Pos1('Mx', cache[cacheidx].data[i].piece) then
         cache[cacheidx].data[i].piece[1] := 'm'
       else
         cache[cacheidx].data[i].piece := fixpartname(cache[cacheidx].data[i].piece);
@@ -315,7 +315,7 @@ begin
     begin
       if rec.data[i].piece = '6141' then
         rec.data[i].piece := '4073'
-      else if Pos('Mx', rec.data[i].piece) = 1 then
+      else if Pos1('Mx', rec.data[i].piece) then
         rec.data[i].piece[1] := 'm'
       else
         cache[cacheidx].data[i].piece := fixpartname(cache[cacheidx].data[i].piece);
@@ -331,7 +331,7 @@ begin
     begin
       if recSM.data[i].piece = '6141' then
         recSM.data[i].piece := '4073'
-      else if Pos('Mx', recSM.data[i].piece) = 1 then
+      else if Pos1('Mx', recSM.data[i].piece) then
         recSM.data[i].piece[1] := 'm'
       else
         cache[cacheidx].data[i].piece := fixpartname(cache[cacheidx].data[i].piece);
@@ -347,7 +347,7 @@ begin
     begin
       if recMD.data[i].piece = '6141' then
         recMD.data[i].piece := '4073'
-      else if Pos('Mx', recMD.data[i].piece) = 1 then
+      else if Pos1('Mx', recMD.data[i].piece) then
         recMD.data[i].piece[1] := 'm'
       else
         cache[cacheidx].data[i].piece := fixpartname(cache[cacheidx].data[i].piece);
@@ -455,18 +455,18 @@ begin
       scolor := Trim(scolor);
       if spart <> '' then
       begin
-        if Pos('BL ', spart) = 1 then
+        if Pos1('BL ', spart) then
           rec.data[j].piece := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
         else
           rec.data[j].piece := db.RebrickablePart(spart);
 
-        if Pos('BL', scolor) = 1 then
+        if Pos1('BL', scolor) then
         begin
           scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
           rec.data[j].color := db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0));
         end
-        else if Pos('RB', scolor) = 1 then
+        else if Pos1('RB', scolor) then
         begin
           scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
@@ -495,7 +495,7 @@ begin
         spart := fixpartname(spart);
         if spart <> '' then
         begin
-          if Pos('BL ', spart) = 1 then
+          if Pos1('BL ', spart) then
             rec.data[j].piece := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
           else
             rec.data[j].piece := db.RebrickablePart(spart);
@@ -520,18 +520,18 @@ begin
       scolor := Trim(scolor);
       if spart <> '' then
       begin
-        if Pos('BL ', spart) = 1 then
+        if Pos1('BL ', spart) then
           rec.data[j].piece := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
         else
           rec.data[j].piece := db.RebrickablePart(spart);
 
-        if Pos('BL', scolor) = 1 then
+        if Pos1('BL', scolor) then
         begin
           scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
           rec.data[j].color := db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0));
         end
-        else if Pos('RB', scolor) = 1 then
+        else if Pos1('RB', scolor) then
         begin
           scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
@@ -559,18 +559,18 @@ begin
       scolor := Trim(scolor);
       if spart <> '' then
       begin
-        if Pos('BL ', spart) = 1 then
+        if Pos1('BL ', spart) then
           rec.data[j].piece := db.RebrickablePart(Trim(Copy(spart, 4, Length(spart) - 3)))
         else
           rec.data[j].piece := db.RebrickablePart(Trim(spart));
 
-        if Pos('BL', scolor) = 1 then
+        if Pos1('BL', scolor) then
         begin
           scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
           rec.data[j].color := db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0));
         end
-        else if Pos('RB', scolor) = 1 then
+        else if Pos1('RB', scolor) then
         begin
           scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 

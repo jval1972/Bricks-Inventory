@@ -895,8 +895,8 @@ end;
 function TMosaicFormTiles.name: string;
 begin
   result := ExtractFileName(Edit1.Text);
-  if Pos('.', Result) > 0 then
-    while Pos('.', Result) > 0 do
+  if CharPos('.', Result) > 0 then
+    while CharPos('.', Result) > 0 do
       SetLength(Result, Length(Result) - 1);
 end;
 

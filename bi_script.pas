@@ -100,6 +100,9 @@ function RemoveLineQuotes(const sctext: string): string;
 
 implementation
 
+uses
+  bi_delphi;
+
 const
   ASCII_QUOTE = '"';
   ASCII_COMMENT1 = '/';
@@ -510,7 +513,7 @@ begin
       p := Pos('//', stmp);
       if p > 0 then
         stmp := Copy(stmp, 1, p - 1);
-      p := Pos(';', stmp);
+      p := CharPos(';', stmp);
       if p > 0 then
         stmp := Copy(stmp, 1, p - 1);
       if stmp <> '' then

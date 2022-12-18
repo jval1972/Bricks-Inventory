@@ -80,7 +80,7 @@ begin
   do_add := false;
   if io_lastNL then
   begin
-    p := Pos(#10, s);
+    p := CharPos(#10, s);
     if (p = 0) or (p = len) then
       do_add := true
   end;

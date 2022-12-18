@@ -162,7 +162,7 @@ begin
     try txtPart.SetFocus; except end;
     Exit;
   end;
-  p := Pos(':', boxColor.Text);
+  p := CharPos(':', boxColor.Text);
   if p = 0 then
   begin
     ShowMessage('Please specify the color');
@@ -203,7 +203,7 @@ begin
 
     for i := 1 to Memo1.Lines.Count - 1 do
     begin
-      if Pos(stmpU, UpperCase(Memo1.Lines.Strings[i])) = 1 then
+      if Pos1(stmpU, UpperCase(Memo1.Lines.Strings[i])) then
       begin
         idx := i;
         break;

@@ -588,7 +588,7 @@ begin
                 for j := 1 to list27b.Count - 1 do
                 begin
                   string27 := list27b.Strings[j];
-                  if Pos(check27, string27) = 1 then
+                  if Pos1(check27, string27) then
                   begin
                     snum27 := '';
                     for k := len27a + 1 to length(string27) do

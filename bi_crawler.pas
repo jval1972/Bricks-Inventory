@@ -430,14 +430,14 @@ begin
   if Length(Trim(link)) > 127 then
   begin
     splitstring(Trim(link), link1, link2, ':');
-    if Pos('//', link2) = 1 then
+    if Pos1('//', link2) then
     begin
       link2[1] := ' ';
       link2[2] := ' ';
       link2 := Trim(link2);
       if Length(link2) > 127 then
       begin
-        if Pos('www.', link2) = 1 then
+        if Pos1('www.', link2) then
         begin
           link2[1] := ' ';
           link2[2] := ' ';
@@ -557,8 +557,8 @@ var
       Exit;
     end;
 
-    p1 := Pos(',', ss);
-    p2 := Pos('.', ss);
+    p1 := CharPos(',', ss);
+    p2 := CharPos('.', ss);
 
     if (p1 > 0) and (p2 > 0) then
     begin
@@ -601,7 +601,7 @@ var
       Result := 0.0;
       Exit;
     end;
-    if Pos('EUR ', ss) <> 1 then
+    if not Pos1('EUR ', ss) then
     begin
       Result := 0.0;
       Exit;
@@ -616,8 +616,8 @@ var
       Exit;
     end;
 
-    p1 := Pos(',', ss);
-    p2 := Pos('.', ss);
+    p1 := CharPos(',', ss);
+    p2 := CharPos('.', ss);
 
     if (p1 > 0) and (p2 > 0) then
     begin
@@ -1697,14 +1697,14 @@ begin
   id1 := strtrim(id);
 
   if Length(id1) = 12 then
-    if Pos('dupupn', id1) = 1 then
+    if Pos1('dupupn', id1) then
       if IsNumericC(id1[7]) and IsNumericC(id1[8]) and
          (id1[9] = 'p') and (id1[10] = 'r') and
          IsNumericC(id1[11]) and IsNumericC(id1[12]) then
           id1 := 'dupupn00' + id1[7] + id1[8] + 'pr00' + id1[11] + id1[12];
 
   if Length(id1) = 15 then
-    if Pos('dupupn', id1) = 1 then
+    if Pos1('dupupn', id1) then
       if IsNumericC(id1[7]) and IsNumericC(id1[8]) and
          (id1[9] = 'c') and IsNumericC(id1[10]) and IsNumericC(id1[11]) and
          (id1[12] = 'p') and (id1[13] = 'r') and
@@ -1922,7 +1922,7 @@ begin
     ptype := 'B';
     didset := True;
   end
-  else if Pos('-', id) > 0 then
+  else if CharPos('-', id) > 0 then
   begin
     s := GetURLString('https://' + BL_NET + '/v2/catalog/catalogitem.page?S=' + db.GetBLNetPieceName(strtrim(id)));
     ptype := 'S';

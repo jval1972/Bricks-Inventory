@@ -591,6 +591,10 @@ function atob(const s: string): boolean;
 
 function RemoveSpaces(const s: string): string;
 
+function CharPos(const ch: Char; const s: string): integer;
+
+function Pos1(const subs, s: string): boolean;
+
 implementation
 
 procedure sprintf(var s: string; const Fmt: string; const Args: array of const);
@@ -665,7 +669,7 @@ begin
   val(s, Result, code);
   if code <> 0 then
   begin
-    if Pos('0x', s) = 1 then
+    if Pos1('0x', s) then
       val('$' + Copy(s, 3, Length(s) - 2), ret2, code)
     else
       val('$' + s, ret2, code);
@@ -696,7 +700,7 @@ begin
   val(s, Result, code);
   if code <> 0 then
   begin
-    if Pos('0x', s) = 1 then
+    if Pos1('0x', s) then
       val('$' + Copy(s, 3, Length(s) - 2), ret2, code)
     else
       val('$' + s, ret2, code);
@@ -715,7 +719,7 @@ begin
   val(s, Result, code);
   if code <> 0 then
   begin
-    if Pos('0x', s) = 1 then
+    if Pos1('0x', s) then
       val('$' + Copy(s, 3, Length(s) - 2), ret2, code)
     else
       val('$' + s, ret2, code);
@@ -2853,7 +2857,7 @@ begin
   for i := 1 to Length(inp1) do
     if inp1[i] in splitters then
       inp1[i] := ' ';
-  p := Pos(' ', inp1);
+  p := CharPos(' ', inp1);
   if p = 0 then
   begin
     out1 := inp1;
@@ -3336,6 +3340,57 @@ begin
   for i := 1 to Length(s) do
     if s[i] <> ' ' then
       Result := Result + s[i];
+end;
+
+function CharPos(const ch: Char; const s: string): integer;
+var
+  i: integer;
+begin
+  for i := 1 to Length(s) do
+    if s[i] = ch then
+    begin
+      result := i;
+      exit;
+    end;
+  result := 0;
+end;
+
+function Pos1(const subs, s: string): boolean;
+var
+  len1, len1b, len2: integer;
+  i: integer;
+begin
+  len1 := Length(subs);
+  len2 := Length(s);
+  if len2 < len1 then
+  begin
+    Result := False;
+    Exit;
+  end;
+
+  len1b := len1 - 4;
+  i := 1;
+  while i <= len1b do
+  begin
+    if PLongWord(@subs[i])^ <> PLongWord(@s[i])^ then
+    begin
+      Result := False;
+      Exit;
+    end;
+    Inc(i, 4);
+  end;
+
+  while i <= len1 do
+  begin
+    if subs[i] <> s[i] then
+    begin
+      Result := False;
+      Exit;
+    end;
+    Inc(i);
+  end;
+
+  Result := True;
 end;
 
 begin

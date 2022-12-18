@@ -189,7 +189,7 @@ begin
     Exit;
 
   for i := 0 to lst.Count - 1 do
-    if Pos(s, lst.Strings[i]) = 1 then
+    if Pos1(s, lst.Strings[i]) then
     begin
       Result := i;
       Exit;
@@ -1305,16 +1305,16 @@ function RemoveHTMLTags(S: string): string;
 var
   TagBegin, TagEnd, TagLength: integer;
 begin
-  TagBegin := Pos( '<', S);      // search position of first < 
+  TagBegin := CharPos( '<', S);      // search position of first <
 
   while (TagBegin > 0) do
   begin  // while there is a < in S
-    TagEnd := Pos('>', S);              // find the matching >
+    TagEnd := CharPos('>', S);              // find the matching >
     if TagEnd <= 0 then
       Break;
     TagLength := TagEnd - TagBegin + 1;
     Delete(S, TagBegin, TagLength);     // delete the tag
-    TagBegin:= Pos( '<', S);            // search for next <
+    TagBegin:= CharPos( '<', S);            // search for next <
   end;
 
   Result := S;                   // give the Result
@@ -1390,10 +1390,12 @@ end;
 function AbsoluteURI(const template, filename, color: string): string;
 var
   ident: string;
+  pp: integer;
 begin
   ident:= ExtractFileName(filename);
-  if Pos('.',ident) > 0 then
-    ident := Copy(ident, 0, Pos('.', ident) - 1);
+  pp := CharPos('.',ident);
+  if pp > 0 then
+    ident := Copy(ident, 0, pp - 1);
 
   Result := StringReplace(template, '%file%', filename, [rfReplaceAll]);
   Result := StringReplace(Result, '%color%', color, [rfReplaceAll]);
@@ -1422,12 +1424,12 @@ begin
     for i := 0 to str.Count - 1 do
     begin
       line := ReplaceWhiteSpace(Trim(str[i]), '_', True);
-      if Pos(':', line) <> 0 then
+      if CharPos(':', line) <> 0 then
       begin
         splitstring(line, part, line, ':');
         splitstring(line, unused, color, npart, '_');
-        color := Copy(color, Pos('=', color) + 1, Length(color) - Pos('=', color) - 1);
-        npart := Copy(npart, Pos('=', npart) + 1, Length(npart) - Pos('=', npart) - 1);
+        color := Copy(color, CharPos('=', color) + 1, Length(color) - CharPos('=', color) - 1);
+        npart := Copy(npart, CharPos('=', npart) + 1, Length(npart) - CharPos('=', npart) - 1);
 
         Result := Format('%s%s, %s, %s%s',[Result, part, color, npart, sLineBreak]);
       end;
@@ -1738,9 +1740,9 @@ var
   p: integer;
   cnt1, cnt2: integer;
 begin
-  p := Pos('?', msk);
+  p := CharPos('?', msk);
   if p <= 0 then
-    p := Pos('*', msk);
+    p := CharPos('*', msk);
   if p <= 0 then
   begin
     Result := False;

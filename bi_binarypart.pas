@@ -143,7 +143,7 @@ begin
   begin
     if rec.data[i].piece = '6141' then
       rec.data[i].piece := '4073'
-    else if Pos('Mx', rec.data[i].piece) = 1 then
+    else if Pos1('Mx', rec.data[i].piece) then
       rec.data[i].piece[1] := 'm'
     else
       rec.data[i].piece := fixpartname(rec.data[i].piece);
@@ -238,7 +238,7 @@ begin
       scolor := Trim(scolor);
       if spart <> '' then
       begin
-        if Pos('BL ', spart) = 1 then
+        if Pos1('BL ', spart) then
           tmppart := db.RebrickablePart(Trim(Copy(spart, 4, Length(spart) - 3)))
         else
           tmppart := db.RebrickablePart(spart);
@@ -248,13 +248,13 @@ begin
 
         if (scolor = 'BL 0') or (scolor = '-2') or (scolor = '') then
           rec.data[j].color := -2
-        else if Pos('BL', scolor) = 1 then
+        else if Pos1('BL', scolor) then
         begin
           scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
           rec.data[j].color := db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0));
         end
-        else if Pos('RB', scolor) = 1 then
+        else if Pos1('RB', scolor) then
         begin
           scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
@@ -286,7 +286,7 @@ begin
         spart := fixpartname(spart);
         if spart <> '' then
         begin
-          if Pos('BL ', spart) = 1 then
+          if Pos1('BL ', spart) then
             rec.data[j].piece := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
           else
             rec.data[j].piece := db.RebrickablePart(spart);
@@ -311,7 +311,7 @@ begin
       scolor := Trim(scolor);
       if spart <> '' then
       begin
-        if Pos('BL ', spart) = 1 then
+        if Pos1('BL ', spart) then
           tmppart := db.RebrickablePart(Trim(Copy(spart, 4, Length(spart) - 3)))
         else
           tmppart := db.RebrickablePart(spart);
@@ -321,13 +321,13 @@ begin
 
         if (scolor = 'BL 0') or (scolor = '-2') or (scolor = '') then
           rec.data[j].color := -2
-        else if Pos('BL', scolor) = 1 then
+        else if Pos1('BL', scolor) then
         begin
           scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
           rec.data[j].color := db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0));
         end
-        else if Pos('RB', scolor) = 1 then
+        else if Pos1('RB', scolor) then
         begin
           scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
@@ -358,7 +358,7 @@ begin
       scolor := Trim(scolor);
       if spart <> '' then
       begin
-        if Pos('BL ', spart) = 1 then
+        if Pos1('BL ', spart) then
           tmppart := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
         else
           tmppart := db.RebrickablePart(spart);
@@ -368,13 +368,13 @@ begin
 
         if (scolor = 'BL 0') or (scolor = '-2') or (scolor = '') then
           rec.data[j].color := -2
-        else if Pos('BL', scolor) = 1 then
+        else if Pos1('BL', scolor) then
         begin
           scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
           rec.data[j].color := db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0));
         end
-        else if Pos('RB', scolor) = 1 then
+        else if Pos1('RB', scolor) then
         begin
           scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 

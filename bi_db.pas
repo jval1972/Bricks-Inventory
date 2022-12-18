@@ -1090,7 +1090,7 @@ begin
     else if Result = 'scalaupn0024pr0001' then Result := 'scalaupn024pr01'
     else if Result = 'scalaupn0024pr0001' then Result := 'scalaupn024pr01';
   end
-  else if Pos('dupupn00', Result) = 1 then
+  else if Pos1('dupupn00', Result) then
   begin
     if Result = 'dupupn0013c02pr0001a' then Result := 'dupupn13c02pr1a'
     else if Result = 'dupupn0049c01pr0001' then Result := 'dupupn49c01pr01'
@@ -1372,7 +1372,7 @@ begin
         for i := 1 to s.Count - 1 do
         begin
           splitstring(s.strings[i], spart, scolor, snum, ',');
-          if Pos('RB', scolor) < 1 then
+          if not Pos1('RB', scolor) then
             s.Strings[i] := spart + ',' + 'RB ' + scolor + ',' + snum;
         end;
         Result := LoadLooseParts(s);
@@ -1382,7 +1382,7 @@ begin
         for i := 1 to s.Count - 1 do
         begin
           splitstring(s.strings[i], spart, scolor, snum, scost, ',');
-          if Pos('RB', scolor) < 1 then
+          if not Pos1('RB', scolor) then
             s.Strings[i] := spart + ',' + 'RB ' + scolor + ',' + snum + ',' + scost
         end;
         Result := LoadLooseParts(s);
@@ -1392,7 +1392,7 @@ begin
         for i := 1 to s.Count - 1 do
         begin
           splitstring(s.strings[i], spart, scolor, snum, sspare, ',');
-          if Pos('RB', scolor) < 1 then
+          if not Pos1('RB', scolor) then
             s.Strings[i] := spart + ',' + 'RB ' + scolor + ',' + snum + ',' + sspare
         end;
         Result := LoadLooseParts(s);
@@ -1417,11 +1417,11 @@ var
   procedure _load_one_item;
   begin
     np := StrToIntDef(snum, 0);
-    if Pos('BL ', spart) = 1 then
+    if Pos1('BL ', spart) then
       spart := db.RebrickablePart(Copy(spart, 4, Length(spart) - 3))
     else
       spart := db.RebrickablePart(spart);
-    if Pos('BL', scolor) = 1 then
+    if Pos1('BL', scolor) then
     begin
       scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
@@ -1430,7 +1430,7 @@ var
       else
         AddLoosePart(spart, db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0)), np);
     end
-    else if Pos('RB', scolor) = 1 then
+    else if Pos1('RB', scolor) then
     begin
       scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
@@ -3612,7 +3612,7 @@ var
 begin
   if color = -1 then
   begin
-    p := Pos('-', part);
+    p := CharPos('-', part);
     if (p > 1) and (p < Length(part)) then
     begin
       if num > 0 then
@@ -3663,7 +3663,7 @@ var
 begin
   if color = -1 then
   begin
-    p := Pos('-', part);
+    p := CharPos('-', part);
     if (p > 1) and (p < Length(part)) then
     begin
       if num > 0 then
@@ -3745,7 +3745,7 @@ var
 begin
   if color = -1 then
   begin
-    p := Pos('-', part);
+    p := CharPos('-', part);
     if (p > 1) and (p < Length(part)) then
     begin
       if num > 0 then
@@ -5504,7 +5504,7 @@ begin
     else
       break;
   end;
-  if Pos('BL ', Result) = 1 then
+  if Pos1('BL ', Result) then
   begin
     Result[1] := ' ';
     Result[2] := ' ';
@@ -6309,17 +6309,17 @@ begin
 
           splitstring(sl.Strings[i], s1, s2, s3, ',');
 
-          if Pos('BL ', s1) = 1 then
+          if Pos1('BL ', s1) then
             spiece := RebrickablePart(Trim(Copy(s1, 4, Length(s1) - 3)))
           else
             spiece := RebrickablePart(Trim(s1));
 
-          if Pos('BL', s2) = 1 then
+          if Pos1('BL', s2) then
           begin
             scolor := Trim(Copy(s2, 3, Length(s2) - 2));
             ncolor := BrickLinkColorToSystemColor(StrToIntDef(scolor, 0))
           end
-          else if Pos('RB', s2) = 1 then
+          else if Pos1('RB', s2) then
           begin
             scolor := Trim(Copy(s2, 3, Length(s2) - 2));
             ncolor := RebrickableColorToSystemColor(StrToIntDef(scolor, 0))
@@ -6591,12 +6591,12 @@ begin
             spiece := fixpartname(spiece);
             spiece := RebrickablePart(spiece);
 
-            if Pos('BL', scolor) = 1 then
+            if Pos1('BL', scolor) then
             begin
               scolor := Copy(scolor, 3, Length(scolor) - 2);
               cl := db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0));
             end
-            else if Pos('RB', scolor) = 1 then
+            else if Pos1('RB', scolor) then
             begin
               scolor := Copy(scolor, 3, Length(scolor) - 2);
               cl := db.RebrickableColorToSystemColor(StrToIntDef(scolor, 0));
@@ -6648,7 +6648,7 @@ begin
       check := fpieces.Strings[i];
       if check <> '' then
         if IsNumericC(check[1]) then
-          if Pos('-', check) <= 0 then
+          if CharPos('-', check) <= 0 then
             if Pos('stk', check) <= 0 then
               sall.Add(fpieces.Strings[i]);
     end;
@@ -6682,7 +6682,7 @@ begin
       begin
         check := sall.Strings[j];
         if not IsNumeric(check) then
-          if Pos(base, check) = 1 then
+          if Pos1(base, check) then
             if len < Length(check) then
               if not IsNumericC(check[len + 1]) then
               begin
@@ -6927,7 +6927,7 @@ var
               progressfunc(progressstring, i / s.Count);
 
           stmp := s.Strings[i];
-          p := Pos(',', stmp);
+          p := CharPos(',', stmp);
           if p > 0 then
           begin
             sname := Trim(Copy(stmp, 1, p - 1));
@@ -7175,7 +7175,7 @@ begin
   begin
     setname := fsets.Strings[i];
     pci := TPieceColorInfo.Create(setname, -1);
-    if Pos('-', setname) > 0 then
+    if CharPos('-', setname) > 0 then
       pci.parttype := TYPE_SET
     else
       pci.parttype := TYPE_MINIFIGURE;
@@ -7555,19 +7555,19 @@ begin
           begin
             splitstring(s.strings[j], spiece, scolor, snum, scost, ',');
 
-            if Pos('BL ', spiece) = 1 then
+            if Pos1('BL ', spiece) then
               spiece := RebrickablePart(Copy(spiece, 4, Length(spiece) - 3))
             else
               spiece := RebrickablePart(spiece);
 
             if spiece <> '' then
             begin
-              if Pos('BL', scolor) = 1 then
+              if Pos1('BL', scolor) then
               begin
                 scolor := Copy(scolor, 3, Length(scolor) - 2);
                 cc := BrickLinkColorToSystemColor(StrToIntDef(scolor, 0));
               end
-              else if Pos('RB', scolor) = 1 then
+              else if Pos1('RB', scolor) then
               begin
                 scolor := Copy(scolor, 3, Length(scolor) - 2);
                 cc := RebrickableColorToSystemColor(StrToIntDef(scolor, 0));
@@ -7663,7 +7663,7 @@ begin
           needsave := True;
           sextra.Delete(i);
         end
-        else if Pos(',', Trim(sextra.Strings[i])) = 1 then
+        else if CharPos(',', Trim(sextra.Strings[i])) = 1 then
         begin
           needsave := True;
           sextra.Delete(i);
@@ -7767,7 +7767,7 @@ begin
       for i := 1 to s.Count - 1 do
       begin
         stmp := s.Strings[i];
-        p := Pos(',', stmp);
+        p := CharPos(',', stmp);
         if p > 0 then
         begin
           sp := TPieceInfo.Create;
@@ -7804,7 +7804,7 @@ begin
     if fpieces.Strings[i] = fpieces.Strings[i - 1] then
     begin
       sp2 := fpieces.Objects[i - 1] as TPieceInfo;
-      if Pos(sp2.name, sp2.desc) = 1 then
+      if Pos1(sp2.name, sp2.desc) then
       begin
         fpieces.Objects[i - 1].Free;
         fpieces.Delete(i - 1);
@@ -8133,7 +8133,7 @@ begin
       for i := s.Count - 1 downto 1 do
       begin
         stmp := s.Strings[i];
-        p := Pos(',', stmp);
+        p := CharPos(',', stmp);
         if p > 0 then
         begin
           s1 := fixpartname(Trim(Copy(stmp, p + 1, Length(stmp) - p)));
@@ -11300,7 +11300,7 @@ begin
   newrec := check + itoa(yyyy);
   checkU := UpperCase(check);
   for i := 1 to gy.Count - 1 do
-    if Pos(checkU, UpperCase(gy.Strings[i])) = 1 then
+    if Pos1(checkU, UpperCase(gy.Strings[i])) then
     begin
       gy.Strings[i] := newrec;
       S_BackupFile(fname);
@@ -11580,16 +11580,16 @@ begin
       if UpperCase(stmp) = UpperCase('Part,Color,Desc') then
         Continue;
     splitstring(stmp, spart, scolor, sdesc, ',');
-    if Pos('BL ', spart) = 1 then
+    if Pos1('BL ', spart) then
       spart := RebrickablePart(Trim(Copy(spart, 4, Length(spart) - 3)))
     else
       spart := RebrickablePart(Trim(spart));
-    if Pos('BL', scolor) = 1 then
+    if Pos1('BL', scolor) then
     begin
       scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
       ncolor := BrickLinkColorToSystemColor(atoi(scolor))
     end
-    else if Pos('RB', scolor) = 1 then
+    else if Pos1('RB', scolor) then
     begin
       scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
       ncolor := RebrickableColorToSystemColor(atoi(scolor))
@@ -12441,7 +12441,7 @@ var
   stmp: string;
 begin
   Result := TDNumberList.Create;
-  if Pos('BL ', spart) = 1 then
+  if Pos1('BL ', spart) then
     stmp := fixpartname(RebrickablePart(Copy(spart, 4, Length(spart) - 3)))
   else
     stmp := fixpartname(RebrickablePart(spart));
@@ -12458,7 +12458,7 @@ var
   stmp: string;
 begin
   Result := 0;
-  if Pos('BL ', spart) = 1 then
+  if Pos1('BL ', spart) then
     stmp := fixpartname(RebrickablePart(Copy(spart, 4, Length(spart) - 3)))
   else
     stmp := fixpartname(RebrickablePart(spart));
@@ -12475,7 +12475,7 @@ var
   stmp: string;
 begin
   Result := 0;
-  if Pos('BL ', spart) = 1 then
+  if Pos1('BL ', spart) then
     stmp := fixpartname(RebrickablePart(Copy(spart, 4, Length(spart) - 3)))
   else
     stmp := fixpartname(RebrickablePart(spart));
@@ -12493,7 +12493,7 @@ var
   pci: TPieceColorInfo;
 begin
   Result := False;
-  if Pos('BL ', spart) = 1 then
+  if Pos1('BL ', spart) then
     stmp := fixpartname(RebrickablePart(Copy(spart, 4, Length(spart) - 3)))
   else
     stmp := fixpartname(RebrickablePart(spart));
@@ -12540,7 +12540,7 @@ var
   pci: TPieceColorInfo;
 begin
   Result := False;
-  if Pos('BL ', spart) = 1 then
+  if Pos1('BL ', spart) then
     stmp := fixpartname(RebrickablePart(Copy(spart, 4, Length(spart) - 3)))
   else
     stmp := fixpartname(RebrickablePart(spart));
@@ -12565,7 +12565,7 @@ var
   i: integer;
   stmp: string;
 begin
-  if Pos('BL ', spart) = 1 then
+  if Pos1('BL ', spart) then
     stmp := fixpartname(RebrickablePart(Copy(spart, 4, Length(spart) - 3)))
   else
     stmp := fixpartname(RebrickablePart(spart));
@@ -12590,7 +12590,7 @@ var
   i: integer;
   stmp: string;
 begin
-  if Pos('BL ', spart) = 1 then
+  if Pos1('BL ', spart) then
     stmp := fixpartname(RebrickablePart(Copy(spart, 4, Length(spart) - 3)))
   else
     stmp := fixpartname(RebrickablePart(spart));
@@ -12624,16 +12624,16 @@ begin
   begin
     stmp := sl.Strings[i];
     splitstring(stmp, spart, scolor, sdesc, ',');
-    if Pos('BL ', spart) = 1 then
+    if Pos1('BL ', spart) then
       spart := RebrickablePart(fixpartname(Trim(Copy(spart, 4, Length(spart) - 3))))
     else
       spart := RebrickablePart(fixpartname(Trim(spart)));
-    if Pos('BL', scolor) = 1 then
+    if Pos1('BL', scolor) then
     begin
       scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
       ncolor := BrickLinkColorToSystemColor(atoi(scolor))
     end
-    else if Pos('RB', scolor) = 1 then
+    else if Pos1('RB', scolor) then
     begin
       scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
       ncolor := RebrickableColorToSystemColor(atoi(scolor))
@@ -14179,7 +14179,7 @@ begin
   sout := TStringList.Create;
   sout.Add('Part,Color,Num');
 
-  docodes := Pos('Code,Num', slist.Strings[0]) = 1;
+  docodes := Pos1('Code,Num', slist.Strings[0]);
 
   for i := 1 to slist.Count - 1 do
   begin
@@ -14192,11 +14192,11 @@ begin
           Continue;
         if spiece = '6141' then
           spiece := '4073'
-        else if Pos('Mx', spiece) = 1 then
+        else if Pos1('Mx', spiece) then
           spiece[1] := 'm';
         spiece := fixpartname(spiece);
 
-        if Pos('BL ', spiece) = 1 then
+        if Pos1('BL ', spiece) then
           spiece := RebrickablePart(Copy(spiece, 4, Length(spiece) - 3))
         else
           spiece := RebrickablePart(spiece);
@@ -14215,24 +14215,24 @@ begin
         Continue;
       if spiece = '6141' then
         spiece := '4073'
-      else if Pos('Mx', spiece) = 1 then
+      else if Pos1('Mx', spiece) then
         spiece[1] := 'm';
       spiece := fixpartname(spiece);
 
       sout.Add(spiece + ',' + scolor + ',' + snum);
 
-      if Pos('BL ', spiece) = 1 then
+      if Pos1('BL ', spiece) then
         spiece := RebrickablePart(Copy(spiece, 4, Length(spiece) - 3))
       else
         spiece := RebrickablePart(spiece);
 
-      if Pos('BL', scolor) = 1 then
+      if Pos1('BL', scolor) then
       begin
         scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
         color := BrickLinkColorToSystemColor(StrToIntDef(scolor, 0))
       end
-      else if Pos('RB', scolor) = 1 then
+      else if Pos1('RB', scolor) then
       begin
         scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
 
@@ -14696,7 +14696,7 @@ begin
       idx := fpieceshash.GetPos(spart);
       if idx < 0 then
       begin
-        if Pos('BL ', check) = 1 then
+        if Pos1('BL ', check) then
         begin
           spart := RebrickablePart(Copy(check, 4, Length(check) - 3));
           idx := fpieceshash.GetPos(spart);
@@ -14899,7 +14899,7 @@ var
 
   function _checkset: TPieceColorInfo;
   begin
-    if Pos('-', piece) > 1 then
+    if Pos1('-', piece) then
       if color <> -1 then
         if color <> INSTRUCTIONCOLORINDEX then
           if color <> BOXCOLORINDEX then
@@ -15319,7 +15319,7 @@ begin
     try
       ltmp.AddStrings(fcolorpieces);
       for i := 0 to ltmp.Count - 1 do
-        if Pos('-1,', ltmp.Strings[i]) <> 1 then
+        if not Pos1('-1,', ltmp.Strings[i]) then
         begin
           oldname := secondword(ltmp.strings[i], ',');
           newname := GetNewPieceName(oldname);
@@ -15333,11 +15333,11 @@ begin
       for i := 0 to ltmp.Count - 1 do
       begin
         stmp := ltmp.Strings[i];
-        if Pos('-1,', stmp) = 1 then
+        if Pos1('-1,', stmp) then
         begin
-          if (Pos('-1,sw', stmp) = 1) and (CountNumbers(stmp) = 4) then
+          if (Pos1('-1,sw', stmp)) and (CountNumbers(stmp) = 4) then
             lsets1.Add(stmp)
-          else if (Pos('-1,cty', stmp) = 1) and (CountNumbers(stmp) = 4) then
+          else if (Pos1('-1,cty', stmp)) and (CountNumbers(stmp) = 4) then
             lsets1.Add(stmp)
           else
             lsets2.Add(stmp);
@@ -15384,7 +15384,7 @@ begin
   s := fcrawlerpriority.Strings[idx];
   flastcrawlpiece := s;
   codeok := true;
-  if Pos(',', s) < 1 then
+  if CharPos(',', s) < 1 then
     codeok := GetPieceColorFromCode(s, spart, scolor)
   else
     splitstring(s, scolor, spart, ',');
@@ -17015,19 +17015,19 @@ begin
     Result := 'I'
   else if (fparttype = TYPE_BOX) or (fcolor = BOXCOLORINDEX) then
     Result := 'O'
-  else if Pos('-', fpiece) > 0 then
+  else if CharPos('-', fpiece) > 0 then
     Result := 'S'
   else if issticker(fpiece, self) or iscardboard(self) then
     Result := 'P'
-  else if (Pos('970p', fpiece) = 1) or
-    (Pos('970c', fpiece) = 1) or
-    (Pos('973p', fpiece) = 1) or
-    (Pos('3010p', fpiece) = 1) or
-    (Pos('3068b', fpiece) = 1) or
-    (Pos('3069b', fpiece) = 1) or
-    (Pos('3070b', fpiece) = 1) or
-    (Pos('3626b', fpiece) = 1) or
-    (Pos('3626c', fpiece) = 1) then
+  else if Pos1('970p', fpiece) or
+    Pos1('970c', fpiece) or
+    Pos1('973p', fpiece) or
+    Pos1('3010p', fpiece) or
+    Pos1('3068b', fpiece) or
+    Pos1('3069b', fpiece) or
+    Pos1('3070b', fpiece) or
+    Pos1('3626b', fpiece) or
+    Pos1('3626c', fpiece) then
     Result := 'P'
   else if fcolor = -1 then
     Result := 'M'
@@ -17146,7 +17146,7 @@ begin
       spiece := RebrickablePart(spiece);
       if spiece = '6141' then
         spiece := '4073'
-      else if Pos('Mx', spiece) = 1 then
+      else if Pos1('Mx', spiece) then
         spiece[1] := 'm'
       else
         spiece := fixpartname(spiece);
@@ -17260,7 +17260,7 @@ begin
       spiece := RebrickablePart(sp);
       if spiece = '6141' then
         spiece := '4073'
-      else if Pos('Mx', spiece) = 1 then
+      else if Pos1('Mx', spiece) then
         spiece[1] := 'm'
       else
         spiece := fixpartname(spiece);
@@ -17285,7 +17285,7 @@ begin
     lparts2 := TStringList.Create;
     try
       for i := 0 to fcolorpieces.Count - 1 do
-        if Pos('-1,', fcolorpieces.Strings[i]) <> 1 then
+        if not Pos1('-1,', fcolorpieces.Strings[i]) then
         begin
           oldname := secondword(fcolorpieces.strings[i], ',');
           newname := GetNewPieceName(oldname);
@@ -17306,11 +17306,11 @@ begin
       for i := 0 to fcolorpieces.Count - 1 do
       begin
         stmp := fcolorpieces.Strings[i];
-        if Pos('-1,', stmp) = 1 then
+        if Pos1('-1,', stmp) then
         begin
-          if (Pos('-1,sw', stmp) = 1) and (CountNumbers(stmp) = 4) then
+          if Pos1('-1,sw', stmp) and (CountNumbers(stmp) = 4) then
             lsets1.Add(stmp)
-          else if (Pos('-1,cty', stmp) = 1) and (CountNumbers(stmp) = 4) then
+          else if Pos1('-1,cty', stmp) and (CountNumbers(stmp) = 4) then
             lsets1.Add(stmp)
           else
             lsets2.Add(stmp);
@@ -17462,7 +17462,7 @@ begin
       Result := nil;
     Exit;
   end
-  else if Pos('mosaic_', setid) = 1 then
+  else if Pos1('mosaic_', setid) then
   begin
     if fexists(basedefault + 'mosaic\' + setid + '.txt') then
     begin
@@ -17724,17 +17724,17 @@ begin
 
           if (Length(s3) = 1) and (s3[1] in ['P', 'S', 'M', 'C', 'B', 'I', 'O', 'G']) then
           begin
-            if Pos('BL ', s1) = 1 then
+            if Pos1('BL ', s1) then
               spiece := RebrickablePart(Trim(Copy(s1, 4, Length(s1) - 3)))
             else
               spiece := RebrickablePart(Trim(s1));
 
-            if Pos('BL', s2) = 1 then
+            if Pos1('BL', s2) then
             begin
               scolor := Trim(Copy(s2, 3, Length(s2) - 2));
               ncolor := BrickLinkColorToSystemColor(StrToIntDef(scolor, 0))
             end
-            else if Pos('RB', s2) = 1 then
+            else if Pos1('RB', s2) then
             begin
               scolor := Trim(Copy(s2, 3, Length(s2) - 2));
               ncolor := RebrickableColorToSystemColor(StrToIntDef(scolor, 0))
@@ -17947,7 +17947,7 @@ end;
 
 initialization
   basedefault := ParamStr(0);
-  if Pos('\', basedefault) > 0 then
+  if CharPos('\', basedefault) > 0 then
   begin
     while basedefault[Length(basedefault)] <> '\' do
       SetLength(basedefault, Length(basedefault) - 1);

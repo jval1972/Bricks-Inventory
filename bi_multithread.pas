@@ -305,6 +305,7 @@ procedure MT_Init;
 var
   i: integer;
 begin
+  IsMultiThread := true;
   numgpthreads := I_GetNumCPUs;
   if numgpthreads < 2 then
     numgpthreads := 2;

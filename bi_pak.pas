@@ -132,7 +132,7 @@ type
   public
     constructor Create; virtual;
     destructor Destroy; override;
-    procedure GetEntries(var s: TStringList);
+    procedure GetEntries(const s: TStringList);
     function POpenFileName(var F: TPakFile; Name: string): boolean;
     function POpenShortFileName(var F: TPakFile; Name: string): boolean;
     function POpenPreferedFileName(var F: TPakFile; const aName: string; prefdirs: TDStringList): boolean;
@@ -154,7 +154,7 @@ type
 
 function PAK_GetDirectoryListFromString(const aprefdirs: string): TDStringList;
 
-procedure PAK_GetEntries(var s: TStringList);
+procedure PAK_GetEntries(const s: TStringList);
 
 type
   TPakStream = class(TStream)
@@ -480,11 +480,9 @@ begin
   printf(' adding %s'#13#10, [FileName]);
 end;
 
-procedure TPakManager.GetEntries(var s: TStringList);
+procedure TPakManager.GetEntries(const s: TStringList);
 var i: integer;
 begin
-  if s = nil then
-    s := TStringList.Create;
   for i := NumEntries - 1 downto 0 do
     s.Add(Entries[I].Name);
 end;
@@ -961,7 +959,7 @@ begin
 
 end;
 
-procedure PAK_GetEntries(var s: TStringList);
+procedure PAK_GetEntries(const s: TStringList);
 begin
   pakmanager.GetEntries(s);
 end;

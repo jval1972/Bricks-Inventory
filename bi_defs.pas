@@ -54,9 +54,10 @@ var
   generatethumbnailsondemand: boolean;
   silentwarnings: boolean;
   searchdownloadimg: boolean;
+  inventorysortmethod: integer;
 
 const
-  NUMDEFAULTS = 10;
+  NUMDEFAULTS = 11;
 
   defaults: array[0..NUMDEFAULTS - 1] of default_t = (
     (name: 'General';
@@ -114,6 +115,14 @@ const
      defaultivalue: 0;
      defaultbvalue: True;
      _type: tBoolean),
+
+    (name: 'inventorysortmethod';
+     location: @inventorysortmethod;
+     setable: true;
+     defaultsvalue: '0';
+     defaultivalue: 0;
+     defaultbvalue: True;
+     _type: tInteger),
 
     (name: 'MultiPage';
      location: nil;

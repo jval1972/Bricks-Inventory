@@ -115,7 +115,7 @@ AutoIncBuild=1
 MajorVer=4
 MinorVer=3
 Release=1
-Build=336
+Build=337
 Debug=0
 PreRelease=0
 Special=0
@@ -126,7 +126,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=Jim Valavanis
 FileDescription=Bricks Inventory
-FileVersion=4.3.1.336
+FileVersion=4.3.1.337
 InternalName=BricksInventory
 LegalCopyright=Copyright 2014-2021 by Jim Valavanis
 LegalTrademarks=BricksInventory

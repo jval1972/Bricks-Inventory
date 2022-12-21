@@ -271,6 +271,7 @@ type
     procedure SortPiecesByPartNumber;
     procedure SortPiecesByPriceNew;
     procedure SortPiecesByPriceUsed;
+    procedure SortPiecesByColor;
     {$ENDIF}
     property numlooseparts: integer read fnumlooseparts;
     property looseparts: brickpool_pa read flooseparts;
@@ -3599,6 +3600,41 @@ begin
   Reorganize;
   if fnumlooseparts > 0 then
     QuickSortPU(flooseparts, 0, fnumlooseparts - 1);
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+procedure TBrickInventory.SortPiecesByColor;
+
+  procedure QuickSortPC(const A: brickpool_pa; iLo, iHi: Integer);
+  var
+     Lo, Hi: integer;
+     Pivot: integer;
+     T: brickpool_t;
+  begin
+    Lo := iLo;
+    Hi := iHi;
+    Pivot := A[(Lo + Hi) div 2].color;
+    repeat
+      while A[Lo].color < Pivot do Inc(Lo);
+      while A[Hi].color > Pivot do Dec(Hi);
+      if Lo <= Hi then
+      begin
+        T := A[Lo];
+        A[Lo] := A[Hi];
+        A[Hi] := T;
+        Inc(Lo);
+        Dec(Hi);
+      end;
+    until Lo > Hi;
+    if Hi > iLo then QuickSortPC(A, iLo, Hi);
+    if Lo < iHi then QuickSortPC(A, Lo, iHi);
+  end;
+
+begin
+  Reorganize;
+  if fnumlooseparts > 0 then
+    QuickSortPC(flooseparts, 0, fnumlooseparts - 1);
 end;
 {$ENDIF}
 
@@ -15137,7 +15173,6 @@ function TSetsDatabase.GetPartLastUpdateDate(const piece: string; const color: i
 var
   A: parecarray_p;
   Asize: integer;
-  i: integer;
 begin
   PG_MakeHistoryParecArray(piece, color, A, Asize);
   if Asize > 0 then

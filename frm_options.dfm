@@ -611,7 +611,7 @@ object OptionsForm: TOptionsForm
     Top = 8
     Width = 313
     Height = 217
-    ActivePage = TabSheet1
+    ActivePage = TabSheet3
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
     Font.Height = -13
@@ -696,6 +696,25 @@ object OptionsForm: TOptionsForm
         Height = 17
         Caption = 'Use multiple pages'
         TabOrder = 1
+      end
+    end
+    object TabSheet3: TTabSheet
+      Caption = 'Inventory sort'
+      ImageIndex = 2
+      object RadioGroup1: TRadioGroup
+        Left = 24
+        Top = 16
+        Width = 241
+        Height = 161
+        Caption = ' Sort by '
+        ItemIndex = 0
+        Items.Strings = (
+          'Description'
+          'Part Number'
+          'Price (new)'
+          'Price (used)'
+          'Color')
+        TabOrder = 0
       end
     end
   end

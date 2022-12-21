@@ -45,7 +45,7 @@ procedure RemoveDuplicates(const s: TStringList);
 
 procedure FreeList(var s: TStringList);
 
-procedure ClearList(var s: TStringList);
+procedure ClearList(const s: TStringList);
 
 procedure SaveBmpToJpeg(const MyBitmap: TBitmap; const JPEGFName: string);
 
@@ -299,74 +299,89 @@ var
   check: string;
   idx: integer;
   s1, s2, s4: string;
-  nlist: TStringList;
+  nlist, lst: TStringList;
   i: integer;
   value: integer;
   v1: integer;
 begin
-  idx := IndexOfString(hash, s);
-  if idx > -1 then
-  begin
+  try
+    idx := IndexOfString(hash, s);
+    if idx > -1 then
+    begin
+      Result := s;
+      Exit;
+    end;
+
+    splitstring(s, s1, s2, '\');
+    s1 := UpperCase(s1);
+    s2 := UpperCase(s2);
+    if IsNumeric(s1) then
+    begin
+      s4 := IntToStr(db.Colors(StrToInt(s1)).alternateid);
+      if s4 <> s1 then
+      begin
+        check := s4 + '\' + s2;
+        idx := IndexOfString(hash, s);
+        if idx > -1 then
+        begin
+          Result := check;
+          Exit;
+        end;
+      end;
+    end;
+
+    s4 := '';
+    for i := 1 to Length(s2) do
+    begin
+      if s2[i] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] then
+        s4 := s4 + s2[i]
+      else
+        break;
+    end;
+
+    if s4 = '' then
+    begin
+      result := s;
+      exit;
+    end;
+
+    check := s1 + '\' + s4;
+    if check <> s then
+    begin
+      nlist := TStringList.Create;
+      lst := hash.list;
+      for i := 0 to lst.Count - 1 do
+      begin
+        if Pos1(check, lst.Strings[i]) then
+          nlist.Add(lst.Strings[i]);
+      end;
+
+      value := -1;
+      idx := -1;
+      for i := 0 to nlist.Count - 1 do
+      begin
+        v1 := CompareStringsInPercent(s, nlist.Strings[i]);
+        if v1 > value then
+        begin
+          value := v1;
+          idx := i;
+        end;
+      end;
+      if value > -1 then
+      begin
+        Result := nlist.Strings[idx];
+        nlist.Free;
+        Exit;
+      end;
+      nlist.Free;
+    end;
+
+  // not found!
+    Result := s;
+  except
     Result := s;
     Exit;
   end;
-
-  splitstring(s, s1, s2, '\');
-  s1 := UpperCase(s1);
-  s2 := UpperCase(s2);
-  if IsNumeric(s1) then
-  begin
-    s4 := IntToStr(db.Colors(StrToInt(s1)).alternateid);
-    if s4 <> s1 then
-    begin
-      check := s4 + '\' + s2;
-      idx := IndexOfString(hash, s);
-      if idx > -1 then
-      begin
-        Result := check;
-        Exit;
-      end;
-    end;
-  end;
-
-  s4 := '';
-  for i := 1 to Length(s2) do
-  begin
-    if s2[i] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] then
-      s4 := s4 + s2[i]
-    else
-      break;
-  end;
-  check := s1 + '\' + s4;
-  if check <> s then
-  begin
-    nlist := TStringList.Create;
-    for i := 0 to hash.list.Count - 1 do
-      if Pos(check, hash.list.Strings[i]) = 1 then
-        nlist.Add(hash.list.Strings[i]);
-
-    value := -1;
-    idx := -1;
-    for i := 0 to nlist.Count - 1 do
-    begin
-      v1 := CompareStringsInPercent(s, nlist.Strings[i]);
-      if v1 > value then
-      begin
-        value := v1;
-        idx := i;
-      end;
-    end;
-    if value > -1 then
-    begin
-      Result := nlist.Strings[idx];
-      nlist.Free;
-      Exit;
-    end;
-    nlist.Free;
-  end;
-
-// not found!
-  Result := s;
 end;
 {$ENDIF}
 
@@ -396,11 +411,10 @@ var
 begin
   for i := 0 to s.Count - 1 do
     s.Objects[i].Free;
-  s.Free;
-  s := nil;
+  FreeAndNil(s);
 end;
 
-procedure ClearList(var s: TStringList);
+procedure ClearList(const s: TStringList);
 var
   i: integer;
 begin
@@ -1845,8 +1859,6 @@ begin
 end;
 
 function SortListAndFindFirstLeftMatch(const l: TStringList; const s: string): integer;
-var
-  idx: integer;
 begin
   l.sorted := True;
   if not FindListLeft(l, s, result) then

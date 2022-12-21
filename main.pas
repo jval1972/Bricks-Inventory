@@ -780,6 +780,7 @@ type
     function RemoveImageFromCache(const simg: string): boolean;
     procedure DoUpdatePriceGuideFromDiskList(const fn: string; const days: integer);
     procedure SaveLugbulkDatabase(const fn: string; const year: integer);
+    procedure SortInventory(const ainv: TBrickInventory);
   public
     { Public declarations }
     activebits: integer;
@@ -1707,7 +1708,7 @@ begin
     inv.SaveSets(basedefault + 'storage\storage_all_sets.txt');
     DrawHeadLine('Storage Bins Inventory <a href="diagramstorage/Storage Bins"><img src="images\diagram.png"></a>');
   end;
-  inv.SortPieces;
+  SortInventory(inv);
 
   DrawInventoryTable(inv);
   document.write('<br>');
@@ -1802,7 +1803,8 @@ begin
 
   DrawHeadLine(tit);
 
-  inv.SortPiecesByPartNumber;
+  //inv.SortPiecesByPartNumber;
+  SortInventory(inv);
 
   DrawInventoryTable(inv);
   document.write('<br>');
@@ -1848,7 +1850,7 @@ begin
 
   inv.SaveLooseParts(basedefault + 'orders\order_' + orderid + '_parts.txt');
   inv.SaveSets(basedefault + 'orders\order_' + orderid + '_sets.txt');
-  inv.SortPieces;
+  SortInventory(inv);
   DrawHeadLine('Order #' + orderid + '<a href="diagramorder/' + orderid + '"><img src="images\diagram.png"></a>');
 
   DrawOrderInf(orderid);
@@ -2419,8 +2421,9 @@ begin
   for i := 0 to 127 do
     FreeList(thumbnailfilesexist[i]);
 
-  entries.Free;
-  entriesHash.Free;
+  try entries.Free; except end;
+  try entriesHash.Free; except end;
+
   for i := 0 to goback.Count - 1 do
     goback.Objects[i].Free;
   goback.Free;
@@ -2436,8 +2439,6 @@ begin
 
   SplashForm.Free;
   PAK_ShutDown;
-{  I_ShutDownTempFiles;
-  I_ShutDownIO;}
   MT_ShutDown;
   I_Quit;
 
@@ -2474,7 +2475,7 @@ begin
   PAK_AddFile('main.zip');
   SplashProgress('Loading images...', 1.0);
   PAK_GetEntries(entries);
-  entries.Sort;
+  entries.Sorted := True;
   entriesHash.AssignStringList(entries);
 
   if not DirectoryExists(basedefault + 'out') then
@@ -2917,7 +2918,7 @@ begin
 
   Screen.Cursor := crHourGlass;
 
-  inv.SortPieces;
+  SortInventory(inv);
 
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
   document.write('<tr bgcolor=' + THBGCOLOR + '>');
@@ -3056,7 +3057,7 @@ begin
   Screen.Cursor := crHourGlass;
 
   if dosort then
-    inv.SortPieces;
+    SortInventory(inv);
 
   if not lite then
     DrawPartOutValue(inv, setid);
@@ -3791,7 +3792,7 @@ begin
     DrawHeadLine(lnk);
   end;
   inv.DoUpdateCostValues;
-  inv.SortPieces;
+  SortInventory(inv);
 
   s1 := basedefault + 'out\' + Trim(setid) + '\';
   if not DirectoryExists(s1) then
@@ -4019,7 +4020,7 @@ begin
   end;
 
   inv.DoUpdateCostValues;
-  inv.SortPieces;
+  SortInventory(inv);
 
   s1 := basedefault + 'out\' + Trim(setid) + '\';
   if not DirectoryExists(s1) then
@@ -6499,7 +6500,7 @@ begin
     Exit;
   end;
 
-  inv.SortPieces;
+  SortInventory(inv);
 
   DrawInventoryTableNoPages(inv);
   if not DirectoryExists(basedefault + 'cache') then
@@ -9834,7 +9835,7 @@ begin
   end;
 
   Screen.Cursor := crHourGlass;
-  inv.SortPieces;
+  SortInventory(inv);
 
   if domultipagedocuments then
     document.NewMultiPageDocument('ShowLooseParts' + itoa(Integer(inv)), itoa(colormask) + '_' + partmask + '_' + itoa(cat));
@@ -12563,7 +12564,7 @@ begin
     for j := 1 to inventory.sets[i].num do
       inv.AddSet(inventory.sets[i].setid, False);
   inv.DismandalAllSets;
-  inv.SortPieces;
+  SortInventory(inv);
 
   DrawHeadLine('My builded sets Inventory');
 
@@ -12602,7 +12603,7 @@ begin
       for j := 1 to inventory.sets[i].num do
         inv.AddSet(inventory.sets[i].setid, False);
   inv.DismandalAllSets;
-  inv.SortPieces;
+  SortInventory(inv);
 
   DrawHeadLine('My builded mocs Inventory');
 
@@ -18775,6 +18776,18 @@ procedure TMainForm.SaveLugbulk2021database1Click(Sender: TObject);
 begin
   if SaveLugbulkBLCostDialog.Execute then
     SaveLugbulkDatabase(SaveLugbulkBLCostDialog.Filename, 2021);
+end;
+
+procedure TMainForm.SortInventory(const ainv: TBrickInventory);
+begin
+  case inventorysortmethod of
+    1: ainv.SortPiecesByPartNumber;
+    2: ainv.SortPiecesByPriceNew;
+    3: ainv.SortPiecesByPriceUsed;
+    4: ainv.SortPiecesByColor;
+  else
+    ainv.SortPieces;
+  end;
 end;
 
 end.

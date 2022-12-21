@@ -282,7 +282,7 @@ type
 
 const
   MAXBRICKLINKCOLOR = 300;
-  MAXREBRICKABLECOLOR = 2048;
+  MAXREBRICKABLECOLOR = 9999;
 
 type
   colorinfo_t = record

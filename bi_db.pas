@@ -2949,6 +2949,8 @@ begin
       db.Colors(cl).knownpieces.AddObject(nparts[i].part, pci);
     end;
     AddLoosePart(nparts[i].part, cl, nparts[i].num, pci);
+    if nparts[i].num <> 0 then
+      AddLoosePart(nparts[i].part, cl, nparts[i].num, pci);
   end;
   FreeMem(nparts, nnum * SizeOf(brickpool_t));
   fneedsReorganize := False;

@@ -621,6 +621,8 @@ type
     procedure ShowLooseParts(inv: TBrickInventory; colormask: Integer = -1; partmask: string = ''; cat: Integer = -1;
       const fromAA: integer = -1; const toAA: integer = MAXINT);
     procedure ShowSetInventory(const setid: string; const lite: Boolean = False);
+    procedure ShowSetPartsStorage(const setid: string);
+    procedure DrawInventoryPartsStorage(const inv: TBrickInventory);
     procedure PreviewInventoryTable(inv: TBrickInventory);
     procedure PreviewSetInventory(const setid: string);
     procedure ShowColors;
@@ -738,8 +740,9 @@ type
     procedure DrawPartOutValue(inv: TBrickInventory; const setid: string = '');
     procedure DrawInventoryTable(inv: TBrickInventory; const lite: Boolean = False;
       const setid: string = ''; const dosort: boolean = True; const usepages: boolean = True;
-      const lb: TLugBulk2017 = nil);
-    procedure DrawInventoryTableNoPages(inv: TBrickInventory; const lite: Boolean = False; const setid: string = ''; const dosort: boolean = True);
+      const lb: TLugBulk2017 = nil; const dosplash: boolean = true);
+    procedure DrawInventoryTableNoPages(inv: TBrickInventory; const lite: Boolean = False; const setid: string = ''; const dosort: boolean = True; const dosplash: boolean = true);
+    procedure DrawInventoryTableForPartsStorageQuery(inv, qryinv: TBrickInventory);
     procedure DrawBrickOrderInfo(const brick: brickpool_p; const setid: string = ''; const aspan1: integer = -1; const aspan2: integer = -1);
     procedure UpdateDismantaledsetsinv;
     procedure DrawPriceguide(const part: string; const color: integer = -1);
@@ -2883,7 +2886,7 @@ begin
         if sqty2 <> '' then
           stmp3 := stmp3 + ':' + sqty2;
       end;
-        
+
       document.write('<td colspan="' + sspan3 + '">%s</td></tr>',
                 ['<b><a href=storage/' + stor + '>' + stor + '</a></b>:' + stmp3 + removeforbuildsetstr]);
     end;
@@ -3014,14 +3017,14 @@ begin
   Screen.Cursor := crDefault;
 end;
 
-procedure TMainForm.DrawInventoryTableNoPages(inv: TBrickInventory; const lite: Boolean = False; const setid: string = ''; const dosort: boolean = True);
+procedure TMainForm.DrawInventoryTableNoPages(inv: TBrickInventory; const lite: Boolean = False; const setid: string = ''; const dosort: boolean = True; const dosplash: boolean = true);
 begin
-  DrawInventoryTable(inv, lite, setid, dosort, false, nil);
+  DrawInventoryTable(inv, lite, setid, dosort, false, nil, dosplash);
 end;
 
 procedure TMainForm.DrawInventoryTable(inv: TBrickInventory; const lite: Boolean = False;
   const setid: string = ''; const dosort: boolean = True; const usepages: boolean = True;
-  const lb: TLugBulk2017 = nil);
+  const lb: TLugBulk2017 = nil; const dosplash: boolean = true);
 var
   aa, i: integer;
   brick: brickpool_p;
@@ -3048,8 +3051,11 @@ var
 begin
   UpdateDismantaledsetsinv;
 
-  ShowSplash;
-  SplashProgress('Working...', 0);
+  if dosplash then
+  begin
+    ShowSplash;
+    SplashProgress('Working...', 0);
+  end;
 
   if inv = nil then
     inv := inventory;
@@ -3168,7 +3174,7 @@ begin
         begin
           lcostt := lcostt + lcost * brick.num;
           document.write('<td width=' + decide(lite, '15%', '10%') + ' align=right>' + Format('€ ' + '<a href=' + lugcostedit + '>' + accurstr + '</a><br>€ ' + accurstr + '<br>€ %2.2f / Kgr', [lcost, lcost * brick.num, dbl_safe_div(lcost, www) * 1000]) + '</td>')
-        end                                     
+        end
         else
         begin
           lcost := 0.0;
@@ -3212,25 +3218,28 @@ begin
     else
       DrawBrickOrderInfo(brick, setid);
     Inc(brick);
-    if inv.numlooseparts < 20 then
-      SplashProgress('Working...', i / (inv.numlooseparts))
-    else if inv.numlooseparts < 200 then
+    if dosplash then
     begin
-      if (i mod 4) = 0 then
-        SplashProgress('Working...', i / (inv.numlooseparts));
-    end
-    else
-    begin
-      if (i mod 10) = 0 then
-        SplashProgress('Working...', i / (inv.numlooseparts));
+      if inv.numlooseparts < 20 then
+        SplashProgress('Working...', i / (inv.numlooseparts))
+      else if inv.numlooseparts < 200 then
+      begin
+        if (i mod 4) = 0 then
+          SplashProgress('Working...', i / (inv.numlooseparts));
+      end
+      else
+      begin
+        if (i mod 10) = 0 then
+          SplashProgress('Working...', i / (inv.numlooseparts));
+      end;
     end;
-
   end;
   if usepages then
     if not lite then
       document.EndNavigateSection;
 
-  SplashProgress('Working...', 1);
+  if dosplash then
+    SplashProgress('Working...', 1);
 
   document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
   document.write('<td width=35%><b>' + IntToStr(pl.Count) + ' unique mold' + decide(pl.Count = 1, '', 's') + '</b></td>');
@@ -3271,6 +3280,91 @@ begin
   HideSplash;
 
   Screen.Cursor := crDefault;
+end;
+
+procedure TMainForm.DrawInventoryTableForPartsStorageQuery(inv, qryinv: TBrickInventory);
+var
+  aa, i: integer;
+  brick: brickpool_p;
+  pci: TPieceColorInfo;
+  pi: TPieceInfo;
+  cl: TDNumberList;
+  pl: TStringList;
+  num, num1, num2: integer;
+  accurstr: string;
+  scolor: string;
+  cinfo: colorinfo_p;
+begin
+  UpdateDismantaledsetsinv;
+
+  if inv = nil then
+    inv := inventory;
+
+  SortInventory(inv);
+
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+  document.write('<tr bgcolor=' + THBGCOLOR + '>');
+  document.write('<th><b>#</b></th>');
+  document.write('<th><b>Part</b></th>');
+  document.write('<th>Color</th>');
+  document.write('<th>Num pieces</th>');
+  document.write('<th>Needed pieces</th>');
+
+  brick := @inv.looseparts[0];
+  aa := 0;
+  num1 := 0;
+  num2 := 0;
+  accurstr := '%2.4f';
+  cl := TDNumberList.Create;
+  pl := TStringList.Create;
+  for i := 0 to inv.numlooseparts - 1 do
+  begin
+    inc(aa);
+    scolor := itoa(brick.Color);
+    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' +
+      IntToStr(aa) + '.</td><td width=35%><img src=' + scolor + '\' + brick.part + '.png><br><b>');
+    document.write('<a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
+    document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=40%>');
+    DrawColorCell(brick.color, 25);
+    pci := db.PieceColorInfo(brick);
+    pi := db.PieceInfo(pci);
+    if pi = nil then
+      pi := db.PieceInfo(brick.part);
+    cinfo := db.colors(brick.color);
+    document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name +
+        ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' +
+          GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
+          HtmlDrawInvImgLink(brick.part, brick.color, pi));
+    document.write('<br><a href=editpiece/' + brick.part + '/' + scolor + '><img src="images\edit.png"></a>');
+    document.write('<br><a href=diagrampiece/' + brick.part + '/' + scolor + '><img src="images\diagram.png"></a></td>');
+
+    document.write('<td width=10% align=right>' + IntToStr(brick.num));
+    document.write('</td>');
+    num := qryinv.loosepartcount(brick.part, brick.color);
+    num2 := num2 + num;
+    document.write('<td width=10% align=right>' + IntToStr(num) + '</td>');
+
+    document.write('</tr>');
+
+    if cl.IndexOf(brick.color) < 0 then
+      cl.Add(brick.color);
+    if pl.IndexOf(brick.part) < 0 then
+      pl.Add(brick.part);
+    num1 := num1 + brick.num;
+
+    Inc(brick);
+  end;
+
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
+  document.write('<td width=35%><b>' + IntToStr(pl.Count) + ' unique mold' + decide(pl.Count = 1, '', 's') + '</b></td>');
+  document.write('<td width=40%><b>' + IntToStr(cl.Count) + ' unique color' + decide(cl.Count = 1, '', 's') + '</b></td>');
+  document.write('<td width=10% align=right><b>' + IntToStr(num1) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + IntToStr(num2) + '</b></td>');
+
+  document.write('</tr></table>');
+
+  cl.Free;
+  pl.Free;
 end;
 
 procedure TMainForm.DrawPriceguide(const part: string; const color: integer = -1);
@@ -3864,17 +3958,32 @@ begin
   missing := inventory.MissingToBuildSet(setid);
   if st.num > 0 then
     DrawHeadLine('You can dismantle this set to your loose parts! <a href=dismantleset/' + Trim(setid) + '>(dismantle it!)</a>');
+
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+  document.write('<tr bgcolor=' + DBGCOLOR + '>');
+  document.write('<td width 25%>');
+
   if missing = 0 then
     DrawHeadLine('You can built this set! <a href=buildset/' + Trim(setid) + '>(Built it!)</a>')
   else
     DrawHeadLine(Format('%d part' + decide(missing = 1, ' is', 's are') + ' missing to build a copy of this set (%2.2f%s) (<a href="missingtobuildset/%s">show</a>)',
       [missing, dbl_safe_div(missing * 100, inv.totallooseparts), '%', Trim(setid)]));
 
+  document.write('</td><td width 25%>');
+
   missing2 := inventory.MissingToBuildSetLegacyIgnore(Trim(setid));
   DrawHeadLine(Format('%d part' + decide(missing2 <= 1, ' is', 's are') + ' missing to build a copy of this set ignoring legacy colors (%2.2f%s) (<a href="missingtobuildsetLI/%s">show</a>)',
     [missing2, dbl_safe_div(missing2 * 100, inv.totallooseparts), '%', Trim(setid)]));
 
+  document.write('</td><td width 25%>');
+
   DrawHeadLine(Format('<a href="missingtobuildset/%s/2">Check to build 2 sets</a>', [Trim(setid)]));
+
+  document.write('</td><td width 25%>');
+
+  DrawHeadLine('<a href=sstorageloc/' + setid + '>Inventory storage locations</a>');
+
+  document.write('</td></tr></table>');
 
   numbricks := inv.totalloosepartsbycategory(5);
   numplates := inv.totalloosepartsbycategory(26);
@@ -3962,6 +4071,576 @@ begin
   Screen.Cursor := crDefault;
 end;
 
+procedure TMainForm.ShowSetPartsStorage(const setid: string);
+var
+  inv: TBrickInventory;
+  missing: integer;
+  missing2: integer;
+  st: set_t;
+  i: integer;
+  desc: string;
+  tmpsets: TStringList;
+  sx, ss1, ss2, ss3: string;
+  sf1, sf2, sf3, sf4: string;
+  numbricks: integer;
+  numplates: integer;
+  numtiles: integer;
+  numslopes: integer;
+  idx: integer;
+  lnk: string;
+  expensizestr: string;
+  year: integer;
+  slink: string;
+  pci: TPieceColorInfo;
+begin
+  Screen.Cursor := crHourGlass;
+
+  document.write('<body background="splash.jpg">');
+  document.title('Set ' + setid);
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+  inv := db.GetSetInventory(setid);
+  if inv = nil then
+  begin
+    if Trim(setid) <> '' then
+      lnk := '<a href=downloadset/' + setid + '>Try to download the inventory from ' + s_bricklink + '.com</a>'
+    else
+      lnk := '';
+    pci := db.PieceColorInfo(setid, -1);
+    if pci = nil then
+      slink := setid
+    else
+      slink := '<a href="spiece/' + setid + '">' + setid + '</a>';
+    DrawHeadLine('Can not find inventory for ' + slink + ' <a href=DoEditSet/' + setid + '><img src="images\edit.png"></a><br><br>' + lnk);
+    document.write('<br>');
+    document.write('</p>');
+    document.write('</div>');
+
+    tmpsets := TStringList.Create;
+    if IsValidDBMask(setid) then
+    begin
+      for i := 0 to db.AllSets.Count - 1 do
+      begin
+        desc := db.SetDesc(db.AllSets.Strings[i]);
+        if MatchesMask(desc, setid) then
+          tmpsets.Add(db.AllSets.Strings[i])
+        else if MatchesMask(db.AllSets.Strings[i], setid) then
+          tmpsets.Add(db.AllSets.Strings[i]);
+        if tmpsets.Count >= 500 then
+          Break;
+      end;
+    end;
+
+    if tmpsets.Count = 0 then
+    begin
+      for i := 0 to db.AllSets.Count - 1 do
+      begin
+        desc := db.SetDesc(db.AllSets.Strings[i]);
+        if Pos(strupper(setid), strupper(desc)) > 0 then
+          tmpsets.Add(db.AllSets.Strings[i]);
+      end;
+
+      for i := 0 to db.AllSets.Count - 1 do
+      begin
+        desc := db.AllSets.Strings[i];
+        if Pos(strupper(setid), strupper(desc)) > 0 then
+          tmpsets.Add(desc);
+      end;
+    end;
+
+    tmpsets.Sort;
+    for i := tmpsets.Count - 1 downto 1 do
+      if tmpsets.Strings[i] = tmpsets.Strings[i - 1] then
+        tmpsets.Delete(i);
+
+    for i := 0 to tmpsets.Count - 1 do
+    begin
+      inv := db.GetSetInventory(tmpsets.Strings[i]);
+      DrawHeadLine(Format('<a href="sstorageloc/%s">%s - %s</a><br>(%d lots, %d parts, %d sets)<br><img width=360px src=s\' + tmpsets.Strings[i] + '.jpg>',
+        [tmpsets.Strings[i], tmpsets.Strings[i], db.SetDesc(tmpsets.Strings[i]), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled]));
+    end;
+    tmpsets.Free;
+    document.write('</body>');
+    document.SaveBufferToFile(diskmirror);
+    document.Flash;
+    Screen.Cursor := crDefault;
+    Exit;
+  end;
+
+  inventory.GetSetInfo(setid, @st);
+  sf1 := '<a href=addset/' + Trim(setid) + '>+</a>';
+  if st.num > 0 then
+    sf2 := '<a href=removeset/' + Trim(setid) + '>-</a>'
+  else
+    sf2 := '';
+  sf3 := '<a href=addsetdismantaled/' + Trim(setid) + '>+</a>';
+  if st.dismantaled > 0 then
+    sf4 := '<a href=removesetdismantaled/' + Trim(setid) + '>-</a>'
+  else
+    sf4 := '';
+  year := db.SetYear(setid);
+  ss1 := Format('Storage Location for the inventory of %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled<br><img width=360px src=s\' + setid + '.jpg>' +
+      ' <a href=DoEditSet/' + setid + '><img src="images\edit.png"></a>' +
+      ' <a href=PreviewSetInventory/' + setid + '><img src="images\print.png"></a>' +
+      ' <a href=diagrampiece/' + setid + '/-1><img src="images\diagram.png"></a><br>' +
+
+      '[Year: <a href=ShowSetsAtYear/%d>%d</a>]<br>',
+    ['<a href=spiece/' + setid + '>' + setid + '</a>', db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
+     sf2, st.num, sf1, sf4, st.dismantaled, sf3, year, year]);
+  idx := db.allsets.IndexOf(Trim(setid));
+  if idx > -1 then
+  begin
+    if idx > 0 then
+      ss1 := ss1 + '<a href=sstorageloc/' + db.allsets.Strings[idx - 1] + '>Prev(' + db.allsets.Strings[idx - 1] + ' - ' + db.SetDesc(db.allsets.Strings[idx - 1]) + ')</a>  ';
+    if idx < db.allsets.Count - 1 then
+      ss1 := ss1 + decide(idx > 0, ' - ', ' ') + '<a href=sstorageloc/' + db.allsets.Strings[idx + 1] + '>Next(' + db.allsets.Strings[idx + 1] + ' - ' + db.SetDesc(db.allsets.Strings[idx + 1]) + ')</a>  ';
+  end
+  else
+  begin
+    splitstring(Trim(setid), ss2, ss3, '-');
+    if ss3 <> '' then
+    begin
+      sx := itoa(atoi(ss2) - 1) + '-' + ss3;
+      if db.SetDesc(sx) <> '' then
+        ss1 := ss1 + '<a href=sstorageloc/' + sx + '>Prev(' + sx + ' - ' + db.SetDesc(sx) + ')</a>  ';
+      sx := itoa(atoi(ss2) + 1) + '-' + ss3;
+      if db.SetDesc(sx) <> '' then
+        ss1 := ss1 + '<a href=sstorageloc/' + sx + '>Next(' + sx + ' - ' + db.SetDesc(sx) + ')</a>';
+    end;
+  end;
+  DrawHeadLine(ss1);
+
+  missing := inventory.MissingToBuildSet(setid);
+  if st.num > 0 then
+    DrawHeadLine('You can dismantle this set to your loose parts! <a href=dismantleset/' + Trim(setid) + '>(dismantle it!)</a>');
+
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+  document.write('<tr bgcolor=' + DBGCOLOR + '>');
+  document.write('<td width 34%>');
+
+  if missing = 0 then
+    DrawHeadLine('You can built this set! <a href=buildset/' + Trim(setid) + '>(Built it!)</a>')
+  else
+    DrawHeadLine(Format('%d part' + decide(missing = 1, ' is', 's are') + ' missing to build a copy of this set (%2.2f%s) (<a href="missingtobuildset/%s">show</a>)',
+      [missing, dbl_safe_div(missing * 100, inv.totallooseparts), '%', Trim(setid)]));
+
+  document.write('</td><td width 33%>');
+
+  missing2 := inventory.MissingToBuildSetLegacyIgnore(Trim(setid));
+  DrawHeadLine(Format('%d part' + decide(missing2 <= 1, ' is', 's are') + ' missing to build a copy of this set ignoring legacy colors (%2.2f%s) (<a href="missingtobuildsetLI/%s">show</a>)',
+    [missing2, dbl_safe_div(missing2 * 100, inv.totallooseparts), '%', Trim(setid)]));
+
+  document.write('</td><td width 33%>');
+
+  DrawHeadLine(Format('<a href="missingtobuildset/%s/2">Check to build 2 sets</a>', [Trim(setid)]));
+
+  document.write('</td></tr></table>');
+
+  numbricks := inv.totalloosepartsbycategory(5);
+  numplates := inv.totalloosepartsbycategory(26);
+  numtiles := inv.totalloosepartsbycategory(37) + inv.totalloosepartsbycategory(39);
+  numslopes := inv.totalloosepartsbycategory(31) + inv.totalloosepartsbycategory(32) + inv.totalloosepartsbycategory(33);
+  expensizestr := 'Most expensive lots: <a href="ShowExpensiveSetLotsNew/' + Trim(setid) + '/10">New</a> - <a href="ShowExpensiveSetLotsUsed/' + Trim(setid) + '/10">Used</a>';
+
+  DrawHeadLine(Format('Bricks: %d<br>Slopes: %d<br>Plates: %d<br>Tiles: %d<br>Other: %d<br>' + expensizestr, [numbricks, numslopes, numplates, numtiles, inv.totallooseparts - numbricks - numplates - numslopes - numtiles]));
+
+  DrawPriceguide(setid);
+
+  DrawInventoryPartsStorage(inv);
+
+  document.write('<br>');
+  document.write('<br>');
+
+  document.write('</p>');
+
+  document.write('</div>');
+
+{  if not lite then
+    document.write(BLColorPieceInfo(Trim(setid), -1));}
+
+  document.write('</body>');
+  document.SaveBufferToFile(diskmirror);
+  document.Flash;
+  Screen.Cursor := crDefault;
+end;
+
+procedure TMainForm.DrawInventoryPartsStorage(const inv: TBrickInventory);
+var
+  storagelst: TStringList;
+  storagecompleteparts1, storagecompleteparts2: TStringList;
+  i: Integer;
+  s1, s2, stmp: string;
+  pci: TPieceColorInfo;
+  olddodraworderinfo: boolean;
+  dbstorageinvs: TStringList;
+  tmpinv, missinginv: TBrickInventory;
+
+  function numfoundatstorage(const Apart: string; const Acolor: Integer): integer;
+  var
+    ii: integer;
+  begin
+    result := 0;
+    for ii := 0 to storagelst.Count - 1 do
+      result := result + (storagelst.Objects[ii] as TBrickInventory).loosepartcount(Apart, Acolor);
+  end;
+
+  procedure removefromstorage(const Apart: string; const Acolor: Integer; const qty: integer = -1);
+  var
+    ii: integer;
+    tot: integer;
+    num1: integer;
+    leftqty: integer;
+  begin
+    tot := numfoundatstorage(Apart, Acolor);
+    if tot = 0 then
+      exit;
+
+    if qty = -1 then
+    begin
+      for ii := 0 to storagelst.Count - 1 do
+      begin
+        num1 := (storagelst.Objects[ii] as TBrickInventory).loosepartcount(Apart, Acolor);
+        if num1 > 0 then
+          (storagelst.Objects[ii] as TBrickInventory).RemoveLoosePart(Apart, Acolor, num1);
+      end;
+    end
+    else
+    begin
+      leftqty := qty;
+      if leftqty > 0 then
+      begin
+        for ii := 0 to storagelst.Count - 1 do
+        begin
+          num1 := (storagelst.Objects[ii] as TBrickInventory).loosepartcount(Apart, Acolor);
+          if num1 > 0 then
+            if num1 < leftqty then
+            begin
+              (storagelst.Objects[ii] as TBrickInventory).RemoveLoosePart(Apart, Acolor, num1);
+              leftqty := leftqty - num1;
+            end;
+        end;
+
+        if leftqty > 0 then
+        begin
+          for ii := 0 to storagelst.Count - 1 do
+          begin
+            num1 := (storagelst.Objects[ii] as TBrickInventory).loosepartcount(Apart, Acolor);
+            if num1 = leftqty then
+            begin
+              (storagelst.Objects[ii] as TBrickInventory).RemoveLoosePart(Apart, Acolor, num1);
+              leftqty := 0;
+              break;
+            end;
+          end;
+
+          if leftqty > 0 then
+          begin
+            for ii := 0 to storagelst.Count - 1 do
+            begin
+              num1 := (storagelst.Objects[ii] as TBrickInventory).loosepartcount(Apart, Acolor);
+              if num1 > leftqty then
+              begin
+                (storagelst.Objects[ii] as TBrickInventory).RemoveLoosePart(Apart, Acolor, leftqty);
+                leftqty := 0;
+                break;
+              end;
+            end;
+          end;
+
+        end;
+      end;
+    end;
+  end;
+
+  procedure AddToStorageList1(const s: string; const Apart: string; const Acolor: Integer; const Anum: Integer);
+  var
+    idx: integer;
+  begin
+    if Anum <= 0 then
+      Exit;
+
+    idx := storagecompleteparts1.IndexOf(Apart + ',' + itoa(Acolor));
+    if idx >= 0 then
+      exit;
+
+    storagecompleteparts1.Add(Apart + ',' + itoa(Acolor));
+
+    idx := storagelst.IndexOf(s);
+    if idx < 0 then
+      idx := storagelst.AddObject(s, TBrickInventory.Create);
+    (storagelst.Objects[idx] as TBrickInventory).AddLoosePart(Apart, Acolor, Anum);
+  end;
+
+  procedure AddToStorageList2(const s: string; const Apart: string; const Acolor: Integer; const Anum: Integer);
+  var
+    idx: integer;
+  begin
+    if Anum <= 0 then
+      Exit;
+
+    idx := storagecompleteparts1.IndexOf(Apart + ',' + itoa(Acolor));
+    if idx >= 0 then
+      exit;
+
+    idx := storagecompleteparts2.IndexOf(Apart + ',' + itoa(Acolor));
+    if idx >= 0 then
+      exit;
+
+    idx := storagelst.IndexOf(s);
+    if idx < 0 then
+      idx := storagelst.AddObject(s, TBrickInventory.Create);
+    (storagelst.Objects[idx] as TBrickInventory).AddLoosePart(Apart, Acolor, Anum);
+  end;
+
+  procedure FindAPartStorage(const Apci: TPieceColorInfo; const needed: integer;
+    const pass: integer);
+  var
+    Aoinf: TStringList;
+    Aoitem: TOrderItemInfo;
+    ii: integer;
+    Ainv: TBrickInventory;
+    pi: TPieceInfo;
+    num: integer;
+    Asid: string;
+    foundall: boolean;
+    numfound: integer;
+  begin
+    if pass = 1 then
+    begin
+      for ii := dbstorageinvs.Count - 1 downto 0 do
+      begin
+        Ainv := dbstorageinvs.Objects[ii] as TBrickInventory;
+        num := Ainv.LoosePartCount(Apci.piece, Apci.color);
+        if num >= needed then
+          AddToStorageList1('storage:' + dbstorageinvs.Strings[ii], Apci.piece, Apci.color, needed);
+      end;
+    end;
+
+    numfound := numfoundatstorage(Apci.piece, Apci.color);
+    if numfound >= needed then
+      exit;
+
+    if pass = 2 then
+    begin
+
+      for ii := dbstorageinvs.Count - 1 downto 0 do
+      begin
+        Ainv := dbstorageinvs.Objects[ii] as TBrickInventory;
+        num := Ainv.LoosePartCount(Apci.piece, Apci.color);
+        if num > 0 then
+        begin
+          AddToStorageList2('storage:' + dbstorageinvs.Strings[ii], Apci.piece, Apci.color, MinI(num, needed));
+          numfound := numfound + num;
+          if numfound >= needed then
+            exit;
+        end;
+      end;
+    end;
+
+    if pass = 3 then
+    begin
+      if dismantaledsetsinv <> nil then
+        if dismantaledsetsinv.LoosePartCount(Apci.piece, Apci.color) > 0 then
+          for ii := 0 to inventory.numsets - 1 do
+            if inventory.sets[ii].dismantaled > 0 then
+            begin
+              Asid := inventory.sets[ii].setid;
+              pi := db.PieceInfo(Asid);
+              if pi <> nil then
+                if pi.category = CATEGORYLUGBULK then
+                begin
+                  Ainv := db.GetSetInventory(Asid);
+                  num := Ainv.LoosePartCount(Apci.piece, Apci.color);
+                  if num > 0 then
+                  begin
+                    foundall := num >= needed;
+                    if foundall then
+                    begin
+                      removefromstorage(Apci.piece, Apci.color);
+                      AddToStorageList2('set:' + Asid, Apci.piece, Apci.color, MinI(num, needed));
+                      storagecompleteparts2.Add(Apci.piece + ',' + itoa(Apci.color));
+                      exit;
+                    end
+                    else
+                      AddToStorageList2('set:' + Asid, Apci.piece, Apci.color, MinI(num, needed));
+                  end;
+                end;
+            end;
+
+      for ii := 0 to dbstorageinvs.Count - 1 do
+      begin
+        Ainv := dbstorageinvs.Objects[ii] as TBrickInventory;
+        num := Ainv.LoosePartCount(Apci.piece, Apci.color);
+        if num > 0 then
+        begin
+          AddToStorageList2('storage:' + dbstorageinvs.Strings[ii], Apci.piece, Apci.color, MinI(num, needed));
+          foundall := num >= needed;
+          if foundall then
+            exit;
+        end;
+      end;
+
+      Aoinf := orders.ItemInfo(Apci.piece, Apci.color);
+      if Aoinf <> nil then
+        for ii := 0 to Aoinf.Count - 1 do
+        begin
+          Aoitem := Aoinf.Objects[ii] as TOrderItemInfo;
+          AddToStorageList2('order:' + itoa(Aoitem.orderid), Apci.piece, Apci.color, MinI(Aoitem.num, needed));
+        end;
+
+    end;
+
+  end;
+
+  procedure _removeunused;
+  var
+    ii: integer;
+  begin
+    for ii := storagelst.Count - 1 downto 0 do
+    begin
+      (storagelst.Objects[ii] as TBrickInventory).DoReorganize;
+      if (storagelst.Objects[ii] as TBrickInventory).totallooseparts = 0 then
+      begin
+        (storagelst.Objects[ii] as TBrickInventory).Free;
+        storagelst.Delete(ii);
+      end;
+    end;
+  end;
+
+  procedure _checkoverflow(const Apci: TPieceColorInfo; const needed: integer);
+  var
+    atstorage: integer;
+  begin
+    atstorage := numfoundatstorage(Apci.piece, Apci.color);
+    if atstorage > needed then
+      removefromstorage(Apci.piece, Apci.color, atstorage - needed);
+  end;
+
+begin
+  Screen.Cursor := crHourGlass;
+  ShowSplash;
+  SplashProgress('Working...', 0);
+
+  inv.DoReorganize;
+  UpdateDismantaledsetsinv;
+
+  storagelst := TStringList.Create;
+  storagelst.Sorted := True;
+  storagecompleteparts1 := TStringList.Create;
+  storagecompleteparts1.Sorted := True;
+  storagecompleteparts2 := TStringList.Create;
+  storagecompleteparts2.Sorted := True;
+
+  dbstorageinvs := db.InventoriesForAllStorageBins;
+
+  // Pass 1
+  for i := 0 to inv.numlooseparts - 1 do
+  begin
+    pci := db.PieceColorInfo(@inv.looseparts[i]);
+    if pci <> nil then
+      FindAPartStorage(pci, inv.looseparts[i].num, 1);
+  end;
+  SplashProgress('Working...', 0.05);
+
+  // Pass 2
+  for i := 0 to inv.numlooseparts - 1 do
+  begin
+    pci := db.PieceColorInfo(@inv.looseparts[i]);
+    if pci <> nil then
+      FindAPartStorage(pci, inv.looseparts[i].num, 2);
+  end;
+  SplashProgress('Working...', 0.10);
+
+  // Pass 3
+  for i := 0 to inv.numlooseparts - 1 do
+  begin
+    pci := db.PieceColorInfo(@inv.looseparts[i]);
+    if pci <> nil then
+      if numfoundatstorage(pci.piece, pci.color) < inv.looseparts[i].num then
+        FindAPartStorage(pci, inv.looseparts[i].num, 3);
+  end;
+  SplashProgress('Working...', 0.15);
+
+  // Remove unused storages
+  _removeunused;
+
+  for i := 0 to inv.numlooseparts - 1 do
+  begin
+    pci := db.PieceColorInfo(@inv.looseparts[i]);
+    if pci <> nil then
+      _checkoverflow(pci, inv.looseparts[i].num);
+  end;
+
+  // Remove unused storages
+  _removeunused;
+
+  tmpinv := TBrickInventory.Create;
+  for i := 0 to storagelst.Count - 1 do
+    tmpinv.MergeWith(storagelst.Objects[i] as TBrickInventory);
+  missinginv := tmpinv.InventoryForMissingToBuildInventory(inv);
+
+  DrawHeadLine(Format(
+    'Found %d parts (%d lots) in %d storages out of %d parts (%d lots)',
+      [tmpinv.totallooseparts, tmpinv.numlooseparts, storagelst.Count, inv.totallooseparts, inv.numlooseparts]
+    ));
+
+  tmpinv.Free;
+  SplashProgress('Working...', 0.20);
+
+  olddodraworderinfo := dodraworderinfo;
+  dodraworderinfo := false;
+
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+  document.write('<th><b>#</b></th>');
+  document.write('<th><b>Storage Location</b></th>');
+  for i := 0 to storagelst.Count - 1 do
+  begin
+    document.write('<tr bgcolor=' + THBGCOLOR + '>');
+    document.write('<td width=5% align=right>' + itoa(i + 1));
+
+    splitstring(storagelst.Strings[i], s1, s2, ':');
+    tmpinv := storagelst.Objects[i] as TBrickInventory;
+    stmp := Format(' (%d lots, %d parts)', [tmpinv.numlooseparts, tmpinv.totallooseparts]);
+
+    if s1 = 'order' then
+      document.write('<td width=95%><b>Order <a href="order/' + s2 + '">' + s2 + '</a></b>' + stmp + '</td>')
+    else if s1 = 'set' then
+      document.write('<td width=95%><b>Set <a href="sinv/' + s2 + '">' + s2 + '</a></b>' + stmp + '</td>')
+    else if s1 = 'storage' then
+      document.write('<td width=95%><b>Storage <a href="storage/' + s2 + '">' + s2 + '</a></b>' + stmp + '</td>');
+
+    document.write('</tr>');
+
+    document.write('<tr bgcolor=' + THBGCOLOR + '><td colspan="2">');
+
+    DrawInventoryTableForPartsStorageQuery(tmpinv, inv);
+
+    document.write('</td></tr>');
+
+    if i mod 10 = 0 then
+      SplashProgress('Working...', 0.2 + 0.75 * i / storagelst.Count);
+  end;
+  document.write('</table>');
+
+  dodraworderinfo := olddodraworderinfo;
+
+  SplashProgress('Working...', 1);
+
+  DrawHeadLine(
+    Format('Missing parts (%d parts in %d lots)', [missinginv.totallooseparts, missinginv.numlooseparts]));
+  DrawInventoryTableNoPages(missinginv, False, '', True, False);
+
+  missinginv.Free;
+  FreeList(storagelst);
+  FreeList(dbstorageinvs);
+  storagecompleteparts1.Free;
+  storagecompleteparts2.Free;
+
+  HideSplash;
+  Screen.Cursor := crDefault;
+end;
+
 procedure TMainForm.PreviewSetInventory(const setid: string);
 var
   inv: TBrickInventory;
@@ -4030,7 +4709,6 @@ begin
 
   s2 := s1 + setid + '_priceguide.txt';
   inv.SavePartsInventoryPriceguide(s2);
-
 
   inv.StoreHistoryStatsRec(basedefault + 'out\' + Trim(setid) + '\' + Trim(setid) + '.stats');
   inv.StoreHistoryEvalRec(basedefault + 'out\' + Trim(setid) + '\' + Trim(setid) + '.ieval');
@@ -11458,6 +12136,11 @@ begin
   begin
     splitstring(slink, s1, s2, '/');
     ShowSetInventory(s2);
+  end
+  else if Pos1('sstorageloc/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowSetPartsStorage(s2);
   end
   else if slink = 'catalogparts' then
   begin

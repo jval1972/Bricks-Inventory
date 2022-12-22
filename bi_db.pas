@@ -878,6 +878,7 @@ type
     function InventoryForStorageBinCache(const st: string): TBrickInventory;
     procedure FetchStorageBinsCache;
     function InventoryForAllStorageBins: TBrickInventory;
+    function InventoriesForAllStorageBins: TStringList;
     procedure SetPieceStorage(const piece: string; const color: integer; const st: TStringList);
     {$ENDIF}
     {$IFNDEF CRAWLER}
@@ -2948,7 +2949,6 @@ begin
         db.Colors(cl).knownpieces := THashStringList.Create;
       db.Colors(cl).knownpieces.AddObject(nparts[i].part, pci);
     end;
-    AddLoosePart(nparts[i].part, cl, nparts[i].num, pci);
     if nparts[i].num <> 0 then
       AddLoosePart(nparts[i].part, cl, nparts[i].num, pci);
   end;
@@ -9076,6 +9076,49 @@ begin
       splitstring(stmp, s_Storage, s_Num, s_Remarks, ':');
       if s_Num <> '' then
         Result.AddLoosePart(s_Part, atoi(s_Color), atoi(s_Num));
+    end;
+    s2.Free;
+  end;
+  s1.Free;
+end;
+
+function TSetsDatabase.InventoriesForAllStorageBins: TStringList;
+var
+  i, j: integer;
+  s1, s2: TStringList;
+  s_Part, s_Color, s_Storage, s_Num, s_Remarks, stmp: string;
+  ss: string;
+  fn: string;
+  idx: integer;
+begin
+  Result := TStringList.Create;
+  fn := basedefault + 'db\db_storage.txt';
+  if not fexists(fn) then
+    Exit;
+  s1 := TStringList.Create;
+  S_LoadFromFile(s1, fn);
+  if s1.Count <= 1 then
+  begin
+    s1.Free;
+    Exit;
+  end;
+  if s1.Strings[0] <> 'Part,Color,Storage' then
+    Exit;
+  for i := 1 to s1.Count - 1 do
+  begin
+    splitstring(s1.Strings[i], s_Part, s_Color, ss, ',');
+    s2 := string2stringlist(ss, ',');
+    for j := 0 to s2.Count - 1 do
+    begin
+      stmp := s2.Strings[j];
+      splitstring(stmp, s_Storage, s_Num, s_Remarks, ':');
+      if s_Num <> '' then
+      begin
+        idx := Result.IndexOf(s_Storage);
+        if idx < 0 then
+          idx := Result.AddObject(s_Storage, TBrickInventory.Create);
+        (Result.Objects[idx] as TBrickInventory).AddLoosePart(s_Part, atoi(s_Color), atoi(s_Num));
+      end;
     end;
     s2.Free;
   end;

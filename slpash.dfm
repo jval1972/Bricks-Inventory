@@ -1,6 +1,7 @@
 object SplashForm: TSplashForm
   Left = 317
   Top = 126
+  Cursor = crHourGlass
   BorderIcons = []
   BorderStyle = bsNone
   BorderWidth = 1
@@ -553,6 +554,7 @@ object SplashForm: TSplashForm
     Top = 0
     Width = 332
     Height = 81
+    Cursor = crHourGlass
     Align = alClient
     Caption = ' '
     TabOrder = 0
@@ -561,6 +563,7 @@ object SplashForm: TSplashForm
       Top = 6
       Width = 80
       Height = 20
+      Cursor = crHourGlass
       Caption = 'Loading...'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -574,6 +577,7 @@ object SplashForm: TSplashForm
       Top = 56
       Width = 289
       Height = 16
+      Cursor = crHourGlass
       Alignment = taCenter
       AutoSize = False
       Caption = '-'
@@ -589,6 +593,7 @@ object SplashForm: TSplashForm
       Top = 36
       Width = 295
       Height = 15
+      Cursor = crHourGlass
       TabOrder = 0
     end
   end

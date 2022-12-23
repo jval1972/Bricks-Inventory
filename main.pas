@@ -4672,9 +4672,12 @@ begin
 
   SplashProgress('Working...', 1);
 
-  DrawHeadLine(
-    Format('Missing parts (%d parts in %d lots)', [missinginv.totallooseparts, missinginv.numlooseparts]));
-  DrawInventoryTableNoPages(missinginv, False, '', True, False);
+  if missinginv.numlooseparts > 0 then
+  begin
+    DrawHeadLine(
+      Format('Missing parts (%d parts in %d lots)', [missinginv.totallooseparts, missinginv.numlooseparts]));
+    DrawInventoryTableNoPages(missinginv, False, '', True, False);
+  end;
 
   missinginv.Free;
   FreeList(storagelst);

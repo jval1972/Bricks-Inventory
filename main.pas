@@ -709,6 +709,7 @@ type
     procedure ShowBigInvLots(const lotparts: integer);
     procedure ShowMissingToBuilMultipledSets(const setids: TStringList);
     procedure ShowInventoryForMultipledSets(const setids: TStringList);
+    procedure ShowStorageLocationsForMultipledSets(const setids: TStringList);
     procedure ShowLugbulkSuggestions(const years: string; const demand, sold: integer; const price: double);
     procedure ShowCompare2Sets(const set1, set2: string);
     procedure ShowOrders(const seller: string = '');
@@ -4534,24 +4535,25 @@ var
         begin
           for jj := 0 to storagelst.Count - 1 do
             if jj <> ii then
-            begin
-              stinv2 := (storagelst.Objects[jj] as TBrickInventory);
-              if stinv2.numlooseparts > 0 then
+              if Pos1('storage:', storagelst.Strings[jj]) then
               begin
-                splitstring(storagelst.Strings[jj], st1, st2, ':');
-                idx := dbstorageinvs.IndexOf(st2);
-                if idx >= 0 then
+                stinv2 := (storagelst.Objects[jj] as TBrickInventory);
+                if stinv2.numlooseparts > 0 then
                 begin
-                  dbinv := dbstorageinvs.Objects[idx] as TBrickInventory;
-                  if dbinv.CanBuildInventory(stinv) then
+                  splitstring(storagelst.Strings[jj], st1, st2, ':');
+                  idx := dbstorageinvs.IndexOf(st2);
+                  if idx >= 0 then
                   begin
-                    stinv2.MergeWith(stinv);
-                    stinv.Clear;
-                    changed := True;
+                    dbinv := dbstorageinvs.Objects[idx] as TBrickInventory;
+                    if dbinv.CanBuildInventory(stinv) then
+                    begin
+                      stinv2.MergeWith(stinv);
+                      stinv.Clear;
+                      changed := True;
+                    end;
                   end;
                 end;
               end;
-            end;
         end;
       end;
     if changed then
@@ -10423,12 +10425,77 @@ begin
   DrawHeadLine(Format('Inventory for multiple sets<br>%d parts in %d lots (%d unique)<br>%s',
     [inv.totallooseparts, nlots, inv.numlooseparts, s1]));
 
+  document.write('<tr><td width=50%>');
   minv := inventory.InventoryForMissingToBuildInventory(inv);
   DrawHeadLine(Format('<a href=multymissing/' + IntToStr(Integer(setids)) +
     '>%d parts in %d lots are missing to build this list</a>', [minv.totallooseparts, minv.numlooseparts]));
   minv.Free;
+  document.write('</td><td width=50%>');
+  DrawHeadLine('<a href=multysetstorages/' + IntToStr(Integer(setids)) +
+    '>Storage locations for these parts</a>');
+  document.write('</td></tr>');
 
   DrawInventoryTable(inv);
+  document.write('<br>');
+  document.write('<br>');
+  document.write('</p>');
+  document.write('</div>');
+  document.write('</body>');
+  document.SaveBufferToFile(diskmirror);
+  document.Flash;
+  inv.Free;
+  Screen.Cursor := crDefault;
+end;
+
+procedure TMainForm.ShowStorageLocationsForMultipledSets(const setids: TStringList);
+var
+  inv: TBrickInventory;
+  sinv: TBrickInventory;
+  minv: TBrickInventory;
+  i: integer;
+  s1: string;
+  nlots: integer;
+begin
+  Screen.Cursor := crHourGlass;
+
+  document.write('<body background="splash.jpg">');
+  document.title('Storage Locations for multiple sets inventory');
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+  inv := TBrickInventory.Create;
+  nlots := 0;
+  for i := 0 to setids.Count - 1 do
+  begin
+    sinv := db.GetSetInventory(setids.Strings[i]);
+    if sinv <> nil then
+    begin
+      inv.MergeWith(sinv);
+      nlots := nlots + sinv.numlooseparts;
+    end;
+  end;
+  if inv = nil then
+  begin
+    DrawHeadLine('Can not find inventory for the given sets');
+    document.write('<br>');
+    document.write('</p>');
+    document.write('</div>');
+    document.write('</body>');
+    document.SaveBufferToFile(diskmirror);
+    document.Flash;
+    Screen.Cursor := crDefault;
+    Exit;
+  end;
+  inv.Reorganize;
+
+  s1 := '';
+  for i := 0 to setids.Count - 1 do
+    s1 := s1 + '<br><a href="sinv/' + setids.Strings[i] + '">' + setids.Strings[i] + ' - ' + db.SetDesc(setids.Strings[i]) + '</a>';
+  DrawHeadLine(Format('<a href=multysetinv/' + IntToStr(Integer(setids)) + '>Inventory for multiple sets</a><br>%d parts in %d lots (%d unique)<br>%s',
+    [inv.totallooseparts, nlots, inv.numlooseparts, s1]));
+
+  DrawInventoryPartsStorage(inv);
+
   document.write('<br>');
   document.write('<br>');
   document.write('</p>');
@@ -12170,6 +12237,11 @@ begin
   begin
     splitstring(slink, s1, s2, '/');
     ShowInventoryForMultipledSets(TStringList(atoi(s2)));
+  end
+  else if Pos1('multysetstorages/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowStorageLocationsForMultipledSets(TStringList(atoi(s2)));
   end
   else if slink = 'ShowStorageBins' then
   begin

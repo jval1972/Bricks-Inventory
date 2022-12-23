@@ -4517,6 +4517,47 @@ var
       removefromstorage(Apci.piece, Apci.color, atstorage - needed);
   end;
 
+  procedure _trytomergestorages(const nlots: integer);
+  var
+    ii, jj: integer;
+    stinv, stinv2, dbinv: TBrickInventory;
+    st1, st2: string;
+    idx: integer;
+    changed: boolean;
+  begin
+    changed := false;
+    for ii := 0 to storagelst.Count - 1 do
+      if Pos1('storage:', storagelst.Strings[ii]) then
+      begin
+        stinv := storagelst.Objects[ii] as TBrickInventory;
+        if stinv.numlooseparts = nlots then
+        begin
+          for jj := 0 to storagelst.Count - 1 do
+            if jj <> ii then
+            begin
+              stinv2 := (storagelst.Objects[jj] as TBrickInventory);
+              if stinv2.numlooseparts > 0 then
+              begin
+                splitstring(storagelst.Strings[jj], st1, st2, ':');
+                idx := dbstorageinvs.IndexOf(st2);
+                if idx >= 0 then
+                begin
+                  dbinv := dbstorageinvs.Objects[idx] as TBrickInventory;
+                  if dbinv.CanBuildInventory(stinv) then
+                  begin
+                    stinv2.MergeWith(stinv);
+                    stinv.Clear;
+                    changed := True;
+                  end;
+                end;
+              end;
+            end;
+        end;
+      end;
+    if changed then
+      _removeunused;
+  end;
+
 begin
   Screen.Cursor := crHourGlass;
   ShowSplash;
@@ -4533,6 +4574,7 @@ begin
   storagecompleteparts2.Sorted := True;
 
   dbstorageinvs := db.InventoriesForAllStorageBins;
+  dbstorageinvs.Sorted := True;
 
   // Pass 1
   for i := 0 to inv.numlooseparts - 1 do
@@ -4541,6 +4583,7 @@ begin
     if pci <> nil then
       FindAPartStorage(pci, inv.looseparts[i].num, 1);
   end;
+  _trytomergestorages(1);
   SplashProgress('Working...', 0.05);
 
   // Pass 2
@@ -4573,6 +4616,8 @@ begin
   end;
 
   // Remove unused storages
+  _trytomergestorages(1);
+  _trytomergestorages(2);
   _removeunused;
 
   tmpinv := TBrickInventory.Create;

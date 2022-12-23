@@ -4620,6 +4620,7 @@ begin
   // Remove unused storages
   _trytomergestorages(1);
   _trytomergestorages(2);
+  _trytomergestorages(3);
   _removeunused;
 
   tmpinv := TBrickInventory.Create;

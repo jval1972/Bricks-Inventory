@@ -9103,7 +9103,10 @@ begin
     Exit;
   end;
   if s1.Strings[0] <> 'Part,Color,Storage' then
+  begin
+    s1.Free;
     Exit;
+  end;
   for i := 1 to s1.Count - 1 do
   begin
     splitstring(s1.Strings[i], s_Part, s_Color, ss, ',');

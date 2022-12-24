@@ -4283,7 +4283,10 @@ var
   begin
     result := 0;
     for ii := 0 to storagelst.Count - 1 do
-      result := result + (storagelst.Objects[ii] as TBrickInventory).loosepartcount(Apart, Acolor);
+    begin
+      (storagelst.Objects[ii] as TBrickInventory).DoReorganize;
+      result := result + (storagelst.Objects[ii] as TBrickInventory).LoosePartCount(Apart, Acolor);
+    end;
   end;
 
   procedure removefromstorage(const Apart: string; const Acolor: Integer; const qty: integer = -1);
@@ -4303,7 +4306,10 @@ var
       begin
         num1 := (storagelst.Objects[ii] as TBrickInventory).loosepartcount(Apart, Acolor);
         if num1 > 0 then
+        begin
           (storagelst.Objects[ii] as TBrickInventory).RemoveLoosePart(Apart, Acolor, num1);
+          (storagelst.Objects[ii] as TBrickInventory).DoReorganize;
+        end;
       end;
     end
     else
@@ -4318,6 +4324,7 @@ var
             if num1 < leftqty then
             begin
               (storagelst.Objects[ii] as TBrickInventory).RemoveLoosePart(Apart, Acolor, num1);
+              (storagelst.Objects[ii] as TBrickInventory).DoReorganize;
               leftqty := leftqty - num1;
             end;
         end;
@@ -4330,6 +4337,7 @@ var
             if num1 = leftqty then
             begin
               (storagelst.Objects[ii] as TBrickInventory).RemoveLoosePart(Apart, Acolor, num1);
+              (storagelst.Objects[ii] as TBrickInventory).DoReorganize;
               leftqty := 0;
               break;
             end;
@@ -4343,6 +4351,7 @@ var
               if num1 > leftqty then
               begin
                 (storagelst.Objects[ii] as TBrickInventory).RemoveLoosePart(Apart, Acolor, leftqty);
+                (storagelst.Objects[ii] as TBrickInventory).DoReorganize;
                 leftqty := 0;
                 break;
               end;
@@ -4392,6 +4401,7 @@ var
     if idx < 0 then
       idx := storagelst.AddObject(s, TBrickInventory.Create);
     (storagelst.Objects[idx] as TBrickInventory).AddLoosePart(Apart, Acolor, Anum);
+    (storagelst.Objects[idx] as TBrickInventory).DoReorganize;
   end;
 
   procedure FindAPartStorage(const Apci: TPieceColorInfo; const needed: integer;

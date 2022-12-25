@@ -4,7 +4,7 @@ object EditPieceForm: TEditPieceForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Edit Piece'
-  ClientHeight = 530
+  ClientHeight = 561
   ClientWidth = 548
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -835,6 +835,48 @@ object EditPieceForm: TEditPieceForm
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
     OnClick = UpdateWeightSpeedButtonClick
   end
+  object ReadyListLabel: TLabel
+    Left = 24
+    Top = 528
+    Width = 83
+    Height = 16
+    Caption = 'In Ready List: '
+    FocusControl = NumReadyEdit
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
+  object RemoveReadyListSpeedButton: TSpeedButton
+    Left = 272
+    Top = 528
+    Width = 23
+    Height = 22
+    Caption = '-'
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    OnClick = RemoveReadyListSpeedButtonClick
+  end
+  object AddReadyListSpeedButton: TSpeedButton
+    Left = 248
+    Top = 528
+    Width = 23
+    Height = 22
+    Caption = '+'
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    OnClick = AddReadyListSpeedButtonClick
+  end
   object NumPiecesEdit: TEdit
     Left = 128
     Top = 312
@@ -1066,5 +1108,22 @@ object EditPieceForm: TEditPieceForm
     ParentFont = False
     TabOrder = 14
     OnKeyPress = WeightEditKeyPress
+  end
+  object NumReadyEdit: TEdit
+    Left = 128
+    Top = 528
+    Width = 121
+    Height = 24
+    BiDiMode = bdLeftToRight
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentBiDiMode = False
+    ParentFont = False
+    TabOrder = 15
+    Text = '0'
+    OnKeyPress = NumReadyEditKeyPress
   end
 end

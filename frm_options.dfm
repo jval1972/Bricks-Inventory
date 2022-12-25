@@ -699,12 +699,12 @@ object OptionsForm: TOptionsForm
       end
     end
     object TabSheet3: TTabSheet
-      Caption = 'Inventory sort'
+      Caption = 'Inventory'
       ImageIndex = 2
       object RadioGroup1: TRadioGroup
-        Left = 24
+        Left = 16
         Top = 16
-        Width = 241
+        Width = 113
         Height = 161
         Caption = ' Sort by '
         ItemIndex = 0
@@ -715,6 +715,38 @@ object OptionsForm: TOptionsForm
           'Price (used)'
           'Color')
         TabOrder = 0
+      end
+      object GroupBox1: TGroupBox
+        Left = 144
+        Top = 16
+        Width = 153
+        Height = 105
+        Caption = ' Storage locations '
+        TabOrder = 1
+        object CheckBox8: TCheckBox
+          Left = 16
+          Top = 24
+          Width = 97
+          Height = 17
+          Caption = 'Lugbulks'
+          TabOrder = 0
+        end
+        object CheckBox9: TCheckBox
+          Left = 16
+          Top = 48
+          Width = 97
+          Height = 17
+          Caption = 'Orders'
+          TabOrder = 1
+        end
+        object CheckBox10: TCheckBox
+          Left = 16
+          Top = 72
+          Width = 97
+          Height = 17
+          Caption = 'Ready list'
+          TabOrder = 2
+        end
       end
     end
   end

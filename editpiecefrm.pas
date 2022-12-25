@@ -70,6 +70,10 @@ type
     WeightLabel: TLabel;
     WeightEdit: TEdit;
     UpdateWeightSpeedButton: TSpeedButton;
+    ReadyListLabel: TLabel;
+    RemoveReadyListSpeedButton: TSpeedButton;
+    AddReadyListSpeedButton: TSpeedButton;
+    NumReadyEdit: TEdit;
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -83,6 +87,9 @@ type
     procedure EditBLLinkSpeedButtonClick(Sender: TObject);
     procedure WeightEditKeyPress(Sender: TObject; var Key: Char);
     procedure UpdateWeightSpeedButtonClick(Sender: TObject);
+    procedure NumReadyEditKeyPress(Sender: TObject; var Key: Char);
+    procedure AddReadyListSpeedButtonClick(Sender: TObject);
+    procedure RemoveReadyListSpeedButtonClick(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -102,7 +109,7 @@ implementation
 uses
   urlmon,
   bi_db, bi_delphi, bi_utils, bi_crawler, bi_globals, frm_selectparttype,
-  frm_editbllink;
+  frm_editbllink, bi_readylist;
 
 function EditPiece(const apart: string; const color: integer): boolean;
 var
@@ -119,6 +126,8 @@ var
   initialyear, newyear: integer;
   initialcode: string;
   initialweight: string;
+  oldreadylistqty: integer;
+  newreadylistqty: integer;
 begin
   Result := False;
   if Trim(apart) = '' then
@@ -157,6 +166,10 @@ begin
       if f.NewNameEdit.Text = part then
         f.NewNameEdit.Text := '';
       f.AutodetectButton.Visible := True;
+      f.ReadyListLabel.Visible := False;
+      f.NumReadyEdit.Visible := False;
+      f.AddReadyListSpeedButton.Visible := False;
+      f.RemoveReadyListSpeedButton.Visible := False;
     end
     else
     begin
@@ -186,7 +199,13 @@ begin
       if f.NewNameEdit.Text = part then
         f.NewNameEdit.Text := '';
       f.AutodetectButton.Visible := True;
+      f.ReadyListLabel.Visible := True;
+      f.NumReadyEdit.Visible := True;
+      f.AddReadyListSpeedButton.Visible := True;
+      f.RemoveReadyListSpeedButton.Visible := True;
     end;
+    oldreadylistqty := BI_QueryQtyFromReadyList(part, color, S_READYLIST_01);
+    f.NumReadyEdit.Text := itoa(oldreadylistqty);
     f.LinkEdit.Text := db.CrawlerLink(part, color);
     f.NameEdit.Text := part;
     initialalias := f.AliasEdit.Text;
@@ -262,6 +281,10 @@ begin
           if (color = 9997) or (color = 9998) then
             if f.WeightEdit.Text <> initialweight then
               db.SetAssetWeight(part, color, atof(f.WeightEdit.Text));
+
+          newreadylistqty := atoi(f.NumReadyEdit.Text);
+          if newreadylistqty <> oldreadylistqty then
+            BI_SetQtyToReadyList(part, color, newreadylistqty, S_READYLIST_01);
 
           db.CrawlerPriorityPart(part, color);
         finally
@@ -575,6 +598,40 @@ begin
     finally
       Screen.Cursor := crDefault;
     end;
+  end;
+end;
+
+procedure TEditPieceForm.NumReadyEditKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if not (Key in [#8, '0'..'9']) then
+  begin
+    Key := #0;
+    Exit;
+  end;
+end;
+
+procedure TEditPieceForm.AddReadyListSpeedButtonClick(Sender: TObject);
+var
+  value: string;
+begin
+  value := '1';
+  if InputQuery(Caption, 'Add pieces to Ready List', value) then
+    NumReadyEdit.Text := itoa(atoi(NumReadyEdit.Text) + atoi(value));
+end;
+
+procedure TEditPieceForm.RemoveReadyListSpeedButtonClick(Sender: TObject);
+var
+  value: string;
+  num: integer;
+begin
+  value := '1';
+  if InputQuery(Caption, 'Remove pieces from Ready List', value) then
+  begin
+    num := atoi(NumReadyEdit.Text) - atoi(value);
+    if num < 0 then
+      num := 0;
+    NumReadyEdit.Text := itoa(num);
   end;
 end;
 

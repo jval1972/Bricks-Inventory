@@ -1961,6 +1961,13 @@ object MainForm: TMainForm
         Caption = 'Correct unknown categories of my inventory'
         OnClick = Correntunknowncategoriesofmyinventory1Click
       end
+      object N55: TMenuItem
+        Caption = '-'
+      end
+      object Readlist1: TMenuItem
+        Caption = 'Ready to build List'
+        OnClick = Readlist1Click
+      end
     end
     object S1: TMenuItem
       Caption = 'System'

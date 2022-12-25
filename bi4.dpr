@@ -121,7 +121,8 @@ uses
   bi_wzipfile in 'bi_wzipfile.pas',
   frm_pdfinstructions in 'frm_pdfinstructions.pas' {ImportPDFForm},
   bi_imagerotate in 'bi_imagerotate.pas',
-  buildinexcludes in 'buildinexcludes.pas';
+  buildinexcludes in 'buildinexcludes.pas',
+  bi_readylist in 'bi_readylist.pas';
 
 {$R *.res}
 

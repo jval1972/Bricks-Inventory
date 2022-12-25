@@ -190,6 +190,7 @@ type
     procedure AddLoosePart(const part: string; color: integer; const num: integer; const pci: TObject = nil);
     procedure AddLoosePartFast(const part: string; color: integer; const num: integer; const pci: TObject = nil);
     function RemoveLoosePart(const part: string; color: integer; num: integer): boolean;
+    function RemoveLoosePartOrZeroOnOverflow(const part: string; color: integer; num: integer): boolean;
     procedure RemoveAllSets;
     function LoosePartCount(const part: string; color: integer): integer;
     procedure AddSet(const setid: string; dismantaled: boolean);
@@ -240,6 +241,7 @@ type
     procedure DoReorganize;
     procedure Clear;
     procedure MergeWith(const inv: TBrickInventory);
+    procedure TryToRemoveInventory(const inv: TBrickInventory);
     function Clone: TBrickInventory;
     function numlotsbycolor(const col: integer): integer;
     function numlotsbycatcolor(const col: integer; const cat: integer): integer;
@@ -3004,6 +3006,39 @@ begin
   end;
 end;
 
+procedure TBrickInventory.TryToRemoveInventory(const inv: TBrickInventory);
+var
+  i, j: integer;
+  brick: brickpool_p;
+  stoppnt: LongWord;
+begin
+  if inv = nil then
+    Exit;
+
+  inv.Reorganize;
+
+  for i := 0 to inv.fnumsets - 1 do
+  begin
+    for j := 0 to inv.fsets[i].num - 1 do
+      RemoveSet(inv.fsets[i].setid, False);
+    for j := 0 to inv.fsets[i].dismantaled - 1 do
+      RemoveSet(inv.fsets[i].setid, True);
+  end;
+
+  brick := @inv.flooseparts[0];
+  if brick <> nil then
+  begin
+    stoppnt := LongWord(@inv.flooseparts[inv.fnumlooseparts - 1]);
+    while LongWord(brick) <= stoppnt do
+    begin
+      RemoveLoosePartOrZeroOnOverflow(brick.part, brick.color, brick.num);
+      inc(brick);
+    end;
+  end;
+
+  Reorganize;
+end;
+
 function TBrickInventory.Clone: TBrickInventory;
 begin
   Result := TBrickInventory.Create;
@@ -3789,14 +3824,14 @@ begin
       if num > 0 then
       begin
         for i := 0 to num - 1 do
-          RemoveSet(part, False);
+          Result := RemoveSet(part, False);
       end
       else if num < 0 then
       begin
         for i := 0 to -num - 1 do
           AddSet(part, False);
+        Result := True;
       end;
-      Result := True;
       Exit;
     end;
   end;
@@ -3863,6 +3898,65 @@ begin
         Exit;
       end;
   Result := False;
+end;
+
+function TBrickInventory.RemoveLoosePartOrZeroOnOverflow(const part: string; color: integer; num: integer): boolean;
+var
+  i, h, h2: integer;
+  p: integer;
+  leftcnt: integer;
+begin
+  if color = -1 then
+  begin
+    p := CharPos('-', part);
+    if (p > 1) and (p < Length(part)) then
+    begin
+      if num > 0 then
+      begin
+        for i := 0 to num - 1 do
+          Result := RemoveSet(part, False);
+      end
+      else if num < 0 then
+      begin
+        for i := 0 to -num - 1 do
+          AddSet(part, False);
+        Result := True;
+      end;
+      Exit;
+    end;
+  end;
+
+  if num <= 0 then
+  begin
+    if num < 0 then
+      AddLoosePart(part, color, num);
+    Result := True;
+    Exit;
+  end;
+
+  leftcnt := num;
+
+  for i := 0 to fnumlooseparts - 1 do
+    if flooseparts[i].color = color then
+      if flooseparts[i].part = part then
+      begin
+        if flooseparts[i].num >= leftcnt then
+        begin
+          flooseparts[i].num := flooseparts[i].num - leftcnt;
+          fneedsReorganize := flooseparts[i].num = 0;
+          fupdatetime := 0;
+          leftcnt := 0;
+          break;
+        end
+        else
+        begin
+          leftcnt := leftcnt - flooseparts[i].num;
+          flooseparts[i].num := 0;
+          fupdatetime := 0;
+        end;
+      end;
+
+  Result := leftcnt = 0;
 end;
 
 function TBrickInventory.LoosePartCount(const part: string; color: integer): integer;

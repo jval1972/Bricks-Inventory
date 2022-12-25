@@ -54,6 +54,10 @@ type
     CheckBox7: TCheckBox;
     TabSheet3: TTabSheet;
     RadioGroup1: TRadioGroup;
+    GroupBox1: TGroupBox;
+    CheckBox8: TCheckBox;
+    CheckBox9: TCheckBox;
+    CheckBox10: TCheckBox;
     procedure Edit1KeyPress(Sender: TObject; var Key: Char);
     procedure FormCreate(Sender: TObject);
   private
@@ -88,6 +92,9 @@ begin
     f.CheckBox5.Checked := generatethumbnailsondemand;
     f.CheckBox6.Checked := silentwarnings;
     f.CheckBox7.Checked := searchdownloadimg;
+    f.CheckBox8.Checked := optlocationslugbulk;
+    f.CheckBox9.Checked := optlocationsorders;
+    f.CheckBox10.Checked := optlocationsreadylist;
     if IsIntegerInRange(inventorysortmethod, 0, f.RadioGroup1.items.Count - 1) then
       f.RadioGroup1.ItemIndex := inventorysortmethod;
     f.ShowModal;
@@ -103,6 +110,9 @@ begin
       silentwarnings := f.CheckBox6.Checked;
       searchdownloadimg := f.CheckBox7.Checked;
       inventorysortmethod := f.RadioGroup1.ItemIndex;
+      optlocationslugbulk := f.CheckBox8.Checked;
+      optlocationsorders := f.CheckBox9.Checked;
+      optlocationsreadylist := f.CheckBox10.Checked;
     end;
   finally
     f.Free;

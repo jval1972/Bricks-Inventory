@@ -55,9 +55,12 @@ var
   silentwarnings: boolean;
   searchdownloadimg: boolean;
   inventorysortmethod: integer;
+  optlocationslugbulk: boolean;
+  optlocationsorders: boolean;
+  optlocationsreadylist: boolean;
 
 const
-  NUMDEFAULTS = 11;
+  NUMDEFAULTS = 15;
 
   defaults: array[0..NUMDEFAULTS - 1] of default_t = (
     (name: 'General';
@@ -146,7 +149,39 @@ const
      defaultsvalue: '100';
      defaultivalue: 100;
      defaultbvalue: True;
-     _type: tInteger)
+     _type: tInteger),
+
+    (name: 'StorageL';
+     location: nil;
+     setable: false;
+     defaultsvalue: '';
+     defaultivalue: 0;
+     defaultbvalue: false;
+     _type: tGroup),
+
+    (name: 'optlocationslugbulk';
+     location: @optlocationslugbulk;
+     setable: true;
+     defaultsvalue: '1';
+     defaultivalue: 1;
+     defaultbvalue: True;
+     _type: tBoolean),
+
+    (name: 'optlocationsorders';
+     location: @optlocationsorders;
+     setable: true;
+     defaultsvalue: '1';
+     defaultivalue: 1;
+     defaultbvalue: True;
+     _type: tBoolean),
+
+    (name: 'optlocationsreadylist';
+     location: @optlocationsreadylist;
+     setable: true;
+     defaultsvalue: '1';
+     defaultivalue: 1;
+     defaultbvalue: True;
+     _type: tBoolean)
 
   );
 

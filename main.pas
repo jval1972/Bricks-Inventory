@@ -356,6 +356,8 @@ type
     SaveLugbulkBLCostDialog: TSaveDialog;
     N54: TMenuItem;
     SaveLugbulk2021database1: TMenuItem;
+    N55: TMenuItem;
+    Readlist1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -587,6 +589,7 @@ type
     procedure LugBulk2021CheapInvertedSlopes1Click(Sender: TObject);
     procedure UpdatePriceGuideDisklist1Click(Sender: TObject);
     procedure SaveLugbulk2021database1Click(Sender: TObject);
+    procedure Readlist1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -622,7 +625,7 @@ type
       const fromAA: integer = -1; const toAA: integer = MAXINT);
     procedure ShowSetInventory(const setid: string; const lite: Boolean = False);
     procedure ShowSetPartsStorage(const setid: string);
-    procedure DrawInventoryPartsStorage(const inv: TBrickInventory);
+    procedure DrawInventoryPartsStorage(const psinv: TBrickInventory);
     procedure PreviewInventoryTable(inv: TBrickInventory);
     procedure PreviewSetInventory(const setid: string);
     procedure ShowColors;
@@ -805,7 +808,7 @@ uses
   frm_update2, frm_update3, frm_update4, bi_cachefile, frm_editlugbulkprice,
   frm_options, bi_multithread, bi_iterators, bi_defs, bi_crawler, bi_script,
   buildinexcludes, bi_instructions, frm_pdfinstructions, bi_data,
-  bi_imagerotate;
+  bi_imagerotate, bi_readylist;
 
 {$R *.dfm}
 
@@ -4266,18 +4269,18 @@ begin
   Screen.Cursor := crDefault;
 end;
 
-procedure TMainForm.DrawInventoryPartsStorage(const inv: TBrickInventory);
+procedure TMainForm.DrawInventoryPartsStorage(const psinv: TBrickInventory);
 var
   storagelst: TStringList;
   storagecompleteparts1, storagecompleteparts2: TStringList;
-  i: Integer;
+  i, aa: Integer;
   s1, s2, stmp: string;
   pci: TPieceColorInfo;
   olddodraworderinfo: boolean;
   dbstorageinvs: TStringList;
-  tmpinv, missinginv: TBrickInventory;
+  tmpinv, missinginv, inv, readyinv, neededfromreadyinv: TBrickInventory;
 
-  function numfoundatstorage(const Apart: string; const Acolor: Integer): integer;
+  function _numfoundatstorage(const Apart: string; const Acolor: Integer): integer;
   var
     ii: integer;
   begin
@@ -4289,14 +4292,14 @@ var
     end;
   end;
 
-  procedure removefromstorage(const Apart: string; const Acolor: Integer; const qty: integer = -1);
+  procedure _removefromstorage(const Apart: string; const Acolor: Integer; const qty: integer = -1);
   var
     ii: integer;
     tot: integer;
     num1: integer;
     leftqty: integer;
   begin
-    tot := numfoundatstorage(Apart, Acolor);
+    tot := _numfoundatstorage(Apart, Acolor);
     if tot = 0 then
       exit;
 
@@ -4363,10 +4366,12 @@ var
     end;
   end;
 
-  procedure AddToStorageList1(const s: string; const Apart: string; const Acolor: Integer; const Anum: Integer);
+  function _AddToStorageList1(const s: string; const Apart: string; const Acolor: Integer; const Anum: Integer): boolean;
   var
     idx: integer;
   begin
+    Result := False;
+
     if Anum <= 0 then
       Exit;
 
@@ -4380,12 +4385,16 @@ var
     if idx < 0 then
       idx := storagelst.AddObject(s, TBrickInventory.Create);
     (storagelst.Objects[idx] as TBrickInventory).AddLoosePart(Apart, Acolor, Anum);
+
+    Result := True;
   end;
 
-  procedure AddToStorageList2(const s: string; const Apart: string; const Acolor: Integer; const Anum: Integer);
+  function _AddToStorageList2(const s: string; const Apart: string; const Acolor: Integer; const Anum: Integer): boolean;
   var
     idx: integer;
   begin
+    Result := False;
+
     if Anum <= 0 then
       Exit;
 
@@ -4402,6 +4411,8 @@ var
       idx := storagelst.AddObject(s, TBrickInventory.Create);
     (storagelst.Objects[idx] as TBrickInventory).AddLoosePart(Apart, Acolor, Anum);
     (storagelst.Objects[idx] as TBrickInventory).DoReorganize;
+
+    Result := True;
   end;
 
   procedure FindAPartStorage(const Apci: TPieceColorInfo; const needed: integer;
@@ -4424,11 +4435,12 @@ var
         Ainv := dbstorageinvs.Objects[ii] as TBrickInventory;
         num := Ainv.LoosePartCount(Apci.piece, Apci.color);
         if num >= needed then
-          AddToStorageList1('storage:' + dbstorageinvs.Strings[ii], Apci.piece, Apci.color, needed);
+          if _AddToStorageList1('storage:' + dbstorageinvs.Strings[ii], Apci.piece, Apci.color, needed) then
+            Ainv.RemoveLoosePart(Apci.piece, Apci.color, needed);
       end;
     end;
 
-    numfound := numfoundatstorage(Apci.piece, Apci.color);
+    numfound := _numfoundatstorage(Apci.piece, Apci.color);
     if numfound >= needed then
       exit;
 
@@ -4440,18 +4452,19 @@ var
         Ainv := dbstorageinvs.Objects[ii] as TBrickInventory;
         num := Ainv.LoosePartCount(Apci.piece, Apci.color);
         if num > 0 then
-        begin
-          AddToStorageList2('storage:' + dbstorageinvs.Strings[ii], Apci.piece, Apci.color, MinI(num, needed));
-          numfound := numfound + num;
-          if numfound >= needed then
-            exit;
-        end;
+          if _AddToStorageList2('storage:' + dbstorageinvs.Strings[ii], Apci.piece, Apci.color, MinI(num, needed)) then
+          begin
+            Ainv.RemoveLoosePart(Apci.piece, Apci.color, MinI(num, needed));
+            numfound := numfound + num;
+            if numfound >= needed then
+              exit;
+          end;
       end;
     end;
 
     if pass = 3 then
     begin
-      if dismantaledsetsinv <> nil then
+      if optlocationslugbulk and (dismantaledsetsinv <> nil) then
         if dismantaledsetsinv.LoosePartCount(Apci.piece, Apci.color) > 0 then
           for ii := 0 to inventory.numsets - 1 do
             if inventory.sets[ii].dismantaled > 0 then
@@ -4468,13 +4481,13 @@ var
                     foundall := num >= needed;
                     if foundall then
                     begin
-                      removefromstorage(Apci.piece, Apci.color);
-                      AddToStorageList2('set:' + Asid, Apci.piece, Apci.color, MinI(num, needed));
+                      _removefromstorage(Apci.piece, Apci.color);
+                      _AddToStorageList2('set:' + Asid, Apci.piece, Apci.color, MinI(num, needed));
                       storagecompleteparts2.Add(Apci.piece + ',' + itoa(Apci.color));
                       exit;
                     end
                     else
-                      AddToStorageList2('set:' + Asid, Apci.piece, Apci.color, MinI(num, needed));
+                      _AddToStorageList2('set:' + Asid, Apci.piece, Apci.color, MinI(num, needed));
                   end;
                 end;
             end;
@@ -4484,22 +4497,25 @@ var
         Ainv := dbstorageinvs.Objects[ii] as TBrickInventory;
         num := Ainv.LoosePartCount(Apci.piece, Apci.color);
         if num > 0 then
-        begin
-          AddToStorageList2('storage:' + dbstorageinvs.Strings[ii], Apci.piece, Apci.color, MinI(num, needed));
-          foundall := num >= needed;
-          if foundall then
-            exit;
-        end;
+          if _AddToStorageList2('storage:' + dbstorageinvs.Strings[ii], Apci.piece, Apci.color, MinI(num, needed)) then
+          begin
+            Ainv.RemoveLoosePart(Apci.piece, Apci.color, MinI(num, needed));
+            foundall := num >= needed;
+            if foundall then
+              exit;
+          end;
       end;
 
-      Aoinf := orders.ItemInfo(Apci.piece, Apci.color);
-      if Aoinf <> nil then
-        for ii := 0 to Aoinf.Count - 1 do
-        begin
-          Aoitem := Aoinf.Objects[ii] as TOrderItemInfo;
-          AddToStorageList2('order:' + itoa(Aoitem.orderid), Apci.piece, Apci.color, MinI(Aoitem.num, needed));
-        end;
-
+      if optlocationsorders then
+      begin
+        Aoinf := orders.ItemInfo(Apci.piece, Apci.color);
+        if Aoinf <> nil then
+          for ii := 0 to Aoinf.Count - 1 do
+          begin
+            Aoitem := Aoinf.Objects[ii] as TOrderItemInfo;
+            _AddToStorageList2('order:' + itoa(Aoitem.orderid), Apci.piece, Apci.color, MinI(Aoitem.num, needed));
+          end;
+      end;
     end;
 
   end;
@@ -4523,9 +4539,9 @@ var
   var
     atstorage: integer;
   begin
-    atstorage := numfoundatstorage(Apci.piece, Apci.color);
+    atstorage := _numfoundatstorage(Apci.piece, Apci.color);
     if atstorage > needed then
-      removefromstorage(Apci.piece, Apci.color, atstorage - needed);
+      _removefromstorage(Apci.piece, Apci.color, atstorage - needed);
   end;
 
   procedure _trytomergestorages(const nlots: integer);
@@ -4575,8 +4591,22 @@ begin
   ShowSplash;
   SplashProgress('Working...', 0);
 
-  inv.DoReorganize;
+  inv := psinv.Clone;
+
   UpdateDismantaledsetsinv;
+
+  if optlocationsreadylist then
+  begin
+    readyinv := BI_GetReadyListInv(S_READYLIST_01);
+    inv.TryToRemoveInventory(readyinv);
+    neededfromreadyinv := psinv.Clone;
+    neededfromreadyinv.TryToRemoveInventory(inv);
+  end
+  else
+  begin
+    neededfromreadyinv := nil;
+    readyinv := nil;
+  end;
 
   storagelst := TStringList.Create;
   storagelst.Sorted := True;
@@ -4612,7 +4642,7 @@ begin
   begin
     pci := db.PieceColorInfo(@inv.looseparts[i]);
     if pci <> nil then
-      if numfoundatstorage(pci.piece, pci.color) < inv.looseparts[i].num then
+      if _numfoundatstorage(pci.piece, pci.color) < inv.looseparts[i].num then
         FindAPartStorage(pci, inv.looseparts[i].num, 3);
   end;
   SplashProgress('Working...', 0.15);
@@ -4638,8 +4668,15 @@ begin
     tmpinv.MergeWith(storagelst.Objects[i] as TBrickInventory);
   missinginv := tmpinv.InventoryForMissingToBuildInventory(inv);
 
+  stmp := ' (Storage bins';
+  if optlocationslugbulk then
+    stmp := stmp + ' + LugBulks';
+  if optlocationsorders then
+    stmp := stmp + ' + orders';
+  stmp := stmp + ')';
+
   DrawHeadLine(Format(
-    'Found %d parts (%d lots) in %d storages out of %d parts (%d lots)',
+    'Found %d parts (%d lots) in %d storages out of %d parts (%d lots)' + stmp,
       [tmpinv.totallooseparts, tmpinv.numlooseparts, storagelst.Count, inv.totallooseparts, inv.numlooseparts]
     ));
 
@@ -4652,10 +4689,36 @@ begin
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
   document.write('<th><b>#</b></th>');
   document.write('<th><b>Storage Location</b></th>');
+
+  aa := 0;
+  if readyinv <> nil then
+    if neededfromreadyinv.totallooseparts > 0 then
+    begin
+      inc(aa);
+      document.write('<tr bgcolor=' + THBGCOLOR + '>');
+      document.write('<td width=5% align=right>' + itoa(aa));
+
+      stmp := Format(' (%d lots, %d parts)', [neededfromreadyinv.numlooseparts, neededfromreadyinv.totallooseparts]);
+
+      document.write('<td width=95%><b>Set <a href="sinv/' + S_READYLIST_01 + '">' + db.SetDesc(S_READYLIST_01) + '</a></b>' + stmp + '</td>');
+
+      document.write('</tr>');
+
+      document.write('<tr bgcolor=' + THBGCOLOR + '><td colspan="2">');
+
+      DrawInventoryTableForPartsStorageQuery(neededfromreadyinv, psinv);
+
+      document.write('</td></tr>');
+    end;
+
+  if neededfromreadyinv <> nil then
+    neededfromreadyinv.Free;
+
   for i := 0 to storagelst.Count - 1 do
   begin
+    inc(aa);
     document.write('<tr bgcolor=' + THBGCOLOR + '>');
-    document.write('<td width=5% align=right>' + itoa(i + 1));
+    document.write('<td width=5% align=right>' + itoa(aa));
 
     splitstring(storagelst.Strings[i], s1, s2, ':');
     tmpinv := storagelst.Objects[i] as TBrickInventory;
@@ -4697,6 +4760,7 @@ begin
   FreeList(dbstorageinvs);
   storagecompleteparts1.Free;
   storagecompleteparts2.Free;
+  inv.Free;
 
   HideSplash;
   Screen.Cursor := crDefault;
@@ -19602,6 +19666,13 @@ begin
   else
     ainv.SortPieces;
   end;
+end;
+
+procedure TMainForm.Readlist1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('sinv/' + S_READYLIST_01, foo);
 end;
 
 end.

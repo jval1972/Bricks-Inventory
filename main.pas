@@ -744,7 +744,7 @@ type
     procedure DrawPartOutValue(inv: TBrickInventory; const setid: string = '');
     procedure DrawInventoryTable(inv: TBrickInventory; const lite: Boolean = False;
       const setid: string = ''; const dosort: boolean = True; const usepages: boolean = True;
-      const lb: TLugBulk2017 = nil; const dosplash: boolean = true);
+      const lb: TLugBulk2017 = nil; const dosplash: boolean = true; const showreadylist: boolean = false);
     procedure DrawInventoryTableNoPages(inv: TBrickInventory; const lite: Boolean = False; const setid: string = ''; const dosort: boolean = True; const dosplash: boolean = true);
     procedure DrawInventoryTableForPartsStorageQuery(inv, qryinv: TBrickInventory);
     procedure DrawBrickOrderInfo(const brick: brickpool_p; const setid: string = ''; const aspan1: integer = -1; const aspan2: integer = -1);
@@ -3028,7 +3028,7 @@ end;
 
 procedure TMainForm.DrawInventoryTable(inv: TBrickInventory; const lite: Boolean = False;
   const setid: string = ''; const dosort: boolean = True; const usepages: boolean = True;
-  const lb: TLugBulk2017 = nil; const dosplash: boolean = true);
+  const lb: TLugBulk2017 = nil; const dosplash: boolean = true; const showreadylist: boolean = false);
 var
   aa, i: integer;
   brick: brickpool_p;
@@ -3052,6 +3052,8 @@ var
   lugcostedit: string;
   cinfo: colorinfo_p;
   www: double;
+  readyinv: TBrickInventory;
+  rnum: integer;
 begin
   UpdateDismantaledsetsinv;
 
@@ -3095,6 +3097,9 @@ begin
     document.write('<th>U</th>');
   if not lite then
     document.write('<th>Cost</th>');
+  if showreadylist then
+    document.write('<th>In Ready List</th>');
+  readyinv := BI_GetReadyListInv(S_READYLIST_01);
   document.write('</tr>');
 
   brick := @inv.looseparts[0];
@@ -3206,6 +3211,23 @@ begin
     mycosttot := mycosttot + mycost * brick.num;
     if mycost > 0.0 then
       mytotcostpieces := mytotcostpieces + brick.num;
+
+    if showreadylist then
+    begin
+      if readyinv <> nil then
+      begin
+        rnum := readyinv.LoosePartCount(brick.part, brick.color);
+        document.write('<td width=10% align=right>' + Format('%d<br>', [rnum]));
+        if rnum >= brick.num then
+          document.write('<img src="images\readyall.png"></td>')
+        else if rnum = 0 then
+          document.write('<img src="images\readynone.png"></td>')
+        else
+          document.write('<img src="images\readysome.png"></td>');
+      end
+      else
+        document.write('<td width=10% align=right>(no info)</td>');
+    end;
 
     document.write('</tr>');
 
@@ -10512,7 +10534,8 @@ begin
     '>Storage locations for these parts</a>');
   document.write('</td></tr>');
 
-  DrawInventoryTable(inv);
+  DrawInventoryTable(inv, False, '', True, True, nil, True, True);
+
   document.write('<br>');
   document.write('<br>');
   document.write('</p>');

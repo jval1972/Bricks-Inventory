@@ -4669,6 +4669,8 @@ begin
   missinginv := tmpinv.InventoryForMissingToBuildInventory(inv);
 
   stmp := ' (Storage bins';
+  if optlocationsreadylist then
+    stmp := stmp + ' + Ready List';
   if optlocationslugbulk then
     stmp := stmp + ' + LugBulks';
   if optlocationsorders then

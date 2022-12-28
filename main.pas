@@ -611,6 +611,7 @@ type
     thumbnailcache: array[0..127] of TStringList;
     thumbnailfilesexist: array[0..127] of TStringList;
     newtabUrl: string;
+    dodraworderinfolite: boolean;
     function CheckAA(const AA, fromAA, toAA: integer): boolean;
     procedure Navigate(const akey: string; const pg: integer);
     procedure DrawColorCell(const cc: integer; const width: integer);
@@ -747,7 +748,8 @@ type
       const lb: TLugBulk2017 = nil; const dosplash: boolean = true; const showreadylist: boolean = false);
     procedure DrawInventoryTableNoPages(inv: TBrickInventory; const lite: Boolean = False; const setid: string = ''; const dosort: boolean = True; const dosplash: boolean = true);
     procedure DrawInventoryTableForPartsStorageQuery(inv, qryinv: TBrickInventory);
-    procedure DrawBrickOrderInfo(const brick: brickpool_p; const setid: string = ''; const aspan1: integer = -1; const aspan2: integer = -1);
+    procedure DrawBrickOrderInfo(const brick: brickpool_p; const setid: string = ''; const aspan1: integer = -1; const aspan2: integer = -1; const showreadylist: boolean = false);
+    procedure DrawBrickOrderInfoLite(const brick: brickpool_p; const needed: integer; const setid: string = '');
     procedure UpdateDismantaledsetsinv;
     procedure DrawPriceguide(const part: string; const color: integer = -1);
     procedure DrawPriceguideEx(const part: string; const color: integer; const at: TDateTime);
@@ -988,6 +990,7 @@ begin
   outproc := outprocmemo;
   printf('Starting BrickInventory...'#13#10);
   BI_LoadDefaults(basedefault + 'bi4.ini');
+  dodraworderinfolite := dodraworderinfo;
   activebits := 0;
   storagebinsupdatetime := 0.0;
   newtabUrl := '';
@@ -2666,7 +2669,7 @@ begin
 end;
 
 procedure TMainForm.DrawBrickOrderInfo(const brick: brickpool_p; const setid: string = '';
-  const aspan1: integer = -1; const aspan2: integer = -1);
+  const aspan1: integer = -1; const aspan2: integer = -1; const showreadylist: boolean = false);
 var
   oinf: TStringList;
   oitem: TOrderItemInfo;
@@ -2704,6 +2707,8 @@ begin
     span2 := aspan2
   else
     span2 := 3;
+  if showreadylist then
+    inc(span2);
 
   sspan1 := itoa(span1);
   sspan2 := itoa(span2);
@@ -2897,6 +2902,106 @@ begin
   end;
 
   document.write('<tr bgcolor=' + TFGCOLOR + '><td colspan="' + sspan3 + '"></td></tr>');
+end;
+
+procedure TMainForm.DrawBrickOrderInfoLite(const brick: brickpool_p; const needed: integer; const setid: string = '');
+var
+  oinf: TStringList;
+  oitem: TOrderItemInfo;
+  i, j: integer;
+  inv, inv2: TBrickInventory;
+  num: integer;
+  pci: TPieceColorInfo;
+  stor, stmp: string;
+  sfont: string;
+  sid: string;
+  sqty1, sqty2: string;
+  snumstor, sdescstor: string;
+  numstor: integer;
+begin
+  if not dodraworderinfolite then
+    Exit;
+
+  document.write('<td width=30%>');
+  oinf := orders.ItemInfo(brick.part, brick.color);
+  if oinf <> nil then
+    for i := 0 to oinf.Count - 1 do
+    begin
+      oitem := oinf.Objects[i] as TOrderItemInfo;
+      if oitem.orderstatus <> 'NSS' then
+      begin
+        if oitem.num >= needed then
+          sfont := '<font color="green">'
+        else
+          sfont :='<font color="red">';
+
+        document.write('<b><a href="order/%d">%d</a> (%s%d</font>x)</b><br>',
+          [oitem.orderid,
+           oitem.orderid,
+           sfont,
+           oitem.num]);
+      end;
+    end;
+
+  if dismantaledsetsinv <> nil then
+    if dismantaledsetsinv.LoosePartCount(brick.part, brick.color) > 0 then
+      for i := 0 to inventory.numsets - 1 do
+        if inventory.sets[i].dismantaled > 0 then
+        begin
+          sid := inventory.sets[i].setid;
+          inv := db.GetSetInventory(sid);
+          if inv <> nil then
+            if db.PieceInfo(sid).category = CATEGORYLUGBULK then
+            begin
+              inv2 := inv.Clone;
+              for j := 1 to inventory.sets[i].dismantaled - 1 do
+                inv2.MergeWith(inv);
+              num := inv2.LoosePartCount(brick.part, brick.color);
+              if num > 0 then
+              begin
+                if num >= needed then
+                  sfont := '<font color="green">'
+                else
+                  sfont :='<font color="red">';
+
+                document.write('<b><a href="sinv/%s">%s</a> (%s%d</font>x)</b><br>',
+                  [sid,
+                   sid,
+                   sfont,
+                   num]);
+              end;
+              inv2.Free;
+            end;
+        end;
+
+  pci := db.PieceColorInfo(brick);
+  if pci <> nil then
+  begin
+    for i := 0 to pci.storage.Count - 1 do
+    begin
+      splitstring(pci.storage.Strings[i], stor, stmp, ':');
+      // Remove from storage button for building this set
+      splitstring(stmp, snumstor, sdescstor, ':');
+      numstor := atoi(snumstor);
+      splitstring(stmp, sqty1, sqty2, ':');
+      num := atoi(sqty1);
+      if num > 0 then
+      begin
+        if num >= needed then
+          sfont := '<font color="green">'
+        else
+          sfont :='<font color="red">';
+
+        document.write('<b><a href="storage/%s">%s</a> (%s%d</font>x)</b><br>',
+                  [stor,
+                   stor,
+                   sfont,
+                   num]);
+      end;
+    end;
+  end;
+
+  document.write('</td>');
 end;
 
 procedure TMainForm.PreviewInventoryTable(inv: TBrickInventory);
@@ -3238,11 +3343,11 @@ begin
     num := num + brick.num;
 
     if lite then
-      DrawBrickOrderInfo(brick)
+      DrawBrickOrderInfo(brick, '', -1, -1, showreadylist)
     else if lb <> nil then
-      DrawBrickOrderInfo(brick, setid, 4, 4)
+      DrawBrickOrderInfo(brick, setid, 4, 4, showreadylist)
     else
-      DrawBrickOrderInfo(brick, setid);
+      DrawBrickOrderInfo(brick, setid, -1, -1, showreadylist);
     Inc(brick);
     if dosplash then
     begin
@@ -3335,6 +3440,8 @@ begin
   document.write('<th>Color</th>');
   document.write('<th>Num pieces</th>');
   document.write('<th>Needed pieces</th>');
+  if dodraworderinfolite then
+    document.write('<th>Additional storages</th>');
 
   brick := @inv.looseparts[0];
   aa := 0;
@@ -3369,6 +3476,8 @@ begin
     num := qryinv.loosepartcount(brick.part, brick.color);
     num2 := num2 + num;
     document.write('<td width=10% align=right>' + IntToStr(num) + '</td>');
+
+    DrawBrickOrderInfoLite(brick, brick.num, '');
 
     document.write('</tr>');
 

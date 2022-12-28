@@ -73,7 +73,7 @@ begin
   inv := BI_GetReadyListInv(rlname);
   if inv <> nil then
   begin
-    inv.AddLoosePartFast(part, color, num);
+    inv.AddLoosePart(part, color, num);
     inv.DoReorganize;
     sl.Text := inv.AsText;
   end
@@ -137,7 +137,10 @@ begin
   if inv = nil then
     Result := 0
   else
+  begin
+    inv.DoReorganize;
     Result := inv.LoosePartCount(part, color);
+  end;
 end;
 
 procedure BI_ClearReadyList(const rlname: string);

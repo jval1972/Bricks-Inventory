@@ -420,8 +420,8 @@ type
     procedure ControlMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     function GetCharAtPos(Pos: integer; var Ch: WideChar;
                  var Font: TFont): boolean;
-    function GetTextByIndices(AStart, ALast: integer): WideString; 
-    procedure OpenPrint;     
+    function GetTextByIndices(AStart, ALast: integer): WideString;
+    procedure OpenPrint;
     procedure ClosePrint;
     procedure AbortPrint;
 
@@ -736,7 +736,7 @@ begin
   end;
   IOResult;   {eat up any pending errors}
   FName := FileName;
-  I := Pos('#', FName);
+  I := CharPos('#', FName);
   if I > 0 then
   begin
     Dest := Copy(FName, I + 1, Length(FName) - I);  {positioning information}
@@ -970,7 +970,7 @@ begin
   SetProcessing(True);
   FRefreshDelay := 0;
   FName := Reference;
-  I := Pos('#', FName);
+  I := CharPos('#', FName);
   if I > 0 then
   begin
     Dest := Copy(FName, I + 1, Length(FName) - I);  {positioning information}
@@ -1347,7 +1347,7 @@ begin
   begin
     OldPos := Position;
     S := URL;
-    I := Pos('#', S);  {# indicates a position within the document}
+    I := CharPos('#', S);  {# indicates a position within the document}
     if I = 1 then
     begin
     if PositionTo(S) then    {no filename with this one}
@@ -2208,11 +2208,11 @@ var
   TopPos, Pos: integer;
   S: TSectionBase;
 begin
-Pos := integer(VScrollBar.Position);
-S:= FSectionList.FindSectionAtPosition(Pos, TopPos, Index);
-if Assigned(S) then
-  Result := integer(Index+1) shl 16 + ((Pos - TopPos) and $FFFF)
-else Result := Pos;
+  Pos := integer(VScrollBar.Position);
+  S:= FSectionList.FindSectionAtPosition(Pos, TopPos, Index);
+  if Assigned(S) then
+    Result := integer(Index + 1) shl 16 + ((Pos - TopPos) and $FFFF)
+  else Result := Pos;
 {Hiword is section # plus 1, Loword is displacement from top of section
  HiWord = 0 is top of display}
 end;
@@ -2221,12 +2221,12 @@ procedure ThtmlViewer.SetPosition(Value: integer);
 var
   TopPos: integer;
 begin
-if HiWord(Value) = 0 then
-  ScrollTo(LoWord(Value))
-else if (Hiword(Value)-1 < FSectionList.PositionList.Count) then
+  if HiWord(Value) = 0 then
+    ScrollTo(LoWord(Value))
+  else if (Hiword(Value)-1 < FSectionList.PositionList.Count) then
   begin
-  TopPos := TSectionBase(FSectionList.PositionList[HiWord(Value)-1]).YPosition;
-  ScrollTo(TopPos + LoWord(Value));
+    TopPos := TSectionBase(FSectionList.PositionList[HiWord(Value) - 1]).YPosition;
+    ScrollTo(TopPos + LoWord(Value));
   end;
 end;
 
@@ -2237,61 +2237,62 @@ end;
 
 procedure ThtmlViewer.SetScrollPos(Value: integer);
 begin
-if Value < 0 then Value := 0;
-Value := IntMin(Value, FMaxVertical - PaintPanel.Height);
-if Value <> GetScrollPos then
-  ScrollTo(Value);
+  if Value < 0 then Value := 0;
+  Value := IntMin(Value, FMaxVertical - PaintPanel.Height);
+  if Value <> GetScrollPos then
+    ScrollTo(Value);
 end;
 
 function ThtmlViewer.GetScrollBarRange: integer;
 begin
-Result := FMaxVertical - PaintPanel.Height;
+  Result := FMaxVertical - PaintPanel.Height;
 end;
 
-function ThtmlViewer.GetHScrollPos: integer;    
+function ThtmlViewer.GetHScrollPos: integer;
 begin
-Result := HScrollBar.Position;
+  Result := HScrollBar.Position;
 end;
 
-procedure ThtmlViewer.SetHScrollPos(Value: integer);   
+procedure ThtmlViewer.SetHScrollPos(Value: integer);
 begin
-if Value < 0 then Value := 0;
-Value := IntMin(Value, HScrollBar.Max-PaintPanel.Width);
-HScrollbar.Position := Value;
-Invalidate;
+  if Value < 0 then Value := 0;
+  Value := IntMin(Value, HScrollBar.Max-PaintPanel.Width);
+  HScrollbar.Position := Value;
+  Invalidate;
 end;
 
-function ThtmlViewer.GetHScrollBarRange: integer;  
+function ThtmlViewer.GetHScrollBarRange: integer;
 begin
-Result := HScrollBar.Max - PaintPanel.Width;
+  Result := HScrollBar.Max - PaintPanel.Width;
 end;
 
 function ThtmlViewer.GetPalette: HPALETTE;
 begin
-if ThePalette <> 0 then
-  Result := ThePalette
-else Result := inherited GetPalette;
-Invalidate;
+  if ThePalette <> 0 then
+    Result := ThePalette
+  else
+    Result := inherited GetPalette;
+  Invalidate;
 end;
 
 function ThtmlViewer.HTMLExpandFilename(const Filename: string): string;
 var
   Tmp: string;
 begin
-{pass http: and other protocols except for file:///}    
+{pass http: and other protocols except for file:///}
 if (Pos('://', Filename) > 1) and (Pos('file://', Lowercase(Filename)) = 0) then
   Result := Filename
 else
   begin
   Result := HTMLServerToDos(Trim(Filename), FServerRoot);
 
-  if Pos('\', Result) = 1 then
+  if CharPos('\', Result) = 1 then
     Result := ExpandFilename(Result)
-  else if (Pos(':', Result)<> 2) and (Pos('\\', Result) <> 1) then
+  else if (CharPos(':', Result) <> 2) and (Pos('\\', Result) <> 1) then
     if CompareText(FBase, 'DosPath') = 0 then  {let Dos find the path}
     else if FBase <> '' then
       begin
-      Tmp := ExtractFilePath(HTMLToDos(FBase));    
+      Tmp := ExtractFilePath(HTMLToDos(FBase));
       Result := ExpandFilename(Tmp + Result)
       end
     else
@@ -2356,7 +2357,7 @@ procedure ThtmlViewer.SetHistoryIndex(Value: integer);
 var
   I: integer;
 
-  function GetLowestSameFileIndex(Start: integer): integer;  
+  function GetLowestSameFileIndex(Start: integer): integer;
   begin
   Result := Start;
   while (Result > 0) and (FHistory[Result-1] = FCurrentFile) do
@@ -2364,10 +2365,10 @@ var
   end;
 
 begin
-with FHistory do
+  with FHistory do
   if (Value <> FHistoryIndex) and (Value >= 0) and (Value < Count)
             and not FProcessing then
-    begin
+  begin
     if FCurrentFile <> '' then
       begin          {save the current information}
       Strings[FHistoryIndex] := FCurrentFile;
@@ -2375,8 +2376,8 @@ with FHistory do
         begin
         Pos := Position;
         FileType := FCurrentFileType;
-        I := GetLowestSameFileIndex(FHistoryIndex);   
-        PositionObj(FPositionHistory[I]).FormData := GetFormData;     
+        I := GetLowestSameFileIndex(FHistoryIndex);
+        PositionObj(FPositionHistory[I]).FormData := GetFormData;
         end;
       FTitleHistory[FHistoryIndex] := FTitle;
       end;
@@ -2389,128 +2390,128 @@ with FHistory do
       with PositionObj(FPositionHistory[I]) do
         begin
         SetFormData(FormData);    {reload the forms if any}
-        FormData.Free;           
+        FormData.Free;
         FormData := nil;
         end;
       end;
     FHistoryIndex := Value;
     if Assigned(FOnHistoryChange) then FOnHistoryChange(Self);
-    end;
+  end;
 end;
 
 procedure ThtmlViewer.SetHistoryMaxCount(Value: integer);
 begin
-if (Value = FHistoryMaxCount) or (Value < 0) then Exit;
-if Value < FHistoryMaxCount then
-  ClearHistory;
-FHistoryMaxCount := Value;
+  if (Value = FHistoryMaxCount) or (Value < 0) then Exit;
+  if Value < FHistoryMaxCount then
+    ClearHistory;
+  FHistoryMaxCount := Value;
 end;
 
 procedure ThtmlViewer.ClearHistory;
 var
   CountWas: integer;
 begin
-CountWas := FHistory.Count;
-FHistory.Clear;
-FTitleHistory.Clear;
-FPositionHistory.Clear;
-FHistoryIndex := 0;
-FCurrentFile := '';   
-if (CountWas > 0) and Assigned(FOnHistoryChange) then
-  FOnHistoryChange(Self);
+  CountWas := FHistory.Count;
+  FHistory.Clear;
+  FTitleHistory.Clear;
+  FPositionHistory.Clear;
+  FHistoryIndex := 0;
+  FCurrentFile := '';
+  if (CountWas > 0) and Assigned(FOnHistoryChange) then
+    FOnHistoryChange(Self);
 end;
 
 function ThtmlViewer.GetPreFontName: TFontName;
 begin
-Result := FPreFontName;
+  Result := FPreFontName;
 end;
 
 procedure ThtmlViewer.SetPreFontName(Value: TFontName);
 begin
-if  CompareText(Value, FSectionList.PreFontName) <> 0 then
+  if CompareText(Value, FSectionList.PreFontName) <> 0 then
   begin
-  FPreFontName := Value;
-  FSectionList.PreFontName := Value;
+    FPreFontName := Value;
+    FSectionList.PreFontName := Value;
   end;
 end;
 
 procedure ThtmlViewer.SetFontSize(Value: integer);
 begin
-FFontSize := Value;
+  FFontSize := Value;
 end;
 
 procedure ThtmlViewer.SetCharset(Value: TFontCharset);
 begin
-FCharset := Value;
+  FCharset := Value;
 end;
 
 function ThtmlViewer.GetFormControlList: TList;
 begin
-Result := FSectionList.FormControlList;
+  Result := FSectionList.FormControlList;
 end;
 
 function ThtmlViewer.GetNameList: TStringList;
 begin
-Result := FNameList;
+  Result := FNameList;
 end;
 
 function ThtmlViewer.GetLinkList: TList;
 begin
-Result := FSectionList.LinkList;
+  Result := FSectionList.LinkList;
 end;
 
 procedure ThtmlViewer.SetHotSpotColor(Value: TColor);
 begin
-FHotSpotColor := Value;
-FSectionList.HotSpotColor := Value;
+  FHotSpotColor := Value;
+  FSectionList.HotSpotColor := Value;
 end;
 
 procedure ThtmlViewer.SetVisitedColor(Value: TColor);
 begin
-FVisitedColor := Value;
-FSectionList.LinkVisitedColor := Value;
+  FVisitedColor := Value;
+  FSectionList.LinkVisitedColor := Value;
 end;
 
 procedure ThtmlViewer.SetActiveColor(Value: TColor);
 begin
-FOverColor := Value;
-FSectionList.LinkActiveColor := Value;
+  FOverColor := Value;
+  FSectionList.LinkActiveColor := Value;
 end;
 
 procedure ThtmlViewer.SetVisitedMaxCount(Value: integer);
 var
   I: integer;
 begin
-Value := IntMax(Value, 0);
-if Value <> FVisitedMaxCount then
+  Value := IntMax(Value, 0);
+  if Value <> FVisitedMaxCount then
   begin
-  FVisitedMaxCount := Value;
-  if FVisitedMaxCount = 0 then
-    begin
-    Visited.Clear;
-    for I := 0 to SectionList.LinkList.Count-1 do
-      TFontObj(LinkList[I]).Visited := False;
-    Invalidate;
-    end
-  else
-    begin
     FVisitedMaxCount := Value;
-    for I := Visited.Count-1 downto FVisitedMaxCount do
-      Visited.Delete(I);
+    if FVisitedMaxCount = 0 then
+    begin
+      Visited.Clear;
+      for I := 0 to SectionList.LinkList.Count - 1 do
+        TFontObj(LinkList[I]).Visited := False;
+      Invalidate;
+    end
+    else
+    begin
+      FVisitedMaxCount := Value;
+      for I := Visited.Count - 1 downto FVisitedMaxCount do
+        Visited.Delete(I);
     end;
   end;
 end;
 
 function ThtmlViewer.GetCursor: TCursor;     
 begin
-Result := inherited Cursor;
+  Result := inherited Cursor;
 end;
 
-procedure ThtmlViewer.SetCursor(Value: TCursor);  
+procedure ThtmlViewer.SetCursor(Value: TCursor);
 begin
-if Value = OldThickIBeamCursor then   {no longer used}
-  Value := crIBeam;
-inherited Cursor := Value;
+  if Value = OldThickIBeamCursor then   {no longer used}
+    Value := crIBeam;
+  inherited Cursor := Value;
 end;
 
 function ThtmlViewer.FullDisplaySize(FormatWidth: integer): TSize;
@@ -2518,16 +2519,16 @@ var
   Curs: integer;
   CopyList: TSectionList;
 begin
-Result.cx := 0;  {error return}
-Result.cy := 0;
-if FormatWidth > 0 then
+  Result.cx := 0;  {error return}
+  Result.cy := 0;
+  if FormatWidth > 0 then
   begin
-  CopyList := TSectionList.CreateCopy(FSectionList);
-  try
-    Curs := 0;
-    Result.cy := CopyList.DoLogic(PaintPanel.Canvas, 0, FormatWidth, 300, 0, Result.cx, Curs);
-  finally
-    CopyList.Free;
+    CopyList := TSectionList.CreateCopy(FSectionList);
+    try
+      Curs := 0;
+      Result.cy := CopyList.DoLogic(PaintPanel.Canvas, 0, FormatWidth, 300, 0, Result.cx, Curs);
+    finally
+      CopyList.Free;
     end;
   end;
 end;
@@ -2963,7 +2964,7 @@ finally
   end;
 end;
 
-function ThtmlViewer.MakePagedMetaFiles(Width, Height: integer): TList;   
+function ThtmlViewer.MakePagedMetaFiles(Width, Height: integer): TList;
 var
   ARect, CRect: TRect;
   CopyList: TSectionList;
@@ -3682,14 +3683,14 @@ var
   Canvas.Brush.Style := bsSolid;
   Canvas.Pen.Style   := psSolid;
   Canvas.Pen.Color   := clWhite;
-  Canvas.Rectangle(MLeft, 0, W + MLeft+1, TopPixels-1);
-  Canvas.Rectangle(MLeft, Y, W + MLeft+1, TopPixels+H+1);
+  Canvas.Rectangle(MLeft, 0, W + MLeft + 1, TopPixels - 1);
+  Canvas.Rectangle(MLeft, Y, W + MLeft + 1, TopPixels + H + 1);
   if (htPrintBackground in FOptions) and (Y-TopPixels < H) then
     begin   {need to reprint background in whited out area}
-    hrgnClip1 := CreateRectRgn(MLeftPrn, MulDiv(Y, P3, P2)+2,
+    hrgnClip1 := CreateRectRgn(MLeftPrn, MulDiv(Y, P3, P2) + 2,
                      MLeftPrn+WPrn, TopPixelsPrn+HPrn);
     SelectClipRgn(Canvas.Handle, hrgnClip1);
-    DeleteObject(hrgnClip1); 
+    DeleteObject(hrgnClip1);
     DoBackground2(Canvas, MLeft, TopPixels, W, H, PaintPanel.Color);
     end;
   RestoreCanvasItems(Canvas);
@@ -3702,7 +3703,7 @@ var
     BRect: TRect;
     DocHeight, XL, XR: integer;
   begin
-  if not Assigned(Event) then  
+  if not Assigned(Event) then
     Exit;
   try
     XL := MLeft;
@@ -3711,8 +3712,8 @@ var
     HFCopyList := TSectionList.CreateCopy(HFViewer.SectionList);
     try
       HFCopyList.Printing := True;
-      HFCopyList.NoOutput := NoOutput;   
-      HFCopyList.ScaleX := fScaleX;     
+      HFCopyList.NoOutput := NoOutput;
+      HFCopyList.ScaleX := fScaleX;
       HFCopyList.ScaleY := fScaleY;
       Curs := 0;
       DocHeight := HFCopyList.DoLogic(MFPrinter.Canvas, 0, XR-XL, 300, 0, ScrollWidth, Curs);
@@ -3778,8 +3779,8 @@ try
         P3 := GetDeviceCaps(PrnDC, LOGPIXELSY);
         P1 := GetDeviceCaps(PrnDC, LOGPIXELSX);
         P2 := Round(Screen.PixelsPerInch * FPrintScale);
-        fScaleX := 100.0/P3;
-        fScaleY := 100.0/P1;
+        fScaleX := 100.0 / P3;
+        fScaleY := 100.0 / P1;
         PrintList.ScaleX := fScaleX;
         PrintList.ScaleY := fScaleY;
         SetMapMode(DC, mm_AnIsotropic);
@@ -3796,10 +3797,10 @@ try
         { now compute a complete unprintable area rectangle
          (composed of 2*width, 2*height) in pixels...}
         with LowerRightPagePoint do
-          begin
+        begin
           Y := Y - MFPrinter.PageHeight;
           X := X - MFPrinter.PageWidth;
-          end;
+        end;
 
         { get upper left physical offset for the printer... ->
           printable area <> paper size }
@@ -3853,7 +3854,7 @@ try
         Curs := 0;
         VPixels := PrintList.DoLogic(Canvas, 0, W, H, 0, ScrollWidth, Curs);
         FWidthRatio := ScrollWidth/W;   
-        if FWidthRatio > 1.0 then 
+        if FWidthRatio > 1.0 then
           FWidthRatio := Round(P2*FWidthRatio +0.5)/P2;
 
         ScaledPgHt  := MulDiv(PageHeight, P2, P3);
@@ -4009,7 +4010,7 @@ try
         EndDoc;
         end;
     finally
-      FreeAndNil(HeadViewer);   
+      FreeAndNil(HeadViewer);
       FreeAndNil(FootViewer);   
       if hRgnClip <> 0 then
         DeleteObject(hrgnClip);
@@ -4221,18 +4222,18 @@ with FSectionList do
 end;
 
 {----------------ThtmlViewer.InitLoad}
-procedure ThtmlViewer.InitLoad;   
+procedure ThtmlViewer.InitLoad;
 begin
-if not Assigned(FSectionList.BitmapList) then
+  if not Assigned(FSectionList.BitmapList) then
   begin
-  FSectionList.BitmapList := TStringBitmapList.Create;
-  FSectionList.BitmapList.Sorted := True;
-  FSectionList.BitmapList.SetCacheCount(FImageCacheCount);
-  LocalBitmapList := True;
+    FSectionList.BitmapList := TStringBitmapList.Create;
+    FSectionList.BitmapList.Sorted := True;
+    FSectionList.BitmapList.SetCacheCount(FImageCacheCount);
+    LocalBitmapList := True;
   end;
-FSectionList.Clear;
-UpdateImageCache;
-FSectionList.SetFonts(FFontName, FPreFontName, FFontSize, FFontColor,
+  FSectionList.Clear;
+  UpdateImageCache;
+  FSectionList.SetFonts(FFontName, FPreFontName, FFontSize, FFontColor,
              FHotSpotColor, FVisitedColor, FOverColor, FBackground,
              htOverLinksActive in FOptions, not (htNoLinkUnderline in FOptions),
              FCharSet, FMarginHeight, FMarginWidth);
@@ -4283,7 +4284,7 @@ var
   Leng: integer;
   StSrc, EnSrc: integer;
   HTML: string;
-  format : UINT;
+  format: UINT;
 
   procedure copyFormatToClipBoard(const source: string; format : UINT);
   // Put SOURCE on the clipboard, using FORMAT as the clipboard format
@@ -4335,7 +4336,7 @@ var
       URLString := SourceURL+'file://'+CurrentFile;
     StartHTMLIndex := PreliminaryLength + Length(URLString);
     EndHTMLIndex := StartHTMLIndex + Length(HTML);
-    StartFragmentIndex := StartHTMLIndex + Pos(StartFrag, HTML) + Length(StartFrag)-1;
+    StartFragmentIndex := StartHTMLIndex + Pos(StartFrag, HTML) + Length(StartFrag) - 1;
     EndFragmentIndex := StartHTMLIndex + Pos(EndFrag, HTML)-1;
 
     Result := Version +
@@ -4763,7 +4764,7 @@ begin
   if Assigned(FOnMetaRefresh) then
     if CompareText(Lowercase(HttpEq), 'refresh') = 0 then
     begin
-      I := Pos(';', Content);
+      I := CharPos(';', Content);
       if I > 0 then
         DelTime := StrToIntDef(copy(Content, 1, I-1), -1)
       else

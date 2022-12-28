@@ -2845,7 +2845,7 @@ for I := 0 to ControlList.Count-1 do
   for J := 0 to SL.Count-1 do
     if CompareText(FormControl.FName, SL.Names[J]) = 0 then
       begin
-      K := Pos('=', SL[J]);
+      K := CharPos('=', SL[J]);
       if K > 0 then
         begin
         Value := Copy(SL[J], K+1, Length(SL[J])-K);
@@ -5455,7 +5455,7 @@ for I := 0 to TableAttr.Count-1 do
       HSpaceSy: HSpace := IntMin(40, Abs(Value));
       VSpaceSy: VSpace := IntMin(200, Abs(Value));
       WidthSy:
-        if Pos('%', Name) > 0 then
+        if CharPos('%', Name) > 0 then
           begin
           if (Value > 0) and (Value <= 100) then WidthAttr := Value*10;
           AsPercent := True;
@@ -7026,7 +7026,7 @@ if Assigned(Attr) then
         RowSpanSy:
           if Value > 1 then RowSpan := Value;
         WidthSy:
-          if Pos('%', Name) > 0 then
+          if CharPos('%', Name) > 0 then
             begin
             if (Value > 0) and (Value <= 100) then
               begin
@@ -7037,7 +7037,7 @@ if Assigned(Attr) then
           else if (Value > 0) then
             WidthAttr := Value;
         HeightSy:
-          if Pos('%', Name) = 0 then  
+          if CharPos('%', Name) = 0 then
             SpecHt := Value
           else
             SpecHtPercent := IntMax(0, IntMin(Value, 100));   
@@ -7542,7 +7542,7 @@ if Assigned(Attr) then
       BackgroundSy:
         BkImage := Name;
       HeightSy:     
-        if Pos('%', Name) = 0 then  
+        if CharPos('%', Name) = 0 then
           SpecRowHeight := Value
         else
           SpecRowHeightPercent := IntMax(0, IntMin(Value, 100));   
@@ -7568,7 +7568,7 @@ var
   I: integer;
 begin
 inherited create;
-BreakBefore := T.BreakBefore;  
+BreakBefore := T.BreakBefore;
 BreakAfter := T.BreakAfter;
 KeepIntact := T.KeepIntact;   
 RowType := T.Rowtype;   
@@ -7646,7 +7646,7 @@ for I := 0 to Count-1 do
             GuessHt := AHeight 
           else
             GuessHt := 0;
-          VSize := Cell.DoLogic(Canvas, 0, Wd-HzSpace-CellSpacing, IntMax(0, GuessHt-VrSpace), 0,  
+          VSize := Cell.DoLogic(Canvas, 0, Wd-HzSpace-CellSpacing, IntMax(0, GuessHt-VrSpace), 0,
                    Dummy, DummyCurs);
           Result := IntMax(Result, VSize + VrSpace);
           if SpecHt > 0 then

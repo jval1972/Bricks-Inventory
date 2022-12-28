@@ -469,11 +469,12 @@ function MultibyteToWideString(CodePage: integer; const S: string): WideString;
 function WideStringToMultibyte(CodePage: integer; W: WideString): string;   
 function GetImageHeight(Image: TGpObject): integer;
 function GetImageWidth(Image: TGpObject): integer;
+function CharPos(const ch: Char; const s: string): integer;
 
 implementation
 
 uses
-   jpeg, DitherUnit,
+  jpeg, DitherUnit,
   {$ifndef NoOldPng}
      PngImage1,
   {$endif}
@@ -798,10 +799,10 @@ if (Result <> '') and (Root <> '') then
   begin
   if Pos('\\', Result) = 1 then
     Exit;
-  if Pos(':', Result) = 2 then
+  if CharPos(':', Result) = 2 then
     Exit;
   if Result[1] = '\' then
-    Result := Root+Result;
+    Result := Root + Result;
   end;
 end;
 
@@ -827,7 +828,7 @@ var
     S: string[3];
     I: integer;
   begin
-  I := Pos('%', FName);
+  I := CharPos('%', FName);
   while (I > 1) and (I <= Length(FName)-2) do
     begin
     S := '$'+FName[I+1]+FName[I+2];
@@ -837,14 +838,14 @@ var
     except   {ignore exception}
       Exit;
       end;
-    I := Pos('%', FName);
+    I := CharPos('%', FName);
     end;
   end;
 
 begin
-ReplaceEscapeChars; 
-I := pos('/', FName);
-if I <> 0 then
+  ReplaceEscapeChars;
+  I := CharPos('/', FName);
+  if I <> 0 then
   begin
   I := Pos('file:///', Lowercase(FName));
   if I > 0 then
@@ -854,7 +855,7 @@ if I <> 0 then
     I := Pos('file://', Lowercase(FName));
     if I > 0 then
       System.Delete(FName, I, 7)
-    else    
+    else
       begin
       I := Pos('file:/', Lowercase(FName));
       if I > 0 then
@@ -1304,7 +1305,7 @@ Result := '';
 if Find(ClassSy, T) then
   begin
   S := Lowercase(Trim(T.Name));
-  I := Pos(' ', S);
+  I := CharPos(' ', S);
   if I <= 0 then   {a single class name}
     Result := S
   else
@@ -1313,7 +1314,7 @@ if Find(ClassSy, T) then
       Result := Result + '.' + System.Copy(S, 1, I-1);
       System.Delete(S, 1, I);
       S := Trim(S);
-      I := Pos(' ', S);
+      I := CharPos(' ', S);
     until I <= 0;
     Result := Result+'.'+S;
     Result := SortContextualItems(Result);   {put in standard multiple order}
@@ -1592,16 +1593,16 @@ var
   var
     J,K: integer;
   begin
-  J := Pos(',', S);
-  K := Pos(' ', S);   {for non comma situations (bad syntax)}
+  J := CharPos(',', S);
+  K := CharPos(' ', S);   {for non comma situations (bad syntax)}
   if (J > 0) and ((K = 0) or (K > J)) then
     begin
-    S1 := copy(S, 1, J-1);
+    S1 := Copy(S, 1, J-1);
     Delete(S, 1, J);
     end
   else if K > 0 then
     begin
-    S1 := copy(S, 1, K-1);
+    S1 := Copy(S, 1, K-1);
     Delete(S, 1, K);
     end
   else
@@ -2125,7 +2126,7 @@ if GDIPlusActive and (KindOfImage(Stream.Memory) = png) then
     SetLength(Filename, Max_Path+1);
     GetTempFilename(@Path, 'png', Unique, PChar(Filename));
     Inc(Unique);
-    I := Pos(#0, Filename);
+    I := CharPos(#0, Filename);
     SetLength(Filename, I-1);
     AssignFile(F, Filename);
     ReWrite(F, 1);
@@ -4095,6 +4096,19 @@ else if Image is ThtMetaFile then
 else Raise(EGDIPlus.Create('Not a TBitmap, TGifImage, TMetafile, or TGpImage'));
 end;
 
+function CharPos(const ch: Char; const s: string): integer;
+var
+  i: integer;
+begin
+  for i := 1 to Length(s) do
+    if s[i] = ch then
+    begin
+      result := i;
+      exit;
+    end;
+  result := 0;
+end;
+
 initialization
 DC := GetDC(0);
 try
@@ -4140,9 +4154,7 @@ Screen.Cursors[DownOnlyCursor] := LoadCursor(HInstance, 'DOWNONLYCURSOR');
 
 WaitStream := TMemoryStream.Create;
 
-Finalization
-ThisExit;
+finalization
+  ThisExit;
 end.
-
-
 

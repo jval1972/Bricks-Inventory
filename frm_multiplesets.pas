@@ -63,7 +63,7 @@ function GetMultipleSetsList(const l: TStringList): Boolean;
 implementation
 
 uses
-  bi_utils, searchset;
+  bi_utils, searchset, bi_delphi;
 
 {$R *.dfm}
 
@@ -107,9 +107,40 @@ begin
 end;
 
 procedure TMultipleSetsForm.OpenList1Click(Sender: TObject);
+var
+  sL: TStringList;
+  s1, s2, s3: string;
+  i, j: integer;
 begin
   if OpenDialog1.Execute then
-    ListBox1.Items.LoadFromFile(OpenDialog1.FileName);
+  begin
+    ListBox1.Items.Clear;
+    sL := TStringList.Create;
+    sL.LoadFromFile(OpenDialog1.FileName);
+    sl.Text := strremovespaces(sl.Text);
+    if sL.Count = 0 then
+    begin
+      sL.Free;
+      Exit;
+    end;
+    if Pos1(',', sL.Strings[0]) then
+    begin
+      for i := 0 to sL.Count - 1 do
+      begin
+        splitstring(sL.Strings[i], s1, s2, s3, ',');
+        if itoa(atoi(s2)) = s2 then
+        begin
+          for j := 0 to atoi(s2) - 1 do
+            ListBox1.Items.Add(s1);
+        end
+        else
+          ListBox1.Items.Add(s1);
+      end;
+    end
+    else
+      ListBox1.Items.LoadFromFile(OpenDialog1.FileName);
+    sL.Free;
+  end;
 end;
 
 procedure TMultipleSetsForm.SaveList1Click(Sender: TObject);

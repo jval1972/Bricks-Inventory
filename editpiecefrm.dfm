@@ -890,7 +890,7 @@ object EditPieceForm: TEditPieceForm
     Font.Style = []
     ParentBiDiMode = False
     ParentFont = False
-    TabOrder = 6
+    TabOrder = 8
     Text = '0'
     OnKeyPress = NumPiecesEditKeyPress
   end
@@ -906,7 +906,7 @@ object EditPieceForm: TEditPieceForm
     Font.Style = []
     ParentFont = False
     ScrollBars = ssBoth
-    TabOrder = 7
+    TabOrder = 9
     WordWrap = False
   end
   object Button1: TButton
@@ -923,7 +923,7 @@ object EditPieceForm: TEditPieceForm
     Font.Style = []
     ModalResult = 1
     ParentFont = False
-    TabOrder = 8
+    TabOrder = 12
   end
   object Button2: TButton
     Left = 448
@@ -939,7 +939,7 @@ object EditPieceForm: TEditPieceForm
     Font.Style = []
     ModalResult = 2
     ParentFont = False
-    TabOrder = 9
+    TabOrder = 13
   end
   object Panel1: TPanel
     Left = 224
@@ -1023,7 +1023,7 @@ object EditPieceForm: TEditPieceForm
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ParentFont = False
-    TabOrder = 11
+    TabOrder = 14
     object Image1: TImage
       Left = 0
       Top = 0
@@ -1059,7 +1059,7 @@ object EditPieceForm: TEditPieceForm
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 12
+    TabOrder = 15
   end
   object YearEdit: TEdit
     Left = 128
@@ -1091,7 +1091,7 @@ object EditPieceForm: TEditPieceForm
     Font.Style = []
     ParentBiDiMode = False
     ParentFont = False
-    TabOrder = 13
+    TabOrder = 6
   end
   object WeightEdit: TEdit
     Left = 416
@@ -1106,7 +1106,7 @@ object EditPieceForm: TEditPieceForm
     Font.Style = []
     ParentBiDiMode = False
     ParentFont = False
-    TabOrder = 14
+    TabOrder = 7
     OnKeyPress = WeightEditKeyPress
   end
   object NumReadyEdit: TEdit
@@ -1122,7 +1122,7 @@ object EditPieceForm: TEditPieceForm
     Font.Style = []
     ParentBiDiMode = False
     ParentFont = False
-    TabOrder = 15
+    TabOrder = 11
     Text = '0'
     OnKeyPress = NumReadyEditKeyPress
   end

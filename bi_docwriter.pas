@@ -193,7 +193,9 @@ begin
   len := Length(s);
   if fcapacity < len + fsize then
   begin
-    if fcapacity > $200000 then
+    if fcapacity > $800000 then
+      growstep := $200000
+    else if fcapacity > $200000 then
       growstep := $40000
     else if fcapacity > $100000 then
       growstep := $20000

@@ -702,7 +702,7 @@ object OptionsForm: TOptionsForm
       Caption = 'Inventory'
       ImageIndex = 2
       object RadioGroup1: TRadioGroup
-        Left = 16
+        Left = 8
         Top = 16
         Width = 113
         Height = 161
@@ -717,10 +717,10 @@ object OptionsForm: TOptionsForm
         TabOrder = 0
       end
       object GroupBox1: TGroupBox
-        Left = 144
+        Left = 128
         Top = 16
-        Width = 153
-        Height = 105
+        Width = 169
+        Height = 129
         Caption = ' Storage locations '
         TabOrder = 1
         object CheckBox8: TCheckBox
@@ -746,6 +746,14 @@ object OptionsForm: TOptionsForm
           Height = 17
           Caption = 'Ready list'
           TabOrder = 2
+        end
+        object CheckBox11: TCheckBox
+          Left = 16
+          Top = 96
+          Width = 145
+          Height = 17
+          Caption = 'Additional locations'
+          TabOrder = 3
         end
       end
     end

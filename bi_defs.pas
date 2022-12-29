@@ -47,6 +47,7 @@ type
 
 var
   dodraworderinfo: boolean;
+  dodraworderinfolite: boolean;
   usemultithread: boolean;
   domultipagedocuments: boolean;
   dpagesize: integer;
@@ -60,7 +61,7 @@ var
   optlocationsreadylist: boolean;
 
 const
-  NUMDEFAULTS = 15;
+  NUMDEFAULTS = 16;
 
   defaults: array[0..NUMDEFAULTS - 1] of default_t = (
     (name: 'General';
@@ -73,6 +74,14 @@ const
 
     (name: 'dodraworderinfo';
      location: @dodraworderinfo;
+     setable: true;
+     defaultsvalue: '1';
+     defaultivalue: 1;
+     defaultbvalue: True;
+     _type: tBoolean),
+
+    (name: 'dodraworderinfolite';
+     location: @dodraworderinfolite;
      setable: true;
      defaultsvalue: '1';
      defaultivalue: 1;

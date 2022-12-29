@@ -2546,9 +2546,9 @@ begin
         s.Add(Format('%s,%d,%d', ['60474', bp.color, bp.num]));
         s.Add(Format('%s,%d,%d', ['61485', bp.color, bp.num]));
       end
-      else if bp.part = '10174stk01' then
+      else if (bp.part = '10174stk01') or (bp.part = '56143') then
       begin
-        s.Add(Format('%s,%d,%d', ['56143', bp.color, bp.num]));
+        s.Add(Format('%s,%d,%d', ['56143', 9999, bp.num]));
       end
       else if bp.part = '85777pb01' then
       begin
@@ -2611,6 +2611,11 @@ begin
         s.Add(Format('%s,%d,%d', ['93595pr0001', bp.color, bp.num]));
         s.Add(Format('%s,%d,%d', ['50951', 0, bp.num]));
       end
+      // 202212 additions
+      else if (bp.part = '10232stk01') or (bp.part = '12949') then
+        s.Add(Format('%s,%d,%d', ['12949', 9999, bp.num]))
+      else if bp.part = '4631445' then
+        s.Add(Format('%s,%d,%d', ['4631445', 9999, bp.num]))
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;
@@ -3036,7 +3041,7 @@ begin
     end;
   end;
 
-  Reorganize;
+  DoReorganize;
 end;
 
 function TBrickInventory.Clone: TBrickInventory;

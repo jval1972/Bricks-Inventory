@@ -58,6 +58,7 @@ type
     CheckBox8: TCheckBox;
     CheckBox9: TCheckBox;
     CheckBox10: TCheckBox;
+    CheckBox11: TCheckBox;
     procedure Edit1KeyPress(Sender: TObject; var Key: Char);
     procedure FormCreate(Sender: TObject);
   private
@@ -95,6 +96,8 @@ begin
     f.CheckBox8.Checked := optlocationslugbulk;
     f.CheckBox9.Checked := optlocationsorders;
     f.CheckBox10.Checked := optlocationsreadylist;
+    f.CheckBox11.Checked := dodraworderinfolite;
+
     if IsIntegerInRange(inventorysortmethod, 0, f.RadioGroup1.items.Count - 1) then
       f.RadioGroup1.ItemIndex := inventorysortmethod;
     f.ShowModal;
@@ -113,6 +116,7 @@ begin
       optlocationslugbulk := f.CheckBox8.Checked;
       optlocationsorders := f.CheckBox9.Checked;
       optlocationsreadylist := f.CheckBox10.Checked;
+      dodraworderinfolite := f.CheckBox11.Checked;
     end;
   finally
     f.Free;

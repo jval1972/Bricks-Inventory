@@ -10633,7 +10633,9 @@ begin
   DrawHeadLine(Format('Inventory for multiple sets<br>%d parts in %d lots (%d unique)<br>%s',
     [inv.totallooseparts, nlots, inv.numlooseparts, s1]));
 
-  document.write('<tr><td width=50%>');
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+  document.write('<tr bgcolor=' + DBGCOLOR + '>');
+  document.write('<td width=50%>');
   minv := inventory.InventoryForMissingToBuildInventory(inv);
   DrawHeadLine(Format('<a href=multymissing/' + IntToStr(Integer(setids)) +
     '>%d parts in %d lots are missing to build this list</a>', [minv.totallooseparts, minv.numlooseparts]));
@@ -10641,7 +10643,7 @@ begin
   document.write('</td><td width=50%>');
   DrawHeadLine('<a href=multysetstorages/' + IntToStr(Integer(setids)) +
     '>Storage locations for these parts</a>');
-  document.write('</td></tr>');
+  document.write('</td></tr></table>');
 
   DrawInventoryTable(inv, False, '', True, True, nil, True, True);
 

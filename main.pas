@@ -611,7 +611,6 @@ type
     thumbnailcache: array[0..127] of TStringList;
     thumbnailfilesexist: array[0..127] of TStringList;
     newtabUrl: string;
-    dodraworderinfolite: boolean;
     function CheckAA(const AA, fromAA, toAA: integer): boolean;
     procedure Navigate(const akey: string; const pg: integer);
     procedure DrawColorCell(const cc: integer; const width: integer);
@@ -990,7 +989,6 @@ begin
   outproc := outprocmemo;
   printf('Starting BrickInventory...'#13#10);
   BI_LoadDefaults(basedefault + 'bi4.ini');
-  dodraworderinfolite := dodraworderinfo;
   activebits := 0;
   storagebinsupdatetime := 0.0;
   newtabUrl := '';

@@ -9434,7 +9434,7 @@ begin
   begin
     if i mod 1000 = 0 then
       SplashProgress('Working...', i / db.AllSets.Count / 2);
-    n := (db.AllSets.Objects[i] as  TBrickInventory).numlooseparts;
+    n := (db.AllSets.Objects[i] as TBrickInventory).numlooseparts;
     for j := 0 to NUMLSTATS - 1 do
       if n >= A[j].start then
         if n <= A[j].stop then

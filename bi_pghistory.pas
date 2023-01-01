@@ -626,6 +626,7 @@ begin
 end;
 
 var
+  dd20131231a: double;
   dd20180904a: double;
   dd20180907a: double;
 
@@ -636,6 +637,12 @@ var
   em: TExcludeManager;
 begin
   Result := False;
+
+  if date1 < dd20131231a then
+  begin
+    Result := True;
+    Exit;
+  end;
 
   if date1 > dd20180904a then
     if date1 < dd20180907a then
@@ -1845,6 +1852,7 @@ initialization
     excludes[ixxx].maxdatedbl := s2date1(excludes[ixxx].maxdate);
   end;
 
+  dd20131231a := s2date1('20131231') + 0.5;
   dd20180904a := s2date1('20180904') + 0.5;
   dd20180907a := s2date1('20180907') + 0.5;
 

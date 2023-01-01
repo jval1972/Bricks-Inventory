@@ -536,6 +536,7 @@ procedure TExcludeManager.LoadFromFile;
 var
   s: TStringList;
   i: integer;
+  len: integer;
   s1, s2: string;
 begin
   Clear;
@@ -553,9 +554,10 @@ begin
           s2 := Trim(s2);
           if s2 = '' then
           begin
-            if Length(s1) = 8 then
+            len := Length(s1);
+            if len = 8 then
               s2 := s1
-            else if IsIntegerInRange(atoi(s1), 2014, 2050) then
+            else if (len = 4) and IsIntegerInRange(atoi(s1), 2014, 2050) then
             begin
               s2 := s1 + '1231';
               s1 := s1 + '0101';

@@ -43,7 +43,7 @@ type
   end;
 
 const
-  NUMCOLORINDEXES = 35;
+  NUMCOLORINDEXES = 36;
 
 type
   mosaicbrick_t = record
@@ -219,6 +219,7 @@ const
     (idx: 272),
     (idx: 288),
     (idx: 297),
+    (idx: 308),
     (idx: 320),
     (idx: 321),
     (idx: 326),

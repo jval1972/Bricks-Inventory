@@ -581,7 +581,7 @@ object EditSetAsTextForm: TEditSetAsTextForm
       TabOrder = 1
     end
     object ImportButton: TButton
-      Left = 496
+      Left = 304
       Top = 8
       Width = 81
       Height = 25
@@ -589,13 +589,31 @@ object EditSetAsTextForm: TEditSetAsTextForm
       TabOrder = 2
       OnClick = ImportButtonClick
     end
+    object AppendButton: TButton
+      Left = 408
+      Top = 8
+      Width = 75
+      Height = 25
+      Caption = 'Append...'
+      TabOrder = 3
+      OnClick = AppendButtonClick
+    end
+    object RemoveButton: TButton
+      Left = 504
+      Top = 8
+      Width = 75
+      Height = 25
+      Caption = 'Remove...'
+      TabOrder = 4
+      OnClick = RemoveButtonClick
+    end
   end
   object PageControl1: TPageControl
     Left = 0
     Top = 41
     Width = 604
     Height = 306
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Align = alClient
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
@@ -672,7 +690,7 @@ object EditSetAsTextForm: TEditSetAsTextForm
           Width = 145
           Height = 24
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 16
           TabOrder = 1
         end
         object txtNum: TEdit

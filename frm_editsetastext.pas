@@ -61,6 +61,8 @@ type
     ImportButton: TButton;
     OpenDialog1: TOpenDialog;
     UpdateYearSpeedButton: TSpeedButton;
+    AppendButton: TButton;
+    RemoveButton: TButton;
     procedure FormCreate(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure AddButtonClick(Sender: TObject);
@@ -70,6 +72,8 @@ type
     procedure Memo1Change(Sender: TObject);
     procedure UpdateYearSpeedButtonClick(Sender: TObject);
     procedure YearEditKeyPress(Sender: TObject; var Key: Char);
+    procedure AppendButtonClick(Sender: TObject);
+    procedure RemoveButtonClick(Sender: TObject);
   private
     { Private declarations }
     procedure PopulateColors;
@@ -242,9 +246,10 @@ begin
       ordValue := OpenDialog1.FilterIndex;
       if (ordValue >= Ord(Low(sourcetype_t))) and (ordValue <= Ord(High(sourcetype_t))) then
         source := sourcetype_t(ordValue)
-       else
+      else
         source := stBrickLink;
 
+      Memo1.Lines.Clear;
       if source = stLDraw then
         Memo1.Lines.Add(LDrawToCSV(OpenDialog1.FileName))
       else if source = stLDCad then
@@ -353,6 +358,100 @@ begin
   begin
     Key := #0;
     Exit;
+  end;
+end;
+
+procedure TEditSetAsTextForm.AppendButtonClick(Sender: TObject);
+var
+  data: TStringList;
+  ordValue: integer;
+  source: sourcetype_t;
+  sL: TStringList;
+  inv: TBrickInventory;
+begin
+  if OpenDialog1.Execute then
+  begin
+    data := TStringList.Create;
+    try
+      ordValue := OpenDialog1.FilterIndex;
+      if (ordValue >= Ord(Low(sourcetype_t))) and (ordValue <= Ord(High(sourcetype_t))) then
+        source := sourcetype_t(ordValue)
+      else
+        source := stBrickLink;
+
+      sL := TStringList.Create;
+      sL.AddStrings(Memo1.Lines);
+      if source = stLDraw then
+        sL.Add(LDrawToCSV(OpenDialog1.FileName))
+      else if source = stLDCad then
+        sL.Add(LDCadToCSV(OpenDialog1.FileName))
+      else if GetDataFromFile(OpenDialog1.FileName, source, data) then
+        sL.AddStrings(data);
+      inv := TBrickInventory.Create;
+      inv.LoadLooseParts(sL);
+      inv.DoReorganize;
+      sL.Clear;
+      inv.GetLoosePartsInStringList(sL, False);
+      Memo1.Lines.Clear;
+      Memo1.Lines.Add('Part,Color,Num');
+      Memo1.Lines.AddStrings(sL);
+      inv.Free;
+      sL.Free;
+    finally
+      data.Free;
+    end;
+  end;
+end;
+
+procedure TEditSetAsTextForm.RemoveButtonClick(Sender: TObject);
+var
+  data: TStringList;
+  ordValue: integer;
+  source: sourcetype_t;
+  sL: TStringList;
+  inv, inv2: TBrickInventory;
+begin
+  if OpenDialog1.Execute then
+  begin
+    data := TStringList.Create;
+    try
+      ordValue := OpenDialog1.FilterIndex;
+      if (ordValue >= Ord(Low(sourcetype_t))) and (ordValue <= Ord(High(sourcetype_t))) then
+        source := sourcetype_t(ordValue)
+      else
+        source := stBrickLink;
+
+      sL := TStringList.Create;
+      if source = stLDraw then
+        sL.Add(LDrawToCSV(OpenDialog1.FileName))
+      else if source = stLDCad then
+        sL.Add(LDCadToCSV(OpenDialog1.FileName))
+      else if GetDataFromFile(OpenDialog1.FileName, source, data) then
+        sL.AddStrings(data);
+
+      sL.Insert(0, 'Part,Color,Num');
+
+      inv := TBrickInventory.Create;
+      inv.LoadLooseParts(sL);
+
+      inv2 := TBrickInventory.Create;
+      sL.Clear;
+      sL.AddStrings(Memo1.Lines);
+      inv2.LoadLooseParts(sL);
+
+      inv2.TryToRemoveInventory(inv);
+
+      sL.Clear;
+      inv2.GetLoosePartsInStringList(sL, False);
+      Memo1.Lines.Clear;
+      Memo1.Lines.Add('Part,Color,Num');
+      Memo1.Lines.AddStrings(sL);
+      inv.Free;
+      inv2.Free;
+      sL.Free;
+    finally
+      data.Free;
+    end;
   end;
 end;
 

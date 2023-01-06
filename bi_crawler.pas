@@ -1721,7 +1721,7 @@ begin
   p := Pos(s1, s);
   if p <= 0 then
   begin
-    s1 := 'href="https://www.bricklink.com/v2/catalog/catalogitem.page?' + typ + '=';
+    s1 := 'href="https://' + BL_NET + '/v2/catalog/catalogitem.page?' + typ + '=';
     p := Pos(s1, s);
   end;
   if p <= 0 then

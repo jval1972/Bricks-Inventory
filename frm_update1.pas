@@ -337,7 +337,7 @@ begin
       for j := 0 to lst.Count - 1 do
         AddNoInvSetRec(lst.Strings[j]);
       lst.Free;
-      lnk := 'https://www.bricklink.com/catalogList.asp?pg=' + itoa(i) + '&sortBy=D&sortAsc=D&catType=S';
+      lnk := 'https://' + BL_NET + '/catalogList.asp?pg=' + itoa(i) + '&sortBy=D&sortAsc=D&catType=S';
       lst := db.QryNewSetAsPartFromBricklink(lnk, '<a href="/v2/catalog/catalogitem.page?S=');
       for j := 0 to lst.Count - 1 do
         AddNoInvSetRec(lst.Strings[j]);
@@ -377,7 +377,7 @@ begin
       for j := 0 to lst.Count - 1 do
         AddNoInvMinifigRec(lst.Strings[j]);
       lst.Free;
-      lnk := 'https://www.bricklink.com/catalogList.asp?pg=' + itoa(i) + '&sortBy=D&sortAsc=D&catType=M';
+      lnk := 'https://' + BL_NET + '/catalogList.asp?pg=' + itoa(i) + '&sortBy=D&sortAsc=D&catType=M';
       lst := db.QryNewSetAsPartFromBricklink(lnk, '<a href="/v2/catalog/catalogitem.page?S=');
       for j := 0 to lst.Count - 1 do
         AddNoInvSetRec(lst.Strings[j]);

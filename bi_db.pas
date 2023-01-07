@@ -3921,15 +3921,18 @@ begin
     begin
       if num > 0 then
       begin
+        Result := True;
         for i := 0 to num - 1 do
-          Result := RemoveSet(part, False);
+          Result := Result or RemoveSet(part, False);
       end
       else if num < 0 then
       begin
         for i := 0 to -num - 1 do
           AddSet(part, False);
         Result := True;
-      end;
+      end
+      else
+        Result := True;
       Exit;
     end;
   end;
@@ -4000,7 +4003,7 @@ end;
 
 function TBrickInventory.RemoveLoosePartOrZeroOnOverflow(const part: string; color: integer; num: integer): boolean;
 var
-  i, h, h2: integer;
+  i: integer;
   p: integer;
   leftcnt: integer;
 begin
@@ -4011,15 +4014,18 @@ begin
     begin
       if num > 0 then
       begin
+        Result := True;
         for i := 0 to num - 1 do
-          Result := RemoveSet(part, False);
+          Result := Result or RemoveSet(part, False);
       end
       else if num < 0 then
       begin
         for i := 0 to -num - 1 do
           AddSet(part, False);
         Result := True;
-      end;
+      end
+      else
+          Result := False;
       Exit;
     end;
   end;

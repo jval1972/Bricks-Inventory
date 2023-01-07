@@ -1033,6 +1033,13 @@ object MainForm: TMainForm
           Caption = 'Rebrickable parts of builded mocs'
           OnClick = Rebrickablepartsofbuildedmocs1Click
         end
+        object N56: TMenuItem
+          Caption = '-'
+        end
+        object Crawlerfile1: TMenuItem
+          Caption = 'Crawler file'
+          OnClick = Crawlerfile1Click
+        end
       end
       object N29: TMenuItem
         Caption = '-'
@@ -2146,5 +2153,12 @@ object MainForm: TMainForm
     Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
     Left = 412
     Top = 218
+  end
+  object SaveDialogCrawlerInv: TSaveDialog
+    DefaultExt = 'txt'
+    Filter = 'Text files (*.csv)|*.txt|All files|*.*'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofEnableSizing]
+    Left = 424
+    Top = 100
   end
 end

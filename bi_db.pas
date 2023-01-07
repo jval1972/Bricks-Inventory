@@ -186,6 +186,7 @@ type
     procedure SaveLoosePartsWantedListNew(const fname: string; const pricefactor: Double = 1.0; const wl: Integer = 0);
     procedure SaveLoosePartsWantedListUsed(const fname: string; const pricefactor: Double = 1.0; const wl: Integer = 0);
     procedure SavePartsInventoryPriceguide(const fname: string);
+    procedure SaveInventoryForCrawler(const fname: string; const saveparts: boolean = True; const savesets: boolean = True);
     procedure SaveSets(const fname: string);
     procedure AddLoosePart(const part: string; color: integer; const num: integer; const pci: TObject = nil);
     procedure AddLoosePartFast(const part: string; color: integer; const num: integer; const pci: TObject = nil);
@@ -2955,6 +2956,41 @@ begin
     S_SaveToFile(s, fname);
   except
     I_Warning('TBrickInventory.SavePartsInventoryPriceguide(): Can not save file %s'#13#10, [fname]);
+  end;
+  s.Free;
+end;
+
+procedure TBrickInventory.SaveInventoryForCrawler(const fname: string; const saveparts: boolean = True; const savesets: boolean = True);
+var
+  s: TStringList;
+  i: integer;
+  pci: TPieceColorInfo;
+begin
+  s := TStringList.Create;
+  if saveparts then
+    for i := 0 to fnumlooseparts - 1 do
+    begin
+      pci := db.PieceColorInfo(@flooseparts[i]);
+      if pci <> nil then
+      begin
+        if not pci.hasloaded then
+          pci.Load;
+        s.Add(Format('%d,%s', [
+          flooseparts[i].color,
+          flooseparts[i].part]));
+      end;
+    end;
+
+  if savesets then
+    for i := 0 to fnumsets - 1 do
+      if not db.IsMoc(fsets[i].setid) then
+        s.Add(Format('-1,%s', [fsets[i].setid]));
+
+  try
+    S_BackupFile(fname);
+    S_SaveToFile(s, fname);
+  except
+    I_Warning('TBrickInventory.SaveInventoryForCrawler(): Can not save file %s'#13#10, [fname]);
   end;
   s.Free;
 end;

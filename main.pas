@@ -358,6 +358,9 @@ type
     SaveLugbulk2021database1: TMenuItem;
     N55: TMenuItem;
     Readlist1: TMenuItem;
+    N56: TMenuItem;
+    Crawlerfile1: TMenuItem;
+    SaveDialogCrawlerInv: TSaveDialog;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -590,6 +593,7 @@ type
     procedure UpdatePriceGuideDisklist1Click(Sender: TObject);
     procedure SaveLugbulk2021database1Click(Sender: TObject);
     procedure Readlist1Click(Sender: TObject);
+    procedure Crawlerfile1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -19807,6 +19811,17 @@ var
   foo: boolean;
 begin
   HTMLClick('sinv/' + S_READYLIST_01, foo);
+end;
+
+procedure TMainForm.Crawlerfile1Click(Sender: TObject);
+begin
+  if SaveDialogCrawlerInv.Execute then
+  begin
+    Screen.Cursor := crHourglass;
+    inventory.SaveInventoryForCrawler(SaveDialogCrawlerInv.FileName);
+    Screen.Cursor := crDefault;
+  end;
+  ChDir(basedefault);
 end;
 
 end.

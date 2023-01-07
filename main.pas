@@ -12773,7 +12773,7 @@ begin
   else if Pos1('PriceGuideQry/', slink) then
   begin
     splitstring(slink, s1, s2, s3, s4, s5, s6, s7, '/');
-    PriceGuideQry(atoi(s2), s3, itob(atoi(s4)), itob(atoi(s5)), itob(atoi(s6)), itob(atoi(s7)));
+    PriceGuideQry(atoi(s3), s2, itob(atoi(s4)), itob(atoi(s5)), itob(atoi(s6)), itob(atoi(s7)));
   end
   else if slink = 'NewPiecesCheaperUsed' then
   begin
@@ -15546,7 +15546,7 @@ begin
   s1 := basedefault + 'out\PriceGuideQry\';
   if not DirectoryExists(s1) then
     ForceDirectories(s1);
-  s1 := s1 + 'PriceGuideQry_' + itoa(n) + '_' + itoa(btoi(dosoldnew)) + '_' + itoa(btoi(dosoldused)) + '_' + itoa(btoi(doavailnew)) + '_' + itoa(btoi(doavailused));
+  s1 := s1 + 'PriceGuideQry_' + typ + '_' + itoa(n) + '_' + itoa(btoi(dosoldnew)) + '_' + itoa(btoi(dosoldused)) + '_' + itoa(btoi(doavailnew)) + '_' + itoa(btoi(doavailused));
   inv.SaveLooseParts(s1 + '.txt');
   s1 := s1 + '_wantedlist';
   inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
@@ -19047,126 +19047,126 @@ procedure TMainForm.MostitemssoldNew1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/P/1/0/0/0', foo);
+  HTMLClick('PriceGuideQry/P/10/1/0/0/0', foo);
 end;
 
 procedure TMainForm.MostitemssoldUsed1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/P/0/1/0/0', foo);
+  HTMLClick('PriceGuideQry/P/10/0/1/0/0', foo);
 end;
 
 procedure TMainForm.MostitemssoldNewUsed1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/P/1/1/0/0', foo);
+  HTMLClick('PriceGuideQry/P/10/1/1/0/0', foo);
 end;
 
 procedure TMainForm.MoreitemsavailableNew1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/P/0/0/1/0', foo);
+  HTMLClick('PriceGuideQry/P/10/0/0/1/0', foo);
 end;
 
 procedure TMainForm.MoreitemsavailableUsed1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/P/0/0/0/1', foo);
+  HTMLClick('PriceGuideQry/P/10/0/0/0/1', foo);
 end;
 
 procedure TMainForm.MoreitemsavailableNewUsed1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/P/0/0/1/1', foo);
+  HTMLClick('PriceGuideQry/P/10/0/0/1/1', foo);
 end;
 
 procedure TMainForm.MostsetssoldNew1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/S/1/0/0/0', foo);
+  HTMLClick('PriceGuideQry/S/10/1/0/0/0', foo);
 end;
 
 procedure TMainForm.MostsetssoldUsed1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/S/0/1/0/0', foo);
+  HTMLClick('PriceGuideQry/S/10/0/1/0/0', foo);
 end;
 
 procedure TMainForm.MostsetssoldNewUsed1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/S/1/1/0/0', foo);
+  HTMLClick('PriceGuideQry/S/10/1/1/0/0', foo);
 end;
 
 procedure TMainForm.MoresetsavailableNew1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/S/0/0/1/0', foo);
+  HTMLClick('PriceGuideQry/S/10/0/0/1/0', foo);
 end;
 
 procedure TMainForm.MoresetsavailableUsed1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/S/0/0/0/1', foo);
+  HTMLClick('PriceGuideQry/S/10/0/0/0/1', foo);
 end;
 
 procedure TMainForm.MoresetsavailableNewUsed1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/S/0/0/1/1', foo);
+  HTMLClick('PriceGuideQry/S/10/0/0/1/1', foo);
 end;
 
 procedure TMainForm.MostminifigssoldNew1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/M/1/0/0/0', foo);
+  HTMLClick('PriceGuideQry/M/10/1/0/0/0', foo);
 end;
 
 procedure TMainForm.MostminifigssoldUsed1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/M/0/1/0/0', foo);
+  HTMLClick('PriceGuideQry/M/10/0/1/0/0', foo);
 end;
 
 procedure TMainForm.MostminifigssoldNewUsed1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/M/1/1/0/0', foo);
+  HTMLClick('PriceGuideQry/M/10/1/1/0/0', foo);
 end;
 
 procedure TMainForm.MoreminifigsavailableNew1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/M/0/0/1/0', foo);
+  HTMLClick('PriceGuideQry/M/10/0/0/1/0', foo);
 end;
 
 procedure TMainForm.MoreminifigsavailableUsed1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/M/0/0/0/1', foo);
+  HTMLClick('PriceGuideQry/M/10/0/0/0/1', foo);
 end;
 
 procedure TMainForm.MoreminifigsavailableNewUsed1Click(Sender: TObject);
 var
   foo: Boolean;
 begin
-  HTMLClick('PriceGuideQry/10/M/0/0/1/1', foo);
+  HTMLClick('PriceGuideQry/M/10/0/0/1/1', foo);
 end;
 
 function MoldYear_thr(p: pointer): integer; stdcall;

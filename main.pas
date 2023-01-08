@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2021 by Jim Valavanis
+//  Copyright (C) 2014-2023 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -633,6 +633,8 @@ type
     procedure PreviewInventoryTable(inv: TBrickInventory);
     procedure PreviewSetInventory(const setid: string);
     procedure ShowColors;
+    procedure ShowTags;
+    procedure ShowTag(const tag: string);
     procedure ShowCategoryColors(const cat: integer);
     function HtmlDrawInvImgLink(const pcs: string; const color: integer;
       const pi: TPieceInfo): string;
@@ -793,6 +795,7 @@ type
     procedure DoUpdatePriceGuideFromDiskList(const fn: string; const days: integer);
     procedure SaveLugbulkDatabase(const fn: string; const year: integer);
     procedure SortInventory(const ainv: TBrickInventory);
+    function taglink(const tag: string): string;
   public
     { Public declarations }
     activebits: integer;
@@ -816,6 +819,13 @@ uses
   bi_imagerotate, bi_readylist;
 
 {$R *.dfm}
+
+const
+  SORT_NONE = 0;
+  SORT_PRICE_NEW = 1;
+  SORT_PRICE_USED = 2;
+  SORT_DATE_UPDATE = 3;
+  SORT_ITEMS_CINTEGER = 4;
 
 type
   TThumbnailCacheInfo = class(TObject)
@@ -1176,17 +1186,17 @@ begin
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tr>');
-{  document.write('<td width=16%><a href="back">Back</a></td>');
-  document.write('<td width=16%><a href="fwd">Forward</a></td>');}
-  document.write('<td width=10%><a href="home">Home</a></td>');
-  document.write('<td width=12%><a href="cataloghome">Catalog</a></td>');
-  document.write('<td width=12%><a href="inv/0/C/-1">My loose parts</a></td>');
-  document.write('<td width=12%><a href="mysetsandmocs">My official sets and mocs</a></td>');
-  document.write('<td width=12%><a href="ShowMyMinifiguresMenu">My minifigures</a></td>');
-  document.write('<td width=10%><a href="colors">Colors</a></td>');
-  document.write('<td width=12%><a href="categories">Categories</a></td>');
+
+  document.write('<td width=8%><a href="home">Home</a></td>');
+  document.write('<td width=10%><a href="cataloghome">Catalog</a></td>');
+  document.write('<td width=10%><a href="inv/0/C/-1">My loose parts</a></td>');
+  document.write('<td width=14%><a href="mysetsandmocs">My official sets and mocs</a></td>');
+  document.write('<td width=10%><a href="ShowMyMinifiguresMenu">My minifigures</a></td>');
+  document.write('<td width=8%><a href="colors">Colors</a></td>');
+  document.write('<td width=10%><a href="categories">Categories</a></td>');
   document.write('<td width=10%><a href="orders">Orders</a></td>');
-  document.write('<td width=12%><a href="ShowStorageBins">Storage Bins</a></td>');
+  document.write('<td width=10%><a href="ShowStorageBins">Storage Bins</a></td>');
+  document.write('<td width=10%><a href="tags">Tags</a></td>');
 
   document.write('</tr></table></p></div><br><br>');
 
@@ -1908,6 +1918,7 @@ begin
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="categories">Categories</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="orders">Orders</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowStorageBins">Storage Bins</a></td></tr>');
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="tags">Tags</a></td></tr>');
 
   document.write('</table></p></div></body>');
 
@@ -5112,6 +5123,120 @@ begin
   Screen.Cursor := crDefault;
 end;
 
+procedure TMainForm.ShowTags;
+var
+  tags: TStringList;
+  i: integer;
+begin
+  Screen.Cursor := crHourGlass;
+
+  document.write('<body background="splash.jpg">');
+  document.title('Tags');
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+
+  DrawHeadLine('Tags');
+
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+  document.write('<tr bgcolor=' + THBGCOLOR + '>');
+  document.write('<th><b>#</b></th>');
+  document.write('<th><b>Tag</b></th>');
+  document.write('<th>Num parts</th>');
+  document.write('</tr>');
+
+  ShowSplash;
+  SplashProgress('Working...', 0);
+
+  tags := db.AllTags;
+  tags.Sort;
+  for i := 0 to tags.Count - 1 do
+  begin
+    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(i + 1) + '.</td>');
+    document.write('<td width=60%>' + taglink(tags.Strings[i]) + '</td>');
+    document.write('<td width=35% align=right>' + IntToStr((tags.Objects[i] as TStringList).Count) + '</td>');
+
+    document.write('</tr>');
+    SplashProgress('Working...', (i + 1) / (tags.Count + 1));
+  end;
+
+  document.write('</table>');
+  document.write('<br>');
+  document.write('<br>');
+  document.write('</p>');
+  document.write('</div>');
+  document.write('</body>');
+  document.SaveBufferToFile(diskmirror);
+
+  SplashProgress('Working...', 1);
+
+  document.Flash;
+
+  HideSplash;
+
+  Screen.Cursor := crDefault;
+end;
+
+procedure TMainForm.ShowTag(const tag: string);
+var
+  i, j: integer;
+  lst: TStringList;
+  pcs: string;
+  pi: TPieceInfo;
+  pci: TPieceColorInfo;
+  inv: TBrickInventory;
+  s1: string;
+  kp: THashStringList;
+  alltags: TStringList;
+  idx: integer;
+  tagpieces: TStringList;
+begin
+  lst := TStringList.Create;
+
+  inv := TBrickInventory.Create;
+
+  alltags := db.AllTags;
+  idx := alltags.IndexOf(tag);
+  if idx >= 0 then
+  begin
+    tagpieces := alltags.Objects[idx] as TStringList;
+    if tagpieces <> nil then
+      for i := 0 to tagpieces.Count - 1 do
+      begin
+        pci := tagpieces.Objects[i] as TPieceColorInfo;
+        lst.Add(tagpieces.Strings[i]);
+        inv.AddLoosePartFast(pci.piece, pci.color, 1, pci);
+      end;
+  end;
+
+  lst.Sort;
+  DrawPieceList('Tag: "' + tag + '"', lst, SORT_NONE);
+  lst.Free;
+
+  s1 := basedefault + 'out\Tags\';
+  if not DirectoryExists(s1) then
+    ForceDirectories(s1);
+  s1 := s1 + 'Tag_' + MakePathString(tag);
+  inv.SaveLooseParts(s1 + '.txt');
+  s1 := s1 + '_wantedlist';
+  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  inv.Free;
+end;
+
 procedure TMainForm.ShowCategoryColors(const cat: integer);
 var
   inv: TBrickInventory;
@@ -6712,13 +6837,6 @@ begin
   Result := v2 - v1;
 end;
 
-const
-  SORT_NONE = 0;
-  SORT_PRICE_NEW = 1;
-  SORT_PRICE_USED = 2;
-  SORT_DATE_UPDATE = 3;
-  SORT_ITEMS_CINTEGER = 4;
-
 procedure TMainForm.DrawPieceList(const tit: string; const lst: TStringList;
   const sortorder: integer = 0; const extratit: string = '');
 var
@@ -7485,6 +7603,7 @@ var
   tmpyear: integer;
   tmpset: string;
   www: double;
+  taghtml: string;
 begin
   UpdateDismantaledsetsinv;
 
@@ -7507,6 +7626,7 @@ begin
 
   ayearcount := 0;
   stmp := '';
+  taghtml := '';
   if pci <> nil then
   begin
     if ayear < 0 then
@@ -7540,6 +7660,14 @@ begin
             stmp := '<br>Appears in ' + IntToStr(ayearcount) + ' set' + decide(ayearcount = 1, '', 's') + ' in year ' + IntToStr(ayear);
     if pci.code <> '' then
       stmp := stmp + '<br>(Lego Code="' + pci.code + '")';
+    if pci.tags <> nil then
+      if pci.tags.Count > 0 then
+      begin
+        taghtml := '<b>Tags: </b> ';
+        taghtml := taghtml + taglink(pci.tags.Strings[0]);
+        for i := 1 to pci.tags.Count - 1 do
+          taghtml := taghtml + ', ' + taglink(pci.tags.Strings[i]);
+      end;
   end;
 
   ytext := '';
@@ -7581,6 +7709,9 @@ begin
 
   if ytext <> '' then
     DrawHeadLine(ytext);
+
+  if taghtml <> '' then
+    DrawHeadLine(taghtml);
 
   DrawPriceguideEx(pcs, color, IncDay(Now, -30));
 
@@ -12832,6 +12963,10 @@ begin
   begin
     ShowColors;
   end
+  else if slink = 'tags' then
+  begin
+    ShowTags;
+  end
   else if slink = 'categories' then
   begin
     ShowCategories;
@@ -12870,6 +13005,11 @@ begin
   begin
     splitstring(slink, s1, s2, '/');
     ShowOrders(s2);
+  end
+  else if Pos1('showtag/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowTag(s2);
   end
   else if Pos1('compare2sets/', slink) then
   begin
@@ -15026,7 +15166,7 @@ begin
   rsTitle := 'Bricks Inventory';
   MessageBox(
     Handle,
-    PChar(Format('%s'#13#10'Version %s'#13#10#13#10'A tool for managing your brick collection.'#13#10'© 2014 - 2022, jvalavanis@gmail.com', [rsTitle, I_VersionBuilt])),
+    PChar(Format('%s'#13#10'Version %s'#13#10#13#10'A tool for managing your brick collection.'#13#10'© 2014 - 2023, jvalavanis@gmail.com', [rsTitle, I_VersionBuilt])),
     PChar(rsTitle),
     MB_OK or MB_ICONINFORMATION or MB_APPLMODAL);
 end;
@@ -19822,6 +19962,11 @@ begin
     Screen.Cursor := crDefault;
   end;
   ChDir(basedefault);
+end;
+
+function TMainForm.taglink(const tag: string): string;
+begin
+  Result := '<a href="showtag/' + tag + '">' + tag + '</a>';
 end;
 
 end.

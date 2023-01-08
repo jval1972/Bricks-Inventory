@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2019 by Jim Valavanis
+//  Copyright (C) 2014-2023 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -32,7 +32,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, Buttons;
+  Dialogs, StdCtrls, ExtCtrls, Buttons, ComCtrls;
 
 type
   TEditPieceForm = class(TForm)
@@ -41,8 +41,6 @@ type
     NumPiecesEdit: TEdit;
     SpeedButton1: TSpeedButton;
     SpeedButton2: TSpeedButton;
-    Label3: TLabel;
-    Memo1: TMemo;
     Button1: TButton;
     Button2: TButton;
     Label4: TLabel;
@@ -70,10 +68,18 @@ type
     WeightLabel: TLabel;
     WeightEdit: TEdit;
     UpdateWeightSpeedButton: TSpeedButton;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    Label3: TLabel;
     ReadyListLabel: TLabel;
     RemoveReadyListSpeedButton: TSpeedButton;
     AddReadyListSpeedButton: TSpeedButton;
+    Memo1: TMemo;
     NumReadyEdit: TEdit;
+    TabSheet2: TTabSheet;
+    TagsListBox: TListBox;
+    AddTagButton: TButton;
+    RemoveTagButton: TButton;
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -90,6 +96,8 @@ type
     procedure NumReadyEditKeyPress(Sender: TObject; var Key: Char);
     procedure AddReadyListSpeedButtonClick(Sender: TObject);
     procedure RemoveReadyListSpeedButtonClick(Sender: TObject);
+    procedure AddTagButtonClick(Sender: TObject);
+    procedure RemoveTagButtonClick(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -128,6 +136,10 @@ var
   initialweight: string;
   oldreadylistqty: integer;
   newreadylistqty: integer;
+  oldtags: TStringList;
+  newtags: TStringList;
+  i: integer;
+  tagchange: boolean;
 begin
   Result := False;
   if Trim(apart) = '' then
@@ -214,6 +226,13 @@ begin
     PieceToImage(f.Image1, part, color);
     if pci <> nil then
     begin
+      oldtags := TStringList.Create;
+      oldtags.Text := pci.tags.Text;
+      oldtags.Sorted := True;
+
+      for i := 0 to oldtags.Count - 1 do
+        f.TagsListBox.Items.Add(oldtags.Strings[i]);
+
       initialcode := pci.code;
       f.PartCodeEdit.Text := initialcode;
 
@@ -287,10 +306,39 @@ begin
             BI_SetQtyToReadyList(part, color, newreadylistqty, S_READYLIST_01);
 
           db.CrawlerPriorityPart(part, color);
+
+          newtags := TStringList.Create;
+
+          for i := 0 to f.TagsListBox.Items.Count - 1 do
+            newtags.Add(f.TagsListBox.Items.Strings[i]);
+          newtags.Sorted := True;
+
+          tagchange := false;
+
+          for i := 0 to oldtags.Count - 1 do
+            if newtags.IndexOf(oldtags.Strings[i]) < 0 then
+            begin
+              db.RemovePieceTag(pci, oldtags.Strings[i]);
+              tagchange := True;
+            end;
+
+          for i := 0 to newtags.Count - 1 do
+            if oldtags.IndexOf(newtags.Strings[i]) < 0 then
+            begin
+              db.AddPieceTag(pci, newtags.Strings[i]);
+              tagchange := True;
+            end;
+
+          if tagchange then
+            db.SaveTags;
+
+          newtags.Free;
+
         finally
           Screen.Cursor := crDefault;
         end;
       end;
+      oldtags.Free;
     end;
   finally
     f.Free;
@@ -567,6 +615,8 @@ begin
   partcolor := 0;
   partname := '';
   YearEdit.Text := '0';
+  PageControl1.ActivePageIndex := 0;
+  TagsListBox.Clear;
 end;
 
 procedure TEditPieceForm.EditBLLinkSpeedButtonClick(Sender: TObject);
@@ -633,6 +683,37 @@ begin
       num := 0;
     NumReadyEdit.Text := itoa(num);
   end;
+end;
+
+procedure TEditPieceForm.AddTagButtonClick(Sender: TObject);
+var
+  newtag: string;
+  idx: integer;
+begin
+  newtag := '';
+  if InputQuery(Caption, 'Add tag', newtag) then
+  begin
+    if TagsListBox.Items.IndexOf(newtag) < 0 then
+    begin
+      idx := TagsListBox.Items.Add(newtag);
+      TagsListBox.ItemIndex := idx;
+    end
+    else
+      MessageBeep(MB_ICONERROR);
+  end;
+end;
+
+procedure TEditPieceForm.RemoveTagButtonClick(Sender: TObject);
+var
+  idx: integer;
+begin
+  idx := TagsListBox.ItemIndex;
+  if not IsIntegerInRange(idx, 0, TagsListBox.Items.Count - 1) then
+  begin
+    MessageBeep(MB_ICONERROR);
+    Exit;
+  end;
+  TagsListBox.Items.Delete(idx);
 end;
 
 end.

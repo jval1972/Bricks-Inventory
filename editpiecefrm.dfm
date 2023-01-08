@@ -1,10 +1,10 @@
 object EditPieceForm: TEditPieceForm
-  Left = 430
-  Top = 172
+  Left = 375
+  Top = 138
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Edit Piece'
-  ClientHeight = 561
+  ClientHeight = 623
   ClientWidth = 548
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -606,19 +606,6 @@ object EditPieceForm: TEditPieceForm
     ParentFont = False
     OnClick = SpeedButton2Click
   end
-  object Label3: TLabel
-    Left = 24
-    Top = 344
-    Width = 54
-    Height = 16
-    Caption = 'Storage: '
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
   object Label4: TLabel
     Left = 272
     Top = 100
@@ -835,48 +822,6 @@ object EditPieceForm: TEditPieceForm
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
     OnClick = UpdateWeightSpeedButtonClick
   end
-  object ReadyListLabel: TLabel
-    Left = 24
-    Top = 528
-    Width = 83
-    Height = 16
-    Caption = 'In Ready List: '
-    FocusControl = NumReadyEdit
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-  end
-  object RemoveReadyListSpeedButton: TSpeedButton
-    Left = 272
-    Top = 528
-    Width = 23
-    Height = 22
-    Caption = '-'
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    OnClick = RemoveReadyListSpeedButtonClick
-  end
-  object AddReadyListSpeedButton: TSpeedButton
-    Left = 248
-    Top = 528
-    Width = 23
-    Height = 22
-    Caption = '+'
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    OnClick = AddReadyListSpeedButtonClick
-  end
   object NumPiecesEdit: TEdit
     Left = 128
     Top = 312
@@ -894,24 +839,9 @@ object EditPieceForm: TEditPieceForm
     Text = '0'
     OnKeyPress = NumPiecesEditKeyPress
   end
-  object Memo1: TMemo
-    Left = 128
-    Top = 344
-    Width = 297
-    Height = 177
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    ScrollBars = ssBoth
-    TabOrder = 9
-    WordWrap = False
-  end
   object Button1: TButton
-    Left = 448
-    Top = 464
+    Left = 456
+    Top = 536
     Width = 75
     Height = 25
     Caption = 'OK'
@@ -923,11 +853,11 @@ object EditPieceForm: TEditPieceForm
     Font.Style = []
     ModalResult = 1
     ParentFont = False
-    TabOrder = 12
+    TabOrder = 10
   end
   object Button2: TButton
-    Left = 448
-    Top = 496
+    Left = 456
+    Top = 568
     Width = 75
     Height = 25
     Cancel = True
@@ -939,7 +869,7 @@ object EditPieceForm: TEditPieceForm
     Font.Style = []
     ModalResult = 2
     ParentFont = False
-    TabOrder = 13
+    TabOrder = 11
   end
   object Panel1: TPanel
     Left = 224
@@ -953,7 +883,7 @@ object EditPieceForm: TEditPieceForm
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 10
+    TabOrder = 9
   end
   object AliasEdit: TEdit
     Left = 128
@@ -1023,7 +953,7 @@ object EditPieceForm: TEditPieceForm
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ParentFont = False
-    TabOrder = 14
+    TabOrder = 12
     object Image1: TImage
       Left = 0
       Top = 0
@@ -1059,7 +989,7 @@ object EditPieceForm: TEditPieceForm
     Font.Name = 'MS Sans Serif'
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 15
+    TabOrder = 13
   end
   object YearEdit: TEdit
     Left = 128
@@ -1109,21 +1039,144 @@ object EditPieceForm: TEditPieceForm
     TabOrder = 7
     OnKeyPress = WeightEditKeyPress
   end
-  object NumReadyEdit: TEdit
-    Left = 128
-    Top = 528
-    Width = 121
-    Height = 24
-    BiDiMode = bdLeftToRight
-    Font.Charset = GREEK_CHARSET
-    Font.Color = clBlack
+  object PageControl1: TPageControl
+    Left = 24
+    Top = 344
+    Width = 417
+    Height = 257
+    ActivePage = TabSheet2
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
     Font.Height = -13
-    Font.Name = 'MS Sans Serif'
+    Font.Name = 'Tahoma'
     Font.Style = []
-    ParentBiDiMode = False
     ParentFont = False
-    TabOrder = 11
-    Text = '0'
-    OnKeyPress = NumReadyEditKeyPress
+    TabOrder = 14
+    object TabSheet1: TTabSheet
+      Caption = 'Repository'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      object Label3: TLabel
+        Left = 8
+        Top = 13
+        Width = 54
+        Height = 16
+        Caption = 'Storage: '
+        Font.Charset = GREEK_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+      end
+      object ReadyListLabel: TLabel
+        Left = 8
+        Top = 197
+        Width = 89
+        Height = 16
+        Caption = 'In Ready List: '
+        FocusControl = NumReadyEdit
+        Font.Charset = GREEK_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+      end
+      object RemoveReadyListSpeedButton: TSpeedButton
+        Left = 256
+        Top = 199
+        Width = 23
+        Height = 22
+        Caption = '-'
+        Font.Charset = GREEK_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+        OnClick = RemoveReadyListSpeedButtonClick
+      end
+      object AddReadyListSpeedButton: TSpeedButton
+        Left = 232
+        Top = 199
+        Width = 23
+        Height = 22
+        Caption = '+'
+        Font.Charset = GREEK_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+        OnClick = AddReadyListSpeedButtonClick
+      end
+      object Memo1: TMemo
+        Left = 72
+        Top = 12
+        Width = 321
+        Height = 173
+        Font.Charset = GREEK_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+        ScrollBars = ssBoth
+        TabOrder = 0
+        WordWrap = False
+      end
+      object NumReadyEdit: TEdit
+        Left = 104
+        Top = 197
+        Width = 121
+        Height = 24
+        BiDiMode = bdLeftToRight
+        Font.Charset = GREEK_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentBiDiMode = False
+        ParentFont = False
+        TabOrder = 1
+        Text = '0'
+        OnKeyPress = NumReadyEditKeyPress
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'Tags'
+      ImageIndex = 1
+      object TagsListBox: TListBox
+        Left = 16
+        Top = 8
+        Width = 233
+        Height = 209
+        ItemHeight = 16
+        TabOrder = 0
+      end
+      object AddTagButton: TButton
+        Left = 280
+        Top = 8
+        Width = 75
+        Height = 25
+        Caption = 'Add...'
+        TabOrder = 1
+        OnClick = AddTagButtonClick
+      end
+      object RemoveTagButton: TButton
+        Left = 280
+        Top = 48
+        Width = 75
+        Height = 25
+        Caption = 'Remove'
+        TabOrder = 2
+        OnClick = RemoveTagButtonClick
+      end
+    end
   end
 end

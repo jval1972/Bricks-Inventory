@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2019 by Jim Valavanis
+//  Copyright (C) 2014-2023 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -512,6 +512,7 @@ type
     fparts: TStringList;
     {$IFNDEF CRAWLER}
     fstorage: TStringList;
+    ftags: TStringList;
     {$ENDIF}
     fdate: TDateTime;
     fcrawlerlink: string;
@@ -567,6 +568,10 @@ type
     procedure UpdatePartYears(const y: integer = -1);
     {$ENDIF}
     {$IFNDEF CRAWLER}
+    function AddTag(const tag: string): boolean;
+    function RemoveTag(const tag: string): boolean;
+    {$ENDIF}
+    {$IFNDEF CRAWLER}
     function PG_nTimesSoldAt(const at: TDateTime): integer;
     function PG_nTotalQtyAt(const at: TDateTime): integer;
     function PG_nMinPriceAt(const at: TDateTime): double;
@@ -611,6 +616,7 @@ type
     property parts: TStringList read fparts;
     {$IFNDEF CRAWLER}
     property storage: TStringList read fstorage;
+    property tags: TStringList read ftags;
     {$ENDIF}
     property Hash: LongWord read fhash;
     {$IFNDEF CRAWLER}
@@ -740,6 +746,7 @@ type
     {$IFNDEF CRAWLER}
     fstorage: TStringList;
     fbasemolds: TStringList;
+    falltags: TStringList;
     {$ENDIF}
     fstubpieceinfo: TPieceInfo;
     fcurrencies: TCurrency;
@@ -768,6 +775,7 @@ type
     {$IFNDEF CRAWLER}
     procedure InitYearTable;
     procedure InitBaseMolds;
+    procedure InitTags;
     procedure InitRelationShips;
     {$ENDIF}
     procedure InitPieces;
@@ -934,6 +942,11 @@ type
     function AddMoldColor(const spart: string; const color: integer): boolean;
     function AddMoldSet(const spart: string): boolean;
     {$ENDIF}
+    {$IFNDEF CRAWLER}
+    procedure AddPieceTag(const pci: TPieceColorInfo; const tag: string);
+    procedure RemovePieceTag(const pci: TPieceColorInfo; const tag: string);
+    procedure SaveTags;
+    {$ENDIF}
     function GetMoldKnownColors(const spart: string): TDNumberList;
     function GetMoldNumColors(const spart: string): integer;
     function GetMoldNumNormalPartColors(const spart: string): integer;
@@ -1029,6 +1042,7 @@ type
     {$IFNDEF CRAWLER}
     property maximumcolors: integer read fmaximumcolors;
     property basemolds: TStringList read fbasemolds;
+    property AllTags: TStringList read falltags;
     {$ENDIF}
     {$IFDEF CRAWLER}
     property crawlerpriority: TStringList read fcrawlerpriority;
@@ -5945,6 +5959,7 @@ begin
   fCrawlerCache := TStringList.Create;
   {$IFNDEF CRAWLER}
   fStorageBinsCache := TStringList.Create;
+  falltags := TStringList.Create;
   fbasemolds := TStringList.Create;
   {$ENDIF}
   ffixedblcolors := TStringList.Create;
@@ -6990,6 +7005,144 @@ begin
     Exit;
   end;
   Result := ChildMolds(base);
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+procedure TSetsDatabase.InitTags;
+var
+  sL: TStringList;
+  spart, scolor, stags, tag1: string;
+  i, j, idx: integer;
+  tmptags, piecetags: TStringList;
+  pci: TPieceColorInfo;
+begin
+  ClearList(falltags);
+
+  if not fexists(basedefault + 'db\db_tags.txt') then
+    exit;
+
+  sL := TStringList.Create;
+  sL.LoadFromFile(basedefault + 'db\db_tags.txt');
+  if sL.Count = 0 then
+  begin
+    sL.Free;
+    Exit;
+  end;
+
+  if sL.Strings[0] <> 'Part,Color,Tags' then
+  begin
+    sL.Free;
+    Exit;
+  end;
+
+  for i := 1 to sL.Count - 1 do
+  begin
+    splitstring(sL.Strings[i], spart, scolor, stags, ',');
+    if stags <> '' then
+    begin
+      pci := PieceColorInfo(spart, atoi(scolor));
+      if pci <> nil then
+      begin
+        tmptags := string2stringlist(stags, ',');
+        for j := 0 to tmptags.Count - 1 do
+        begin
+          tag1 := tmptags.Strings[j];
+          if tag1 <> '' then
+          begin
+            pci.AddTag(tag1);
+            idx := falltags.IndexOf(tag1);
+            if idx < 0 then
+            begin
+              piecetags := TStringList.Create;
+              falltags.AddObject(tag1, piecetags);
+            end
+            else
+              piecetags := falltags.Objects[idx] as TStringList;
+            piecetags.AddObject(spart + ',' + scolor, pci);
+          end;
+        end;
+        tmptags.Free;
+      end;
+    end;
+  end;
+
+  sL.Free;
+end;
+
+procedure TSetsDatabase.AddPieceTag(const pci: TPieceColorInfo; const tag: string);
+var
+  idx: integer;
+  piecetags: TStringList;
+  stmp: string;
+begin
+  if pci = nil then
+    exit;
+
+  pci.AddTag(tag);
+  idx := falltags.IndexOf(tag);
+  if idx < 0 then
+  begin
+    piecetags := TStringList.Create;
+    falltags.AddObject(tag, piecetags);
+  end
+  else
+    piecetags := falltags.Objects[idx] as TStringList;
+  stmp := pci.piece + ',' + itoa(pci.color);
+  if piecetags.IndexOf(stmp) < 0 then
+    piecetags.AddObject(stmp, pci);
+end;
+
+procedure TSetsDatabase.RemovePieceTag(const pci: TPieceColorInfo; const tag: string);
+var
+  idx, idx2: integer;
+  piecetags: TStringList;
+begin
+  if pci = nil then
+    exit;
+
+  pci.RemoveTag(tag);
+  idx := falltags.IndexOf(tag);
+  if idx < 0 then
+    Exit;
+
+  piecetags := falltags.Objects[idx] as TStringList;
+  idx2 := piecetags.IndexOf(pci.piece + ',' + itoa(pci.color));
+  if idx2 >= 0 then
+  begin
+    piecetags.Delete(idx2);
+    if piecetags.Count = 0 then
+    begin
+      piecetags.Free;
+      falltags.Delete(idx);
+    end;
+  end;
+end;
+
+procedure TSetsDatabase.SaveTags;
+var
+  sout: TStringList;
+  i, j: integer;
+  tag1: string;
+  piecetags: TStringList;
+begin
+  sout := TStringList.Create;
+  try
+    sout.Add('Part,Color,Tags');
+
+    for i := 0 to falltags.Count - 1 do
+    begin
+      tag1 := falltags.Strings[i];
+      piecetags := falltags.Objects[i] as TStringList;
+      for j := 0 to piecetags.Count - 1 do
+        sout.Add(piecetags.Strings[j] + ',' + tag1);
+    end;
+
+    backupfile(basedefault + 'db\db_tags.txt');
+    sout.SaveToFile(basedefault + 'db\db_tags.txt');
+  finally
+    sout.Free;
+  end;
 end;
 {$ENDIF}
 
@@ -8841,6 +8994,7 @@ begin
 
   {$IFNDEF CRAWLER}
   SaveStorage;
+  SaveTags;
   {$ENDIF}
 
   for i := -1 to MAXINFOCOLOR do
@@ -8861,6 +9015,7 @@ begin
   FreeList(fpiececodes);
   {$IFNDEF CRAWLER}
   FreeList(fbasemolds);
+  FreeList(falltags);
   {$ENDIF}
   fpieceshash.Free;
   fsetshash.Free;
@@ -16339,6 +16494,7 @@ begin
   fparts.Sorted := True;
   {$IFNDEF CRAWLER}
   fstorage := TStringList.Create;
+  ftags := TStringList.Create;
   {$ENDIF}
   FillChar(fpriceguide, SizeOf(priceguide_t), 0);
   FillChar(favailability, SizeOf(availability_t), 0);
@@ -16370,6 +16526,7 @@ begin
   FreeList(fparts);
   {$IFNDEF CRAWLER}
   FreeList(fstorage);
+  FreeList(ftags);
   {$ENDIF}
   inherited;
 end;
@@ -16672,6 +16829,33 @@ begin
     if fyear = 0 then
       fyear := flastsetyear;
   end;
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+function TPieceColorInfo.AddTag(const tag: string): boolean;
+begin
+  if ftags.IndexOf(tag) < 0 then
+  begin
+    ftags.Add(tag);
+    Result := True;
+  end
+  else
+    Result := False;
+end;
+
+function TPieceColorInfo.RemoveTag(const tag: string): boolean;
+var
+  idx: integer;
+begin
+  idx := ftags.IndexOf(tag);
+  if idx < 0 then
+  begin
+    Result := False;
+    Exit;
+  end;
+  ftags.Delete(idx);
+  Result := True;
 end;
 {$ENDIF}
 
@@ -17656,6 +17840,7 @@ begin
   InitYearTable;
   InitBaseMolds;
   InitRelationShips;
+  InitTags;
   {$ENDIF}
 
   Result := True;

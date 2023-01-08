@@ -200,3 +200,6 @@
 {$IFDEF Delphi1}
   {$DEFINE Delphi1Plus}
 {$ENDIF}
+
+{$define NoDebugInfo}
+

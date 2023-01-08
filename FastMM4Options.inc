@@ -27,7 +27,7 @@ Set the default options for FastMM here.
  application to gain from faster move routines, not just the memory manager. It
  is thus recommended that you use the Fastcode move library in conjunction with
  this memory manager and disable this option.}
-{$define UseCustomVariableSizeMoveRoutines}
+{.$define UseCustomVariableSizeMoveRoutines}
 
 {Enable this option to only install FastMM as the memory manager when the
  application is running inside the Delphi IDE. This is useful when you want
@@ -60,7 +60,7 @@ Set the default options for FastMM here.
  not properly set the IsMultiThread variable. Also set this option if you are
  going to share this memory manager between a single threaded application and a
  multi-threaded DLL.}
-{.$define AssumeMultiThreaded}
+{$define AssumeMultiThreaded}
 
 {Enable this option to not call Sleep when a thread contention occurs. This
  option will improve performance if the ratio of the number of active threads

@@ -595,6 +595,8 @@ function CharPos(const ch: Char; const s: string): integer;
 
 function Pos1(const subs, s: string): boolean;
 
+function MakePathString(const str: string): string;
+
 implementation
 
 procedure sprintf(var s: string; const Fmt: string; const Args: array of const);
@@ -3391,6 +3393,20 @@ begin
   end;
 
   Result := True;
+end;
+
+function MakePathString(const str: string): string;
+var
+  i: integer;
+begin
+  Result := '';
+  for i := 1 to Length(str) do
+  begin
+    if CharPos(str[i], 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_') > 0 then
+      Result := Result + str[i]
+    else
+      Result := Result + '(' + itoa(Ord(str[i])) + ')';
+  end;
 end;
 
 begin

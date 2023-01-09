@@ -2076,10 +2076,6 @@ begin
       begin
         s.Add(Format('%s,%d,%d', ['2446pr0001', bp.color, bp.num]));
       end
-      else if bp.part = '2446pr0023' then
-      begin
-        s.Add(Format('%s,%d,%d', ['2446pr23', bp.color, bp.num]));
-      end
       else if bp.part = '2446px4' then
       begin
         s.Add(Format('%s,%d,%d', ['2446pr0030', bp.color, bp.num]));
@@ -2684,7 +2680,6 @@ begin
       else if bp.part = '3754px1' then begin s.Add(Format('%s,%d,%d', ['3754pr0007', bp.color, bp.num])); end
       else if bp.part = '3754px2' then begin s.Add(Format('%s,%d,%d', ['3754pr0008', bp.color, bp.num])); end
       else if bp.part = '2350ap01' then begin s.Add(Format('%s,%d,%d', ['2350apr0001', bp.color, bp.num])); end
-      else if bp.part = '2446pr23' then begin s.Add(Format('%s,%d,%d', ['2446pr0023', bp.color, bp.num])); end
       else if bp.part = '3001pr1' then begin s.Add(Format('%s,%d,%d', ['3001pr0043', bp.color, bp.num])); end
       else if bp.part = '3004pt1' then begin s.Add(Format('%s,%d,%d', ['3004pr9993', bp.color, bp.num])); end
       else if bp.part = '3004px3' then begin s.Add(Format('%s,%d,%d', ['3004pr9993', bp.color, bp.num])); end
@@ -2829,6 +2824,58 @@ begin
       else if bp.part = 'bb0068' then begin s.Add(Format('%s,%d,%d', ['upn0119', bp.color, bp.num])); end
       else if bp.part = '973pr1623c01' then begin s.Add(Format('%s,%d,%d', ['973c22h01pr1623', bp.color, bp.num])); end
       else if bp.part = '973pb0680c01' then begin s.Add(Format('%s,%d,%d', ['973c22h01pr1623', bp.color, bp.num])); end
+      else if bp.part = '2446pb28' then begin s.Add(Format('%s,%d,%d', ['2446pr0007', bp.color, bp.num])); end
+      else if bp.part = '3822p02' then begin s.Add(Format('%s,%d,%d', ['3822pr0002', bp.color, bp.num])); end
+      else if bp.part = '3867p01' then begin s.Add(Format('%s,%d,%d', ['3867pr0001', bp.color, bp.num])); end
+      else if bp.part = '3934bpr0001' then begin s.Add(Format('%s,%d,%d', ['3943bpr0001', bp.color, bp.num])); end
+      else if bp.part = '3941p01' then begin s.Add(Format('%s,%d,%d', ['3941pr0002', bp.color, bp.num])); end
+      else if bp.part = '3960ps3' then begin s.Add(Format('%s,%d,%d', ['3960pr9976', bp.color, bp.num])); end
+      else if bp.part = '3960pb008' then begin s.Add(Format('%s,%d,%d', ['3960pr9976', bp.color, bp.num])); end
+      else if bp.part = '4066pb086' then begin s.Add(Format('%s,%d,%d', ['4066pr0146', bp.color, bp.num])); end
+      else if bp.part = '4088px4' then begin s.Add(Format('%s,%d,%d', ['4088pr0004', bp.color, bp.num])); end
+      else if bp.part = '41855pb02' then begin s.Add(Format('%s,%d,%d', ['41855pr0002', bp.color, bp.num])); end
+      else if bp.part = '41855pb03' then begin s.Add(Format('%s,%d,%d', ['41855pr0003', bp.color, bp.num])); end
+      else if bp.part = '41855px1' then begin s.Add(Format('%s,%d,%d', ['41855pr0012', bp.color, bp.num])); end
+      else if bp.part = '41861c01' then begin s.Add(Format('%s,%d,%d', ['42289', bp.color, bp.num])); end
+      else if bp.part = '4186p01' then begin s.Add(Format('%s,%d,%d', ['4186pr0001', bp.color, bp.num])); end
+      else if bp.part = '4215bpx15' then begin s.Add(Format('%s,%d,%d', ['4215bpr0003', bp.color, bp.num])); end
+      else if bp.part = '4215bpx26' then begin s.Add(Format('%s,%d,%d', ['4215bpr0005', bp.color, bp.num])); end
+      else if bp.part = '4222a' then begin s.Add(Format('%s,%d,%d', ['4222', bp.color, bp.num])); end
+      else if bp.part = '4346p60' then begin s.Add(Format('%s,%d,%d', ['4346pr0003', bp.color, bp.num])); end
+      else if bp.part = '4346pb07' then begin s.Add(Format('%s,%d,%d', ['4346pr0008', bp.color, bp.num])); end
+      else if bp.part = '4346ps1' then begin s.Add(Format('%s,%d,%d', ['4346pr0012', bp.color, bp.num])); end
+      else if bp.part = '4346px4' then begin s.Add(Format('%s,%d,%d', ['4346pr0012', bp.color, bp.num])); end
+      else if bp.part = '7049b' then begin s.Add(Format('%s,%d,%d', ['7049bc01', bp.color, bp.num])); end
+      else if bp.part = '75998pr0007' then begin s.Add(Format('%s,%d,%d', ['4493c01pr0011', bp.color, bp.num])); end
+      else if bp.part = '4493c01pb04' then begin s.Add(Format('%s,%d,%d', ['4493c01pr0011', bp.color, bp.num])); end
+      else if bp.part = '75998pr0005' then begin s.Add(Format('%s,%d,%d', ['4493c01pr0009', bp.color, bp.num])); end
+      else if bp.part = '4493c01pb05' then begin s.Add(Format('%s,%d,%d', ['4493c01pr0009', bp.color, bp.num])); end
+      else if bp.part = '973pr0100c01' then begin s.Add(Format('%s,%d,%d', ['973c28h03pr0100', bp.color, bp.num])); end
+      else if bp.part = '973pb1520c01' then begin s.Add(Format('%s,%d,%d', ['973c28h03pr0100', bp.color, bp.num])); end
+      else if bp.part = '4515p03' then begin s.Add(Format('%s,%d,%d', ['4515pr0002', bp.color, bp.num])); end
+      else if bp.part = '739p01' then begin s.Add(Format('%s,%d,%d', ['739pr0001', bp.color, bp.num])); end
+      else if bp.part = '4150p01' then begin s.Add(Format('%s,%d,%d', ['4150pr0014', bp.color, bp.num])); end
+      else if bp.part = '3678bpr0014a' then begin s.Add(Format('%s,%d,%d', ['3678bpr0014', bp.color, bp.num])); end
+      else if bp.part = '3678bpb030' then begin s.Add(Format('%s,%d,%d', ['3678bpr0014', bp.color, bp.num])); end
+      else if bp.part = '30118p6v' then begin s.Add(Format('%s,%d,%d', ['30118pr0001', bp.color, bp.num])); end
+      else if bp.part = '30118pb01' then begin s.Add(Format('%s,%d,%d', ['30118pr0001', bp.color, bp.num])); end
+      else if bp.part = '30119p6u' then begin s.Add(Format('%s,%d,%d', ['30119pr0001', bp.color, bp.num])); end
+      else if bp.part = '30119pb01' then begin s.Add(Format('%s,%d,%d', ['30119pr0001', bp.color, bp.num])); end
+      else if bp.part = '30180pb01' then begin s.Add(Format('%s,%d,%d', ['30180pr0002', bp.color, bp.num])); end
+      else if bp.part = '30180pb02' then begin s.Add(Format('%s,%d,%d', ['30180pr0003', bp.color, bp.num])); end
+      else if bp.part = '30182pb01' then begin s.Add(Format('%s,%d,%d', ['30182pr0001', bp.color, bp.num])); end
+      else if bp.part = '30185c03pb01' then begin s.Add(Format('%s,%d,%d', ['30185c03pr0001', bp.color, bp.num])); end
+      else if bp.part = '30249ps0' then begin s.Add(Format('%s,%d,%d', ['30249pr0001', bp.color, bp.num])); end
+      else if bp.part = '30249px1' then begin s.Add(Format('%s,%d,%d', ['30249pr0001', bp.color, bp.num])); end
+      else if bp.part = '30258p02' then begin s.Add(Format('%s,%d,%d', ['30258pr0002', bp.color, bp.num])); end
+      else if bp.part = '30258pb005' then begin s.Add(Format('%s,%d,%d', ['30258pr0002', bp.color, bp.num])); end
+      else if bp.part = '30293pb01' then begin s.Add(Format('%s,%d,%d', ['30293pat0002', bp.color, bp.num])); end
+      else if bp.part = '30363pb001' then begin s.Add(Format('%s,%d,%d', ['30363pr0001', bp.color, bp.num])); end
+      else if bp.part = '3070bp01' then begin s.Add(Format('%s,%d,%d', ['3070bpr0026', bp.color, bp.num])); end
+      else if bp.part = '3070bp02' then begin s.Add(Format('%s,%d,%d', ['3070bpr0027', bp.color, bp.num])); end
+      else if bp.part = '3070bp03' then begin s.Add(Format('%s,%d,%d', ['3070bpr0028', bp.color, bp.num])); end
+      else if bp.part = '4150p04' then begin s.Add(Format('%s,%d,%d', ['4150pr0016', bp.color, bp.num])); end
+      else if bp.part = '4150pb026' then begin s.Add(Format('%s,%d,%d', ['4150pr0028', bp.color, bp.num])); end
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;

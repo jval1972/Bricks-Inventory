@@ -2242,6 +2242,8 @@ begin
                   imgfound := DownloadFile('https://img.' + s_bricklink + '.com/ItemImage/GN/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.png', outfname);
                   if not imgfound then
                     imgfound := DownloadFile('https://img.' + s_bricklink + '.com/ItemImage/GL/' + BLCOLOR1 + '/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.png', outfname);
+                  if not imgfound then
+                    imgfound := DownloadFile('https://img.' + s_bricklink + '.com/ItemImage/GL/' + db.GetBLNetPieceName(db.BrickLinkPart(firstword(ExtractFileName(SRC), '.'))) + '.png', outfname);
                   didgear := True;
                 end;
               end

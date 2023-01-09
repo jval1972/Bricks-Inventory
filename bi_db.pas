@@ -996,6 +996,7 @@ type
     function UpdateMinifigAsPartFromBricklink(const pid: string; const donet: boolean = True): boolean;
     function QryNewInventoriesFromBricklink(const path: string; const check: string): TStringList;
     function QryNewSetAsPartFromBricklink(const path: string; const check: string): TStringList;
+    function QryNewCatalogsFromFile(const fname: string; const check: string): TStringList;
     function QryNewCatalogsFromBricklink(const path: string; const check: string): TStringList;
     function QryNewPartsFromBricklink(const path: string; const check: string; const savelink: string = ''): TStringList;
     function QryNewPartsFromFile(const fname: string; const check: string): TStringList;
@@ -10731,6 +10732,46 @@ end;
 {$ENDIF}
 
 {$IFNDEF CRAWLER}
+function TSetsDatabase.QryNewCatalogsFromFile(const fname: string; const check: string): TStringList;
+var
+  stmp: string;
+  p, i: integer;
+  htm, htm1: string;
+  sl: TStringList;
+  idx: integer;
+begin
+  Result := TStringList.Create;
+
+  sl := TStringList.Create;
+  S_LoadFromFile(sl, fname);
+  htm := sl.Text;
+  htm1 := UpperCase(htm);
+  sl.Free;
+  if fColors[CATALOGCOLORINDEX].knownpieces = nil then
+    fColors[CATALOGCOLORINDEX].knownpieces := THashStringList.Create;
+  while True do
+  begin
+    p := Pos(UpperCase(check), htm1);
+    if p <= 1 then
+      break;
+    stmp := '';
+    idx := p + length(check);
+    for i := p + length(check) to length(htm) do
+    begin
+      if htm[i] in ['"', '''', '>', '<'] then
+        break
+      else if htm[i] <> ' ' then
+        stmp := stmp + htm[i];
+      idx := i;
+    end;
+    if fColors[CATALOGCOLORINDEX].knownpieces.IndexOfUCS(stmp) < 0 then
+      if Result.IndexOf(stmp) < 0 then
+        Result.Add(stmp);
+    delete(htm, 1, idx);
+    htm1 := UpperCase(htm);
+  end;
+end;
+
 function TSetsDatabase.QryNewCatalogsFromBricklink(const path: string; const check: string): TStringList;
 var
   fname: string;

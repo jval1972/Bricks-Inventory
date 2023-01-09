@@ -588,7 +588,7 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
     Left = 0
     Top = 0
     Width = 315
-    Height = 201
+    Height = 225
     Align = alTop
     BevelOuter = bvNone
     Caption = ' '
@@ -725,7 +725,7 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
     end
     object Panel5: TPanel
       Left = 0
-      Top = 176
+      Top = 200
       Width = 315
       Height = 25
       Align = alBottom
@@ -853,12 +853,27 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
       Text = '1'
       OnKeyPress = EditKeyPress
     end
+    object Button8: TButton
+      Left = 32
+      Top = 176
+      Width = 177
+      Height = 25
+      Caption = 'Search from file...'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 11
+      OnClick = Button8Click
+    end
   end
   object Panel3: TPanel
     Left = 0
-    Top = 201
+    Top = 225
     Width = 315
-    Height = 321
+    Height = 297
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 8
@@ -868,7 +883,7 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
       Left = 8
       Top = 33
       Width = 299
-      Height = 280
+      Height = 256
       Align = alClient
       ScrollBars = ssBoth
       TabOrder = 0
@@ -911,5 +926,14 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
         ParentFont = False
       end
     end
+  end
+  object OpenDialog1: TOpenDialog
+    DefaultExt = 'html'
+    Filter = 
+      'Html files (*.html)|*.html|Htm files (*.htm)|*.htm|Text files (*' +
+      '.txt)|*.txt|All files (*.*)|*.*'
+    Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
+    Left = 248
+    Top = 184
   end
 end

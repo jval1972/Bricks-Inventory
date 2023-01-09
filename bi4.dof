@@ -113,9 +113,9 @@ RootDir=
 IncludeVerInfo=1
 AutoIncBuild=1
 MajorVer=4
-MinorVer=4
+MinorVer=5
 Release=1
-Build=340
+Build=342
 Debug=0
 PreRelease=0
 Special=0
@@ -126,13 +126,13 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=Jim Valavanis
 FileDescription=Bricks Inventory
-FileVersion=4.4.1.340
+FileVersion=4.5.1.342
 InternalName=BricksInventory
-LegalCopyright=Copyright 2014-2022 by Jim Valavanis
+LegalCopyright=Copyright 2014-2023 by Jim Valavanis
 LegalTrademarks=BricksInventory
 OriginalFilename=bi4.exe
 ProductName=Bricks Inventory
-ProductVersion=4.3
+ProductVersion=4.5
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;

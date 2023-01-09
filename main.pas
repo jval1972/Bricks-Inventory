@@ -5179,14 +5179,11 @@ end;
 
 procedure TMainForm.ShowTag(const tag: string);
 var
-  i, j: integer;
+  i: integer;
   lst: TStringList;
-  pcs: string;
-  pi: TPieceInfo;
   pci: TPieceColorInfo;
   inv: TBrickInventory;
   s1: string;
-  kp: THashStringList;
   alltags: TStringList;
   idx: integer;
   tagpieces: TStringList;

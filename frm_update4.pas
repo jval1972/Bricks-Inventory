@@ -60,6 +60,11 @@ type
     Button7: TButton;
     Label5: TLabel;
     Edit5: TEdit;
+    SearchNameButton: TButton;
+    Label8: TLabel;
+    Edit6: TEdit;
+    Label9: TLabel;
+    MaskEdit1: TEdit;
     procedure Button3Click(Sender: TObject);
     procedure EditKeyPress(Sender: TObject; var Key: Char);
     procedure Button4Click(Sender: TObject);
@@ -67,6 +72,7 @@ type
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
     procedure Button7Click(Sender: TObject);
+    procedure SearchNameButtonClick(Sender: TObject);
   private
     { Private declarations }
     procedure AddNewCatalogRec(const s: string);
@@ -557,6 +563,101 @@ begin
       if tmp.Count > 0 then
         Memo1.Lines.AddStrings(tmp);
       Memo1.Lines.Add(stmp);
+      Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+      Label7.Update;
+    end;
+  finally
+    tmp.Free;
+    allparts.Free;
+    Screen.Cursor := crDefault;
+  end;
+end;
+
+procedure TTUpdateNewPartsFromBLForm.SearchNameButtonClick(
+  Sender: TObject);
+var
+  i: integer;
+  b: boolean;
+  tmp: TStringList;
+  stmp: string;
+  num: integer;
+  newparts: TStringList;
+  allparts: TStringList;
+  dbUpieces: TStringList;
+  msk: string;
+begin
+  msk := Trim(MaskEdit1.Text);
+  if msk = '' then
+  begin
+    ShowMessage('Please specify the mask to search!');
+    try MaskEdit1.SetFocus; except end;
+    Exit;
+  end;
+
+  Screen.Cursor := crHourGlass;
+  tmp := TStringList.Create;
+  allparts := TStringList.Create;
+  try
+    b := CheckBox1.Checked;
+    num := atoi(Edit6.Text);
+    if num < 1 then
+      num := 1;
+    for i := 1 to num do
+    begin
+      newparts := db.QryPartsFromBricklinkEx(
+        'https://www.bricklink.com/v2/search.page?q=' + msk + '*#T=P&P=' + itoa(i),
+        'catalogitem.page?P=');
+      MergeSList(allparts, newparts);
+      newparts.Free;
+    end;
+    dbUpieces := TStringList.Create;
+    dbUpieces.AddStrings(db.AllPieces);
+    dbUpieces.Text := UpperCase(dbUpieces.Text);
+    allparts.Sorted := false;
+    for i := allparts.Count - 1 downto 0 do
+    begin
+      if db.AllPieces.IndexOf(allparts.Strings[i]) >= 0 then
+        allparts.Delete(i)
+      else if db.AllPieces.IndexOf(db.RebrickablePart(allparts.Strings[i])) >= 0 then
+        allparts.Delete(i)
+      else if dbUpieces.IndexOf(UpperCase(allparts.Strings[i])) >= 0 then
+        allparts.Delete(i)
+      else if dbUpieces.IndexOf(UpperCase(db.RebrickablePart(allparts.Strings[i]))) >= 0 then
+        allparts.Delete(i)
+    end;
+    dbUpieces.Free;
+
+    for i := 0 to allparts.Count - 1 do
+    begin
+      tmp.Add('refreshpiecefrombricklinknorefresh/' + allparts.Strings[i]);
+      if b then
+        tmp.Add('spiece/' + allparts.Strings[i]);
+      if (tmp.Count > 200) or ((tmp.Count > 30) and (random > 0.6)) then
+      begin
+        stmp := tmp.Strings[tmp.Count - 1];
+        tmp.Delete(tmp.Count - 1);
+        Memo1.Lines.AddStrings(tmp);
+        Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+        Label7.Update;
+        Memo1.Lines.Add(stmp);
+        Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+        Label7.Update;
+        tmp.Clear;
+      end;
+    end;
+    if tmp.Count > 0 then
+    begin
+      stmp := tmp.Strings[tmp.Count - 1];
+      tmp.Delete(tmp.Count - 1);
+      if tmp.Count > 0 then
+        Memo1.Lines.AddStrings(tmp);
+      Memo1.Lines.Add(stmp);
+      Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+      Label7.Update;
+    end;
+    if allparts.Count > 0 then
+    begin
+      Memo1.Lines.Add('AutoCorrectUnknownPieceYears');
       Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
       Label7.Update;
     end;

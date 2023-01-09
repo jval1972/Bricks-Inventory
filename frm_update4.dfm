@@ -1,10 +1,10 @@
 object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
   Left = 693
-  Top = 182
+  Top = 111
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Update New Parts (bricklink.com)'
-  ClientHeight = 590
+  ClientHeight = 661
   ClientWidth = 315
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -550,7 +550,7 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 522
+    Top = 593
     Width = 315
     Height = 68
     Align = alBottom
@@ -588,7 +588,7 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
     Left = 0
     Top = 0
     Width = 315
-    Height = 201
+    Height = 233
     Align = alTop
     BevelOuter = bvNone
     Caption = ' '
@@ -663,6 +663,28 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
       Font.Style = []
       ParentFont = False
     end
+    object Label8: TLabel
+      Left = 222
+      Top = 184
+      Width = 39
+      Height = 16
+      Caption = 'Level: '
+      FocusControl = Edit6
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label9: TLabel
+      Left = 136
+      Top = 184
+      Width = 31
+      Height = 13
+      Caption = 'Mask: '
+      FocusControl = MaskEdit1
+    end
     object Button3: TButton
       Left = 32
       Top = 16
@@ -725,7 +747,7 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
     end
     object Panel5: TPanel
       Left = 0
-      Top = 176
+      Top = 208
       Width = 315
       Height = 25
       Align = alBottom
@@ -853,12 +875,55 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
       Text = '1'
       OnKeyPress = EditKeyPress
     end
+    object SearchNameButton: TButton
+      Left = 32
+      Top = 176
+      Width = 97
+      Height = 25
+      Caption = 'Search Mask'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 11
+      OnClick = SearchNameButtonClick
+    end
+    object Edit6: TEdit
+      Left = 268
+      Top = 180
+      Width = 33
+      Height = 24
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 13
+      Text = '1'
+      OnKeyPress = EditKeyPress
+    end
+    object MaskEdit1: TEdit
+      Left = 172
+      Top = 180
+      Width = 33
+      Height = 24
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 12
+    end
   end
   object Panel3: TPanel
     Left = 0
-    Top = 201
+    Top = 233
     Width = 315
-    Height = 321
+    Height = 360
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 8
@@ -868,7 +933,7 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
       Left = 8
       Top = 33
       Width = 299
-      Height = 280
+      Height = 319
       Align = alClient
       ScrollBars = ssBoth
       TabOrder = 0

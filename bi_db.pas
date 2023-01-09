@@ -1000,6 +1000,7 @@ type
     function QryNewPartsFromBricklink(const path: string; const check: string; const savelink: string = ''): TStringList;
     function QryNewPartsFromFile(const fname: string; const check: string): TStringList;
     function QryPartsFromBricklink(const path: string; const check: string): TStringList;
+    function QryPartsFromBricklinkEx(const path: string; const check: string): TStringList;
     function UpdateSetAssetsFromBricklink(const s: string): boolean;
     function DownloadSetFromBricklink(const s: string; const typ: string = ''): boolean;
     function UpdateSet(const s: string; const data: string = ''): boolean;
@@ -1068,7 +1069,8 @@ implementation
 
 uses
   bi_system, bi_utils, bi_crawler, StrUtils, bi_priceadjust, bi_tmp, bi_globals,
-  UrlMon, bi_multithread, bi_cachefile{$IFNDEF CRAWLER}, DateUtils, bi_pghistory{$ENDIF};
+  UrlMon, bi_multithread, bi_cachefile{$IFNDEF CRAWLER}, DateUtils, bi_pghistory,
+  OleCtrls, SHDocVw, MSHTML{$ENDIF};
 
 function fixpartname(const spart: string): string;
 var
@@ -10791,6 +10793,73 @@ begin
   fname := I_NewTempFile('qnpfb' + itoa(random(10000)) + '.htm');
   if UrlDownloadToFile(nil, PChar(path), PChar(fname), 0, nil) <> 0 then
     Exit;
+
+  sl := TStringList.Create;
+  S_LoadFromFile(sl, fname);
+  stmp := StringReplace(sl.Text, '&nbsp;', ' ', [rfReplaceAll, rfIgnoreCase]);
+  htm := StringReplace(stmp, '&amp;', '&', [rfReplaceAll, rfIgnoreCase]);
+  htm1 := UpperCase(htm);
+  sl.Free;
+  while True do
+  begin
+    p := Pos(UpperCase(check), htm1);
+    if p <= 1 then
+      break;
+    stmp := '';
+    idx := p + length(check);
+    for i := p + length(check) to length(htm) do
+    begin
+      if htm[i] in ['"', '''', '>', '<', '&'] then
+        break
+      else if htm[i] <> ' ' then
+        stmp := stmp + htm[i];
+      idx := i;
+    end;
+    if Result.IndexOf(stmp) < 0 then
+      Result.Add(stmp);
+    delete(htm, 1, idx);
+    htm1 := UpperCase(htm);
+  end;
+  deletefile(fname);
+end;
+
+function TSetsDatabase.QryPartsFromBricklinkEx(const path: string; const check: string): TStringList;
+const
+  TIMEOUT_READYSTATE = 2000;
+var
+  web: TWebBrowser;
+  strm: TStringStream;
+  cnt: integer;
+  fname: string;
+  stmp: string;
+  p, i: integer;
+  htm, htm1: string;
+  sl: TStringList;
+  idx: integer;
+begin
+  Result := TStringList.Create;
+  fname := I_NewTempFile('qnpfb' + itoa(random(10000)) + '.htm');
+  web := TWebBrowser.Create(nil);
+  web.Navigate(path);
+  cnt := 0;
+  while web.ReadyState < READYSTATE_LOADED do
+  begin
+    Sleep(1);
+    inc(cnt);
+    if cnt >= TIMEOUT_READYSTATE then
+    begin
+      web.Free;
+      Exit;
+    end;
+  end;
+
+  strm := TStringStream.Create((web.Document as IHtmlDocument2).body.innerHTML);
+  try
+    SaveStringToFile(fname, strm.DataString);
+  finally
+    strm.Free;
+  end;
+  web.Free;
 
   sl := TStringList.Create;
   S_LoadFromFile(sl, fname);

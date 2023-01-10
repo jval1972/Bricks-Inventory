@@ -54,7 +54,7 @@ Version  Change
          Contact Email address corrected
 *)
 
-{.$D-} {Prevent Steppping into Move Code}
+{$D-} {Prevent Steppping into Move Code}
 
 {$DEFINE PatchSystemMove} {Enable Patching of System.Move}
 

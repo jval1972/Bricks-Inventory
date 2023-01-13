@@ -655,7 +655,7 @@ function PartTypeToPartTypeName(const pt: char): string;
 function PartTypeNameToPartType(const pn: string): char;
 
 const
-  CACHEDBHASHSIZE = $40000;
+  CACHEDBHASHSIZE = $80000;
   CACHEDBSTRINGSIZE = 16;
 
 type

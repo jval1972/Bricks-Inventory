@@ -564,7 +564,7 @@ object EditPieceForm: TEditPieceForm
     ParentFont = False
     WordWrap = True
   end
-  object Label2: TLabel
+  object NumPiecesLabel: TLabel
     Left = 24
     Top = 312
     Width = 76
@@ -1076,7 +1076,7 @@ object EditPieceForm: TEditPieceForm
       object ReadyListLabel: TLabel
         Left = 8
         Top = 197
-        Width = 89
+        Width = 83
         Height = 16
         Caption = 'In Ready List: '
         FocusControl = NumReadyEdit

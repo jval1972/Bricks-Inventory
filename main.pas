@@ -6909,6 +6909,8 @@ begin
     splitstring(lst.Strings[i], pcs, col, ',');
     cl := atoi(col);
     numpieces := inventory.LoosePartCount(pcs, cl);
+    if cl = -1 then
+      inc(numpieces, inventory.BuildSetCount(pcs));
     totpieces := totpieces + numpieces;
     document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
 
@@ -7065,6 +7067,8 @@ begin
     splitstring(lst.Strings[i], pcs, col, cursetid, ',');
     cl := atoi(col);
     numpieces := inventory.LoosePartCount(pcs, cl);
+    if cl = -1 then
+      inc(numpieces, inventory.BuildSetCount(pcs));
     totpieces := totpieces + numpieces;
     document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
 

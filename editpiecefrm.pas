@@ -37,7 +37,7 @@ uses
 type
   TEditPieceForm = class(TForm)
     Label1: TLabel;
-    Label2: TLabel;
+    NumPiecesLabel: TLabel;
     NumPiecesEdit: TEdit;
     SpeedButton1: TSpeedButton;
     SpeedButton2: TSpeedButton;
@@ -123,7 +123,7 @@ function EditPiece(const apart: string; const color: integer): boolean;
 var
   f: TEditPieceForm;
   pci: TPieceColorInfo;
-  num: integer;
+  num, num2: integer;
   newnum: integer;
   s: TStringList;
   initialalias: string;
@@ -140,6 +140,7 @@ var
   newtags: TStringList;
   i: integer;
   tagchange: boolean;
+  islikeset: Boolean;
 begin
   Result := False;
   if Trim(apart) = '' then
@@ -164,6 +165,7 @@ begin
     initialweight := f.WeightEdit.Text;
     if (color = -1) and (Pos('-', part) > 0) then
     begin
+      islikeset := True;
       f.Label1.Caption := db.SetDesc(part);
       if f.Label1.Caption = '' then
         f.Label1.Caption := db.PieceDesc(part);
@@ -185,6 +187,7 @@ begin
     end
     else
     begin
+      islikeset := False;
       f.Label1.Caption := db.PieceDesc(part);
       f.Label3.Visible := True;
       f.Label4.Visible := True;
@@ -254,7 +257,20 @@ begin
       initialstorage := pci.storage.Text;
       f.Memo1.Lines.Text := initialstorage;
       num := inventory.LoosePartCount(part, color);
-      f.NumPiecesEdit.Text := itoa(num);
+      if islikeset then
+        num2 := inventory.BuildSetCount(part)
+      else
+        num2 := 0;
+      if num <> 0 then
+      begin
+        f.NumPiecesEdit.Text := itoa(num);
+        f.NumPiecesLabel.Caption := 'Num Pieces: ';
+      end
+      else
+      begin
+        f.NumPiecesEdit.Text := itoa(num2);
+        f.NumPiecesLabel.Caption := 'Builted sets: ';
+      end;
       f.ShowModal;
       if f.ModalResult = mrOK then
       begin
@@ -274,7 +290,21 @@ begin
           if strupper(strtrim(f.NewNameEdit.Text)) <> strupper(strtrim(initnewname)) then
             db.SetNewPieceName(part, strtrim(f.NewNameEdit.Text));
           newnum := atoi(f.NumPiecesEdit.Text);
-          inventory.AddLoosePart(part, color, newnum - num);
+          if islikeset then
+          begin
+            if newnum > num2 then
+            begin
+              for i := num2 + 1 to newnum do
+                inventory.AddSet(part, False);
+            end
+            else if newnum < num2 then
+            begin
+              for i := newnum + 1 to num2 do
+                inventory.RemoveSet(part, False);
+            end;
+          end
+          else
+            inventory.AddLoosePart(part, color, newnum - num);
           pt := f.PartTypePanel.Caption;
           if Length(pt) = 1 then
             if pci.sparttype <> pt then

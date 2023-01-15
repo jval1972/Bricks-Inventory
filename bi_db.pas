@@ -92,6 +92,7 @@ const
 
 const
   MAXCATEGORIES = 2000;
+  CATEGORYPABCUP = 1997;
   CATEGORYLUGBULK = 1998;
   CATEGORYCUSTOMMINIFIGS = 1999;
 
@@ -194,6 +195,7 @@ type
     function RemoveLoosePartOrZeroOnOverflow(const part: string; color: integer; num: integer): boolean;
     procedure RemoveAllSets;
     function LoosePartCount(const part: string; color: integer): integer;
+    function BuildSetCount(const sset: string): integer;
     procedure AddSet(const setid: string; dismantaled: boolean);
     procedure GetSetInfo(const setid: string; const s: set_p);
     function RemoveSet(const setid: string; dismantaled: boolean): boolean;
@@ -4316,6 +4318,19 @@ begin
       inc(brick);
     end;
   end;
+end;
+
+function TBrickInventory.BuildSetCount(const sset: string): integer;
+var
+  i: Integer;
+begin
+  for i := fnumsets - 1 downto 0  do
+    if  fsets[i].setid = sset then
+    begin
+      Result := fsets[i].num;
+      Exit;
+    end;
+  Result := 0;
 end;
 
 procedure TBrickInventory.AddSet(const setid: string; dismantaled: boolean);

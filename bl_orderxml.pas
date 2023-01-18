@@ -844,6 +844,7 @@ function TXMLITEMTypeList.Insert(const Index: Integer): IXMLITEMType;
 begin
   Result := AddItem(Index) as IXMLITEMType;
 end;
+
 function TXMLITEMTypeList.Get_Item(Index: Integer): IXMLITEMType;
 begin
   Result := List[Index] as IXMLITEMType;

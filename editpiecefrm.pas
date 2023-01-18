@@ -141,6 +141,7 @@ var
   i: integer;
   tagchange: boolean;
   islikeset: Boolean;
+  editingset: boolean;
 begin
   Result := False;
   if Trim(apart) = '' then
@@ -163,7 +164,7 @@ begin
     else
       f.WeightEdit.Text := ftoadot(0.0);
     initialweight := f.WeightEdit.Text;
-    if (color = -1) and (Pos('-', part) > 0) then
+    if (color = -1) and (Pos('-', part) > 0) and (db.GetSetInventory(part) <> nil) then
     begin
       islikeset := True;
       f.Label1.Caption := db.SetDesc(part);
@@ -261,15 +262,22 @@ begin
         num2 := inventory.BuildSetCount(part)
       else
         num2 := 0;
+      editingset := false;
       if num <> 0 then
       begin
         f.NumPiecesEdit.Text := itoa(num);
         f.NumPiecesLabel.Caption := 'Num Pieces: ';
       end
-      else
+      else if (num2 <> 0) or islikeset then
       begin
+        editingset := true;
         f.NumPiecesEdit.Text := itoa(num2);
         f.NumPiecesLabel.Caption := 'Builted sets: ';
+      end
+      else
+      begin
+        f.NumPiecesEdit.Text := itoa(num);
+        f.NumPiecesLabel.Caption := 'Num Pieces: ';
       end;
       f.ShowModal;
       if f.ModalResult = mrOK then
@@ -290,7 +298,7 @@ begin
           if strupper(strtrim(f.NewNameEdit.Text)) <> strupper(strtrim(initnewname)) then
             db.SetNewPieceName(part, strtrim(f.NewNameEdit.Text));
           newnum := atoi(f.NumPiecesEdit.Text);
-          if islikeset then
+          if editingset then
           begin
             if newnum > num2 then
             begin

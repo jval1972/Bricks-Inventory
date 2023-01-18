@@ -122,7 +122,30 @@ uses
   frm_pdfinstructions in 'frm_pdfinstructions.pas' {ImportPDFForm},
   bi_imagerotate in 'bi_imagerotate.pas',
   buildinexcludes in 'buildinexcludes.pas',
-  bi_readylist in 'bi_readylist.pas';
+  bi_readylist in 'bi_readylist.pas',
+  bi_storage in 'bi_storage.pas',
+  DitherUnit in 'DitherUnit.pas',
+  FramBrwz in 'FramBrwz.pas',
+  FramView in 'framview.pas',
+  GDIPL2A in 'GDIPL2A.pas',
+  HtmlGif1 in 'htmlgif1.pas',
+  HTMLGif2 in 'HTMLGif2.pas',
+  Htmlsbs1 in 'Htmlsbs1.pas',
+  Htmlsubs in 'htmlsubs.pas',
+  HTMLUn2 in 'HTMLUn2.pas',
+  Htmlview in 'htmlview.pas',
+  MetaFilePrinter in 'MetaFilePrinter.pas',
+  pngextra in 'pngextra.pas',
+  pngimage in 'pngimage.pas',
+  PngImage1 in 'PngImage1.pas',
+  pnglang in 'pnglang.pas',
+  PNGZLIB1 in 'PNGZLIB1.pas',
+  Readhtml in 'Readhtml.pas',
+  StylePars in 'StylePars.pas',
+  StyleUn in 'StyleUn.pas',
+  URLSubs in 'URLSubs.pas',
+  vwPrint in 'vwPrint.pas',
+  zlibpas in 'zlibpas.pas';
 
 {$R *.res}
 

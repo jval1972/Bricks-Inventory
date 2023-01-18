@@ -2178,8 +2178,10 @@ begin
                       iname2[Length(iname2) - 0] := '0';
                       while Length(iname2) < 5 do
                         iname2 := '0' + iname2;
-                      if not DownloadJpgFileToPNG('http://lego.brickinstructions.com/' + iname2 + '/' + iname1 + '/001.jpg', outfname) then
-                        DownloadJpgFileToPNG('http://lego.brickinstructions.com/' + iname2 + '/' + iname1 + '/main.jpg', outfname);
+                      if not DownloadJpgFileToPNG('http://media.brickinstructions.com/' + iname2 + '/' + iname1 + '/001.jpg', outfname) then
+                        if not DownloadJpgFileToPNG('http://media.brickinstructions.com/' + iname2 + '/' + iname1 + '/main.jpg', outfname) then
+                          if not DownloadJpgFileToPNG('http://lego.brickinstructions.com/' + iname2 + '/' + iname1 + '/001.jpg', outfname) then
+                            DownloadJpgFileToPNG('http://lego.brickinstructions.com/' + iname2 + '/' + iname1 + '/main.jpg', outfname);
                     end;
                 end;
         end

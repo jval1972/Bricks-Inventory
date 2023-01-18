@@ -67,7 +67,7 @@ function GetInstructionPage(const aset: string; const pg: integer; var outfile: 
 var
   sset, sname1, sname2, sname3, snum: string;
   i, p: integer;
-  link: string;
+  link, link2: string;
   sl: TStringList;
   fname: string;
 begin
@@ -121,8 +121,12 @@ begin
     MkDir(basedefault + '9997\' + sset);
 
   link := '';
+  link2 := '';
   if UpperCase(host) = 'LEGO' then
-    link := 'http://lego.brickinstructions.com/' + sname1 + '/' + sname2 + '/' + snum + '.jpg'
+  begin
+    link := 'http://media.brickinstructions.com/' + sname1 + '/' + sname2 + '/' + snum + '.jpg';
+    link2 := 'http://lego.brickinstructions.com/' + sname1 + '/' + sname2 + '/' + snum + '.jpg';
+  end
   else if UpperCase(host) = 'LETSBUILDITAGAIN' then
     link := 'https://letsbuilditagain.com/instructions/' + sname2 + '/' + snum + '.jpg'
   else if UpperCase(host) = 'BRICKFACTORY' then
@@ -161,7 +165,7 @@ begin
   end;
 
   if link = '' then
-    link := 'http://lego.brickinstructions.com/' + sname1 + '/' + sname2 + '/' + snum + '.jpg';
+    link := 'http://media.brickinstructions.com/' + sname1 + '/' + sname2 + '/' + snum + '.jpg';
 
   if not forcelink then
     if failedlinks.IndexOf(link) >= 0 then
@@ -173,6 +177,17 @@ begin
   SplashProgress('Donwloading page #' + itoa(pg), -1);
 
   Result := DownloadFileImg(link, basedefault + outfile);
+  if not Result then
+    if UpperCase(host) = 'LEGO' then
+    begin
+      if snum = '000' then
+      begin
+        link := 'http://media.brickinstructions.com/' + sname1 + '/' + sname2 + '/main.jpg';
+        Result := DownloadFileImg(link, basedefault + outfile);
+      end;
+      if not Result then
+        Result := DownloadFileImg(link2, basedefault + outfile);
+    end;
   if Result then
     if not IsLikeJpeg(basedefault + outfile) then
     begin

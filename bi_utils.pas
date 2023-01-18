@@ -161,9 +161,12 @@ procedure S_FirstLine(const sl: TStringList; const line: string);
 
 function SortListAndFindFirstLeftMatch(const l: TStringList; const s: string): integer;
 
+function GetMemoryUsed: LongWord;
+
 implementation
 
 uses
+  FastMM4,
   bi_delphi, bi_db, jpeg, bi_pak, bi_tmp, URLMon, Clipbrd, pngimage, GIFImage,
   bi_globals, bi_cachefile, Forms, StdCtrls, Controls, bi_crawler, StrUtils;
 
@@ -1863,6 +1866,24 @@ begin
   l.sorted := True;
   if not FindListLeft(l, s, result) then
     result := -1;
+end;
+
+function GetMemoryUsed: LongWord;
+type
+  PSmallBlockTypeState = ^TSmallBlockTypeState;
+var
+  st: TMemoryManagerState;
+  sb: PSmallBlockTypeState;
+  i: integer;
+begin
+  GetMemoryManagerState(st);
+  result :=  st.TotalAllocatedMediumBlockSize
+           + st.TotalAllocatedLargeBlockSize;
+  for i := 0 to NumSmallBlockTypes - 1 do
+  begin
+    sb := @st.SmallBlockTypeStates[i];
+    result := result + sb.UseableBlockSize * sb.AllocatedBlockCount;
+  end;
 end;
 
 end.

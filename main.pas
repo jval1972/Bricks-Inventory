@@ -635,6 +635,7 @@ type
     procedure ShowColors;
     procedure ShowTags;
     procedure ShowTag(const tag: string);
+    procedure ShowTagInv(const tag: string);
     procedure ShowCategoryColors(const cat: integer);
     function HtmlDrawInvImgLink(const pcs: string; const color: integer;
       const pi: TPieceInfo): string;
@@ -5211,7 +5212,7 @@ begin
   end;
 
   lst.Sort;
-  DrawPieceList('Tag: "' + tag + '"', lst, SORT_NONE);
+  DrawPieceList('Tag: "' + '<a href="showtaginv/' + tag + '">' + tag + '</a>"<br>', lst, SORT_NONE);
   lst.Free;
 
   s1 := basedefault + 'out\Tags\';
@@ -5236,6 +5237,83 @@ begin
   inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
 
   inv.Free;
+end;
+
+procedure TMainForm.ShowTagInv(const tag: string);
+var
+  i: integer;
+  pci: TPieceColorInfo;
+  inv: TBrickInventory;
+  s1: string;
+  alltags: TStringList;
+  idx: integer;
+  tagpieces: TStringList;
+begin
+  Screen.Cursor := crHourGlass;
+
+  if domultipagedocuments then
+    document.NewMultiPageDocument('ShowInventoryForTag', tag);
+
+  document.write('<body background="splash.jpg">');
+  document.title('Inventory for tag "' + tag + '"');
+  DrawNavigateBar;
+
+  DrawHeadLine(Format('Inventory for tag "%s"',
+    [taglink(tag)]));
+
+  inv := TBrickInventory.Create;
+
+  alltags := db.AllTags;
+  idx := alltags.IndexOf(tag);
+  if idx >= 0 then
+  begin
+    tagpieces := alltags.Objects[idx] as TStringList;
+    if tagpieces <> nil then
+      for i := 0 to tagpieces.Count - 1 do
+      begin
+        pci := tagpieces.Objects[i] as TPieceColorInfo;
+        if pci.color = -1 then
+          inv.AddLoosePartFast(pci.piece, pci.color, inventory.loosepartcount(pci.piece, pci.color) + inventory.totalsetsbuilted(pci.piece), pci)
+        else
+          inv.AddLoosePartFast(pci.piece, pci.color, inventory.loosepartcount(pci.piece, pci.color), pci);
+      end;
+  end;
+
+  inv.DismandalAllSets;
+  DrawInventoryTable(inv);
+
+  s1 := basedefault + 'out\Tags\';
+  if not DirectoryExists(s1) then
+    ForceDirectories(s1);
+  s1 := s1 + 'TagInv_' + MakePathString(tag);
+  inv.SaveLooseParts(s1 + '.txt');
+  s1 := s1 + '_wantedlist';
+  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  document.write('<br>');
+  document.write('<br>');
+  document.write('</p>');
+  document.write('</div>');
+  document.write('</body>');
+  document.SaveBufferToFile(diskmirror);
+  document.Flash;
+
+  inv.Free;
+
+  Screen.Cursor := crDefault;
 end;
 
 procedure TMainForm.ShowCategoryColors(const cat: integer);
@@ -13025,6 +13103,11 @@ begin
   begin
     splitstring(slink, s1, s2, '/');
     ShowTag(s2);
+  end
+  else if Pos1('showtaginv/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowTagInv(s2);
   end
   else if Pos1('compare2sets/', slink) then
   begin

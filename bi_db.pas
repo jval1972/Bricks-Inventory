@@ -261,8 +261,8 @@ type
     function weightbycolor(const col: integer): double;
     function weightbycatcolor(const col: integer; const cat: integer): double;
     function totallooseparts: integer;
-    function totalsetsbuilted: integer;
-    function totalsetsdismantaled: integer;
+    function totalsetsbuilted(const asetid: string = ''): integer;
+    function totalsetsdismantaled(const asetid: string = ''): integer;
     function GetMoldList: TStringList;
     function GetDismandaledSets: TStringList;
     function GetHistoryStatsRec: brickstatshistory_t;
@@ -3606,22 +3606,40 @@ begin
     inc(Result, flooseparts[i].num);
 end;
 
-function TBrickInventory.totalsetsbuilted: integer;
+function TBrickInventory.totalsetsbuilted(const asetid: string = ''): integer;
 var
   i: integer;
 begin
   Result := 0;
-  for i := fnumsets - 1 downto 0 do
-    Result := Result + fsets[i].num;
+  if asetid = '' then
+  begin
+    for i := fnumsets - 1 downto 0 do
+      Result := Result + fsets[i].num;
+  end
+  else
+  begin
+    for i := fnumsets - 1 downto 0 do
+      if fsets[i].setid = asetid then
+        Result := Result + fsets[i].num;
+  end;
 end;
 
-function TBrickInventory.totalsetsdismantaled: integer;
+function TBrickInventory.totalsetsdismantaled(const asetid: string = ''): integer;
 var
   i: integer;
 begin
   Result := 0;
-  for i := fnumsets - 1 downto 0  do
-    Result := Result + fsets[i].dismantaled;
+  if asetid = '' then
+  begin
+    for i := fnumsets - 1 downto 0  do
+      Result := Result + fsets[i].dismantaled;
+  end
+  else
+  begin
+    for i := fnumsets - 1 downto 0 do
+      if fsets[i].setid = asetid then
+        Result := Result + fsets[i].dismantaled;
+  end;
 end;
 
 function TBrickInventory.GetMoldList: TStringList;

@@ -17860,7 +17860,7 @@ begin
       titstr := 'Molds with ' + itoa(mincolors) + ' known colors';
       if mincolors > 1 then
         tit := tit + '<a href="ShowMoldsWithNumColors/' + itoa(mincolors - 1) + '">Molds with ' + itoa(mincolors - 1) + ' known colors</a><br>';
-      tit := tit + tistr + '<br>';
+      tit := tit + titstr + '<br>';
       if mincolors < db.maximumcolors then
         tit := tit + '<a href="ShowMoldsWithNumColors/' + itoa(mincolors + 1) + '">Molds with ' + itoa(mincolors + 1) + ' known colors</a><br>';
     end;

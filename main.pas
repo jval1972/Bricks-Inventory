@@ -651,10 +651,12 @@ type
     procedure RefreshUnKnownPiecesWeight(const limit: integer);
     procedure RefreshUnKnownMinifigWeight(const limit: integer);
     function GetAPieceColor(pcs: string): integer;
-    procedure DrawMoldList(const tit: string; const lst: TStringList; const splitcolorflags: boolean; const donumlinks: boolean);
+    procedure DrawMoldList(const tit: string; const lst: TStringList; const splitcolorflags: boolean;
+      const donumlinks: boolean; const doctit: string = '');
     procedure DrawMoldListCatalog(const tit: string; const lst: TStringList; const year: integer; const catid: integer; const typ: string);
     procedure ShowCatalogList(const ltyp: string; const year: integer; const catid1: integer; const doall: boolean);
-    procedure DrawPieceList(const tit: string; const lst: TStringList; const sortorder: integer = 0; const extratit: string = '');
+    procedure DrawPieceList(const tit: string; const lst: TStringList; const sortorder: integer = 0;
+      const extratit: string = ''; const doctit: string = '');
     procedure DrawPieceListSet(const tit: string; const settit: string; const lst: TStringList);
     procedure DrawPieceListLugbulk(const tit: string; const lst: TStringList);
     procedure DrawPieceListLugbulkKnownCost(const tit: string; const lb: TLugBulk2017; const year: integer;
@@ -5212,7 +5214,7 @@ begin
   end;
 
   lst.Sort;
-  DrawPieceList('Tag: "' + '<a href="showtaginv/' + tag + '">' + tag + '</a>"<br>', lst, SORT_NONE);
+  DrawPieceList('Tag: "' + '<a href="showtaginv/' + tag + '">' + tag + '</a>"<br>', lst, SORT_NONE, '', 'Tag: "' + tag + '"');
   lst.Free;
 
   s1 := basedefault + 'out\Tags\';
@@ -6231,7 +6233,8 @@ begin
 
 end;
 
-procedure TMainForm.DrawMoldList(const tit: string; const lst: TStringList; const splitcolorflags: boolean; const donumlinks: boolean);
+procedure TMainForm.DrawMoldList(const tit: string; const lst: TStringList; const splitcolorflags: boolean;
+  const donumlinks: boolean; const doctit: string = '');
 var
   i: integer;
   pcs: string;
@@ -6246,7 +6249,10 @@ begin
     document.NewMultiPageDocument('DrawMoldList' + tit, lst.Text);
 
   document.write('<body background="splash.jpg">');
-  document.title('Molds');
+  if doctit = '' then
+    document.title('Molds')
+  else
+    document.title(doctit);
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -6916,8 +6922,8 @@ begin
   Result := v2 - v1;
 end;
 
-procedure TMainForm.DrawPieceList(const tit: string; const lst: TStringList;
-  const sortorder: integer = 0; const extratit: string = '');
+procedure TMainForm.DrawPieceList(const tit: string; const lst: TStringList; const sortorder: integer = 0;
+  const extratit: string = ''; const doctit: string = '');
 var
   i, cl: integer;
   col: string;
@@ -6944,7 +6950,10 @@ begin
     document.NewMultiPageDocument('DrawPieceList', tit + itoa(sortorder) + itoa(lst.count));
 
   document.write('<body background="splash.jpg">');
-  document.title('Piece list');
+  if doctit = '' then
+    document.title('Piece list')
+  else
+    document.title(doctit);
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -13409,6 +13418,7 @@ var
   inv: TBrickInventory;
   s1: string;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -13433,7 +13443,8 @@ begin
     end;
 
   lst.Sort;
-  DrawPieceList('Pieces with unknown weight', lst, SORT_NONE);
+  titstr := 'Pieces with unknown weight';
+  DrawPieceList(titstr, lst, SORT_NONE, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\PiecesUnknownWeight\';
@@ -13466,7 +13477,7 @@ var
   lst: TStringList;
   inv: TBrickInventory;
   ss: TSetExtraInfo;
-  s1: string;
+  s1, titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -13484,7 +13495,8 @@ begin
   end;
 
   lst.Sort;
-  DrawPieceList('Intructions with unknown weight', lst, SORT_NONE);
+  titstr := 'Intructions with unknown weight';
+  DrawPieceList(titstr, lst, SORT_NONE, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\InstructionsUnknownWeight\';
@@ -13517,7 +13529,7 @@ var
   lst: TStringList;
   inv: TBrickInventory;
   ss: TSetExtraInfo;
-  s1: string;
+  s1, titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -13535,7 +13547,8 @@ begin
   end;
 
   lst.Sort;
-  DrawPieceList('Original Boxes with unknown weight', lst, SORT_NONE);
+  titstr := 'Original Boxes with unknown weight';
+  DrawPieceList(titstr, lst, SORT_NONE, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\BoxesUnknownWeight\';
@@ -13584,6 +13597,7 @@ var
   nextstr, prevstr: string;
   nextx, prevx: integer;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -13640,7 +13654,8 @@ begin
     nextstr := '';
 
   lst.Sort;
-  DrawPieceList(prevstr + 'Used pieces with price below ' + itoa(x) + ' euro/Kgr' + nextstr, lst, SORT_PRICE_USED);
+  titstr := 'Used pieces with price below ' + itoa(x) + ' euro/Kgr';
+  DrawPieceList(prevstr + titstr + nextstr, lst, SORT_PRICE_USED, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\UsedPiecesbelow' + IntToStrzFill(4, x) + 'euroKgr\';
@@ -13682,6 +13697,7 @@ var
   nextstr, prevstr: string;
   nextx, prevx: integer;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -13741,7 +13757,8 @@ begin
     nextstr := '';
 
   lst.Sort;
-  DrawPieceList(prevstr + 'New pieces with price below ' + itoa(x) + ' euro/Kgr' + nextstr, lst, SORT_PRICE_NEW);
+  titstr := 'New pieces with price below ' + itoa(x) + ' euro/Kgr';
+  DrawPieceList(prevstr + titstr + nextstr, lst, SORT_PRICE_NEW, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\NewPiecesbelow' + IntToStrzFill(4, x) + 'euroKgr\';
@@ -15364,6 +15381,7 @@ var
   nextstr, prevstr: string;
   nextx, prevx: integer;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -15412,7 +15430,8 @@ begin
   nextstr := '<br><a href=UsedPiecesaboveeuroKgr/' + itoa(nextx) + '>Used pieces with price above ' + itoa(nextx) + ' euro/Kgr</a>';
 
   lst.Sort;
-  DrawPieceList(prevstr + 'Used pieces with price above ' + itoa(x) + ' euro/Kgr' + nextstr, lst, SORT_PRICE_USED);
+  titstr := 'Used pieces with price above ' + itoa(x) + ' euro/Kgr';
+  DrawPieceList(prevstr + titstr + nextstr, lst, SORT_PRICE_USED, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\UsedPiecesabove' + IntToStrzFill(4, x) + 'euroKgr\';
@@ -15455,6 +15474,7 @@ var
   nextstr, prevstr: string;
   nextx, prevx: integer;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -15507,7 +15527,8 @@ begin
   nextx := round(x * 1.25);
   nextstr := '<br><a href=NewPiecesaboveeuroKgr/' + itoa(nextx) + '>New pieces with price above ' + itoa(nextx) + ' euro/Kgr</a><br>';
 
-  DrawPieceList(prevstr + 'New pieces with price above ' + itoa(x) + ' euro/Kgr' + nextstr, lst, SORT_PRICE_NEW);
+  titstr := 'New pieces with price above ' + itoa(x) + ' euro/Kgr';
+  DrawPieceList(prevstr + titstr + nextstr, lst, SORT_PRICE_NEW, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\NewPiecesabove' + IntToStrzFill(4, x) + 'euroKgr\';
@@ -15782,7 +15803,7 @@ begin
   else if dused then
     dtit := dtit + '<br>(Used)';
 
-  DrawPieceList(sprev + stit + snext, lst, SORT_ITEMS_CINTEGER, dtit);
+  DrawPieceList(sprev + stit + snext, lst, SORT_ITEMS_CINTEGER, dtit, stit);
   FreeList(lst);
 
   s1 := basedefault + 'out\PriceGuideQry\';
@@ -15820,6 +15841,7 @@ var
   inv: TBrickInventory;
   s1: string;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -15851,7 +15873,8 @@ begin
     end;
 
   lst.Sort;
-  DrawPieceList('New pieces cheaper than Used', lst);
+  titstr := 'New pieces cheaper than Used';
+  DrawPieceList(titstr, lst, SORT_PRICE_NEW, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\NewPiecesCheaperUsed\';
@@ -15924,6 +15947,7 @@ var
   s1: string;
   sprev, snext: string;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -15957,7 +15981,8 @@ begin
   snext := '<a href="NewPiecesPriceAbove/' + Format('%2.4f', [x * 2]) + '">New pieces with price greater than ' + Format('%2.4f', [x * 2]) + ' euro</a>';
 
   lst.Sort;
-  DrawPieceList(sprev + '<br>' + 'New pieces with price greater than ' + Format('%2.4f', [x]) + ' euro' + '<br>' + snext, lst, SORT_PRICE_NEW);
+  titstr := 'New pieces with price greater than ' + Format('%2.4f', [x]) + ' euro';
+  DrawPieceList(sprev + '<br>' + titstr + '<br>' + snext, lst, SORT_PRICE_NEW, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\NewPiecesPriceAbove\';
@@ -15995,6 +16020,7 @@ var
   s1: string;
   sprev, snext: string;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -16028,7 +16054,8 @@ begin
   snext := '<a href="UsedPiecesPriceAbove/' + Format('%2.4f', [x * 2]) + '">Used pieces with price greater than ' + Format('%2.4f', [x * 2]) + ' euro</a>';
 
   lst.Sort;
-  DrawPieceList(sprev + '<br>' + 'Used pieces with price greater than ' + Format('%2.4f', [x]) + ' euro' + '<br>' + snext, lst, SORT_PRICE_USED);
+  titstr := 'Used pieces with price greater than ' + Format('%2.4f', [x]) + ' euro';
+  DrawPieceList(sprev + '<br>' + titstr + '<br>' + snext, lst, SORT_PRICE_USED, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\UsedPiecesPriceAbove\';
@@ -16066,6 +16093,7 @@ var
   s1: string;
   sprev, snext: string;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -16096,7 +16124,8 @@ begin
   snext := '<a href="NewPiecesPriceAboveEvaluated/' + Format('%2.4f', [x * 2]) + '">New pieces with evaluated price greater than ' + Format('%2.4f', [x * 2]) + ' euro</a>';
 
   lst.Sort;
-  DrawPieceList(sprev + '<br>' + 'New pieces with evaluated price greater than ' + Format('%2.4f', [x]) + ' euro' + '<br>' + snext, lst, SORT_PRICE_NEW);
+  titstr := 'New pieces with evaluated price greater than ' + Format('%2.4f', [x]) + ' euro';
+  DrawPieceList(sprev + '<br>' + titstr + '<br>' + snext, lst, SORT_PRICE_NEW, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\NewPiecesPriceAboveEvaluated\';
@@ -16134,6 +16163,7 @@ var
   s1: string;
   sprev, snext: string;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -16164,7 +16194,8 @@ begin
   snext := '<a href="UsedPiecesPriceAboveEvaluated/' + Format('%2.4f', [x * 2]) + '">Used pieces with evaluated price greater than ' + Format('%2.4f', [x * 2]) + ' euro</a>';
 
   lst.Sort;
-  DrawPieceList(sprev + '<br>' + 'Used pieces with evaluated price greater than ' + Format('%2.4f', [x]) + ' euro' + '<br>' + snext, lst, SORT_PRICE_USED);
+  titstr := 'Used pieces with evaluated price greater than ' + Format('%2.4f', [x]) + ' euro';
+  DrawPieceList(sprev + '<br>' + titstr + '<br>' + snext, lst, SORT_PRICE_USED, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\UsedPiecesPriceAboveEvaluated\';
@@ -16705,6 +16736,7 @@ var
   s1: string;
   prevstr, nextstr: string;
   kp: THashStringList;
+  titstr: string;
 begin
   inv := TBrickInventory.Create;
   if usemultithread then
@@ -16750,7 +16782,8 @@ begin
     nextstr := '';
 
   lst.Sort;
-  DrawPieceList(prevstr + 'Pieces discontinued at year ' + itoa(y) + nextstr, lst);
+  titstr := 'Pieces discontinued at year ' + itoa(y);
+  DrawPieceList(prevstr + titstr + nextstr, lst, SORT_NONE, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\PiecesDiscontinuedAtYear\';
@@ -16823,6 +16856,7 @@ var
   s1: string;
   prevstr, nextstr: string;
   kp: THashStringList;
+  titstr: string;
 begin
   inv := TBrickInventory.Create;
   if usemultithread then
@@ -16868,7 +16902,8 @@ begin
     nextstr := '';
 
   lst.Sort;
-  DrawPieceList(prevstr + 'Pieces first appeared at year ' + itoa(y) + nextstr, lst);
+  titstr := 'Pieces first appeared at year ' + itoa(y);
+  DrawPieceList(prevstr + titstr + nextstr, lst, SORT_NONE, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\PiecesNewAtYear\';
@@ -16916,6 +16951,7 @@ var
   s1: string;
   prevstr, nextstr: string;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -16952,7 +16988,8 @@ begin
     nextstr := '';
 
   lst.Sort;
-  DrawPieceList(prevstr + 'Pieces discontinued at year ' + itoa(y) + ' (Excluding variations)' + nextstr, lst);
+  titstr := 'Pieces discontinued at year ' + itoa(y) + ' (Excluding variations)';
+  DrawPieceList(prevstr + titstr + nextstr, lst, SORT_NONE, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\PiecesDiscontinuedAtYearExcludingVariations\';
@@ -16989,6 +17026,7 @@ var
   s1: string;
   prevstr, nextstr: string;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -17025,7 +17063,8 @@ begin
     nextstr := '';
 
   lst.Sort;
-  DrawPieceList(prevstr + 'Pieces first appeared at year ' + itoa(y) + ' (Excluding variations)' + nextstr, lst);
+  titstr := 'Pieces first appeared at year ' + itoa(y) + ' (Excluding variations)';
+  DrawPieceList(prevstr + titstr + nextstr, lst, SORT_NONE, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\PiecesNewAtYearExcludingVariations\';
@@ -17100,6 +17139,7 @@ var
   pci: TPieceColorInfo;
   cnt: integer;
   setid: string;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -17133,7 +17173,10 @@ begin
   if ntimes = 1 then
     DrawPieceListSet('Pieces of my inventory that appear only in 1 official set', 'Unique Set', lst)
   else
-    DrawPieceList('Pieces of my inventory that appear only in ' + itoa(ntimes) + ' official sets', lst);
+  begin
+    titstr := 'Pieces of my inventory that appear only in ' + itoa(ntimes) + ' official sets';
+    DrawPieceList(titstr, lst, SORT_NONE, '', titstr);
+  end;
   lst.Free;
 end;
 
@@ -17231,6 +17274,7 @@ var
   pcat: integer;
   prevstr, nextstr: string;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -17283,7 +17327,8 @@ begin
     nextstr := '';
 
   lst.Sort;
-  DrawPieceList(prevstr + 'Minifigure parts first appeared at year ' + itoa(y) + nextstr, lst);
+  titstr := 'Minifigure parts first appeared at year ' + itoa(y);
+  DrawPieceList(prevstr + titstr + nextstr, lst, SORT_NONE, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\PiecesNewAtYear_Minifigure\';
@@ -17323,6 +17368,7 @@ var
   pcat: integer;
   prevstr, nextstr: string;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -17374,7 +17420,8 @@ begin
     nextstr := '';
 
   lst.Sort;
-  DrawPieceList(prevstr + 'Minifigure parts discontinued at year ' + itoa(y) + nextstr, lst);
+  titstr := 'Minifigure parts discontinued at year ' + itoa(y);
+  DrawPieceList(prevstr + titstr + nextstr, lst, SORT_NONE, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\MinifigurePiecesDiscontinuedAtYear\';
@@ -17581,7 +17628,7 @@ var
   ffmt: string;
   ffmt_prev: string;
   ffmt_next: string;
-  title: string;
+  title, titstr: string;
   kp: THashStringList;
 begin
   lst := TStringList.Create;
@@ -17616,12 +17663,13 @@ begin
   ffmt := Format('%2.3f', [factor]);
   ffmt_prev := Format('%2.3f', [factor * 0.8]);
   ffmt_next := Format('%2.3f', [factor * 1.25]);
+  titstr := 'New pieces ' + ffmt + ' X more expensive than used';
   title := '<a href=NewPiecesMuchMoreExpensiveThanUsed/' + ffmt_prev + '>New pieces ' + ffmt_prev + ' X more expensive than used</a><br>' +
-           'New pieces ' + ffmt + ' X more expensive than used<br>' +
+           titstr + '<br>' +
            '<a href=NewPiecesMuchMoreExpensiveThanUsed/' + ffmt_next + '>New pieces ' + ffmt_next + ' X more expensive than used</a>';
 
   lst.Sort;
-  DrawPieceList(title, lst);
+  DrawPieceList(title, lst, SORT_NONE, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\NewPiecesMuchMoreExpensiveThanUsed\';
@@ -17735,6 +17783,7 @@ var
   cnt: integer;
   step: integer;
   donumlinks: boolean;
+  titstr: string;
 begin
   Screen.Cursor := crHourglass;
   cmolds := TStringList.Create;
@@ -17798,25 +17847,27 @@ begin
     donumlinks := True;
     if maxcolors = MAXINT then
     begin
+      titstr := 'Molds with more than ' + itoa(mincolors) + ' known colors';
       if mincolors > 1 then
-        tit := tit + '<a href="ShowMoldsWithMoreThanColors/' + itoa(mincolors - 1) + '">Molds with more than ' + itoa(mincolors - 1) + ' known colors</a><br>';
-      tit := tit + 'Molds with more than ' + itoa(mincolors) + ' known colors<br>';
+        tit := tit + '<a href="ShowMoldsWithMoreThanColors/' + itoa(mincolors - 1) + '">' + titstr + ' known colors</a><br>';
+      tit := tit + titstr + '<br>';
       if mincolors < db.maximumcolors then
         tit := tit + '<a href="ShowMoldsWithMoreThanColors/' + itoa(mincolors + 1) + '">Molds with more than ' + itoa(mincolors + 1) + ' known colors</a><br>';
     end
     else if mincolors = maxcolors then
     begin
       donumlinks := False;
+      titstr := 'Molds with ' + itoa(mincolors) + ' known colors';
       if mincolors > 1 then
         tit := tit + '<a href="ShowMoldsWithNumColors/' + itoa(mincolors - 1) + '">Molds with ' + itoa(mincolors - 1) + ' known colors</a><br>';
-      tit := tit + 'Molds with ' + itoa(mincolors) + ' known colors<br>';
+      tit := tit + tistr + '<br>';
       if mincolors < db.maximumcolors then
         tit := tit + '<a href="ShowMoldsWithNumColors/' + itoa(mincolors + 1) + '">Molds with ' + itoa(mincolors + 1) + ' known colors</a><br>';
     end;
 
     if mincolors <> maxcolors then
       cmolds.CustomSort(sortmoldlist_numcolors);
-    DrawMoldList(tit, cmolds, False, donumlinks);
+    DrawMoldList(tit, cmolds, False, donumlinks, titstr);
 
   finally
     cmolds.Free;
@@ -17827,87 +17878,93 @@ end;
 procedure TMainForm.ShowChildMolds(const basepcs: string);
 var
   cmolds: TStringList;
-  linkstr: string;
+  linkstr, titstr: string;
 begin
   cmolds := db.ChildMolds(basepcs);
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  titstr := 'Child molds for ' + basepcs;
   if cmolds = nil then
   begin
     cmolds := TStringList.Create;
-    DrawMoldList('No child molds found for ' + linkstr, cmolds, False, False);
+    DrawMoldList('No child molds found for ' + linkstr, cmolds, False, False, titstr);
     cmolds.Free;
   end
   else
-    DrawMoldList('Child molds for ' + linkstr, cmolds, False, False);
+    DrawMoldList('Child molds for ' + linkstr, cmolds, False, False, titstr);
 end;
 
 procedure TMainForm.ShowFamilyMolds(const basepcs: string);
 var
   cmolds: TStringList;
-  linkstr: string;
+  linkstr, titstr: string;
 begin
   cmolds := db.FamilyMolds(basepcs);
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  titstr := 'Variations and/or other prints for ' + basepcs;
   if cmolds = nil then
   begin
     cmolds := TStringList.Create;
-    DrawMoldList('No variations and/or other prints for ' + linkstr, cmolds, False, False);
+    DrawMoldList('No variations and/or other prints for ' + linkstr, cmolds, False, False, titstr);
     cmolds.Free;
   end
   else
-    DrawMoldList('Variations and/or other prints for ' + linkstr, cmolds, False, False);
+    DrawMoldList('Variations and/or other prints for ' + linkstr, cmolds, False, False, titstr);
 end;
 
 procedure TMainForm.ShowMoldVariations(const basepcs: string);
 var
-  linkstr: string;
+  linkstr, titstr: string;
   pi: TPieceInfo;
 begin
   pi := db.PieceInfo(basepcs);
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  titstr := 'Mold variations for ' + basepcs;
   if pi.moldvariations.Count = 0 then
-    DrawMoldList('No mold variations for ' + linkstr, pi.moldvariations, False, False)
+    DrawMoldList('No mold variations for ' + linkstr, pi.moldvariations, False, False, titstr)
   else
-    DrawMoldList('Mold variations for ' + linkstr, pi.moldvariations, False, False);
+    DrawMoldList('Mold variations for ' + linkstr, pi.moldvariations, False, False, titstr);
 end;
 
 procedure TMainForm.ShowPieceAlternates(const basepcs: string);
 var
-  linkstr: string;
+  linkstr, titstr: string;
   pi: TPieceInfo;
 begin
   pi := db.PieceInfo(basepcs);
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  titstr := 'Alternates for ' + basepcs;
   if pi.alternates.Count = 0 then
-    DrawMoldList('No alternates for ' + linkstr, pi.alternates, False, False)
+    DrawMoldList('No alternates for ' + linkstr, pi.alternates, False, False, titstr)
   else
-    DrawMoldList('Alternates for ' + linkstr, pi.alternates, False, False);
+    DrawMoldList('Alternates for ' + linkstr, pi.alternates, False, False, titstr);
 end;
 
 procedure TMainForm.ShowPiecePatterns(const basepcs: string);
 var
-  linkstr: string;
+  linkstr, titstr: string;
   pi: TPieceInfo;
 begin
   pi := db.PieceInfo(basepcs);
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  titstr := 'Patterns for ' + basepcs;
   if pi.patterns.Count = 0 then
-    DrawMoldList('No patterns for ' + linkstr, pi.patterns, False, False)
+    DrawMoldList('No patterns for ' + linkstr, pi.patterns, False, False, titstr)
   else
-    DrawMoldList('Patterns for ' + linkstr, pi.patterns, False, False);
+    DrawMoldList('Patterns for ' + linkstr, pi.patterns, False, False, titstr);
 end;
 
 procedure TMainForm.ShowPiecePrints(const basepcs: string);
 var
-  linkstr: string;
+  linkstr, titstr: string;
   pi: TPieceInfo;
 begin
   pi := db.PieceInfo(basepcs);
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  titstr := 'Prints for ' + basepcs;
   if pi.prints.Count = 0 then
-    DrawMoldList('No prints for ' + linkstr, pi.prints, False, False)
+    DrawMoldList('No prints for ' + linkstr, pi.prints, False, False, titstr)
   else
-    DrawMoldList('Prints for ' + linkstr, pi.prints, False, False);
+    DrawMoldList('Prints for ' + linkstr, pi.prints, False, False, titstr);
 end;
 
 procedure TMainForm.Pieceswithmorethan30colors1Click(Sender: TObject);
@@ -17947,7 +18004,7 @@ var
   params2: ShowNameswithbothpartandsetcolorindexesParams_t;
   params3: ShowNameswithbothpartandsetcolorindexesParams_t;
   params4: ShowNameswithbothpartandsetcolorindexesParams_t;
-  tit: string;
+  tit, titstr: string;
   cnt: integer;
   step: integer;
 begin
@@ -18001,9 +18058,10 @@ begin
     end;
 
     tit := 'Names with both part and set color indexes';
+    titstr := tit;
 
     cmolds.CustomSort(sortmoldlist_numcolors);
-    DrawMoldList(tit, cmolds, True, False);
+    DrawMoldList(tit, cmolds, True, False, titstr);
 
   finally
     cmolds.Free;
@@ -18791,6 +18849,7 @@ var
   dn: TDateTime;
   ddays: integer;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -18839,7 +18898,8 @@ begin
     nextstr := '';
 
   lst.Sort;
-  DrawPieceList(prevstr + 'Pieces without update the last ' + itoa(x) + ' days' + nextstr, lst, SORT_DATE_UPDATE);
+  titstr := 'Pieces without update the last ' + itoa(x) + ' days';
+  DrawPieceList(prevstr + titstr + nextstr, lst, SORT_DATE_UPDATE, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\PiecesWithDaysToUpdate' + IntToStrzFill(4, x) + '\';
@@ -18882,6 +18942,7 @@ var
   x, x2: integer;
   diff: integer;
   kp: THashStringList;
+  titstr: string;
 begin
   lst := TStringList.Create;
 
@@ -18937,7 +18998,8 @@ begin
     nextstr := '';
 
   lst.Sort;
-  DrawPieceList(prevstr + 'Pieces without update between ' + itoa(x) + ' and ' + itoa(x2) + ' days' + nextstr, lst, SORT_DATE_UPDATE);
+  titstr := 'Pieces without update between ' + itoa(x) + ' and ' + itoa(x2) + ' days';
+  DrawPieceList(prevstr + titstr + nextstr, lst, SORT_DATE_UPDATE, '', titstr);
   lst.Free;
 
   s1 := basedefault + 'out\PiecesWithDaysToUpdateRange_' + IntToStrzFill(4, x) + '_' + IntToStrzFill(4, x2) + '\';
@@ -19453,7 +19515,7 @@ var
   lst, molds: TStringList;
   prevstr, nextstr: string;
   N: TDNumberList;
-  tit: string;
+  tit, titstr: string;
   sl: string;
 begin
   lst := MT_Iterate_Base(@MoldYear_thr);
@@ -19506,6 +19568,7 @@ begin
     else
       nextstr := '';
     tit := 'Molds first appeared at year ' + itoa(y);
+    titstr := tit;
   end
   else // discontinued
   begin
@@ -19527,9 +19590,10 @@ begin
     else
       nextstr := '';
     tit := 'Molds discontinued at year ' + itoa(y);
+    titstr := tit;
   end;
 
-  DrawMoldList(tit, molds, False, True);
+  DrawMoldList(tit, molds, False, True, titstr);
 
   sl := basedefault + 'out\MoldsYearQry\';
   if not DirectoryExists(sl) then

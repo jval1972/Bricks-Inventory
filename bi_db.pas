@@ -529,6 +529,7 @@ type
     {$IFNDEF CRAWLER}
     ffirstsetyear, flastsetyear, fyear: integer;
     fcanedityear: boolean;
+    flugbulkflags: integer;
     {$ENDIF}
     fparttype: integer;
     fsparttype: char;
@@ -545,7 +546,7 @@ type
     procedure Assign(const pg: priceguide_t); overload;
     procedure Assign(const av: availability_t); overload;
     function Check: boolean;
-    procedure AddSetReference(const aset: string; const numpieces: integer);
+    procedure AddSetReference(const aset: string; const numpieces: integer{$IFNDEF CRAWLER}; const LugbulkYear: integer{$ENDIF});
     procedure UpdateSetReference(const aset: string; const numpieces: integer);
     procedure AddPartReference(const apart: string; const numpieces: integer);
     procedure UpdatePartReference(const apart: string; const numpieces: integer);
@@ -565,6 +566,8 @@ type
     function nDemand: double;
     function uDemand: double;
     function ItemType: string;
+    function GetLugbulk(const ayear: integer): boolean;
+    procedure SetLugbulk(const ayear: integer; const avalue: boolean);
     {$IFNDEF CRAWLER}
     procedure UpdateSetYears(const setid: string; const y: integer = -1);
     procedure UpdatePartYears(const y: integer = -1);
@@ -779,6 +782,7 @@ type
     procedure InitBaseMolds;
     procedure InitTags;
     procedure InitRelationShips;
+    procedure InitLugBulksPieces;
     {$ENDIF}
     procedure InitPieces;
     procedure InitPiecesAlias;
@@ -8075,6 +8079,43 @@ begin
     progressfunc(pregressstring, 1.0);
 end;
 
+{$IFNDEF CRAWLER}
+procedure TSetsDatabase.InitLugBulksPieces;
+var
+  lyear: integer;
+  linv: TBrickInventory;
+  i, j: integer;
+  pci: TPieceColorInfo;
+  sname: string;
+  pregressstring: string;
+begin
+  pregressstring := 'Initializing Lugbulk inventories...';
+  if Assigned(progressfunc) then
+    progressfunc(pregressstring, 0.0);
+
+  if fcategories[CATEGORYLUGBULK].knownpieces <> nil then
+    for i := 0 to fcategories[CATEGORYLUGBULK].knownpieces.Count - 1 do
+    begin
+      sname := fcategories[CATEGORYLUGBULK].knownpieces.Strings[i];
+      lyear := PieceColorInfo(sname, -1).year;
+      if lyear >= 2015 then
+      begin
+        linv := GetSetInventory(sname);
+        for j := 0 to linv.fnumlooseparts - 1 do
+        begin
+          pci := PieceColorInfo(@linv.looseparts[j]);
+          if pci <> nil then
+            pci.SetLugbulk(lyear, True);
+        end;
+      end;
+      progressfunc(pregressstring, i / fcategories[CATEGORYLUGBULK].knownpieces.Count);
+    end;
+
+  if Assigned(progressfunc) then
+    progressfunc(pregressstring, 1.0);
+end;
+{$ENDIF}
+
 procedure TSetsDatabase.InitPiecesInventories;
 var
   stmp: TStringList;
@@ -8109,6 +8150,9 @@ var
   idx, j: integer;
   cc, num: integer;
   pregressstring: string;
+{$IFNDEF  CRAWLER}
+  lyear: integer;
+{$ENDIF}
 begin
   pregressstring := 'Loading sets...';
   if Assigned(progressfunc) then
@@ -8153,7 +8197,13 @@ begin
                 else
                   pci := fcolors[cc].knownpieces.Objects[idx] as TPieceColorInfo;
                 AddSetPiece(sset, spiece, '1', cc, num, pci);
-                pci.AddSetReference(sset, num);
+                {$IFNDEF CRAWLER}
+                if PieceInfo(sset).category = CATEGORYLUGBULK then
+                  lyear := PieceColorInfo(sset, -1).year
+                else
+                  lyear := 0;
+                {$ENDIF}
+                pci.AddSetReference(sset, num{$IFNDEF CRAWLER}, lyear{$ENDIF});
               end;
             end;
           end;
@@ -8210,7 +8260,13 @@ begin
                 else
                   pci := fcolors[cc].knownpieces.Objects[idx] as TPieceColorInfo;
                 AddSetPiece(sset, spiece, '1', cc, num, pci);
-                pci.AddSetReference(sset, num);
+                {$IFNDEF CRAWLER}
+                if PieceInfo(sset).category = CATEGORYLUGBULK then
+                  lyear := PieceColorInfo(sset, -1).year
+                else
+                  lyear := 0;
+                {$ENDIF}
+                pci.AddSetReference(sset, num{$IFNDEF CRAWLER}, lyear{$ENDIF});
               end;
             end;
 
@@ -14559,6 +14615,15 @@ begin
       S_SaveToFile(extral, basedefault + 'db\sets\' + s + '.alternatives.txt');
     end;
     extral.Free;
+
+    if Result and (typ <> '') then
+    begin
+      if not DirectoryExists(basedefault + 'db\') then
+        ForceDirectories(basedefault + 'db\');
+      if not DirectoryExists(basedefault + 'db\inventories\') then
+        ForceDirectories(basedefault + 'db\inventories\');
+      CopyFile(tmpname, basedefault + 'db\inventories\' + typ + '_' + s + '.htm');
+    end;
   finally
     slist.Free;
     stmp1.Free;
@@ -16737,6 +16802,7 @@ begin
   fsetmostnum := 0;
   fpartmost := '';
   fpartmostnum := 0;
+  flugbulkflags := 0;
   {$ENDIF}
   fcode := '';
   fcrawlerlink := '';
@@ -16793,6 +16859,27 @@ begin
   inherited;
 end;
 
+{$IFNDEF CRAWLER}
+function TPieceColorInfo.GetLugbulk(const ayear: integer): boolean;
+begin
+  if IsIntegerInRange(ayear, 2015, 2015 + 31) then
+    Result := flugbulkflags and (1 shl (ayear - 2015)) <> 0
+  else
+    Result := False;
+end;
+
+procedure TPieceColorInfo.SetLugbulk(const ayear: integer; const avalue: boolean);
+begin
+  if not IsIntegerInRange(ayear, 2015, 2015 + 31) then
+    Exit;
+
+  if avalue then
+    flugbulkflags := flugbulkflags or (1 shl (ayear - 2015))
+  else
+    flugbulkflags := flugbulkflags and not (1 shl (ayear - 2015))
+end;
+
+{$ENDIF}
 procedure TPieceColorInfo.SetSPartType(const t: char);
 begin
   if not (t in ['P', 'S', 'M', 'C', 'B', 'I', 'O', 'G', ' ']) then
@@ -17017,7 +17104,7 @@ begin
   end;
 end;
 
-procedure TPieceColorInfo.AddSetReference(const aset: string; const numpieces: integer);
+procedure TPieceColorInfo.AddSetReference(const aset: string; const numpieces: integer{$IFNDEF CRAWLER}; const LugbulkYear: integer{$ENDIF});
 begin
   if numpieces > 0 then
   begin
@@ -17033,6 +17120,8 @@ begin
       fsetmost := aset;
       fsetmostnum := numpieces;
     end;
+    if LugbulkYear >= 2015 then
+      SetLugbulk(LugbulkYear, True);
     {$ENDIF}
   end;
 end;
@@ -17783,6 +17872,9 @@ var
   lparts1, lparts2: TStringList;
   stmp: string;
   oldname, newname: string;
+{$IFNDEF CRAWLER}
+  lyear: integer;
+{$ENDIF}
 begin
   AllowInternetAccess := False;
   fcurrencies := TCurrency.Create(basedefault + 'db\db_currency.txt');
@@ -17925,7 +18017,13 @@ begin
       else
         pci := fcolors[cc].knownpieces.Objects[idx] as TPieceColorInfo;
       AddSetPiece(sset, spiece, stype, cc, npieces, pci);
-      pci.AddSetReference(sset, npieces);
+      {$IFNDEF CRAWLER}
+      if PieceInfo(sset).category = CATEGORYLUGBULK then
+        lyear := PieceColorInfo(sset, -1).year
+      else
+        lyear := 0;
+      {$ENDIF}
+      pci.AddSetReference(sset, npieces{$IFNDEF CRAWLER}, lyear{$ENDIF});
     end
     else
       AddSetPiece(sset, spiece, stype, cc, npieces); // ? remove ?
@@ -18103,6 +18201,7 @@ begin
   InitBaseMolds;
   InitRelationShips;
   InitTags;
+  InitLugBulksPieces;
   {$ENDIF}
 
   Result := True;

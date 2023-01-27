@@ -799,6 +799,7 @@ type
     procedure SaveLugbulkDatabase(const fn: string; const year: integer);
     procedure SortInventory(const ainv: TBrickInventory);
     function taglink(const tag: string): string;
+    function lugbulklinks(const pci: TPieceColorInfo): string;
   public
     { Public declarations }
     activebits: integer;
@@ -3275,7 +3276,7 @@ begin
           GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
           HtmlDrawInvImgLink(brick.part, brick.color, pi) +
           decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) +
-          ' times in ' + pci.setmost + '</a>') + '</td>');
+          ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
     if not lite then
     begin
       if pci <> nil then
@@ -6169,7 +6170,7 @@ begin
                 ' (' + si + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(i) +
                 '<img src="images\details.png"></a>' +
                 HtmlDrawInvImgLink(pcs, i, pi) +
-                decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+                decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
               document.write('<td width=10% align=right>');
               document.write('N=%2.3f<br>U=%2.3f</td>', [pci.nDemand, pci.uDemand]);
             end
@@ -7022,7 +7023,7 @@ begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
         ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
 
     document.write('<td width=15% align=right>' + Format('%d', [numpieces]) +
             '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
@@ -7180,7 +7181,7 @@ begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
         ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
 
     document.write('<td width=10% align=right>' + Format('%d', [numpieces]) +
             '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
@@ -7347,7 +7348,7 @@ begin
         ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) +
         '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
 
     document.write('<td width=15% align=right>' +
             '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
@@ -7481,7 +7482,7 @@ begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
         ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-         decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+         decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
        document.write('<td width=15% align=right>' + Format('%2.3f', [pci.nDemand]) +
               '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
               '<br><a href=diagrampiece/' + pcs + '/' + itoa(cl) + '><img src="images\diagram.png"></a>' +
@@ -7602,7 +7603,7 @@ begin
             document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
           else
             document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')' + GetRebrickableColorHtml(i) +
-              decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+              decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
           document.write('<td width=15% align=right>' + Format('%d', [numpieces]) + '</td>');
 
           if pci <> nil then
@@ -7696,6 +7697,7 @@ var
   tmpset: string;
   www: double;
   taghtml: string;
+  slugbulks: string;
 begin
   UpdateDismantaledsetsinv;
 
@@ -7804,6 +7806,10 @@ begin
 
   if taghtml <> '' then
     DrawHeadLine(taghtml);
+
+  slugbulks := lugbulklinks(pci);
+  if slugbulks <> '' then
+    DrawHeadLine(slugbulks);
 
   DrawPriceguideEx(pcs, color, IncDay(Now, -30));
 
@@ -20129,6 +20135,25 @@ end;
 function TMainForm.taglink(const tag: string): string;
 begin
   Result := '<a href="showtag/' + tag + '">' + tag + '</a>';
+end;
+
+function TMainForm.lugbulklinks(const pci: TPieceColorInfo): string;
+var
+  i: integer;
+begin
+  Result := '';
+  if pci = nil then
+    Exit;
+
+  for i := 2015 to 2015 + 31 do
+    if pci.GetLugbulk(i) then
+    begin
+      if Result = '' then
+        Result := '<br><b>Lugbulks:</b> '
+      else
+        Result := Result + ', ';
+      Result := Result + '<a href="ShowCatalogList/MC/' + itoa(i) + '/' + itoa(CATEGORYLUGBULK) + '">' + itoa(i) + '</a>'
+    end;
 end;
 
 end.

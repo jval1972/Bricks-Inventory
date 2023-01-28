@@ -361,6 +361,7 @@ type
     N56: TMenuItem;
     Crawlerfile1: TMenuItem;
     SaveDialogCrawlerInv: TSaveDialog;
+    Plates3x1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -594,6 +595,7 @@ type
     procedure SaveLugbulk2021database1Click(Sender: TObject);
     procedure Readlist1Click(Sender: TObject);
     procedure Crawlerfile1Click(Sender: TObject);
+    procedure Plates3x1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -20154,6 +20156,13 @@ begin
         Result := Result + ', ';
       Result := Result + '<a href="ShowCatalogList/MC/' + itoa(i) + '/' + itoa(CATEGORYLUGBULK) + '">' + itoa(i) + '</a>'
     end;
+end;
+
+procedure TMainForm.Plates3x1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('lengthquery/plates3x', foo);
 end;
 
 end.

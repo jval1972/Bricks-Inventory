@@ -1273,6 +1273,10 @@ object MainForm: TMainForm
           Caption = 'Plates 2x'
           OnClick = Plates2x1Click
         end
+        object Plates3x1: TMenuItem
+          Caption = 'Plates 3x'
+          OnClick = Plates3x1Click
+        end
         object N10: TMenuItem
           Caption = 'Plates 4x'
           OnClick = N10Click

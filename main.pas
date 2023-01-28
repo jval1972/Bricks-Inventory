@@ -363,6 +363,7 @@ type
     SaveDialogCrawlerInv: TSaveDialog;
     Plates3x1: TMenuItem;
     Plates16x1: TMenuItem;
+    iles3x1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -598,6 +599,7 @@ type
     procedure Crawlerfile1Click(Sender: TObject);
     procedure Plates3x1Click(Sender: TObject);
     procedure Plates16x1Click(Sender: TObject);
+    procedure iles3x1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -20172,6 +20174,13 @@ var
   foo: Boolean;
 begin
   HTMLClick('lengthquery/plates16x', foo);
+end;
+
+procedure TMainForm.iles3x1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('lengthquery/tiles3x', foo);
 end;
 
 end.

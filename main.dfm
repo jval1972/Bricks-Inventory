@@ -1289,6 +1289,10 @@ object MainForm: TMainForm
           Caption = 'Plates 8x'
           OnClick = Plates8x1Click
         end
+        object Plates16x1: TMenuItem
+          Caption = 'Plates 16x'
+          OnClick = Plates16x1Click
+        end
         object N11: TMenuItem
           Caption = '-'
         end

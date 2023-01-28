@@ -1306,7 +1306,11 @@ object MainForm: TMainForm
         end
         object iles3x1: TMenuItem
           Caption = 'Tiles 3x'
-          OnClick = iles3x1Click
+          OnClick = Tiles3x1Click
+        end
+        object iles4x1: TMenuItem
+          Caption = 'Tiles 4x'
+          OnClick = iles4x1Click
         end
         object N12: TMenuItem
           Caption = '-'

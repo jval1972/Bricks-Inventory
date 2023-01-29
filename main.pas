@@ -10907,7 +10907,6 @@ procedure TMainForm.ShowStorageLocationsForMultipledSets(const setids: TStringLi
 var
   inv: TBrickInventory;
   sinv: TBrickInventory;
-  minv: TBrickInventory;
   i: integer;
   s1: string;
   nlots: integer;
@@ -18511,8 +18510,6 @@ begin
 end;
 
 procedure TMainForm.PopupMenu1Popup(Sender: TObject);
-var
-  validitem: boolean;
 begin
   HtmlCopy2.Enabled := HTML.SelLength <> 0;
   CloseTab1.Enabled := TabControl1.Tabs.Count > 1;

@@ -3104,7 +3104,7 @@ begin
   begin
     inc(aa);
     scolor := itoa(brick.Color);
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img src=' + scolor + '\' + brick.part + '.png><br><b>');
+    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br><b>');
     document.write('<a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
     document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=20%>');
     DrawColorCell(brick.color, 25);
@@ -3277,7 +3277,7 @@ begin
         document.StartItemId(aa);
     scolor := itoa(brick.Color);
     document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' +
-      IntToStr(aa) + '.</td><td width=35%><img src=' + scolor + '\' + brick.part + '.png><br><b>');
+      IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br><b>');
     document.write('<a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
     document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=20%>');
     DrawColorCell(brick.color, 25);
@@ -3499,7 +3499,7 @@ begin
     inc(aa);
     scolor := itoa(brick.Color);
     document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' +
-      IntToStr(aa) + '.</td><td width=35%><img src=' + scolor + '\' + brick.part + '.png><br><b>');
+      IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br><b>');
     document.write('<a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
     document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=40%>');
     DrawColorCell(brick.color, 25);
@@ -6124,7 +6124,7 @@ begin
 
               inc(aa);
               si := IntToStr(i);
-              document.write('<td width=10%><img src=' + si + '\' + pcs + '.png>');
+              document.write('<td width=10%><img width=100px src=' + si + '\' + pcs + '.png>');
               DrawColorCell(i, 25);
   //            document.BlancColorCell(db.colors(i).RGB, 25);
               cinfo := db.colors(i);
@@ -6182,7 +6182,7 @@ begin
             totpieces := totpieces + numpieces;
             si := IntToStr(i);
             document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
-            document.write('<td width=35%><img src=' + si + '\' + pcs + '.png></td>');
+            document.write('<td width=35%><img width=100px src=' + si + '\' + pcs + '.png></td>');
             document.write('<td width=20%>');
             DrawColorCell(i, 25);
             // document.BlancColorCell(db.colors(i).RGB, 25);
@@ -7188,7 +7188,7 @@ begin
     pci := db.PieceColorInfo(pcs, cl, lst.Objects[i]);
     pi := db.PieceInfo(pci);
 
-    document.write('<td width=35%><img src=' + col + '\' + pcs + '.png>');
+    document.write('<td width=35%><img width=100px src=' + col + '\' + pcs + '.png>');
     document.write('<a href=spiece/' + pcs + '>' + pcs + '</a></b>');
     document.write(' - ' + db.PieceDesc(pi) + '</td>');
     document.write('<td width=20%>');
@@ -7353,7 +7353,7 @@ begin
     pci := db.PieceColorInfo(pcs, cl);
     pi := db.PieceInfo(pci);
 
-    document.write('<td width=35%><img src=' + col + '\' + pcs + '.png>');
+    document.write('<td width=35%><img width=100px src=' + col + '\' + pcs + '.png>');
     document.write('<a href=spiece/' + pcs + '>' + pcs + '</a></b>');
     document.write(' - ' + db.PieceDesc(pi) + '</td>');
     document.write('<td width=20%>');
@@ -7481,7 +7481,7 @@ begin
     pci := db.PieceColorInfo(pcs, cl, lst.Objects[i]);
     pi := db.PieceInfo(pci);
 
-    document.write('<td width=35%><img src=' + col + '\' + pcs + '.png>');
+    document.write('<td width=35%><img width=100px src=' + col + '\' + pcs + '.png>');
     document.write('<a href=spiece/' + pcs + '>' + pcs + '</a></b>');
     document.write(' - ' + db.PieceDesc(pi) + '</td>');
     document.write('<td width=20%>');
@@ -7592,7 +7592,7 @@ begin
     ' <a href=editpiece/' + pcs + '/' + itoa(color) + '><img src="images\edit.png"></a>' +
     ' <a href=spiecec/' + pcs + '/' + itoa(color) + '><img src="images\details.png"></a>' +
     '<br><a href=diagrampiece/' + pcs + '/' + itoa(color) + '><img src="images\diagram.png"></a>' +
-    '<br><br><img src=' + IntToStr(color) + '\' + pcs + '.png>');
+    '<br><br><img width=100px src=' + IntToStr(color) + '\' + pcs + '.png>');
 
 
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
@@ -7618,7 +7618,7 @@ begin
           inventory.StorePieceInventoryStatsRec(basedefault + 'cache\' + IntToStr(decide(i = -1, 9999, i)) + '\' + pcs + '.history', pcs, i);
           numpieces := inventory.LoosePartCount(pcs, i);
           document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + '1' + '.</td>');
-          document.write('<td width=35%><a href=spiece/' + pcs + '><img src=' + IntToStr(i) + '\' + pcs + '.png></a></td>');
+          document.write('<td width=35%><a href=spiece/' + pcs + '><img width=100px src=' + IntToStr(i) + '\' + pcs + '.png></a></td>');
           document.write('<td width=20%>');
           DrawColorCell(i, 25);
           // document.BlancColorCell(db.colors(i).RGB, 25);
@@ -7812,7 +7812,7 @@ begin
     ' <a href=editpiece/' + pcs + '/' + itoa(color) + '><img src="images\edit.png"></a>' +
     HtmlDrawInvImgLink(pcs, color, pi) +
     '<br><a href=diagrampiece/' + pcs + '/' + itoa(color) + '><img src="images\diagram.png"></a>' +
-    '<br><br><img src=' + IntToStr(color) + '\' + pcs + '.png>' + stmp);
+    '<br><br><img width=100px src=' + IntToStr(color) + '\' + pcs + '.png>' + stmp);
 
   storages := db.StorageBinsForPart(pcs, color);
   if storages.Count > 0 then
@@ -7863,7 +7863,7 @@ begin
           inventory.StorePieceInventoryStatsRec(basedefault + 'cache\' + IntToStr(decide(i = -1, 9999, i)) + '\' + pcs + '.history', pcs, i);
           numpieces := inventory.LoosePartCount(pcs, i);
           document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>1.</td>');
-          document.write('<td width=35%><a href=spiece/' + pcs + '><img src=' + IntToStr(i) + '\' + pcs + '.png></a></td>');
+          document.write('<td width=35%><a href=spiece/' + pcs + '><img width=100px src=' + IntToStr(i) + '\' + pcs + '.png></a></td>');
           document.write('<td width=20%>');
           DrawColorCell(i, 25);
           // document.BlancColorCell(db.colors(i).RGB, 25);
@@ -7972,7 +7972,7 @@ begin
     ' <a href=editpiece/' + pcs + '/9997><img src="images\edit.png"></a>' +
     HtmlDrawInvImgLink(pcs, 9997, pi) +
     '<br><a href=diagrampiece/' + pcs + '/9997><img src="images\diagram.png"></a>' +
-    '<br><br><img src=9997\' + pcs + '.png>' + stmp);
+    '<br><br><img width=100px src=9997\' + pcs + '.png>' + stmp);
 
   document.StartNavigateSection;
 
@@ -9857,7 +9857,7 @@ begin
     pi := db.PieceInfo(pci);
 
     document.write('<tr bgcolor=' + TBGCOLOR + '>');
-    document.write('<td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img src=' + scolor + '\' + spart + '.png><br><b>');
+    document.write('<td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + spart + '.png><br><b>');
     document.write('<a href=spiece/' + spart + '>' + spart + '</a></b>');
     document.write(' - ' + db.PieceDesc(pi) + '</td><td width=20%>');
     DrawColorCell(ncolor, 25);
@@ -11171,7 +11171,7 @@ begin
       pci := db.PieceColorInfo(brick);
       pi := db.PieceInfo(pci);
 
-      document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img src=' + scolor + '\' + brick.part + '.png><br>');
+      document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br>');
       document.write('<b><a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
       document.write('<a href="inv/' + invs +'/P/' + decide(partmask = '', brick.part, '') + '">' + ' - ' );
       document.write(db.PieceDesc(pi) + '</a> <a href=spiece/' + brick.part + '>...</a></td><td width=25%>');
@@ -14081,7 +14081,7 @@ begin
     document.write('<tr bgcolor=' + THBGCOLOR + '>');
     document.write('<td><p align="right">' + itoa(aa) + '.</b></td>');
 
-    document.write('<td width=25%><img src=' + scolor + '\' + spart + '.png><br><b>');
+    document.write('<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br><b>');
     document.write('<a href=spiece/' + spart + '>' + spart + '</a></b>');
     document.write(' - ' + db.PieceDesc(pi));
     document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + HtmlDrawInvImgLink(spart, color, pi) + '</td>');
@@ -14199,7 +14199,7 @@ begin
     document.write('<tr bgcolor=' + THBGCOLOR + '>');
     document.write('<td><p align="right">' + itoa(aa) + '.</b></td>');
 
-    document.write('<td width=25%><img src=' + scolor + '\' + spart + '.png><br><b>');
+    document.write('<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br><b>');
     document.write('<a href=spiece/' + spart + '>' + spart + '</a></b>');
     document.write(' - ' + db.PieceDesc(pi));
     document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + HtmlDrawInvImgLink(spart, color, pi) + '</td>');
@@ -14325,7 +14325,7 @@ begin
     document.write('<tr bgcolor=' + THBGCOLOR + '>');
     document.write('<td><p align="right">' + itoa(aa) + '.</b></td>');
 
-    document.write('<td width=25%><img src=' + scolor + '\' + spart + '.png><br><b>');
+    document.write('<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br><b>');
     document.write('<a href=spiece/' + spart + '>' + spart + '</a></b>');
     document.write(' - ' + db.PieceDesc(pi));
     document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + HtmlDrawInvImgLink(spart, color, pi) + '</td>');
@@ -15153,7 +15153,7 @@ begin
     pci := db.PieceColorInfo(pcs, cl);
     pi := db.PieceInfo(pci);
 
-    document.write('<td width=25%><img src=' + col + '\' + pcs + '.png>');
+    document.write('<td width=25%><img width=100px src=' + col + '\' + pcs + '.png>');
     document.write('<a href=spiece/' + pcs + '>' + pcs + '</a></b>');
     document.write(' - ' + db.PieceDesc(pi) + '</td>');
     document.write('<td width=20%>');

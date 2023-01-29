@@ -14453,7 +14453,7 @@ begin
   for i := 0 to NUMCROSSCOLORS - 1 do
   begin
     if not odd(i) then
-      document.write('<tr bgcolor=' + THBGCOLOR + '>');
+      document.write('<tr valign=top bgcolor=' + THBGCOLOR + '>');
 
     document.write('<td valign="top">');
     doShowLengthQueryColor(inv, id, CROSSCOLOR[i], lenlst);
@@ -14510,7 +14510,7 @@ begin
   for i := 0 to NUMCROSSCOLORS - 1 do
   begin
     if not odd(i) then
-      document.write('<tr bgcolor=' + THBGCOLOR + '>');
+      document.write('<tr valign=top bgcolor=' + THBGCOLOR + '>');
 
     document.write('<td>');
     doShowLengthQueryColorSlopes(inv, id, CROSSCOLOR[i], lenlst);
@@ -14567,7 +14567,7 @@ begin
   for i := 0 to NUMCROSSCOLORS - 1 do
   begin
     if not odd(i) then
-      document.write('<tr bgcolor=' + THBGCOLOR + '>');
+      document.write('<tr valign=top bgcolor=' + THBGCOLOR + '>');
 
     document.write('<td>');
     doShowDimentionsQueryColor(inv, id, CROSSCOLOR[i], lenlst);

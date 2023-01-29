@@ -93,7 +93,7 @@ type
     Reloadcache1: TMenuItem;
     CheckCacheHashEfficiency1: TMenuItem;
     Queries1: TMenuItem;
-    Lengthqueries1: TMenuItem;
+    Platequeries1: TMenuItem;
     Bricks1x1: TMenuItem;
     Bricks2x1: TMenuItem;
     N9: TMenuItem;
@@ -372,6 +372,10 @@ type
     Brickqueries1: TMenuItem;
     AllBricks1: TMenuItem;
     N57: TMenuItem;
+    ilesqueries1: TMenuItem;
+    Alltiles1: TMenuItem;
+    Allplates1: TMenuItem;
+    N58: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -614,6 +618,8 @@ type
     procedure Bricks4x1Click(Sender: TObject);
     procedure Bricks8x1Click(Sender: TObject);
     procedure AllBricks1Click(Sender: TObject);
+    procedure Alltiles1Click(Sender: TObject);
+    procedure Allplates1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -7972,7 +7978,7 @@ begin
     ' <a href=editpiece/' + pcs + '/9997><img src="images\edit.png"></a>' +
     HtmlDrawInvImgLink(pcs, 9997, pi) +
     '<br><a href=diagrampiece/' + pcs + '/9997><img src="images\diagram.png"></a>' +
-    '<br><br><img width=100px src=9997\' + pcs + '.png>' + stmp);
+    '<br><br><img width=360px src=9997\' + pcs + '.png>' + stmp);
 
   document.StartNavigateSection;
 
@@ -20430,6 +20436,20 @@ var
   foo: Boolean;
 begin
   HTMLClick('dimentionsquery/bricksx', foo);
+end;
+
+procedure TMainForm.Alltiles1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('dimentionsquery/tilesx', foo);
+end;
+
+procedure TMainForm.Allplates1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('dimentionsquery/platesx', foo);
 end;
 
 end.

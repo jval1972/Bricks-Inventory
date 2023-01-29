@@ -1150,6 +1150,163 @@ object MainForm: TMainForm
       object N31: TMenuItem
         Caption = '-'
       end
+      object Brickqueries1: TMenuItem
+        Caption = 'Brick queries'
+        object AllBricks1: TMenuItem
+          Caption = 'All bricks'
+          OnClick = AllBricks1Click
+        end
+        object N57: TMenuItem
+          Caption = '-'
+        end
+        object Bricks1x1: TMenuItem
+          Caption = 'Bricks 1x'
+          OnClick = Bricks1x1Click
+        end
+        object Bricks2x1: TMenuItem
+          Caption = 'Bricks 2x'
+          OnClick = Bricks2x1Click
+        end
+        object Bricks4x1: TMenuItem
+          Caption = 'Bricks 4x'
+          OnClick = Bricks4x1Click
+        end
+        object Bricks8x1: TMenuItem
+          Caption = 'Bricks 8x'
+          OnClick = Bricks8x1Click
+        end
+        object N14: TMenuItem
+          Caption = '-'
+        end
+        object Specialbricks1x1: TMenuItem
+          Caption = 'Special bricks 1x'
+          OnClick = Specialbricks1x1Click
+        end
+        object SnotBricks1: TMenuItem
+          Caption = 'Snot Bricks'
+          OnClick = SnotBricks1Click
+        end
+        object N12: TMenuItem
+          Caption = '-'
+        end
+        object echnicBricks1x1: TMenuItem
+          Caption = 'Technic Bricks 1x'
+          OnClick = TechnicBricks1x1Click
+        end
+      end
+      object Platequeries1: TMenuItem
+        Caption = 'Plate queries'
+        object Allplates1: TMenuItem
+          Caption = 'All plates'
+          OnClick = Allplates1Click
+        end
+        object N9: TMenuItem
+          Caption = '-'
+        end
+        object Plates1x1: TMenuItem
+          Caption = 'Plates 1x'
+          OnClick = Plates1x1Click
+        end
+        object Plates2x1: TMenuItem
+          Caption = 'Plates 2x'
+          OnClick = Plates2x1Click
+        end
+        object Plates3x1: TMenuItem
+          Caption = 'Plates 3x'
+          OnClick = Plates3x1Click
+        end
+        object N10: TMenuItem
+          Caption = 'Plates 4x'
+          OnClick = N10Click
+        end
+        object Plates6x1: TMenuItem
+          Caption = 'Plates 6x'
+          OnClick = Plates6x1Click
+        end
+        object Plates8x1: TMenuItem
+          Caption = 'Plates 8x'
+          OnClick = Plates8x1Click
+        end
+        object Plates16x1: TMenuItem
+          Caption = 'Plates 16x'
+          OnClick = Plates16x1Click
+        end
+      end
+      object ilesqueries1: TMenuItem
+        Caption = 'Tiles queries'
+        object Alltiles1: TMenuItem
+          Caption = 'All tiles'
+          OnClick = Alltiles1Click
+        end
+        object N11: TMenuItem
+          Caption = '-'
+        end
+        object iles1x1: TMenuItem
+          Caption = 'Tiles 1x'
+          OnClick = Tiles1x1Click
+        end
+        object iles2x1: TMenuItem
+          Caption = 'Tiles 2x'
+          OnClick = Tiles2x1Click
+        end
+        object iles3x1: TMenuItem
+          Caption = 'Tiles 3x'
+          OnClick = Tiles3x1Click
+        end
+        object iles4x1: TMenuItem
+          Caption = 'Tiles 4x'
+          OnClick = Tiles4x1Click
+        end
+        object iles6x1: TMenuItem
+          Caption = 'Tiles 6x'
+          OnClick = Tiles6x1Click
+        end
+        object iles8x1: TMenuItem
+          Caption = 'Tiles 8x'
+          OnClick = Tiles8x1Click
+        end
+      end
+      object Slopequeries1: TMenuItem
+        Caption = 'Slope queries'
+        object Slopes18degrees1: TMenuItem
+          Caption = 'Slopes 18 degrees'
+          OnClick = Slopes18degrees1Click
+        end
+        object Slopes33degrees1: TMenuItem
+          Caption = 'Slopes 33 degrees'
+          OnClick = Slopes33degrees1Click
+        end
+        object Slopes45degrees1: TMenuItem
+          Caption = 'Slopes 45 degrees'
+          OnClick = Slopes45degrees1Click
+        end
+        object Slopes65degrees1: TMenuItem
+          Caption = 'Slopes 65 degrees'
+          OnClick = Slopes65degrees1Click
+        end
+        object Slopes75degrees1: TMenuItem
+          Caption = 'Slopes 75 degrees'
+          OnClick = Slopes75degrees1Click
+        end
+        object N25: TMenuItem
+          Caption = '-'
+        end
+        object InvertedSlopes33degrees1: TMenuItem
+          Caption = 'Inverted Slopes 33 degrees'
+          OnClick = InvertedSlopes33degrees1Click
+        end
+        object InvertedSlopes45degrees1: TMenuItem
+          Caption = 'Inverted Slopes 45 degrees'
+          OnClick = InvertedSlopes45degrees1Click
+        end
+        object InvertedSlopes75degrees1: TMenuItem
+          Caption = 'Inverted Slopes 75 degrees'
+          OnClick = InvertedSlopes75degrees1Click
+        end
+      end
+      object N58: TMenuItem
+        Caption = '-'
+      end
       object Weightqueries1: TMenuItem
         Caption = 'Weight queries'
         object Pieceswithunknownweight1: TMenuItem
@@ -1239,149 +1396,6 @@ object MainForm: TMainForm
         object NewPiecesabove10000euroKgr1: TMenuItem
           Caption = 'New Pieces above 10000 euro/Kgr'
           OnClick = NewPiecesabove10000euroKgr1Click
-        end
-      end
-      object Brickqueries1: TMenuItem
-        Caption = 'Brick queries'
-        object AllBricks1: TMenuItem
-          Caption = 'All bricks'
-          OnClick = AllBricks1Click
-        end
-        object N57: TMenuItem
-          Caption = '-'
-        end
-        object Bricks1x1: TMenuItem
-          Caption = 'Bricks 1x'
-          OnClick = Bricks1x1Click
-        end
-        object Bricks2x1: TMenuItem
-          Caption = 'Bricks 2x'
-          OnClick = Bricks2x1Click
-        end
-        object Bricks4x1: TMenuItem
-          Caption = 'Bricks 4x'
-          OnClick = Bricks4x1Click
-        end
-        object Bricks8x1: TMenuItem
-          Caption = 'Bricks 8x'
-          OnClick = Bricks8x1Click
-        end
-        object N14: TMenuItem
-          Caption = '-'
-        end
-        object Specialbricks1x1: TMenuItem
-          Caption = 'Special bricks 1x'
-          OnClick = Specialbricks1x1Click
-        end
-        object SnotBricks1: TMenuItem
-          Caption = 'Snot Bricks'
-          OnClick = SnotBricks1Click
-        end
-        object N12: TMenuItem
-          Caption = '-'
-        end
-        object echnicBricks1x1: TMenuItem
-          Caption = 'Technic Bricks 1x'
-          OnClick = TechnicBricks1x1Click
-        end
-      end
-      object Lengthqueries1: TMenuItem
-        Caption = 'Length queries'
-        object N9: TMenuItem
-          Caption = '-'
-        end
-        object Plates1x1: TMenuItem
-          Caption = 'Plates 1x'
-          OnClick = Plates1x1Click
-        end
-        object Plates2x1: TMenuItem
-          Caption = 'Plates 2x'
-          OnClick = Plates2x1Click
-        end
-        object Plates3x1: TMenuItem
-          Caption = 'Plates 3x'
-          OnClick = Plates3x1Click
-        end
-        object N10: TMenuItem
-          Caption = 'Plates 4x'
-          OnClick = N10Click
-        end
-        object Plates6x1: TMenuItem
-          Caption = 'Plates 6x'
-          OnClick = Plates6x1Click
-        end
-        object Plates8x1: TMenuItem
-          Caption = 'Plates 8x'
-          OnClick = Plates8x1Click
-        end
-        object Plates16x1: TMenuItem
-          Caption = 'Plates 16x'
-          OnClick = Plates16x1Click
-        end
-        object N11: TMenuItem
-          Caption = '-'
-        end
-        object iles1x1: TMenuItem
-          Caption = 'Tiles 1x'
-          OnClick = Tiles1x1Click
-        end
-        object iles2x1: TMenuItem
-          Caption = 'Tiles 2x'
-          OnClick = Tiles2x1Click
-        end
-        object iles3x1: TMenuItem
-          Caption = 'Tiles 3x'
-          OnClick = Tiles3x1Click
-        end
-        object iles4x1: TMenuItem
-          Caption = 'Tiles 4x'
-          OnClick = Tiles4x1Click
-        end
-        object iles6x1: TMenuItem
-          Caption = 'Tiles 6x'
-          OnClick = Tiles6x1Click
-        end
-        object iles8x1: TMenuItem
-          Caption = 'Tiles 8x'
-          OnClick = Tiles8x1Click
-        end
-      end
-      object Slopequeries1: TMenuItem
-        Caption = 'Slope queries'
-        object Slopes18degrees1: TMenuItem
-          Caption = 'Slopes 18 degrees'
-          OnClick = Slopes18degrees1Click
-        end
-        object Slopes33degrees1: TMenuItem
-          Caption = 'Slopes 33 degrees'
-          OnClick = Slopes33degrees1Click
-        end
-        object Slopes45degrees1: TMenuItem
-          Caption = 'Slopes 45 degrees'
-          OnClick = Slopes45degrees1Click
-        end
-        object Slopes65degrees1: TMenuItem
-          Caption = 'Slopes 65 degrees'
-          OnClick = Slopes65degrees1Click
-        end
-        object Slopes75degrees1: TMenuItem
-          Caption = 'Slopes 75 degrees'
-          OnClick = Slopes75degrees1Click
-        end
-        object N25: TMenuItem
-          Caption = '-'
-        end
-        object InvertedSlopes33degrees1: TMenuItem
-          Caption = 'Inverted Slopes 33 degrees'
-          OnClick = InvertedSlopes33degrees1Click
-        end
-        object InvertedSlopes45degrees1: TMenuItem
-          Caption = 'Inverted Slopes 45 degrees'
-          OnClick = InvertedSlopes45degrees1Click
-        end
-        object InvertedSlopes75degrees1: TMenuItem
-          Caption = 'Inverted Slopes 75 degrees'
-          OnClick = InvertedSlopes75degrees1Click
         end
       end
       object Pricequeries1: TMenuItem

@@ -369,6 +369,9 @@ type
     iles8x1: TMenuItem;
     Bricks4x1: TMenuItem;
     Bricks8x1: TMenuItem;
+    Brickqueries1: TMenuItem;
+    AllBricks1: TMenuItem;
+    N57: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -610,6 +613,7 @@ type
     procedure Tiles8x1Click(Sender: TObject);
     procedure Bricks4x1Click(Sender: TObject);
     procedure Bricks8x1Click(Sender: TObject);
+    procedure AllBricks1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -638,8 +642,10 @@ type
     procedure DrawColorCells2(const colors: TDNumberList; const width: integer);
     procedure doShowLengthQueryColor(inv: TBrickInventory; const id: string; const color: integer; inflst: TStringList);
     procedure doShowLengthQueryColorSlopes(inv: TBrickInventory; const id: string; const color: integer; inflst: TStringList);
+    procedure doShowDimentionsQueryColor(inv: TBrickInventory; const id: string; const color: integer; inflst: TStringList);
     procedure doShowLengthQuery(inv: TBrickInventory; const id: string);
     procedure doShowLengthQuerySlopes(inv: TBrickInventory; const id: string);
+    procedure doShowDimentionsQuery(inv: TBrickInventory; const id: string);
     procedure dbloadprogress(const s: string; d : Double);
     procedure ShowLooseParts(inv: TBrickInventory; colormask: Integer = -1; partmask: string = ''; cat: Integer = -1;
       const fromAA: integer = -1; const toAA: integer = MAXINT);
@@ -760,6 +766,7 @@ type
     procedure ShowMyPiecesValue;
     procedure ShowLengthQuery(const id: string);
     procedure ShowLengthQuerySlopes(const id: string);
+    procedure ShowDimentionsQuery(const id: string);
     procedure DrawNavigateBar;
     procedure DrawNavigateCatalog;
     procedure DrawHeadLine(const s: string);
@@ -13212,6 +13219,11 @@ begin
     splitstring(slink, s1, s2, '/');
     ShowLengthQuerySlopes(s2);
   end
+  else if Pos1('dimentionsquery/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowDimentionsQuery(s2);
+  end
   else if slink = 'ShowMissingFromStorageBins' then
   begin
    ShowMissingFromStorageBins;
@@ -14241,6 +14253,132 @@ begin
 
 end;
 
+procedure TMainForm.doShowDimentionsQueryColor(inv: TBrickInventory; const id: string; const color: integer; inflst: TStringList);
+var
+  scode, spart, sbwidth, slen, sarea: string;
+  len, area, bwidth: integer;
+  aa, i: integer;
+  pci: TPieceColorInfo;
+  pi: TPieceInfo;
+  num: integer;
+  totalweight: double;
+  stmp, scolor: string;
+  totallen: integer;
+  totalarea: integer;
+  totalbwidth: integer;
+  totalpieces: integer;
+begin
+  if inv = nil then
+    inv := inventory;
+
+  scolor := itoa(color);
+
+  totallen := 0;
+  totalarea := 0;
+  totalbwidth := 0;
+  totalpieces := 0;
+  totalweight := 0.0;
+  aa := 0;
+
+  document.write('<p valign=top>');
+  stmp := db.colors(color).name + ' (' + itoa(color) + ') (BL=' + IntToStr(db.colors(color).BrickLingColor) + ')' + GetRebrickableColorHtml(color) +
+    '<table border=1 width=' + IntToStr(25) + ' bgcolor="#' + IntToHex(db.colors(color).RGB, 6) + '"><tr><td><br></td></tr></table>';
+  DrawHeadLine(stmp);
+
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+
+  document.write('<tr bgcolor=' + THBGCOLOR + '>');
+  document.write('<th><b>#</b></th>');
+  document.write('<th><b>Part</b></th>');
+  document.write('<th>Qty</th>');
+  document.write('<th>Width</th>');
+  document.write('<th>Len</th>');
+  document.write('<th>Area</th>');
+  document.write('</tr>');
+
+
+  for i := 1 to inflst.Count - 1 do // skip 0 - header
+  begin
+    splitstring(inflst.Strings[i], scode, spart, sbwidth, slen, sarea, ',');
+    if scode <> id then
+      Continue;
+
+    pci := db.PieceColorInfo(spart, color, inflst.Objects[i]);
+    if pci = nil then
+      Continue;
+
+    pi := db.PieceInfo(pci);
+
+    bwidth := atoi(sbwidth);
+    len := atoi(slen);
+    area := atoi(sarea);
+
+    num := inv.LoosePartCount(spart, color);
+
+    totallen := totallen + num * len;
+    totalarea := totalarea + num * area;
+    totalbwidth := totalbwidth + num * bwidth;
+    totalpieces := totalpieces + num;
+
+    Inc(aa);
+
+    document.write('<tr bgcolor=' + THBGCOLOR + '>');
+    document.write('<td><p align="right">' + itoa(aa) + '.</b></td>');
+
+    document.write('<td width=25%><img src=' + scolor + '\' + spart + '.png><br><b>');
+    document.write('<a href=spiece/' + spart + '>' + spart + '</a></b>');
+    document.write(' - ' + db.PieceDesc(pi));
+    document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + HtmlDrawInvImgLink(spart, color, pi) + '</td>');
+
+    document.write('<td width=10% align=right><b>' + IntToStr(num) + '</b>');
+    document.write('<br><a href=editpiece/' + spart + '/' + scolor + '><img src="images\edit.png"></a>');
+    document.write('<br><a href=diagrampiece/' + spart + '/' + scolor + '><img src="images\diagram.png"></a>');
+    document.write('</td>');
+
+    document.write('<td width=25% align=right><b>' + IntToStr(num * bwidth) + '</b><br>');
+    if pci <> nil then
+    begin
+      document.write(Format('(N) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceNew, bwidth)]));
+      document.write(Format('(U) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceUsed, bwidth)]));
+    end;
+
+    document.write('<td width=25% align=right><b>' + IntToStr(num * len) + '</b><br>');
+    if pci <> nil then
+    begin
+      document.write(Format('(N) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceNew, len)]));
+      document.write(Format('(U) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceUsed, len)]));
+    end;
+    document.write('</td>');
+
+    document.write('<td width=25% align=right><b>' + IntToStr(num * area) + '</b><br>');
+    if pci <> nil then
+    begin
+      document.write(Format('(N) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceNew, area)]));
+      document.write(Format('(U) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceUsed, area)]));
+    end;
+
+    document.write('</td>');
+
+    if pi <> nil then
+      if pi.weight > 0.0 then
+        totalweight := totalweight + pi.weight * num;
+
+    document.write('</tr>');
+  end;
+
+
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
+  document.write('<td width=35%><b>' + IntToStr(aa) + ' unique mold' + decide(aa = 1, '', 's') + '</b></td>');
+
+  document.write('<td width=10% align=right><b>' + IntToStr(totalpieces) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>');
+
+  document.write('<td width=10% align=right><b>' + IntToStr(totalbwidth) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + IntToStr(totallen) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + IntToStr(totalarea) + '</b></td>');
+
+  document.write('</tr></table></p>');
+end;
+
 const
   NUMCROSSCOLORS = 32;
   CROSSCOLOR: array[0..NUMCROSSCOLORS - 1] of integer = (
@@ -14392,6 +14530,63 @@ begin
   Screen.Cursor := crDefault;
 end;
 
+procedure TMainForm.doShowDimentionsQuery(inv: TBrickInventory; const id: string);
+var
+  lenlst: TStringList;
+  i: integer;
+begin
+  ShowSplash;
+  SplashProgress('Working...', 0);
+
+  lenlst := TStringList.Create;
+  if fexists(basedefault + 'db\db_cross_stats.txt') then
+    lenlst.LoadFromFile(basedefault + 'db\db_cross_stats.txt');
+
+  UpdateDismantaledsetsinv;
+
+  if inv = nil then
+    inv := inventory;
+
+  Screen.Cursor := crHourglass;
+
+  document.write('<body background="splash.jpg">');
+  document.title(id + 'Stats');
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+  DrawHeadLine(id);
+
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+
+  for i := 0 to NUMCROSSCOLORS - 1 do
+  begin
+    if not odd(i) then
+      document.write('<tr bgcolor=' + THBGCOLOR + '>');
+
+    document.write('<td>');
+    doShowDimentionsQueryColor(inv, id, CROSSCOLOR[i], lenlst);
+    document.write('</td>');
+
+    if odd(i) then
+      document.write('</tr>');
+
+    SplashProgress('Working...', (i + 1) / NUMCROSSCOLORS);
+  end;
+
+  document.write('</table></p></div>');
+  document.SaveBufferToFile(diskmirror);
+
+  SplashProgress('Working...', 1);
+
+  document.Flash;
+
+  HideSplash;
+
+  lenlst.Free;
+
+  Screen.Cursor := crDefault;
+end;
+
 procedure TMainForm.ShowLengthQuery(const id: string);
 begin
   doShowLengthQuery(inventory, id);
@@ -14400,6 +14595,11 @@ end;
 procedure TMainForm.ShowLengthQuerySlopes(const id: string);
 begin
   doShowLengthQuerySlopes(inventory, id);
+end;
+
+procedure TMainForm.ShowDimentionsQuery(const id: string);
+begin
+  doShowDimentionsQuery(inventory, id);
 end;
 
 procedure TMainForm.Missingfromstoragebins1Click(Sender: TObject);
@@ -20223,6 +20423,13 @@ var
   foo: Boolean;
 begin
   HTMLClick('lengthquery/bricks8x', foo);
+end;
+
+procedure TMainForm.AllBricks1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('dimentionsquery/bricksx', foo);
 end;
 
 end.

@@ -1241,8 +1241,15 @@ object MainForm: TMainForm
           OnClick = NewPiecesabove10000euroKgr1Click
         end
       end
-      object Lengthqueries1: TMenuItem
-        Caption = 'Length queries'
+      object Brickqueries1: TMenuItem
+        Caption = 'Brick queries'
+        object AllBricks1: TMenuItem
+          Caption = 'All bricks'
+          OnClick = AllBricks1Click
+        end
+        object N57: TMenuItem
+          Caption = '-'
+        end
         object Bricks1x1: TMenuItem
           Caption = 'Bricks 1x'
           OnClick = Bricks1x1Click
@@ -1270,6 +1277,16 @@ object MainForm: TMainForm
           Caption = 'Snot Bricks'
           OnClick = SnotBricks1Click
         end
+        object N12: TMenuItem
+          Caption = '-'
+        end
+        object echnicBricks1x1: TMenuItem
+          Caption = 'Technic Bricks 1x'
+          OnClick = TechnicBricks1x1Click
+        end
+      end
+      object Lengthqueries1: TMenuItem
+        Caption = 'Length queries'
         object N9: TMenuItem
           Caption = '-'
         end
@@ -1327,13 +1344,6 @@ object MainForm: TMainForm
         object iles8x1: TMenuItem
           Caption = 'Tiles 8x'
           OnClick = Tiles8x1Click
-        end
-        object N12: TMenuItem
-          Caption = '-'
-        end
-        object echnicBricks1x1: TMenuItem
-          Caption = 'Technic Bricks 1x'
-          OnClick = TechnicBricks1x1Click
         end
       end
       object Slopequeries1: TMenuItem

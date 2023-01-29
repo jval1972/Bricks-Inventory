@@ -367,6 +367,7 @@ type
     iles4x1: TMenuItem;
     iles6x1: TMenuItem;
     iles8x1: TMenuItem;
+    Bricks4x1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -606,6 +607,7 @@ type
     procedure Tiles4x1Click(Sender: TObject);
     procedure Tiles6x1Click(Sender: TObject);
     procedure Tiles8x1Click(Sender: TObject);
+    procedure Bricks4x1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -20208,6 +20210,13 @@ var
   foo: Boolean;
 begin
   HTMLClick('lengthquery/tiles8x', foo);
+end;
+
+procedure TMainForm.Bricks4x1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('lengthquery/bricks4x', foo);
 end;
 
 end.

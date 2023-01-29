@@ -1251,6 +1251,10 @@ object MainForm: TMainForm
           Caption = 'Bricks 2x'
           OnClick = Bricks2x1Click
         end
+        object Bricks4x1: TMenuItem
+          Caption = 'Bricks 4x'
+          OnClick = Bricks4x1Click
+        end
         object N14: TMenuItem
           Caption = '-'
         end

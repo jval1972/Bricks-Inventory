@@ -5275,7 +5275,7 @@ procedure TMainForm.ShowTagInv(const tag: string);
 var
   i: integer;
   pci: TPieceColorInfo;
-  inv: TBrickInventory;
+  inv, minifiginv: TBrickInventory;
   s1: string;
   alltags: TStringList;
   idx: integer;
@@ -5313,6 +5313,18 @@ begin
 
   inv.DismandalAllSets;
   DrawInventoryTable(inv);
+
+  minifiginv := inv.Minifigures;
+  if minifiginv.numlooseparts > 0 then
+  begin
+    document.write('<p>');
+    DrawHeadLine('Minifigures');
+    DrawInventoryTableNoPages(minifiginv);
+    document.write('<br>');
+    document.write('<br>');
+    document.write('</p>');
+  end;
+  minifiginv.free;
 
   s1 := basedefault + 'out\Tags\';
   if not DirectoryExists(s1) then

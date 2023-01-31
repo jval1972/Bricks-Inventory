@@ -829,6 +829,8 @@ type
     procedure SortInventory(const ainv: TBrickInventory);
     function taglink(const tag: string): string;
     function lugbulklinks(const pci: TPieceColorInfo): string;
+    function GetSetCostDbl(const setid: string): double;
+    function GetItemCostDbl(const apart: string; const acolor: integer): double;
   public
     { Public declarations }
     activebits: integer;
@@ -3360,7 +3362,7 @@ begin
         totalcostwu := totalcostwu + pru * brick.num;
       end;
     end;
-    mycost := orders.ItemCostDbl(brick.part, brick.color);
+    mycost := GetItemCostDbl(brick.part, brick.color);
     if not lite then
       document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * brick.num]) + '</td>');
     mycosttot := mycosttot + mycost * brick.num;
@@ -6243,7 +6245,7 @@ begin
               document.write('<td width=15% align=right>-</td>');
               document.write('<td width=15% align=right>-</td>');
             end;
-            mycost := orders.ItemCostDbl(pcs, i);
+            mycost := GetItemCostDbl(pcs, i);
             document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * numpieces]) + '</td>');
             mycosttot := mycosttot + mycost * numpieces;
             document.write('</tr>');
@@ -7093,7 +7095,7 @@ begin
       document.write('<td width=15% align=right>-</td>');
       document.write('<td width=15% align=right>-</td>');
     end;
-    mycost := orders.ItemCostDbl(pcs, cl);
+    mycost := GetItemCostDbl(pcs, cl);
     document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * numpieces]) + '</td>');
     mycosttot := mycosttot + mycost * numpieces;
     document.write('</tr>');
@@ -7264,7 +7266,7 @@ begin
       document.write('<td width=12% align=right>-</td>');
       document.write('<td width=12% align=right>-</td>');
     end;
-    mycost := orders.ItemCostDbl(pcs, cl);
+    mycost := GetItemCostDbl(pcs, cl);
     document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * numpieces]) + '</td>');
     mycosttot := mycosttot + mycost * numpieces;
     document.write('</tr>');
@@ -7412,7 +7414,7 @@ begin
       document.write('<td width=15% align=right>-</td>');
       document.write('<td width=15% align=right>-</td>');
     end;
-    mycost := orders.ItemCostDbl(pcs, cl);
+    mycost := GetItemCostDbl(pcs, cl);
     document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * numpieces]) + '</td>');
     mycosttot := mycosttot + mycost * numpieces;
     document.write('</tr>');
@@ -7660,7 +7662,7 @@ begin
             document.write('<td width=15% align=right>-</td>');
             document.write('<td width=15% align=right>-</td>');
           end;
-          mycost := orders.ItemCostDbl(pcs, i);
+          mycost := GetItemCostDbl(pcs, i);
           document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * numpieces]) + '</td>');
           document.write('</tr>');
 
@@ -7905,7 +7907,7 @@ begin
             document.write('<td width=15% align=right>-</td>');
             document.write('<td width=15% align=right>-</td>');
           end;
-          mycost := orders.ItemCostDbl(pcs, i);
+          mycost := GetItemCostDbl(pcs, i);
           document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * numpieces]) + '</td>');
           document.write('</tr>');
 
@@ -11238,7 +11240,7 @@ begin
         end;
       end;
 
-      mycost := orders.ItemCostDbl(brick.part, brick.color);
+      mycost := GetItemCostDbl(brick.part, brick.color);
       document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * brick.num]) + '</td>');
       mycosttot := mycosttot + mycost * brick.num;
       if mycost > 0.0 then
@@ -20462,6 +20464,53 @@ var
   foo: Boolean;
 begin
   HTMLClick('dimentionsquery/platesx', foo);
+end;
+
+function TMainForm.GetSetCostDbl(const setid: string): double;
+var
+  ocost: ordercost_t;
+  costfname: string;
+  sL: TStringList;
+  i: integer;
+  s1, s2: string;
+  x: integer;
+  dnum: integer;
+  dcost: double;
+begin
+  ocost := orders.ItemCost(setid, -1);
+  dnum := ocost.num;
+  dcost := ocost.totcost;
+
+  costfname := basedefault + 'out\' + setid + '\' + setid + '_cost.txt';
+  if fexists(costfname) then
+  begin
+    sL := TStringList.Create;
+    try
+      sL.LoadFromFile(costfname);
+      for i := 0 to sL.Count - 1 do
+      begin
+        splitstring(sL.Strings[i], s1, s2, ',');
+        x := atoi(s1);
+        dnum := dnum + x;
+        dcost := dcost + x * atof(s2);
+      end;
+    finally
+      sL.Free;
+    end;
+  end;
+
+  if dnum = 0 then
+    Result := 0.0
+  else
+    Result := dcost / dnum;
+end;
+
+function TMainForm.GetItemCostDbl(const apart: string; const acolor: integer): double;
+begin
+  if acolor = -1 then
+    Result := GetSetCostDbl(apart)
+  else
+    Result := orders.ItemCostDbl(apart, acolor);
 end;
 
 end.

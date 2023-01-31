@@ -613,7 +613,7 @@ object EditSetAsTextForm: TEditSetAsTextForm
     Top = 41
     Width = 604
     Height = 306
-    ActivePage = TabSheet1
+    ActivePage = TabSheet3
     Align = alClient
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
@@ -630,6 +630,12 @@ object EditSetAsTextForm: TEditSetAsTextForm
         Width = 596
         Height = 213
         Align = alClient
+        Font.Charset = OEM_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 0
         WordWrap = False
@@ -796,6 +802,34 @@ object EditSetAsTextForm: TEditSetAsTextForm
         Height = 17
         Caption = 'Moc'
         TabOrder = 2
+      end
+    end
+    object TabSheet3: TTabSheet
+      Caption = 'Cost'
+      ImageIndex = 2
+      object CostMemo: TMemo
+        Left = 0
+        Top = 0
+        Width = 393
+        Height = 275
+        Align = alLeft
+        Font.Charset = OEM_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+        ScrollBars = ssBoth
+        TabOrder = 0
+      end
+      object AddPurchaseButton1: TButton
+        Left = 416
+        Top = 8
+        Width = 129
+        Height = 25
+        Caption = 'Add purchase...'
+        TabOrder = 1
+        OnClick = AddPurchaseButton1Click
       end
     end
   end

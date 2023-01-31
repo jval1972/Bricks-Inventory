@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2019 by Jim Valavanis
+//  Copyright (C) 2014-2023 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -63,6 +63,9 @@ type
     UpdateYearSpeedButton: TSpeedButton;
     AppendButton: TButton;
     RemoveButton: TButton;
+    TabSheet3: TTabSheet;
+    CostMemo: TMemo;
+    AddPurchaseButton1: TButton;
     procedure FormCreate(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure AddButtonClick(Sender: TObject);
@@ -74,6 +77,7 @@ type
     procedure YearEditKeyPress(Sender: TObject; var Key: Char);
     procedure AppendButtonClick(Sender: TObject);
     procedure RemoveButtonClick(Sender: TObject);
+    procedure AddPurchaseButton1Click(Sender: TObject);
   private
     { Private declarations }
     procedure PopulateColors;
@@ -83,7 +87,8 @@ type
     setid: string;
   end;
 
-function EditSetAsTextForm(const setid: string; var data: string; var desc: string; var year: integer; var ismoc: boolean): boolean;
+function EditSetAsTextForm(const setid: string; var data: string; var desc: string;
+  var year: integer; var ismoc: boolean): boolean;
 
 implementation
 
@@ -93,19 +98,26 @@ uses
   urlmon,
   bi_delphi, bi_db, bi_globals, bi_utils, searchpart, ImportFileForm;
 
-function EditSetAsTextForm(const setid: string; var data: string; var desc: string; var year: integer; var ismoc: boolean): boolean;
+function EditSetAsTextForm(const setid: string; var data: string; var desc: string;
+  var year: integer; var ismoc: boolean): boolean;
 var
   f: TEditSetAsTextForm;
+  pcostdata, ncostdata: string;
+  costfname: string;
 begin
   Result := False;
   f := TEditSetAsTextForm.Create(nil);
   try
     f.Caption := f.Caption + ' - ' + setid;
+    f.PageControl1.ActivePageIndex := 0;
     f.setid := setid;
     f.Memo1.Text := data;
     f.Edit1.Text := desc;
     f.YearEdit.Text := itoa(year);
     f.CheckBox1.Checked := ismoc;
+    costfname := basedefault + 'out\' + setid + '\' + setid + '_cost.txt';
+    pcostdata := LoadStringFromFile(costfname);
+    f.CostMemo.Text := pcostdata;
     f.ShowModal;
     if f.ModalResult = mrOK then
     begin
@@ -113,6 +125,16 @@ begin
       desc := f.Edit1.Text;
       year := atoi(trim(f.YearEdit.Text));
       ismoc := f.CheckBox1.Checked;
+      ncostdata := f.CostMemo.Text;
+      if ncostdata <> pcostdata then
+      begin
+        if not DirectoryExists(basedefault + 'out') then
+          MkDir(basedefault + 'out');
+        if not DirectoryExists(basedefault + 'out\' + setid) then
+          MkDir(basedefault + 'out\' + setid);
+        Backupfile(costfname);
+        SaveStringToFile(costfname, ncostdata);
+      end;
       Result := True;
     end;
   finally
@@ -452,6 +474,26 @@ begin
     finally
       data.Free;
     end;
+  end;
+end;
+
+procedure TEditSetAsTextForm.AddPurchaseButton1Click(Sender: TObject);
+var
+  nsets: integer;
+  ncost: Double;
+  ssets: string;
+  scost: string;
+begin
+  nsets := 1;
+  ncost := 9.99;
+  ssets := itoa(nsets);
+  scost := Format('%2.2f', [ncost]);
+  if InputQuery2(Caption, 'Num sets', 'Cost per set', ssets, scost) then
+  begin
+    nsets := atoi(ssets);
+    ncost := atof(scost);
+    if nsets > 0 then
+      CostMemo.Lines.Add(Format('%d,%2.2f', [nsets, ncost]));
   end;
 end;
 

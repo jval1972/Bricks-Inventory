@@ -2983,28 +2983,66 @@ end;
 
 procedure TBrickInventory.SaveLoosePartsForRebrickable(const fname: string);
 var
-  s: TStringList;
+  s, s2: TStringList;
+  fname2: string;
+  i, cnt: integer;
 //  i: integer;
 //  sold, snew: string;
 //  p, c, n: string;
 begin
   s := TStringList.Create;
+  GetLoosePartsInStringList(s, True);
   try
-    s.Add('Part,Color,Quantity');
-    try
-      GetLoosePartsInStringList(s, True);
-      {for i := 1 to s.Count - 1 do
+    if s.Count <= 5000 then
+    begin
+      s.Insert(0, 'Part,Color,Quantity');
+      try
+        {for i := 1 to s.Count - 1 do
+        begin
+          sold := s.Strings[i];
+          splitstring(sold, p, c, n, ',');
+          snew := p + ',' + itoa(db.Colors(atoi(c)).RebrickableColor) + ',' + n;
+          if snew <> sold then
+            s.Strings[i] := snew;
+        end;}
+        S_BackupFile(fname);
+        S_SaveToFileUTF8(s, fname);
+      except
+        I_Warning('TBrickInventory.SaveLoosePartsForRebrickable(): Can not save file %s'#13#10, [fname]);
+      end;
+    end
+    else
+    begin
+      cnt := 0;
+      while s.Count > 5000 do
       begin
-        sold := s.Strings[i];
-        splitstring(sold, p, c, n, ',');
-        snew := p + ',' + itoa(db.Colors(atoi(c)).RebrickableColor) + ',' + n;
-        if snew <> sold then
-          s.Strings[i] := snew;
-      end;}
-      S_BackupFile(fname);
-      S_SaveToFile(s, fname);
-    except
-      I_Warning('TBrickInventory.SaveLoosePartsForRebrickable(): Can not save file %s'#13#10, [fname]);
+        s2 := TStringList.Create;
+        for i := 0 to 4999 do
+        begin
+          s2.Add(s.Strings[0]);
+          s.Delete(0);
+        end;
+        s2.Insert(0, 'Part,Color,Quantity');
+        if cnt > 0 then
+          fname2 :=
+            ExtractFilePath(fname) +
+              StringReplace(ExtractFileName(fname), ExtractFileExt(fname), '_' + itoa(cnt) + ExtractFileExt(fname), [rfReplaceAll, rfIgnoreCase])
+        else
+          fname2 := fname;
+        S_BackupFile(fname2);
+        S_SaveToFileUTF8(s2, fname2);
+        s2.Free;
+        Inc(cnt);
+      end;
+      if s.Count > 0 then
+      begin
+        s.Insert(0, 'Part,Color,Quantity');
+        fname2 :=
+          ExtractFilePath(fname) +
+            StringReplace(ExtractFileName(fname), ExtractFileExt(fname), '_' + itoa(cnt) + ExtractFileExt(fname), [rfReplaceAll, rfIgnoreCase]);
+        S_BackupFile(fname2);
+        S_SaveToFileUTF8(s, fname2);
+      end;
     end;
   finally
     s.Free;

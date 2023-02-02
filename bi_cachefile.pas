@@ -35,6 +35,8 @@ uses
 
 function S_SaveToFile(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
 
+function S_SaveToFileUTF8(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
+
 function S_LoadFromFile(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
 
 function SH_SaveToFile(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
@@ -414,6 +416,15 @@ begin
   if f.hits > MAXFSCACHEHITS then
     f.Flash;
   Result := True;
+end;
+
+function S_SaveToFileUTF8(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
+var
+  s2: TStringList;
+begin
+  s2 := TStringList.Create;
+  s2.Text := AnsiToUtf8(s.Text);
+  Result := S_SaveToFile(s2, fname, maxretry, msecs);
 end;
 
 function S_LoadFromFile(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;

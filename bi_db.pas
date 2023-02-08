@@ -3073,7 +3073,6 @@ begin
         s.Add(Format('%s,%d,%d', ['88760c01pr0010', 0, bp.num]));
         s.Add(Format('%s,%d,%d', ['95542', bp.color, bp.num]));
       end
-      else
       else if (bp.part = '970c00') and (bp.color = 1) then begin s.Add(Format('%s,%d,%d', ['970c28', bp.color, bp.num])); end
       else if (bp.part = '970c00') and (bp.color = 14) then begin s.Add(Format('%s,%d,%d', ['970c01', bp.color, bp.num])); end
       else if bp.part = '92820pr0007c01' then begin s.Add(Format('%s,%d,%d', ['92820c01pr0007', bp.color, bp.num])); end

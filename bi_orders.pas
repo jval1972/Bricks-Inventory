@@ -221,20 +221,21 @@ begin
   tq2 := atoi(ii.TQ2, MAXINT);
   tq3 := atoi(ii.TQ3, MAXINT);
 
-  if oinf.num >= tq3 then
+  if (oinf.num >= tq3) and (tp3 > 0.0) then
     price := tp3
-  else if oinf.num >= tq2 then
+  else if (oinf.num >= tq2) and (tp2 > 0.0) then
     price := tp2
-  else if oinf.num >= tq1 then
+  else if (oinf.num >= tq1) and (tp1 > 0.0) then
     price := tp1
   else
     price := atof(ii.PRICE);
-  price := price * (100 - atof(ii.sale, 0.0)) / 100;
+  if (ii.sale <> '') and (oo.ORDERID < 6000000) then
+    price := price * (100 - atof(ii.sale, 0.0)) / 100;
   oinf.price := price;
   pricetot := price * atof(oo.BASEGRANDTOTAL) / atof(oo.ORDERTOTAL);
   //*******************************************
-  oinf.price := atof(ii.PRICE);
-  pricetot := atof(ii.PRICE) * atof(oo.BASEGRANDTOTAL) / atof(oo.ORDERTOTAL);
+//  oinf.price := atof(ii.PRICE);
+//  pricetot := atof(ii.PRICE) * atof(oo.BASEGRANDTOTAL) / atof(oo.ORDERTOTAL);
   //*******************************************
   oinf.pricetot := pricetot;
   oinf.currency := oo.BASECURRENCYCODE;

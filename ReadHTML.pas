@@ -188,7 +188,7 @@ Const
   ResSy : array[1..MaxRes] of Symb =
      (htmlSy, TitleSy, BodySy, HeadSy, BSy, ISy, HeadingSy, EmSy, StrongSy,
       USy, CiteSy, VarSy, TTSy, CodeSy, KbdSy, SampSy, OLSy, ULSy, DirSy,
-      MenuSy, DLSy, ASy, AddressSy, BlockQuoteSy, PreSy, CenterSy,TableSy,
+      MenuSy, DLSy, ASy, AddressSy, BlockQuoteSy, PreSy, CenterSy, TableSy,
       TDsy, THSy, CaptionSy, FormSy, TextAreaSy,  SelectSy, OptionSy, FontSy,
       SubSy, SupSy, BigSy, SmallSy, PSy, MapSy, FrameSetSy, NoFramesSy,
       ScriptSy, DivSy, SSy, StrikeSy, TRSy, NoBrSy, StyleSy, SpanSy, ColGroupSy,
@@ -1048,9 +1048,9 @@ procedure CheckForAlign;
 var
   S: string;
 begin
-S := FindAlignment;
-if S <> '' then
-  PropStack.Last.Assign(S, TextAlign);
+  S := FindAlignment;
+  if S <> '' then
+    PropStack.Last.Assign(S, TextAlign);
 end;
 
 type

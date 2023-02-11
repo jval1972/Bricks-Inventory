@@ -3328,6 +3328,9 @@ begin
       document.write('<br><a href=diagrampiece/' + brick.part + '/' + scolor + '><img src="images\diagram.png"></a>');
     end;
     document.write('</td>');
+
+    www := 0.0;
+
     if pci <> nil then
     begin
       prn := pci.EvaluatePriceNew;

@@ -3200,7 +3200,7 @@ var
   pl: TStringList;
   num: integer;
   accurstr: string;
-  totalweight: double;
+  totalweight, totalweight_ready: double;
   totalcostwn: double;
   totalcostwt: double;
   totalcostwu: double;
@@ -3210,7 +3210,7 @@ var
   cinfo: colorinfo_p;
   www: double;
   readyinv: TBrickInventory;
-  rnum: integer;
+  rnum, rnum_tot: integer;
 begin
   UpdateDismantaledsetsinv;
 
@@ -3274,6 +3274,8 @@ begin
   cl := TDNumberList.Create;
   pl := TStringList.Create;
   totalweight := 0.0;
+  totalweight_ready := 0.0;
+  rnum_tot := 0;
   totalcostwn := 0.0;
   totalcostwt := 0.0;
   totalcostwu := 0.0;
@@ -3374,6 +3376,8 @@ begin
       if readyinv <> nil then
       begin
         rnum := readyinv.LoosePartCount(brick.part, brick.color);
+        rnum_tot := rnum_tot + rnum;
+        totalweight_ready := totalweight_ready + www * rnum;
         document.write('<td width=10% align=right>' + Format('%d<br>', [rnum]));
         if rnum >= brick.num then
           document.write('<img src="images\readyall.png"></td>')
@@ -3450,6 +3454,9 @@ begin
     else
       document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>%2.3f%s', [mycosttot, 100 * mytotcostpieces / num, '%']) + '</b></td>');
   end;
+
+  if showreadylist then
+    document.write('<td width=10% align=right><b>' + IntToStr(rnum_tot) + '<br>' + Format('%2.3f Kgr', [totalweight_ready / 1000]) + '</b></td>');
 
   document.write('</tr></table>');
 

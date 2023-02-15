@@ -2045,7 +2045,7 @@ begin
       end
       else if (bp.part = '11820') and (bp.color = -1) then
       begin
-        s.Add(Format('%s,%d,%d', ['93088pr0001a', 92, bp.num]));
+        s.Add(Format('%s,%d,%d', ['93088pr0008', 92, bp.num]));
       end
       else if bp.part = '167' then
       begin

@@ -3073,6 +3073,7 @@ begin
         s.Add(Format('%s,%d,%d', ['88760c01pr0010', 0, bp.num]));
         s.Add(Format('%s,%d,%d', ['95542', bp.color, bp.num]));
       end
+      else if (bp.part = '970c00') and (bp.color = 0) then begin s.Add(Format('%s,%d,%d', ['970c03', bp.color, bp.num])); end
       else if (bp.part = '970c00') and (bp.color = 1) then begin s.Add(Format('%s,%d,%d', ['970c28', bp.color, bp.num])); end
       else if (bp.part = '970c00') and (bp.color = 14) then begin s.Add(Format('%s,%d,%d', ['970c01', bp.color, bp.num])); end
       else if bp.part = '92820pr0007c01' then begin s.Add(Format('%s,%d,%d', ['92820c01pr0007', bp.color, bp.num])); end
@@ -3191,6 +3192,16 @@ begin
       else if (bp.part = 'racerbase') and (bp.color = 15) then begin s.Add(Format('%s,%d,%d', ['30558c02', bp.color, bp.num])); end
       else if (bp.part = 'racerbase') and (bp.color = 115) then begin s.Add(Format('%s,%d,%d', ['30558c04', bp.color, bp.num])); end
       else if bp.part = 'x852c01' then begin s.Add(Format('%s,%d,%d', ['4362acx1', bp.color, bp.num])); end
+      // 20230215 Additions
+      else if bp.part = 'x351' then begin s.Add(Format('%s,%d,%d', ['41850', bp.color, bp.num])); end
+      else if bp.part = 'x543' then begin s.Add(Format('%s,%d,%d', ['upn0271', bp.color, bp.num])); end
+      else if bp.part = 'x659' then begin s.Add(Format('%s,%d,%d', ['upn0298', bp.color, bp.num])); end
+      else if bp.part = '10830' then begin s.Add(Format('%s,%d,%d', ['10830pat0001', bp.color, bp.num])); end
+      else if bp.part = '2349' then begin s.Add(Format('%s,%d,%d', ['2349a', bp.color, bp.num])); end
+      else if bp.part = '2609' then begin s.Add(Format('%s,%d,%d', ['2609a', bp.color, bp.num])); end
+      else if bp.part = '30089' then begin s.Add(Format('%s,%d,%d', ['30089a', bp.color, bp.num])); end
+      else if bp.part = 'x186' then begin s.Add(Format('%s,%d,%d', ['upn0220', bp.color, bp.num])); end
+      else if bp.part = '731c01' then begin s.Add(Format('%s,%d,%d', ['73129', bp.color, bp.num])); end
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;

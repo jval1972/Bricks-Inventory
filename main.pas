@@ -1370,6 +1370,8 @@ begin
       document.write('<td width=19%><a href=sellerorders/' + oo.SELLER + '>' + oo.SELLER + '</a></td>');
       if oo.ORDERSTATUS = 'NSS' then
         document.write('<td width=10%><font color="red">' + oo.ORDERSTATUS + '</font></td>')
+      else if (oo.ORDERSTATUS = 'Canceled') or (oo.ORDERSTATUS = 'Cancelled') then
+        document.write('<td width=10%><font color="red">' + oo.ORDERSTATUS + '</font></td>')
       else if (oo.ORDERSTATUS = 'Completed') or (oo.ORDERSTATUS = 'Received') then
         document.write('<td width=10%><font color="green">' + oo.ORDERSTATUS + '</font></td>')
       else
@@ -1478,6 +1480,8 @@ begin
     else
       document.write('<td width=19%>' + oo.SELLER + '</td>');
     if oo.ORDERSTATUS = 'NSS' then
+      document.write('<td width=10%><font color="red">' + oo.ORDERSTATUS + '</font></td>')
+    else if (oo.ORDERSTATUS = 'Canceled') or (oo.ORDERSTATUS = 'Cancelled') then
       document.write('<td width=10%><font color="red">' + oo.ORDERSTATUS + '</font></td>')
     else if (oo.ORDERSTATUS = 'Completed') or (oo.ORDERSTATUS = 'Received') then
       document.write('<td width=10%><font color="green">' + oo.ORDERSTATUS + '</font></td>')
@@ -2776,6 +2780,8 @@ begin
 
       if oitem.orderstatus = 'NSS' then
         ss1 := '<font color="red">'
+      else if (oitem.orderstatus = 'Canceled') or (oitem.orderstatus = 'Cancelled') then
+        ss1 := '<font color="red">'
       else if (oitem.orderstatus = 'Completed') or (oitem.orderstatus = 'Received') then
         ss1 := '<font color="green">'
       else
@@ -2818,7 +2824,7 @@ begin
         document.write('</td>');
 
 
-      if oitem.orderstatus = 'NSS' then
+      if (oitem.orderstatus = 'NSS') or (oitem.orderstatus = 'Canceled') or (oitem.orderstatus = 'Cancelled') then
         document.write('</font>');
 
       document.write('</tr>');
@@ -2980,7 +2986,7 @@ begin
     for i := 0 to oinf.Count - 1 do
     begin
       oitem := oinf.Objects[i] as TOrderItemInfo;
-      if oitem.orderstatus <> 'NSS' then
+      if (oitem.orderstatus <> 'NSS') and (oitem.orderstatus <> 'Canceled') and (oitem.orderstatus <> 'Cancelled') then
       begin
         if oitem.num >= needed then
           sfont := '<font color="green">'

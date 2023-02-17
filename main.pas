@@ -3977,6 +3977,7 @@ var
   desc: string;
   tmpsets: TStringList;
   s1, s2: string;
+  swanted: string;
   sx, ss1, ss2, ss3: string;
   sf1, sf2, sf3, sf4: string;
   numbricks: integer;
@@ -4097,6 +4098,38 @@ begin
   inv.StoreHistoryStatsRec(basedefault + 'out\' + Trim(setid) + '\' + Trim(setid) + '.stats');
   inv.StoreHistoryEvalRec(basedefault + 'out\' + Trim(setid) + '\' + Trim(setid) + '.ieval');
   inventory.StorePieceInventoryStatsRec(basedefault + 'out\' + Trim(setid) + '\' + Trim(setid) + '.history', Trim(setid), -1);
+
+  swanted := s1 + setid + '_wantedlist';
+  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_200%.xml', 2.0);
+  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_150%.xml', 1.5);
+  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_140%.xml', 1.4);
+  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_130%.xml', 1.3);
+  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_120%.xml', 1.2);
+  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_110%.xml', 1.1);
+  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_100%.xml', 1.0);
+  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_090%.xml', 0.9);
+  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_080%.xml', 0.8);
+  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_070%.xml', 0.7);
+  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_060%.xml', 0.6);
+  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_050%.xml', 0.5);
+  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_040%.xml', 0.4);
+  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_030%.xml', 0.3);
+
+  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_200%.xml', 2.0);
+  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_150%.xml', 1.5);
+  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_140%.xml', 1.4);
+  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_130%.xml', 1.3);
+  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_120%.xml', 1.2);
+  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_110%.xml', 1.1);
+  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_100%.xml', 1.0);
+  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_090%.xml', 0.9);
+  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_080%.xml', 0.8);
+  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_070%.xml', 0.7);
+  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_060%.xml', 0.6);
+  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_050%.xml', 0.5);
+  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_040%.xml', 0.4);
+  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_030%.xml', 0.3);
+
 
   for j := 0 to inv.numlooseparts - 1 do
     inventory.StorePieceInventoryStatsRec(

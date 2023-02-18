@@ -223,6 +223,7 @@ type
     function MissingToBuildInventoryLegacyIgnore(const inv: TBrickInventory): integer;
     function InventoryForMissingToBuildInventory(const inv: TBrickInventory): TBrickInventory;
     function InventoryForMissingToBuildInventoryLegacyIgnore(const inv: TBrickInventory): TBrickInventory;
+    function CommonInventory(const inv: TBrickInventory): TBrickInventory;
     function LoosePartsWeight: double;
     procedure UpdateCostValues;
     procedure DoUpdateCostValues;
@@ -5265,6 +5266,33 @@ begin
   clone2 := inv.Clone;
   clone2.LegacyColorMerge;
   Result := clone1.InventoryForMissingToBuildInventory(clone2);
+  clone1.Free;
+  clone2.Free;
+end;
+
+function TBrickInventory.CommonInventory(const inv: TBrickInventory): TBrickInventory;
+var
+  clone1, clone2: TBrickInventory;
+  i, n, n1, n2: integer;
+begin
+  clone1 := Clone;
+  clone1.DismandalAllSets;
+  clone1.DoReorganize;
+
+  clone2 := inv.Clone;
+  clone2.DismandalAllSets;
+  clone2.DoReorganize;
+
+  result := TBrickInventory.Create;
+  for i := 0 to clone1.numlooseparts - 1 do
+  begin
+    n1 := clone1.flooseparts[i].num;
+    n2 := clone2.LoosePartCount(clone1.flooseparts[i].part, clone1.flooseparts[i].color);
+    n := MinI(n1, n2);
+    if n > 0 then
+      Result.AddLoosePart(clone1.flooseparts[i].part, clone1.flooseparts[i].color, n, clone1.flooseparts[i].pci);
+  end;
+
   clone1.Free;
   clone2.Free;
 end;

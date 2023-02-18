@@ -3203,6 +3203,11 @@ begin
       else if bp.part = '30089' then begin s.Add(Format('%s,%d,%d', ['30089a', bp.color, bp.num])); end
       else if bp.part = 'x186' then begin s.Add(Format('%s,%d,%d', ['upn0220', bp.color, bp.num])); end
       else if bp.part = '731c01' then begin s.Add(Format('%s,%d,%d', ['73129', bp.color, bp.num])); end
+      // 20230218 Additions
+      else if bp.part = '41835pb01' then begin s.Add(Format('%s,%d,%d', ['41835pr0001', bp.color, bp.num])); end
+      else if bp.part = '6239pb083' then begin s.Add(Format('%s,%d,%d', ['6239pr0003', bp.color, bp.num])); end
+      else if bp.part = '3626cpb1290' then begin s.Add(Format('%s,%d,%d', ['3626cpr1663', bp.color, bp.num])); end
+      else if bp.part = '973pb3755c01' then begin s.Add(Format('%s,%d,%d', ['973c22h01pr4897', bp.color, bp.num])); end
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;

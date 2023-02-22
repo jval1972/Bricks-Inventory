@@ -1654,6 +1654,8 @@ begin
               if ((bp.pci as TPieceColorInfo).pieceinfo as TPieceInfo).category = CATEGORYCUSTOMMINIFIGS then
                 Continue;
       end
+      else if (bp.color = 9997) or (bp.color = 9998) then // Ignore Instructions & Original Boxes
+        Continue
       else
         bp.color := db.colors(bp.color).RebrickableColor;
       if sinv <> nil then

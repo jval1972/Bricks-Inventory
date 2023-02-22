@@ -376,6 +376,7 @@ type
     Alltiles1: TMenuItem;
     Allplates1: TMenuItem;
     N58: TMenuItem;
+    Commoninventoryof2sets1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -620,6 +621,7 @@ type
     procedure AllBricks1Click(Sender: TObject);
     procedure Alltiles1Click(Sender: TObject);
     procedure Allplates1Click(Sender: TObject);
+    procedure Commoninventoryof2sets1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -752,6 +754,7 @@ type
     procedure ShowStorageLocationsForMultipledSets(const setids: TStringList);
     procedure ShowLugbulkSuggestions(const years: string; const demand, sold: integer; const price: double);
     procedure ShowCompare2Sets(const set1, set2: string);
+    procedure ShowCommon2Sets(const set1, set2: string);
     procedure ShowOrders(const seller: string = '');
     procedure ShowOrder(const orderid: string);
     procedure DrawOrderInf(const orderid: string);
@@ -11045,6 +11048,7 @@ var
   inv1, inv2: TBrickInventory;
   miss1, miss2: integer;
   missinv1, missinv2: TBrickInventory;
+  commoninv: TBrickInventory;
   b: Boolean;
 begin
   Screen.Cursor := crHourGlass;
@@ -11100,17 +11104,91 @@ begin
   document.write('</td></tr></table>');
 
   document.write('<br>');
+
+  missinv1.Free;
+  missinv2.Free;
+  dodraworderinfo := b;
+
+  commoninv := inv1.CommonInventory(inv2);
+
+  document.write('<table width=100%><tr valign=top>');
+
+  document.write('<td width=100%>');
+  DrawHeadLine(
+    Format('<a href="common2sets/%s/%s">Common inventory</a> for sets <a href="sinv/%s">%s</a> and  <a href="sinv/%s">%s</a>',
+      [set1, set2, set1, set1, set2, set2])
+  );
+
+  DrawHeadLine(Format('%d parts in %d lots common parts',
+    [commoninv.totallooseparts, commoninv.numlooseparts]));
+  DrawInventoryTableNoPages(commoninv, True);
+  commoninv.Free;
+
+  document.write('</td>');
+
   document.write('<br>');
   document.write('</p>');
   document.write('</div>');
   document.write('</body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
-  missinv1.Free;
-  missinv2.Free;
-  dodraworderinfo := b;
   Screen.Cursor := crDefault;
+end;
 
+procedure TMainForm.ShowCommon2Sets(const set1, set2: string);
+var
+  inv1, inv2: TBrickInventory;
+  commoninv: TBrickInventory;
+begin
+  Screen.Cursor := crHourGlass;
+
+  document.write('<body background="splash.jpg">');
+  document.title('Common inventory for ' + set1 + ' ' + set2);
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+  inv1 := db.GetSetInventoryWithOutExtra(set1);
+  inv2 := db.GetSetInventoryWithOutExtra(set2);
+
+  if (inv1 = nil) or (inv2 = nil) then
+  begin
+    if inv1 = nil then
+      DrawHeadLine('Can not find inventory for set ' + set1);
+    if inv2 = nil then
+      DrawHeadLine('Can not find inventory for set ' + set2);
+    document.write('<br>');
+    document.write('</p>');
+    document.write('</div>');
+    document.write('</body>');
+    document.SaveBufferToFile(diskmirror);
+    document.Flash;
+    Screen.Cursor := crDefault;
+    Exit;
+  end;
+
+  commoninv := inv1.CommonInventory(inv2);
+
+  document.write('<table width=100%><tr valign=top>');
+
+  document.write('<td width=100%>');
+  DrawHeadLine(Format('Common inventory for: <br><br>' +
+  ' <a href="sinv/%s">%s - %s</a><br><br><img width=240px src=s\' + set1 + '.jpg><br><br>' +
+  ' <a href="sinv/%s">%s - %s</a><br><br><img width=240px src=s\' + set1 + '.jpg>',
+  [set1, set1, db.SetDesc(set1), set2, set2, db.SetDesc(set2)]));
+  DrawHeadLine(Format('%d parts in %d lots common parts',
+    [commoninv.totallooseparts, commoninv.numlooseparts]));
+  DrawInventoryTableNoPages(commoninv, True);
+  document.write('</td>');
+
+  document.write('<br>');
+  document.write('<br>');
+  document.write('</p>');
+  document.write('</div>');
+  document.write('</body>');
+  document.SaveBufferToFile(diskmirror);
+  document.Flash;
+  commoninv.Free;
+  Screen.Cursor := crDefault;
 end;
 
 function TMainForm.CheckAA(const AA, fromAA, toAA: integer): boolean;
@@ -13220,6 +13298,11 @@ begin
     splitstring(slink, s1, s2, s3, '/');
     ShowCompare2Sets(s2, s3);
   end
+  else if Pos1('common2sets/', slink) then
+  begin
+    splitstring(slink, s1, s2, s3, '/');
+    ShowCommon2Sets(s2, s3);
+  end
   else if Pos1('setsIcanbuild/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
@@ -13394,7 +13477,7 @@ var
   set1, set2: string;
   foo: Boolean;
 begin
-  if Compare2SetsQuery(set1, set2) then
+  if Compare2SetsQuery('Compare sets', set1, set2) then
     HTMLClick('compare2sets/' + set1 + '/' + set2, foo);
 end;
 
@@ -20560,6 +20643,15 @@ begin
     Result := GetSetCostDbl(apart)
   else
     Result := orders.ItemCostDbl(apart, acolor);
+end;
+
+procedure TMainForm.Commoninventoryof2sets1Click(Sender: TObject);
+var
+  set1, set2: string;
+  foo: Boolean;
+begin
+  if Compare2SetsQuery('Common inventory of sets', set1, set2) then
+    HTMLClick('common2sets/' + set1 + '/' + set2, foo);
 end;
 
 end.

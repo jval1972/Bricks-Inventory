@@ -52,7 +52,7 @@ type
     { Public declarations }
   end;
 
-function Compare2SetsQuery(var set1, set2: string): boolean;
+function Compare2SetsQuery(const title: string; var set1, set2: string): boolean;
 
 implementation
 
@@ -61,13 +61,14 @@ implementation
 uses
   searchset;
 
-function Compare2SetsQuery(var set1, set2: string): boolean;
+function Compare2SetsQuery(const title: string; var set1, set2: string): boolean;
 var
   f: TfrmCompare2Sets;
 begin
   Result := false;
   f := TfrmCompare2Sets.Create(nil);
   try
+    f.Caption := title;
     f.ShowModal;
     if f.ModalResult = mrOK then
     begin

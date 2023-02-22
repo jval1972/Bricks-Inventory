@@ -1651,6 +1651,10 @@ object MainForm: TMainForm
           Caption = 'Compare inventory of 2 sets'
           OnClick = Compare2sets1Click
         end
+        object Commoninventoryof2sets1: TMenuItem
+          Caption = 'Common inventory of 2 sets'
+          OnClick = Commoninventoryof2sets1Click
+        end
         object N33: TMenuItem
           Caption = '-'
         end

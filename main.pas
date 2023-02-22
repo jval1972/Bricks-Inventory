@@ -5166,15 +5166,15 @@ begin
       Continue;
     inc(aa);
     document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
-    document.write('<td width=50%>');
+    document.write('<td width=40%>');
     DrawColorCell(i, 25);
 //    document.BlancColorCell(cp.RGB, 25);
     document.write('<a href="inv/' + IntToStr(Integer(inv)) +'/C/' + IntToStr(decide(i = -1, 9999, i)) + '">');
     document.write('<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLingColor) +  ')' +
       GetRebrickableColorHtml(i) + '</a></td>');
-    document.write('<td width=25% align=right>' + IntToStr(inv.numlotsbycolor(i)) + '</td>');
-    document.write('<td width=25% align=right>' + IntToStr(inv.totalloosepartsbycolor(i)) + '</td>');
-    document.write('<td width=25% align=right>' + Format('%2.3f', [inv.weightbycolor(i) / 1000]) + '</td>');
+    document.write('<td width=20% align=right>' + IntToStr(inv.numlotsbycolor(i)) + '</td>');
+    document.write('<td width=20% align=right>' + IntToStr(inv.totalloosepartsbycolor(i)) + '</td>');
+    document.write('<td width=20% align=right>' + Format('%2.3f', [inv.weightbycolor(i) / 1000]) + '</td>');
 
     if i >= 0 then
     begin
@@ -5188,10 +5188,10 @@ begin
   end;
 
   document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>*</td>');
-  document.write('<td width=50%><b>Total</b></td>');
-  document.write('<td width=25% align=right>' + IntToStr(tlots) + '</td>');
-  document.write('<td width=25% align=right>' + IntToStr(tparts) + '</td>');
-  document.write('<td width=25% align=right>' + Format('%2.3f', [tweight]) + '</td>');
+  document.write('<td width=40%><b>Total</b></td>');
+  document.write('<td width=20% align=right>' + IntToStr(tlots) + '</td>');
+  document.write('<td width=20% align=right>' + IntToStr(tparts) + '</td>');
+  document.write('<td width=20% align=right>' + Format('%2.3f', [tweight]) + '</td>');
   document.write('</tr>');
 
   document.write('</tr></table>');

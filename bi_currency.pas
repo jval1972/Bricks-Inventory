@@ -70,6 +70,7 @@ type
     procedure Add(const scurrency: string; const ddate: TDateTime; const value: double); overload;
     function IndexOf(const scurrency: string; const sdate: string): integer; overload;
     function IndexOf(const scurrency: string; const ddate: TDateTime): integer; overload;
+    procedure InternetUpdateMD(const acurrency: string);
   public
     constructor Create(const abasecurrencyname: string; const afilename: string); virtual;
     destructor Destroy; override;
@@ -82,7 +83,7 @@ type
 implementation
 
 uses
-  bi_delphi, bi_utils, DateUtils, StrUtils, UrlMon, bi_tmp, bi_cachefile;
+  bi_delphi, bi_db, bi_utils, DateUtils, StrUtils, UrlMon, bi_tmp, bi_cachefile;
 
 constructor TCurrency.Create(const afile: string);
 var
@@ -204,7 +205,10 @@ begin
   tmpname := I_NewTempFile('currency_' + acurrency + '_' + fbasecurrencyname + '_' + itoa(random(1000)) + '.html');
   ret := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
   if not ret then
+  begin
+    InternetUpdateMD(acurrency);
     Exit;
+  end;
 
   htm := LoadStringFromFile(tmpname);
   check := '<span class="DFlfde SwHCTb" data-precision="2" data-value=';
@@ -217,7 +221,10 @@ begin
     begin // give a second chance
       p := Pos(UpperCase(check), UpperCase(htm));
       if p < 1 then
+      begin
+        InternetUpdateMD(acurrency);
         Exit;
+      end;
     end;
   end;
   svalue := '';
@@ -230,6 +237,116 @@ begin
   end;
   Add(acurrency, Now, atof(svalue));
   SaveToFile;
+end;
+
+procedure TCurrencyConvert.InternetUpdateMD(const acurrency: string);
+var
+  spath: string;
+  sdate: string;
+  urlstr: string;
+  ret: boolean;
+  sl: TStringList;
+  i: integer;
+  idx: integer;
+  eur_value: Double;
+  eur_nominal: integer;
+  cur_value: Double;
+  cur_nominal: integer;
+  s: string;
+begin
+  if not DirectoryExists(basedefault + 'db\') then
+    ForceDirectories(basedefault + 'db\');
+  if not DirectoryExists(basedefault + 'db\currency\') then
+    ForceDirectories(basedefault + 'db\currency\');
+
+  sdate := FormatDateTime('dd.mm.yyyy', Now);
+  spath := basedefault + 'db\currency\' + sdate + '.xml';
+
+  if not fexists(spath) then
+  begin
+    urlstr := 'https://www.bnm.md/en/official_exchange_rates?get_xml=1&date=' + sdate;
+    ret := UrlDownloadToFile(nil, PChar(urlstr), PChar(spath), 0, nil) = 0;
+    if not ret then
+      Exit;
+  end;
+
+  if not fexists(spath) then
+    Exit;
+
+  sl := TStringList.Create;
+  try
+    sl.LoadFromFile(spath);
+    for i := 0 to sl.Count - 1 do
+      sl.Strings[i] := Trim(sl.Strings[i]);
+
+    eur_value := -1.0;
+    eur_nominal := -1;
+
+    idx := sl.IndexOf('<CharCode>EUR</CharCode>');
+    if idx >= 0 then
+    begin
+      for i := idx + 1 to idx + 7 do
+      begin
+        s := sl.Strings[i];
+        if eur_value < 0 then
+          if Pos1('<Value>', s) then
+          begin
+            s := StringReplace(s, '<Value>', '', [rfReplaceAll, rfIgnoreCase]);
+            s := StringReplace(s, '</Value>', '', [rfReplaceAll, rfIgnoreCase]);
+            s := Trim(s);
+            eur_value := atof(s);
+          end;
+        if eur_nominal < 0 then
+          if Pos1('<Nominal>', s) then
+          begin
+            s := StringReplace(s, '<Nominal>', '', [rfReplaceAll, rfIgnoreCase]);
+            s := StringReplace(s, '</Nominal>', '', [rfReplaceAll, rfIgnoreCase]);
+            s := Trim(s);
+            eur_nominal := atoi(s);
+          end;
+      end;
+    end;
+
+    cur_value := -1.0;
+    cur_nominal := -1;
+
+    if (eur_value > 0) and (eur_nominal > 0) then
+    begin
+      idx := sl.IndexOf('<CharCode>' + UpperCase(acurrency)+ '</CharCode>');
+      if idx >= 0 then
+      begin
+        for i := idx + 1 to idx + 7 do
+        begin
+          s := sl.Strings[i];
+          if cur_value < 0 then
+            if Pos1('<Value>', s) then
+            begin
+              s := StringReplace(s, '<Value>', '', [rfReplaceAll, rfIgnoreCase]);
+              s := StringReplace(s, '</Value>', '', [rfReplaceAll, rfIgnoreCase]);
+              s := Trim(s);
+              cur_value := atof(s);
+            end;
+          if cur_nominal < 0 then
+            if Pos1('<Nominal>', s) then
+            begin
+              s := StringReplace(s, '<Nominal>', '', [rfReplaceAll, rfIgnoreCase]);
+              s := StringReplace(s, '</Nominal>', '', [rfReplaceAll, rfIgnoreCase]);
+              s := Trim(s);
+              cur_nominal := atoi(s);
+            end;
+        end;
+      end;
+    end;
+
+    if (cur_value > 0) and (cur_nominal > 0) and (eur_value > 0) and (eur_nominal > 0) then
+    begin
+      Add(acurrency, Now, (cur_value / cur_nominal) / (eur_value / eur_nominal));
+      SaveToFile;
+    end;
+
+  finally
+    sl.Free;
+  end;
 end;
 
 function TCurrencyConvert.ConvertAt(const acurrency: string; const dd: TDateTime): double;

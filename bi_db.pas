@@ -3210,6 +3210,17 @@ begin
       else if bp.part = '6239pb083' then begin s.Add(Format('%s,%d,%d', ['6239pr0003', bp.color, bp.num])); end
       else if bp.part = '3626cpb1290' then begin s.Add(Format('%s,%d,%d', ['3626cpr1663', bp.color, bp.num])); end
       else if bp.part = '973pb3755c01' then begin s.Add(Format('%s,%d,%d', ['973c22h01pr4897', bp.color, bp.num])); end
+      // 20230225 Additions
+      else if bp.part = '973pb3376c01' then begin s.Add(Format('%s,%d,%d', ['973c29h03pr4527', bp.color, bp.num])); end
+      else if bp.part = '3626cpb2280' then begin s.Add(Format('%s,%d,%d', ['3626cpr2792', bp.color, bp.num])); end
+      else if bp.part = '970c105pb002' then begin s.Add(Format('%s,%d,%d', ['970c29pr1614', bp.color, bp.num])); end
+      else if bp.part = '41442stk01' then begin s.Add(Format('%s,%d,%d', ['72725', 0, bp.num])); end
+      else if bp.part = '92253c00pb47' then begin s.Add(Format('%s,%d,%d', ['16925c01pr0154', bp.color, bp.num])); end
+      else if bp.part = 'FTGpb311c01' then begin s.Add(Format('%s,%d,%d', ['92456c02pr0005', bp.color, bp.num])); end
+      else if bp.part = '92252c00pb040' then begin s.Add(Format('%s,%d,%d', ['92820c01pr0017', bp.color, bp.num])); end
+      else if bp.part = 'FTGpb312c01' then begin s.Add(Format('%s,%d,%d', ['92456c01pr0380', bp.color, bp.num])); end
+      else if bp.part = '37592' then begin s.Add(Format('%s,%d,%d', ['92198pr0127', bp.color, bp.num])); end
+      else if bp.part = '37591' then begin s.Add(Format('%s,%d,%d', ['92198pr0134', bp.color, bp.num])); end
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;

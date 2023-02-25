@@ -11173,7 +11173,7 @@ begin
   document.write('<td width=100%>');
   DrawHeadLine(Format('Common inventory for: <br><br>' +
   ' <a href="sinv/%s">%s - %s</a><br><br><img width=240px src=s\' + set1 + '.jpg><br><br>' +
-  ' <a href="sinv/%s">%s - %s</a><br><br><img width=240px src=s\' + set1 + '.jpg>',
+  ' <a href="sinv/%s">%s - %s</a><br><br><img width=240px src=s\' + set2 + '.jpg>',
   [set1, set1, db.SetDesc(set1), set2, set2, db.SetDesc(set2)]));
   DrawHeadLine(Format('%d parts in %d lots common parts',
     [commoninv.totallooseparts, commoninv.numlooseparts]));

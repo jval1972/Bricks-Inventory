@@ -658,8 +658,8 @@ type
     procedure ShowLooseParts(inv: TBrickInventory; colormask: Integer = -1; partmask: string = ''; cat: Integer = -1;
       const fromAA: integer = -1; const toAA: integer = MAXINT);
     procedure ShowSetInventory(const setid: string; const lite: Boolean = False);
-    procedure ShowSetPartsStorage(const setid: string);
-    procedure DrawInventoryPartsStorage(const psinv: TBrickInventory);
+    procedure ShowSetPartsStorage(const setid: string; const ppreview: boolean);
+    procedure DrawInventoryPartsStorage(const psinv: TBrickInventory; const ppreview: boolean);
     procedure PreviewInventoryTable(inv: TBrickInventory);
     procedure PreviewSetInventory(const setid: string);
     procedure ShowColors;
@@ -751,7 +751,7 @@ type
     procedure ShowBigInvLots(const lotparts: integer);
     procedure ShowMissingToBuilMultipledSets(const setids: TStringList);
     procedure ShowInventoryForMultipledSets(const setids: TStringList);
-    procedure ShowStorageLocationsForMultipledSets(const setids: TStringList);
+    procedure ShowStorageLocationsForMultipledSets(const setids: TStringList; const ppreview: boolean);
     procedure ShowLugbulkSuggestions(const years: string; const demand, sold: integer; const price: double);
     procedure ShowCompare2Sets(const set1, set2: string);
     procedure ShowCommon2Sets(const set1, set2: string);
@@ -787,7 +787,7 @@ type
       const setid: string = ''; const dosort: boolean = True; const usepages: boolean = True;
       const lb: TLugBulk2017 = nil; const dosplash: boolean = true; const showreadylist: boolean = false);
     procedure DrawInventoryTableNoPages(inv: TBrickInventory; const lite: Boolean = False; const setid: string = ''; const dosort: boolean = True; const dosplash: boolean = true);
-    procedure DrawInventoryTableForPartsStorageQuery(inv, qryinv: TBrickInventory);
+    procedure DrawInventoryTableForPartsStorageQuery(inv, qryinv: TBrickInventory; const ppreview: boolean);
     procedure DrawBrickOrderInfo(const brick: brickpool_p; const setid: string = ''; const aspan1: integer = -1; const aspan2: integer = -1; const showreadylist: boolean = false);
     procedure DrawBrickOrderInfoLite(const brick: brickpool_p; const needed: integer; const setid: string = '');
     procedure UpdateDismantaledsetsinv;
@@ -3484,7 +3484,7 @@ begin
   Screen.Cursor := crDefault;
 end;
 
-procedure TMainForm.DrawInventoryTableForPartsStorageQuery(inv, qryinv: TBrickInventory);
+procedure TMainForm.DrawInventoryTableForPartsStorageQuery(inv, qryinv: TBrickInventory; const ppreview: boolean);
 var
   aa, i: integer;
   brick: brickpool_p;
@@ -3504,8 +3504,8 @@ begin
 
   SortInventory(inv);
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=' + itoa(decide(ppreview, 1, 2)) + '>');
+  document.write('<tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '>');
   document.write('<th><b>#</b></th>');
   document.write('<th><b>Part</b></th>');
   document.write('<th>Color</th>');
@@ -3526,21 +3526,28 @@ begin
     inc(aa);
     scolor := itoa(brick.Color);
     document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' +
-      IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br><b>');
+      IntToStr(aa) + '.</td><td width=' + itoa(decide(ppreview, 55, 35)) + '%><img width=' +
+        itoa(decide(ppreview, 80, 100)) + 'px src=' + scolor + '\' + brick.part + '.png><br><b>');
     document.write('<a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
-    document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=40%>');
+    document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=' + itoa(decide(ppreview, 20, 40)) + '%>');
     DrawColorCell(brick.color, 25);
     pci := db.PieceColorInfo(brick);
     pi := db.PieceInfo(pci);
     if pi = nil then
       pi := db.PieceInfo(brick.part);
     cinfo := db.colors(brick.color);
-    document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name +
+    if ppreview then
+      document.write(
+          HtmlDrawInvImgLink(brick.part, brick.color, pi) + ' ' + cinfo.name)
+    else
+    begin
+      document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name +
         ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' +
           GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
           HtmlDrawInvImgLink(brick.part, brick.color, pi));
-    document.write('<br><a href=editpiece/' + brick.part + '/' + scolor + '><img src="images\edit.png"></a>');
-    document.write('<br><a href=diagrampiece/' + brick.part + '/' + scolor + '><img src="images\diagram.png"></a></td>');
+      document.write('<br><a href=editpiece/' + brick.part + '/' + scolor + '><img src="images\edit.png"></a>');
+      document.write('<br><a href=diagrampiece/' + brick.part + '/' + scolor + '><img src="images\diagram.png"></a></td>');
+    end;
 
     document.write('<td width=10% align=right>' + IntToStr(brick.num));
     document.write('</td>');
@@ -4310,7 +4317,7 @@ begin
   Screen.Cursor := crDefault;
 end;
 
-procedure TMainForm.ShowSetPartsStorage(const setid: string);
+procedure TMainForm.ShowSetPartsStorage(const setid: string; const ppreview: boolean);
 var
   inv: TBrickInventory;
   missing: integer;
@@ -4419,9 +4426,16 @@ begin
   else
     sf4 := '';
   year := db.SetYear(setid);
-  ss1 := Format('Storage Location for the inventory of %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled<br><img width=360px src=s\' + setid + '.jpg>' +
+  if ppreview then
+    ss1 := Format('Storage Location for the inventory of %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled<br><img width=360px src=s\' + setid + '.jpg><br>',
+    ['<a href=spiece/' + setid + '>' + setid + '</a>', db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
+     sf2, st.num, sf1, sf4, st.dismantaled, sf3])
+  else
+    ss1 := Format('Storage Location for the inventory of %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled<br><img width=360px src=s\' + setid + '.jpg>' +
       ' <a href=DoEditSet/' + setid + '><img src="images\edit.png"></a>' +
-      ' <a href=PreviewSetInventory/' + setid + '><img src="images\print.png"></a>' +
+//      ' <a href=PreviewSetInventory/' + setid + '><img src="images\print.png"></a>' +
+      ' <a href=sstoragelocpv/' + setid + '><img src="images\print.png"></a>' +
+
       ' <a href=diagrampiece/' + setid + '/-1><img src="images\diagram.png"></a><br>' +
 
       '[Year: <a href=ShowSetsAtYear/%d>%d</a>]<br>',
@@ -4486,7 +4500,7 @@ begin
 
   DrawPriceguide(setid);
 
-  DrawInventoryPartsStorage(inv);
+  DrawInventoryPartsStorage(inv, ppreview);
 
   document.write('<br>');
   document.write('<br>');
@@ -4504,7 +4518,7 @@ begin
   Screen.Cursor := crDefault;
 end;
 
-procedure TMainForm.DrawInventoryPartsStorage(const psinv: TBrickInventory);
+procedure TMainForm.DrawInventoryPartsStorage(const psinv: TBrickInventory; const ppreview: boolean);
 var
   storagelst: TStringList;
   storagecompleteparts1, storagecompleteparts2: TStringList;
@@ -4923,7 +4937,7 @@ begin
   olddodraworderinfo := dodraworderinfo;
   dodraworderinfo := false;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=' + itoa(decide(ppreview, 1, 2)) + '>');
   document.write('<th><b>#</b></th>');
   document.write('<th><b>Storage Location</b></th>');
 
@@ -4932,7 +4946,7 @@ begin
     if neededfromreadyinv.totallooseparts > 0 then
     begin
       inc(aa);
-      document.write('<tr bgcolor=' + THBGCOLOR + '>');
+      document.write('<tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '>');
       document.write('<td width=5% align=right>' + itoa(aa));
 
       stmp := Format(' (%d lots, %d parts)', [neededfromreadyinv.numlooseparts, neededfromreadyinv.totallooseparts]);
@@ -4941,9 +4955,9 @@ begin
 
       document.write('</tr>');
 
-      document.write('<tr bgcolor=' + THBGCOLOR + '><td colspan="2">');
+      document.write('<tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '><td colspan="2">');
 
-      DrawInventoryTableForPartsStorageQuery(neededfromreadyinv, psinv);
+      DrawInventoryTableForPartsStorageQuery(neededfromreadyinv, psinv, ppreview);
 
       document.write('</td></tr>');
     end;
@@ -4954,7 +4968,7 @@ begin
   for i := 0 to storagelst.Count - 1 do
   begin
     inc(aa);
-    document.write('<tr bgcolor=' + THBGCOLOR + '>');
+    document.write('<tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '>');
     document.write('<td width=5% align=right>' + itoa(aa));
 
     splitstring(storagelst.Strings[i], s1, s2, ':');
@@ -4970,9 +4984,9 @@ begin
 
     document.write('</tr>');
 
-    document.write('<tr bgcolor=' + THBGCOLOR + '><td colspan="2">');
+    document.write('<tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '><td colspan="2">');
 
-    DrawInventoryTableForPartsStorageQuery(tmpinv, inv);
+    DrawInventoryTableForPartsStorageQuery(tmpinv, inv, ppreview);
 
     document.write('</td></tr>');
 
@@ -10984,7 +10998,7 @@ begin
   Screen.Cursor := crDefault;
 end;
 
-procedure TMainForm.ShowStorageLocationsForMultipledSets(const setids: TStringList);
+procedure TMainForm.ShowStorageLocationsForMultipledSets(const setids: TStringList; const ppreview: boolean);
 var
   inv: TBrickInventory;
   sinv: TBrickInventory;
@@ -11027,10 +11041,13 @@ begin
   s1 := '';
   for i := 0 to setids.Count - 1 do
     s1 := s1 + '<br><a href="sinv/' + setids.Strings[i] + '">' + setids.Strings[i] + ' - ' + db.SetDesc(setids.Strings[i]) + '</a>';
+  if not ppreview then
+    s1 := s1 + ' <a href=multysetstoragespv/' + IntToStr(Integer(setids)) + '><img src="images\print.png"></a>';
+
   DrawHeadLine(Format('<a href=multysetinv/' + IntToStr(Integer(setids)) + '>Inventory for multiple sets</a><br>%d parts in %d lots (%d unique)<br>%s',
     [inv.totallooseparts, nlots, inv.numlooseparts, s1]));
 
-  DrawInventoryPartsStorage(inv);
+  DrawInventoryPartsStorage(inv, ppreview);
 
   document.write('<br>');
   document.write('<br>');
@@ -12862,7 +12879,12 @@ begin
   else if Pos1('multysetstorages/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
-    ShowStorageLocationsForMultipledSets(TStringList(atoi(s2)));
+    ShowStorageLocationsForMultipledSets(TStringList(atoi(s2)), false);
+  end
+  else if Pos1('multysetstoragespv/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowStorageLocationsForMultipledSets(TStringList(atoi(s2)), true);
   end
   else if slink = 'ShowStorageBins' then
   begin
@@ -12881,7 +12903,12 @@ begin
   else if Pos1('sstorageloc/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
-    ShowSetPartsStorage(s2);
+    ShowSetPartsStorage(s2, false);
+  end
+  else if Pos1('sstoragelocpv/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowSetPartsStorage(s2, true);
   end
   else if slink = 'catalogparts' then
   begin

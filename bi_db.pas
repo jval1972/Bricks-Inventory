@@ -1948,7 +1948,7 @@ begin
       else if bp.part = '973pb0278c01' then begin s.Add(Format('%s,%d,%d', ['973pr1183c01', bp.color, bp.num])); end
       else if bp.part = '973pb0410c01' then begin s.Add(Format('%s,%d,%d', ['973pr1244c01', bp.color, bp.num])); end
       else if bp.part = '973pb0549c01' then begin s.Add(Format('%s,%d,%d', ['973pr1479c01', bp.color, bp.num])); end
-      else if bp.part = '973pb0631c01' then begin s.Add(Format('%s,%d,%d', ['973pr1573c01', bp.color, bp.num])); end
+      else if bp.part = '973pb0631c01' then begin s.Add(Format('%s,%d,%d', ['973c27h01pr1573', bp.color, bp.num])); end
       else if bp.part = '973pb0638c01' then begin s.Add(Format('%s,%d,%d', ['973pr1585c01', bp.color, bp.num])); end
       else if bp.part = '973pb0649c01' then begin s.Add(Format('%s,%d,%d', ['973pr1580c01', bp.color, bp.num])); end
       else if bp.part = '973pb0708c01' then begin s.Add(Format('%s,%d,%d', ['973pr1617c01', bp.color, bp.num])); end

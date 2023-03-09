@@ -16053,6 +16053,7 @@ var
   inv: TBrickInventory;
   s1: string;
   dtit, stit, sprev, snext: string;
+  blname1, blname2: string;
   kp: THashStringList;
   dominifig: boolean;
   sexclude: TStringList;
@@ -16070,30 +16071,42 @@ begin
     for i := 0 to MAXINFOCOLOR do
       if db.Colors(i).id = i then
       begin
+        scolor := itoa(i);
         kp := db.Colors(i).knownpieces;
         if kp <> nil then
           for j := 0 to kp.Count - 1 do
           begin
             pcs := kp.Strings[j];
+            blname1 := db.GetBLNetPieceName(pcs) + ',' + scolor;
+            blname2 := db.BricklinkPart(pcs) + ',' + scolor;
             if sexclude.IndexOf(pcs) < 0 then
-            begin
-              pci := kp.Objects[j] as TPieceColorInfo;
-              if pci <> nil then
-              begin
-                idx := lst.Add(pcs + ',' + itoa(i));
-                dd := TCInteger.Create;
-                if dosoldnew then
-                  dd.Add(pci.priceguide.nTotalQty);
-                if dosoldused then
-                  dd.Add(pci.priceguide.uTotalQty);
-                if doavailnew then
-                  dd.Add(pci.availability.nTotalQty);
-                if doavailused then
-                  dd.Add(pci.availability.uTotalQty);
+              if sexclude.IndexOf(blname1) < 0 then
+                if sexclude.IndexOf(blname2) < 0 then
+                begin
+                  pci := kp.Objects[j] as TPieceColorInfo;
+                  if pci <> nil then
+                  begin
+                    pcs := pcs + ',' + scolor;
+                    idx := lst.Add(pcs);
+                    dd := TCInteger.Create;
+                    if dosoldnew then
+                      dd.Add(pci.priceguide.nTotalQty);
+                    if dosoldused then
+                      dd.Add(pci.priceguide.uTotalQty);
+                    if doavailnew then
+                      dd.Add(pci.availability.nTotalQty);
+                    if doavailused then
+                      dd.Add(pci.availability.uTotalQty);
 
-                lst.Objects[idx] := dd;
-              end;
-            end;
+                    lst.Objects[idx] := dd;
+                    sexclude.Add(pcs);
+                    if blname1 <> pcs then
+                      sexclude.Add(blname1);
+                    if blname2 <> pcs then
+                      if blname2 <> blname1 then
+                        sexclude.Add(blname2);
+                  end;
+                end;
           end;
       end;
   end

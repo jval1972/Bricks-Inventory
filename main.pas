@@ -10009,7 +10009,7 @@ end;
 
 procedure TMainForm.ShowMissingToBuildSetInventory(const setid: string; const numsets: integer; legacyignore: boolean);
 var
-  inv: TBrickInventory;
+  inv, sinv: TBrickInventory;
   missing: integer;
   s1: string;
   nparts: integer;
@@ -10047,6 +10047,20 @@ begin
     Screen.Cursor := crDefault;
     Exit;
   end;
+  sinv := db.GetSetInventory(setid);
+  if sinv = nil then
+  begin
+    DrawHeadLine('Can not find inventory for ' + setid);
+    document.write('<br>');
+    document.write('</p>');
+    document.write('</div>');
+    document.write('</body>');
+    document.SaveBufferToFile(diskmirror);
+    document.Flash;
+    Screen.Cursor := crDefault;
+    Exit;
+  end;
+
   missing := inv.totallooseparts;
   s1 := basedefault + 'out\' + setid + '\';
   if not DirectoryExists(s1) then
@@ -10085,18 +10099,21 @@ begin
   inv.SaveLoosePartsWantedListUsed(s1 + '_USED_040%.xml', 0.4);
   inv.SaveLoosePartsWantedListUsed(s1 + '_USED_030%.xml', 0.3);
 
-  DrawHeadLine(Format('<a href="sinv/%s">%s - %s</a><br><br><img width=360px src=s\' + setid + '.jpg>', [setid, setid, db.SetDesc(setid)]));
-  if numsets <= 1 then
-    DrawHeadLine(Format('%d part' + decide(missing = 1, '', 's') + ' in %d ' + decide(inv.numlooseparts = 1, 'lot', 'lots') + ' ' +
-      decide(missing = 1, 'is', 'are') + ' missing to build a copy of this set %s (%2.2f%s)',
-        [missing, inv.numlooseparts, setid, dbl_safe_div(100 * missing, db.GetSetInventory(setid).totallooseparts), '%']))
-  else
+  if sinv <> nil then
   begin
-    nparts := db.GetSetInventory(setid).totallooseparts;
-    if nparts > 0 then
+    DrawHeadLine(Format('<a href="sinv/%s">%s - %s</a><br><br><img width=360px src=s\' + setid + '.jpg>', [setid, setid, db.SetDesc(setid)]));
+    if numsets <= 1 then
       DrawHeadLine(Format('%d part' + decide(missing = 1, '', 's') + ' in %d ' + decide(inv.numlooseparts = 1, 'lot', 'lots') + ' ' +
-        decide(missing = 1, 'is', 'are') + ' missing to build %d copies of this set %s (%2.2f%s)',
-          [missing, inv.numlooseparts, numsets, setid, missing / nparts / numsets * 100, '%']));
+        decide(missing = 1, 'is', 'are') + ' missing to build a copy of this set %s (%2.2f%s)',
+          [missing, inv.numlooseparts, setid, dbl_safe_div(100 * missing, sinv.totallooseparts), '%']))
+    else
+    begin
+      nparts := sinv.totallooseparts;
+      if nparts > 0 then
+        DrawHeadLine(Format('%d part' + decide(missing = 1, '', 's') + ' in %d ' + decide(inv.numlooseparts = 1, 'lot', 'lots') + ' ' +
+          decide(missing = 1, 'is', 'are') + ' missing to build %d copies of this set %s (%2.2f%s)',
+            [missing, inv.numlooseparts, numsets, setid, missing / nparts / numsets * 100, '%']));
+    end;
   end;
 
   if legacyignore then

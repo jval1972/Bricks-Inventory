@@ -3324,6 +3324,11 @@ begin
       else if bp.part = '970c00pb0160' then begin s.Add(Format('%s,%d,%d', ['970c03pr0408', bp.color, bp.num])); end
       else if bp.part = '973pb2187c01' then begin s.Add(Format('%s,%d,%d', ['973c03h12pr3205', bp.color, bp.num])); end
       else if (bp.part = '973pr2502c01') or (bp.part = '973pb1557c01') then begin s.Add(Format('%s,%d,%d', ['973c27h01pr2502', bp.color, bp.num])); end
+      // 20230403 Additions
+      else if bp.part = '3626cpb2732' then begin s.Add(Format('%s,%d,%d', ['3626cpr9799', bp.color, bp.num])); end
+      else if bp.part = '69562pb01' then begin s.Add(Format('%s,%d,%d', ['69562pat0001', bp.color, bp.num])); end
+      else if bp.part = '970c00pb1154' then begin s.Add(Format('%s,%d,%d', ['970c35pr9833', bp.color, bp.num])); end
+      else if bp.part = '973pb4125c01' then begin s.Add(Format('%s,%d,%d', ['973c31h03pr0001', bp.color, bp.num])); end
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;
@@ -9829,7 +9834,7 @@ begin
   {$IFNDEF CRAWLER}
   S_ShutDownFileSystem;
   {$ENDIF}
-  inherited;
+    inherited;
 end;
 
 procedure TSetsDatabase.SaveCrawlerData;

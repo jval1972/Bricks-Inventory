@@ -412,6 +412,8 @@ procedure FreeList(var s: TStringList);
 var
   i: integer;
 begin
+  if s = nil then
+    Exit;
   for i := 0 to s.Count - 1 do
     s.Objects[i].Free;
   FreeAndNil(s);
@@ -421,6 +423,8 @@ procedure ClearList(const s: TStringList);
 var
   i: integer;
 begin
+  if s = nil then
+    Exit;
   for i := 0 to s.Count - 1 do
     s.Objects[i].Free;
   s.Clear;

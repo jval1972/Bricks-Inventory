@@ -11541,6 +11541,7 @@ end;
 function TSetsDatabase.UpdateSetAsPartFromBricklink(const pid: string; const donet: boolean = True): boolean;
 var
   fname, fname2: string;
+  check: string;
   SL: TStringList;
   urlstr, urlstr2: string;
   spart: string;
@@ -11573,11 +11574,17 @@ begin
   SL := TStringList.Create;
   S_LoadFromFile(SL, fname);
   tmp1 := SL.Text;
-  p1 := Pos('SIZE="+0"><B>', tmp1);
+  check := 'SIZE="+0"><B>';
+  p1 := Pos(check, tmp1);
+  if p1 < 0 then
+  begin
+    check := '<h1 id="item-name-title" style="font-size:16px;margin:0;display:inline-block;">';
+    p1 := Pos(check, tmp1);
+  end;
   if p1 > 0 then
   begin
     newsetname := '';
-    for j := p1 + 13 to Length(tmp1) do
+    for j := p1 + Length(check) to Length(tmp1) do
     begin
       if tmp1[j] = '<' then
         Break
@@ -11620,6 +11627,7 @@ end;
 function TSetsDatabase.UpdateMinifigAsPartFromBricklink(const pid: string; const donet: boolean = True): boolean;
 var
   fname, fname2: string;
+  check: string;
   SL: TStringList;
   urlstr, urlstr2: string;
   spart: string;
@@ -11649,11 +11657,17 @@ begin
   SL := TStringList.Create;
   S_LoadFromFile(SL, fname);
   tmp1 := SL.Text;
-  p1 := Pos('SIZE="+0"><B>', tmp1);
+  check := 'SIZE="+0"><B>';
+  p1 := Pos(check, tmp1);
+  if p1 < 0 then
+  begin
+    check := '<h1 id="item-name-title" style="font-size:16px;margin:0;display:inline-block;">';
+    p1 := Pos(check, tmp1);
+  end;
   if p1 > 0 then
   begin
     newsetname := '';
-    for j := p1 + 13 to Length(tmp1) do
+    for j := p1 + Length(check) to Length(tmp1) do
     begin
       if tmp1[j] = '<' then
         Break
@@ -12626,6 +12640,11 @@ begin
       s := SL.Text;
       check := '<span id="item-name-title">';
       p := Pos(check, s);
+      if p < 0 then
+      begin
+        check := '<h1 id="item-name-title" style="font-size:16px;margin:0;display:inline-block;">';
+        p := Pos(check, s);
+      end;
       desc := '';
       for i := p + length(check) to length(s) do
       begin
@@ -13307,6 +13326,11 @@ begin
   SL.Free;
   check := '<H1>LEGO PART ' + UpperCase(spart) + ' ';
   p1 := Pos(check, htm1);
+  if p1 < 0 then
+  begin
+    check := '<h1 id="item-name-title" style="font-size:16px;margin:0;display:inline-block;">';
+    p1 := Pos(check, htm1);
+  end;
   if p1 > 0 then
   begin
     newpartname := '';

@@ -986,6 +986,8 @@ type
     function UpdateGearKnownColorsFromBricklink(const pid: string; const donet: boolean = True): boolean;
     function UpdateBookKnownColorsFromBricklink(const pid: string; const donet: boolean = True): boolean;
     function UpdateItemYearFromDiskCache(const pid: string): boolean;
+    function GetCatalogYearFromNet(const cid: string; var yyyy: integer): boolean;
+    function UpdateCatalogYearFromNet(const cid: string): boolean;
     function UpdatePartYearFromNet(const pid: string; const cl: integer): boolean; overload;
     function UpdatePartYearFromNet(const pci: TPieceColorInfo): boolean; overload;
     function GetPartYearFromNet(const pci: TPieceColorInfo; var yyyy: integer): boolean; overload;
@@ -12349,6 +12351,80 @@ begin
   end;
 end;
 
+function TSetsDatabase.GetCatalogYearFromNet(const cid: string; var yyyy: integer): boolean;
+var
+  pci: TPieceColorInfo;
+  urlstr: string;
+  stmpfn: string;
+  sl: TStringList;
+  p, p1, p2: integer;
+  htm: string;
+  nyear: integer;
+  syear: string;
+begin
+  Result := False;
+
+  pci := PieceColorInfo(cid, CATALOGCOLORINDEX);
+  if pci = nil then
+    Exit;
+
+  stmpfn := I_NewTempFile(Trim(pci.piece) + '_' + itoa(CATALOGCOLORINDEX));
+  urlstr := sbricklink + 'catalogItemIn.asp?C=' + GetBLNetPieceName(Trim(pci.piece)) + '#T=S&O={"iconly":0}';
+  if UrlDownloadToFile(nil, PChar(urlstr), PChar(stmpfn), 0, nil) <> 0 then
+//    if not fexists(stmpfn) then
+      Exit;
+
+  sl := TStringList.Create;
+  try
+    S_LoadFromFile(sl, stmpfn);
+    htm := sl.Text;
+    p := Pos('catalogList.asp?catType=C&catString=', htm);
+    if p > 0 then
+    begin
+      htm := Copy(htm, p, Length(htm) - p);
+      p1 := Pos('">', htm);
+      p2 := Pos('</A>', htm);
+      yyyy := 1000000;
+      if p1 < p2 then
+        if p2 - p1 = 6 then
+        begin
+          syear := htm[p1 + 2] + htm[p1 + 3] + htm[p1 + 4] + htm[p1 + 5];
+          nyear := atoi(syear);
+          if nyear < yyyy then
+            if nyear >= 1932 then
+              if nyear <= 2050 then
+                yyyy := nyear;
+        end;
+      if yyyy >= 1932 then
+        if yyyy <= 2050 then
+          Result := True;
+    end;
+  finally
+    sl.Free;
+  end;
+end;
+
+function TSetsDatabase.UpdateCatalogYearFromNet(const cid: string): boolean;
+var
+  yyyy: integer;
+  pci: TPieceColorInfo;
+begin
+  yyyy := 0;
+  if GetCatalogYearFromNet(cid, yyyy) then
+    if yyyy >= 1932 then
+      if yyyy <= 2050 then
+      begin
+        pci := PieceColorInfo(cid, CATALOGCOLORINDEX);
+        if pci <> nil then
+        begin
+          SetItemYear(pci, yyyy);
+          Result := True;
+          Exit;
+        end;
+      end;
+  Result := False;
+end;
+
 function TSetsDatabase.UpdateMoldYearsFromNet(const pid: string): boolean;
 var
   N: TDNumberList;
@@ -12358,9 +12434,18 @@ begin
   N := GetMoldKnownColors(pid);
   for i := 0 to N.Count - 1 do
     if N.Numbers[i] >= 0 then
+    begin
       if N.Numbers[i] <= LASTNORMALCOLORINDEX then
+      begin
         if UpdatePartYearFromNet(pid, N.Numbers[i]) then
           Result := True;
+      end
+      else if N.Numbers[i] = CATALOGCOLORINDEX then
+      begin
+        if UpdateCatalogYearFromNet(pid) then
+          Result := True;
+      end;
+    end;
   N.Free;
 end;
 
@@ -13275,6 +13360,11 @@ begin
   SL.Free;
   check := '<H1>LEGO PART ' + UpperCase(spart) + ' ';
   p1 := Pos(check, htm1);
+  if p1 < 0 then
+  begin
+    check := '<h1 id="item-name-title" style="font-size:16px;margin:0;display:inline-block;">';
+    p1 := Pos(check, htm1);
+  end;
   if p1 > 0 then
   begin
     newpartname := '';
@@ -13326,11 +13416,6 @@ begin
   SL.Free;
   check := '<H1>LEGO PART ' + UpperCase(spart) + ' ';
   p1 := Pos(check, htm1);
-  if p1 < 0 then
-  begin
-    check := '<h1 id="item-name-title" style="font-size:16px;margin:0;display:inline-block;">';
-    p1 := Pos(check, htm1);
-  end;
   if p1 > 0 then
   begin
     newpartname := '';

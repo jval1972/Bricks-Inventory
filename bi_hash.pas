@@ -351,9 +351,16 @@ begin
   if s = nil then
     Exit;
   for i := 0 to s.Count - 1 do
-    s.Objects[i].Free;
-  s.Free;
-  s := nil;
+    try
+      if s.Objects[i] <> nil then
+      begin
+        s.Objects[i].Free;
+        s.Objects[i] := nil;
+      end;
+    except
+      s.Objects[i] := nil;
+    end;
+  FreeAndNil(s);
 end;
 
 procedure THashStringList.RebuiltHash;

@@ -377,6 +377,10 @@ type
     Allplates1: TMenuItem;
     N58: TMenuItem;
     Commoninventoryof2sets1: TMenuItem;
+    Other1: TMenuItem;
+    Jumpers1: TMenuItem;
+    Connectors1: TMenuItem;
+    Doorrail1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -622,6 +626,9 @@ type
     procedure Alltiles1Click(Sender: TObject);
     procedure Allplates1Click(Sender: TObject);
     procedure Commoninventoryof2sets1Click(Sender: TObject);
+    procedure Jumpers1Click(Sender: TObject);
+    procedure Connectors1Click(Sender: TObject);
+    procedure Doorrail1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -20709,6 +20716,27 @@ var
 begin
   if Compare2SetsQuery('Common inventory of sets', set1, set2) then
     HTMLClick('common2sets/' + set1 + '/' + set2, foo);
+end;
+
+procedure TMainForm.Jumpers1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('lengthquery/jumpers', foo);
+end;
+
+procedure TMainForm.Connectors1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('lengthquery/connectors', foo);
+end;
+
+procedure TMainForm.Doorrail1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('lengthquery/rail', foo);
 end;
 
 end.

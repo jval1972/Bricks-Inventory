@@ -1304,6 +1304,21 @@ object MainForm: TMainForm
           OnClick = InvertedSlopes75degrees1Click
         end
       end
+      object Other1: TMenuItem
+        Caption = 'Other'
+        object Jumpers1: TMenuItem
+          Caption = 'Jumpers'
+          OnClick = Jumpers1Click
+        end
+        object Connectors1: TMenuItem
+          Caption = 'Floor Connectors'
+          OnClick = Connectors1Click
+        end
+        object Doorrail1: TMenuItem
+          Caption = 'Door rails'
+          OnClick = Doorrail1Click
+        end
+      end
       object N58: TMenuItem
         Caption = '-'
       end

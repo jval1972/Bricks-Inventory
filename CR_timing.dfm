@@ -269,6 +269,7 @@ object Form1: TForm1
       Top = 88
       Width = 313
       Height = 33
+      Max = 15
       Position = 5
       TabOrder = 1
       OnChange = TrackBar1Change

@@ -567,9 +567,9 @@ type
     function nDemand: double;
     function uDemand: double;
     function ItemType: string;
+    {$IFNDEF CRAWLER}
     function GetLugbulk(const ayear: integer): boolean;
     procedure SetLugbulk(const ayear: integer; const avalue: boolean);
-    {$IFNDEF CRAWLER}
     procedure UpdateSetYears(const setid: string; const y: integer = -1);
     procedure UpdatePartYears(const y: integer = -1);
     {$ENDIF}
@@ -6609,7 +6609,6 @@ begin
   idx := p.Hash;
   idx2 := idx;
   spiece := p.piece;
-  pc := @parecs[idx];
   for i := idx to idx + CACHEDBSPREAD do
   begin
     pc := @parecs[i mod CACHEDBHASHSIZE];

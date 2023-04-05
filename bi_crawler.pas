@@ -800,7 +800,6 @@ begin
             end
             else
             begin
-              idx := 0;
               Continue;
             end;
             result_t[idx] := atoi(sLine.Strings[1]);
@@ -935,7 +934,9 @@ var
   typ: string;
 begin
   Result := False;
+  {$IFNDEF CRAWLER}
   cc := -1000;
+  {$ENDIF}
   DecimalSeparator := '.';
   if color = '-1' then
   begin

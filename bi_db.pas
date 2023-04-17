@@ -12724,7 +12724,7 @@ begin
       s := SL.Text;
       check := '<span id="item-name-title">';
       p := Pos(check, s);
-      if p < 0 then
+      if p <= 0 then
       begin
         check := '<h1 id="item-name-title" style="font-size:16px;margin:0;display:inline-block;">';
         p := Pos(check, s);
@@ -16569,7 +16569,7 @@ begin
   if not AllowInternetAccess then
     Exit;
   cnt := fcrawlerpriority.Count;
-  if cnt > 250000 then
+  if cnt > 5000000 then
   begin
     sl := TStringList.Create;
     for i := 1000 to cnt - 1 do
@@ -16619,7 +16619,7 @@ begin
   if not AllowInternetAccess then
     Exit;
   cnt := fcrawlerpriority.Count;
-  if cnt > 250000 then
+  if cnt > 5000000 then
   begin
     sl := TStringList.Create;
     for i := 1000 to cnt - 1 do
@@ -16659,7 +16659,7 @@ end;
 procedure TSetsDatabase.TmpSaveCrawler;
 begin
   {$IFDEF CRAWLER}
-  if fcrawlerpriority.Count mod 50 = 49 then
+  if fcrawlerpriority.Count mod 50 = 99 then
   {$ELSE}
   if fcrawlerpriority.Count mod 10 = 9 then
   {$ENDIF}

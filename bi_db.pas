@@ -12776,14 +12776,20 @@ begin
         // weight
         check := '<span id="item-weight-info">';
         p := Pos(check, s);
-        stmp := '';
-        for i := p + length(check) to length(s) do
+        if p > 0 then
         begin
-          if s[i] in ['.', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'] then
-            stmp := stmp + s[i]
-          else
-            Break;
-        end;
+          stmp := '';
+          for i := p + length(check) to length(s) do
+          begin
+            if s[i] in ['.', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'] then
+              stmp := stmp + s[i]
+            else
+              Break;
+          end;
+        end
+        else
+          stmp := '0';
+
         wwww := atof(stmp, 0.0);
         pi.weight := wwww;
 
@@ -12795,16 +12801,21 @@ begin
           check := 'catstring=';
           p := Pos(check, s);
         end;
-        stmp := '';
-        for i := p + length(check) to length(s) do
+        if p > 0 then
         begin
-          if s[i] in ['.', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'] then
-            stmp := stmp + s[i]
-          else
-            Break;
-        end;
-        ct := atoi(stmp);
-        if (ct < 0) or (ct >= MAXCATEGORIES) then
+          stmp := '';
+          for i := p + length(check) to length(s) do
+          begin
+            if s[i] in ['.', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'] then
+              stmp := stmp + s[i]
+            else
+              Break;
+          end;
+          ct := atoi(stmp);
+          if (ct < 0) or (ct >= MAXCATEGORIES) then
+            ct := 0;
+        end
+        else
           ct := 0;
         pi.category := ct;
         if fcategories[ct].knownpieces = nil then

@@ -76,10 +76,19 @@ type
     AddReadyListSpeedButton: TSpeedButton;
     Memo1: TMemo;
     NumReadyEdit: TEdit;
-    TabSheet2: TTabSheet;
+    TagsTabSheet: TTabSheet;
     TagsListBox: TListBox;
     AddTagButton: TButton;
     RemoveTagButton: TButton;
+    LugbulkTabSheet: TTabSheet;
+    PreferLugbulkButton: TButton;
+    LugbulksListBox: TListBox;
+    OrdersTabSheet: TTabSheet;
+    PreferOrderButton: TButton;
+    OrdersListBox: TListBox;
+    Label2: TLabel;
+    PrefLocationEdit: TEdit;
+    ClearPrefSpeedButton: TSpeedButton;
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -98,6 +107,11 @@ type
     procedure RemoveReadyListSpeedButtonClick(Sender: TObject);
     procedure AddTagButtonClick(Sender: TObject);
     procedure RemoveTagButtonClick(Sender: TObject);
+    procedure PreferLugbulkButtonClick(Sender: TObject);
+    procedure PreferOrderButtonClick(Sender: TObject);
+    procedure LugbulksListBoxClick(Sender: TObject);
+    procedure OrdersListBoxClick(Sender: TObject);
+    procedure ClearPrefSpeedButtonClick(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -117,7 +131,7 @@ implementation
 uses
   urlmon,
   bi_db, bi_delphi, bi_utils, bi_crawler, bi_globals, frm_selectparttype,
-  frm_editbllink, bi_readylist;
+  frm_editbllink, bi_readylist, bi_orders, bl_orderxml;
 
 function EditPiece(const apart: string; const color: integer): boolean;
 var
@@ -134,6 +148,7 @@ var
   initialyear, newyear: integer;
   initialcode: string;
   initialweight: string;
+  oldpreflocation: string;
   oldreadylistqty: integer;
   newreadylistqty: integer;
   oldtags: TStringList;
@@ -142,6 +157,8 @@ var
   tagchange: boolean;
   islikeset: Boolean;
   editingset: boolean;
+  oinf: TStringList;
+  oitem: TOrderItemInfo;
 begin
   Result := False;
   if Trim(apart) = '' then
@@ -230,9 +247,31 @@ begin
     PieceToImage(f.Image1, part, color);
     if pci <> nil then
     begin
+      oldpreflocation := pci.prefferedlocation;
+      f.PrefLocationEdit.Text := oldpreflocation;
+
       oldtags := TStringList.Create;
       oldtags.Text := pci.tags.Text;
       oldtags.Sorted := True;
+
+      for i := 2015 to 2015 + 31 do
+        if pci.GetLugbulk(i) then
+          f.LugbulksListBox.Items.Add(itoa(i));
+      if f.LugbulksListBox.Items.Count > 0 then
+        try f.LugbulksListBox.ItemIndex := 0 except end;
+      f.PreferLugbulkButton.Enabled := f.LugbulksListBox.Items.Count > 0;
+
+      oinf := orders.ItemInfo(apart, color);
+      if oinf <> nil then
+        for i := 0 to oinf.Count - 1 do
+        begin
+          oitem := oinf.Objects[i] as TOrderItemInfo;
+          if (oitem.orderstatus <> 'NSS') and (oitem.orderstatus <> 'Canceled') and (oitem.orderstatus <> 'Cancelled') then
+            f.OrdersListBox.Items.Add(itoa(oitem.orderid));
+        end;
+      if f.OrdersListBox.Items.Count > 0 then
+        try f.OrdersListBox.ItemIndex := 0 except end;
+      f.PreferOrderButton.Enabled := f.OrdersListBox.Items.Count > 0;
 
       for i := 0 to oldtags.Count - 1 do
         f.TagsListBox.Items.Add(oldtags.Strings[i]);
@@ -297,6 +336,9 @@ begin
             db.AddPieceAlias(f.AliasEdit.Text, part);
           if strupper(strtrim(f.NewNameEdit.Text)) <> strupper(strtrim(initnewname)) then
             db.SetNewPieceName(part, strtrim(f.NewNameEdit.Text));
+          if strupper(strtrim(f.PrefLocationEdit.Text)) <> strupper(strtrim(oldpreflocation)) then
+            db.SetPrefferedLocation(part, color, strtrim(f.PrefLocationEdit.Text));
+
           newnum := atoi(f.NumPiecesEdit.Text);
           if editingset then
           begin
@@ -752,6 +794,33 @@ begin
     Exit;
   end;
   TagsListBox.Items.Delete(idx);
+end;
+
+procedure TEditPieceForm.PreferLugbulkButtonClick(Sender: TObject);
+begin
+  if LugbulksListBox.ItemIndex > -1 then
+    PrefLocationEdit.Text := 'LUGBULK ' + LugbulksListBox.Items.Strings[LugbulksListBox.ItemIndex];
+end;
+
+procedure TEditPieceForm.PreferOrderButtonClick(Sender: TObject);
+begin
+  if OrdersListBox.ItemIndex > -1 then
+    PrefLocationEdit.Text := 'ORDER ' + OrdersListBox.Items.Strings[OrdersListBox.ItemIndex];
+end;
+
+procedure TEditPieceForm.LugbulksListBoxClick(Sender: TObject);
+begin
+  PreferLugbulkButton.Enabled := (LugbulksListBox.Items.Count > 0) and (LugbulksListBox.ItemIndex > -1);
+end;
+
+procedure TEditPieceForm.OrdersListBoxClick(Sender: TObject);
+begin
+  PreferOrderButton.Enabled := (OrdersListBox.Items.Count > 0) and (OrdersListBox.ItemIndex > -1);
+end;
+
+procedure TEditPieceForm.ClearPrefSpeedButtonClick(Sender: TObject);
+begin
+  PrefLocationEdit.Text := '';
 end;
 
 end.

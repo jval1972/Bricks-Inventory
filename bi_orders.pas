@@ -91,6 +91,9 @@ type
 
 function EvaluatedPrice(const order: IXMLORDERType): Double;
 
+var
+  orders: TOrders;
+
 implementation
 
 uses

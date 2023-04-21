@@ -642,7 +642,6 @@ type
     Comparesetslist: TStringList;
     Missingformultiplesetslist: TStringList;
     Missingfordismandaledsetslist: TStringList;
-    orders: TOrders;
     lastset: string;
     dismantaledsetsinv: TBrickInventory;
     diskmirror: string;
@@ -4528,7 +4527,7 @@ end;
 procedure TMainForm.DrawInventoryPartsStorage(const psinv: TBrickInventory; const ppreview: boolean);
 var
   storagelst: TStringList;
-  storagecompleteparts1, storagecompleteparts2: TStringList;
+  storagecompleteparts1, storagecompleteparts2, preferredparts: TStringList;
   i, aa: Integer;
   s1, s2, stmp: string;
   pci: TPieceColorInfo;
@@ -4683,7 +4682,54 @@ var
     Asid: string;
     foundall: boolean;
     numfound: integer;
+    s1, s2: string;
+    oid: integer;
   begin
+    if pass = 0 then
+    begin
+      if Apci.prefferedlocation <> '' then
+      begin
+        if Pos1('LUGBULK ', Apci.prefferedlocation) then
+        begin
+          splitstring(Apci.prefferedlocation, s1, s2, ' ');
+          s2 := strtrim(s2);
+          Asid := 'LUGBULK-' + s2;
+          Ainv := db.GetSetInventory(Asid);
+          if Ainv <> nil then
+          begin
+            num := Ainv.LoosePartCount(Apci.piece, Apci.color);
+            if num >= needed then
+            begin
+              _AddToStorageList2('set:' + Asid, Apci.piece, Apci.color, MinI(num, needed));
+              preferredparts.Add(Apci.piece + ',' + itoa(Apci.color));
+            end;
+          end;
+        end
+        else if Pos1('ORDER ', Apci.prefferedlocation) then
+        begin
+          splitstring(Apci.prefferedlocation, s1, s2, ' ');
+          s2 := strtrim(s2);
+          oid := atoi(s2);
+          Aoinf := orders.ItemInfo(Apci.piece, Apci.color);
+          if Aoinf <> nil then
+            for ii := 0 to Aoinf.Count - 1 do
+            begin
+              Aoitem := Aoinf.Objects[ii] as TOrderItemInfo;
+              if Aoitem.orderid = oid then
+                if needed <= Aoitem.num then
+                begin
+                  _AddToStorageList2('order:' + itoa(Aoitem.orderid), Apci.piece, Apci.color, needed);
+                  preferredparts.Add(Apci.piece + ',' + itoa(Apci.color));
+                end;
+            end;
+        end;
+      end;
+      Exit;
+    end;
+
+    if preferredparts.IndexOf(Apci.piece + ',' + itoa(Apci.color)) >= 0 then
+      Exit;
+
     if pass = 1 then
     begin
       for ii := dbstorageinvs.Count - 1 downto 0 do
@@ -4870,9 +4916,19 @@ begin
   storagecompleteparts1.Sorted := True;
   storagecompleteparts2 := TStringList.Create;
   storagecompleteparts2.Sorted := True;
+  preferredparts := TStringList.Create;
+  preferredparts.Sorted := True;
 
   dbstorageinvs := db.InventoriesForAllStorageBins;
   dbstorageinvs.Sorted := True;
+
+  // Pass 0 - Preffered locations
+  for i := 0 to inv.numlooseparts - 1 do
+  begin
+    pci := db.PieceColorInfo(@inv.looseparts[i]);
+    if pci <> nil then
+      FindAPartStorage(pci, inv.looseparts[i].num, 0);
+  end;
 
   // Pass 1
   for i := 0 to inv.numlooseparts - 1 do
@@ -5018,6 +5074,7 @@ begin
   FreeList(dbstorageinvs);
   storagecompleteparts1.Free;
   storagecompleteparts2.Free;
+  preferredparts.Free;
   inv.Free;
 
   HideSplash;

@@ -542,6 +542,7 @@ type
     {$ENDIF}
     procedure SetSPartType(const t: char);
   public
+    prefferedlocation: string;
     constructor Create(const apiece: string; const acolor: integer); virtual;
     destructor Destroy; override;
     procedure Assign(const pg: priceguide_t); overload;
@@ -784,6 +785,7 @@ type
     procedure InitTags;
     procedure InitRelationShips;
     procedure InitLugBulksPieces;
+    procedure InitPrefferedLocations;
     {$ENDIF}
     procedure InitPieces;
     procedure InitPiecesAlias;
@@ -898,6 +900,7 @@ type
     function InventoryForAllStorageBins: TBrickInventory;
     function InventoriesForAllStorageBins: TStringList;
     procedure SetPieceStorage(const piece: string; const color: integer; const st: TStringList);
+    function SetPrefferedLocation(const part: string; const color: Integer; const location: string): boolean;
     {$ENDIF}
     {$IFNDEF CRAWLER}
     function BaseMold(const pcs: string): string;
@@ -8622,11 +8625,149 @@ begin
             pci.SetLugbulk(lyear, True);
         end;
       end;
-      progressfunc(pregressstring, i / fcategories[CATEGORYLUGBULK].knownpieces.Count);
+      progressfunc(progressstring, i / fcategories[CATEGORYLUGBULK].knownpieces.Count);
     end;
 
   if Assigned(progressfunc) then
-    progressfunc(pregressstring, 1.0);
+    progressfunc(progressstring, 1.0);
+end;
+
+const
+  S_PREFFEREDLOC_TITLE = 'Part,Color,Location';
+
+procedure TSetsDatabase.InitPrefferedLocations;
+var
+  fname: string;
+  i: integer;
+  sL, sL2: TStringList;
+  part, scolor, location: string;
+  pci: TPieceColorInfo;
+  color: integer;
+  progressstring: string;
+begin
+  fname := basedefault + 'db\db_prefferedlocations.txt';
+  if not fexists(fname) then
+    Exit;
+
+  progressstring := 'Initializing preffered locations...';
+  if Assigned(progressfunc) then
+    progressfunc(progressstring, 0.0);
+
+  sL := TStringList.Create;
+  sL2 := TStringList.Create;
+  sL2.Add(S_PREFFEREDLOC_TITLE);
+
+  try
+    sL.LoadFromFile(fname);
+    if sL.Count > 1 then
+      if sL.Strings[0] = S_PREFFEREDLOC_TITLE then
+        for i := 1 to sL.Count - 1 do
+        begin
+          splitstring(sL.Strings[i], part, scolor, location, ',');
+
+          if Pos1('BL ', part) then
+            part := Trim(RebrickablePart(Copy(part, 4, Length(part) - 3)));
+
+          if Pos1('BL', scolor) then
+          begin
+            scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
+            color := db.BrickLinkColorToSystemColor(StrToIntDef(scolor, 0))
+          end
+          else if Pos1('RB', scolor) then
+          begin
+            scolor := Trim(Copy(scolor, 3, Length(scolor) - 2));
+            color := db.RebrickableColorToSystemColor(StrToIntDef(scolor, 0))
+          end
+          else
+            color := StrToIntDef(scolor, 0);
+
+          pci := PieceColorInfo(part, color);
+          if pci <> nil then
+          begin
+            pci.prefferedlocation := location;
+            if location <> '' then
+              sL2.Add(part + ',' + itoa(color) + ',' + location);
+          end;
+          if i mod 10 = 0 then
+            progressfunc(progressstring, i / sL.Count);
+        end;
+
+    if sL2.Text <> sL.Text then
+    begin
+      backupfile(fname);
+      sL2.SaveToFile(fname);
+    end;
+
+  finally
+    sL.Free;
+    sL2.Free;
+  end;
+
+  if Assigned(progressfunc) then
+    progressfunc(progressstring, 1.0);
+end;
+
+function TSetsDatabase.SetPrefferedLocation(const part: string; const color: Integer; const location: string): boolean;
+var
+  fname: string;
+  i: integer;
+  sL: TStringList;
+  pci: TPieceColorInfo;
+  check: string;
+begin
+  Result := False;
+
+  pci := PieceColorInfo(part, color);
+  if pci = nil then
+    Exit;
+
+  Result := True;
+
+  if pci.prefferedlocation = location then
+    Exit;
+
+  pci.prefferedlocation := location;
+
+  sL := TStringList.Create;
+
+  fname := basedefault + 'db\db_prefferedlocations.txt';
+  if not fexists(fname) then
+  begin
+    if location <> '' then
+    begin
+      sL.Add(S_PREFFEREDLOC_TITLE);
+      sL.Add(part + ',' + itoa(color) + ',' + location);
+      sL.SaveToFile(fname);
+    end;
+    sL.Free;
+    Exit;
+  end;
+
+  check := part + ',' + itoa(color) + ',';
+
+  sL.LoadFromFile(fname);
+
+  for i := 1 to sL.Count - 1 do
+    if Pos1(check, sL.Strings[i]) then
+    begin
+      if location = '' then
+        sL.Delete(i)
+      else
+        sL.Strings[i] := check + location;
+      backupfile(fname);
+      sL.SaveToFile(fname);
+      sL.Free;
+      Exit;
+    end;
+
+  if location <> '' then
+  begin
+    sL.Add(check + location);
+    backupfile(fname);
+    sL.SaveToFile(fname);
+  end;
+
+  sL.Free;
 end;
 {$ENDIF}
 
@@ -17428,6 +17569,7 @@ end;
 constructor TPieceColorInfo.Create(const apiece: string; const acolor: integer);
 begin
   flastinternetupdate := Now - 1.0;
+  prefferedlocation := '';
   fsparttype := ' ';
   {$IFNDEF CRAWLER}
   fsetmost := '';
@@ -18834,6 +18976,7 @@ begin
   InitRelationShips;
   InitTags;
   InitLugBulksPieces;
+  InitPrefferedLocations;
   {$ENDIF}
 
   Result := True;

@@ -579,7 +579,7 @@ object EditPieceForm: TEditPieceForm
     ParentFont = False
   end
   object SpeedButton1: TSpeedButton
-    Left = 248
+    Left = 200
     Top = 312
     Width = 23
     Height = 22
@@ -593,7 +593,7 @@ object EditPieceForm: TEditPieceForm
     OnClick = SpeedButton1Click
   end
   object SpeedButton2: TSpeedButton
-    Left = 272
+    Left = 224
     Top = 312
     Width = 23
     Height = 22
@@ -822,10 +822,46 @@ object EditPieceForm: TEditPieceForm
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
     OnClick = UpdateWeightSpeedButtonClick
   end
+  object Label2: TLabel
+    Left = 256
+    Top = 312
+    Width = 87
+    Height = 16
+    Caption = 'Pref. Location: '
+    FocusControl = PrefLocationEdit
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+  end
+  object ClearPrefSpeedButton: TSpeedButton
+    Left = 496
+    Top = 312
+    Width = 23
+    Height = 22
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    Glyph.Data = {
+      F6000000424DF600000000000000760000002800000010000000100000000100
+      04000000000080000000130B0000130B0000100000001000000000000000FFFF
+      FF00000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000111111111111
+      1111111001111111001111000011111000011000000111000000100000001000
+      0000110000000000000111100000000000111111000000000111111110000000
+      1111111100000000011111100000000000111100000000000001100000001000
+      0000100000011100000011000011111000011110011111110011}
+    ParentFont = False
+    OnClick = ClearPrefSpeedButtonClick
+  end
   object NumPiecesEdit: TEdit
     Left = 128
     Top = 312
-    Width = 121
+    Width = 73
     Height = 24
     BiDiMode = bdLeftToRight
     Font.Charset = GREEK_CHARSET
@@ -1044,7 +1080,7 @@ object EditPieceForm: TEditPieceForm
     Top = 344
     Width = 417
     Height = 257
-    ActivePage = TabSheet1
+    ActivePage = OrdersTabSheet
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -13
@@ -1148,7 +1184,51 @@ object EditPieceForm: TEditPieceForm
         OnKeyPress = NumReadyEditKeyPress
       end
     end
-    object TabSheet2: TTabSheet
+    object LugbulkTabSheet: TTabSheet
+      Caption = 'Lugbulks'
+      ImageIndex = 2
+      object PreferLugbulkButton: TButton
+        Left = 256
+        Top = 8
+        Width = 145
+        Height = 25
+        Caption = 'Set preferred location'
+        TabOrder = 0
+        OnClick = PreferLugbulkButtonClick
+      end
+      object LugbulksListBox: TListBox
+        Left = 16
+        Top = 8
+        Width = 233
+        Height = 209
+        ItemHeight = 16
+        TabOrder = 1
+        OnClick = LugbulksListBoxClick
+      end
+    end
+    object OrdersTabSheet: TTabSheet
+      Caption = 'Orders'
+      ImageIndex = 3
+      object PreferOrderButton: TButton
+        Left = 256
+        Top = 8
+        Width = 145
+        Height = 25
+        Caption = 'Set preferred location'
+        TabOrder = 0
+        OnClick = PreferOrderButtonClick
+      end
+      object OrdersListBox: TListBox
+        Left = 16
+        Top = 8
+        Width = 233
+        Height = 209
+        ItemHeight = 16
+        TabOrder = 1
+        OnClick = OrdersListBoxClick
+      end
+    end
+    object TagsTabSheet: TTabSheet
       Caption = 'Tags'
       ImageIndex = 1
       object TagsListBox: TListBox
@@ -1178,5 +1258,22 @@ object EditPieceForm: TEditPieceForm
         OnClick = RemoveTagButtonClick
       end
     end
+  end
+  object PrefLocationEdit: TEdit
+    Left = 344
+    Top = 312
+    Width = 153
+    Height = 24
+    BiDiMode = bdLeftToRight
+    Font.Charset = GREEK_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentBiDiMode = False
+    ParentFont = False
+    ReadOnly = True
+    TabOrder = 15
+    OnKeyPress = WeightEditKeyPress
   end
 end

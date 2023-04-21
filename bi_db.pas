@@ -8576,21 +8576,21 @@ end;
 procedure TSetsDatabase.InitPartReferences;
 var
   i: integer;
-  pregressstring: string;
+  progressstring: string;
 begin
-  pregressstring := 'Loading Parts Inventories...';
+  progressstring := 'Loading Parts Inventories...';
   if Assigned(progressfunc) then
-    progressfunc(pregressstring, 0.0);
+    progressfunc(progressstring, 0.0);
   for i := 0 to fpartsinventories.Count - 1 do
   begin
     inc(fpartsinventoriesvalidcount);
     if Assigned(progressfunc) then
       if i mod 50 = 0 then
-        progressfunc(pregressstring, i / fpartsinventories.Count);
+        progressfunc(progressstring, i / fpartsinventories.Count);
     MarkInventoriedPart(fpartsinventories.Strings[i]);
   end;
   if Assigned(progressfunc) then
-    progressfunc(pregressstring, 1.0);
+    progressfunc(progressstring, 1.0);
 end;
 
 {$IFNDEF CRAWLER}
@@ -8601,11 +8601,11 @@ var
   i, j: integer;
   pci: TPieceColorInfo;
   sname: string;
-  pregressstring: string;
+  progressstring: string;
 begin
-  pregressstring := 'Initializing Lugbulk inventories...';
+  progressstring := 'Initializing Lugbulk inventories...';
   if Assigned(progressfunc) then
-    progressfunc(pregressstring, 0.0);
+    progressfunc(progressstring, 0.0);
 
   if fcategories[CATEGORYLUGBULK].knownpieces <> nil then
     for i := 0 to fcategories[CATEGORYLUGBULK].knownpieces.Count - 1 do
@@ -8663,20 +8663,20 @@ var
   s: TStringList;
   idx, j: integer;
   cc, num: integer;
-  pregressstring: string;
+  progressstring: string;
 {$IFNDEF  CRAWLER}
   lyear: integer;
 {$ENDIF}
 begin
-  pregressstring := 'Loading sets...';
+  progressstring := 'Loading sets...';
   if Assigned(progressfunc) then
-    progressfunc(pregressstring, 0.0);
+    progressfunc(progressstring, 0.0);
   s := TStringList.Create;
   for i := 0 to fsets.Count - 1 do
   begin
     if i mod 500 = 0 then
       if Assigned(progressfunc) then
-        progressfunc(pregressstring, i / fsets.Count);
+        progressfunc(progressstring, i / fsets.Count);
 
     sset := fsets.strings[i];
     if fallsets.IndexOf(sset) < 0 then
@@ -8795,7 +8795,7 @@ begin
   end;
   s.Free;
   if Assigned(progressfunc) then
-    progressfunc(pregressstring, 1.0);
+    progressfunc(progressstring, 1.0);
 end;
 
 procedure TSetsDatabase.InitPieces;
@@ -9869,7 +9869,7 @@ var
   cl: integer;
   pci: TPieceColorInfo;
   x1, x2: string;
-  pregressstring: string;
+  progressstring: string;
   fn: string;
 begin
   fstorage.Clear;
@@ -9889,9 +9889,9 @@ begin
     s1.Free;
     Exit;
   end;
-  pregressstring := 'Loading Storage...';
+  progressstring := 'Loading Storage...';
   if Assigned(progressfunc) then
-    progressfunc(pregressstring, 0.0);
+    progressfunc(progressstring, 0.0);
   for i := 1 to s1.Count - 1 do
   begin
     splitstring(s1.strings[i], x1, x2, ',');
@@ -9925,10 +9925,10 @@ begin
     s2.Free;
     if Assigned(progressfunc) then
       if i mod 10 = 0 then
-        progressfunc(pregressstring, i / s1.Count);
+        progressfunc(progressstring, i / s1.Count);
   end;
   if Assigned(progressfunc) then
-    progressfunc(pregressstring, 1.0);
+    progressfunc(progressstring, 1.0);
   s1.Free;
 end;
 
@@ -10585,14 +10585,14 @@ var
   bl, blnew: string;
   cnt: integer;
   pci: TPieceColorInfo;
-  pregressstring: string;
+  progressstring: string;
 begin
   Result := False;
   cnt := 0;
   slist := inv.GetMoldList;
-  pregressstring := 'Refreshing...';
+  progressstring := 'Refreshing...';
   if assigned(progressfunc) then
-    progressfunc(pregressstring, 0);
+    progressfunc(progressstring, 0);
   for i := 0 to slist.Count - 1 do
   begin
     bl := BrickLinkPart(slist.Strings[i]);
@@ -10616,7 +10616,7 @@ begin
       end;
     end;
     if assigned(progressfunc) then
-      progressfunc(pregressstring, ((1 + i) / slist.count) * (2 / 3));
+      progressfunc(progressstring, ((1 + i) / slist.count) * (2 / 3));
   end;
 
   for i := 0 to inv.numlooseparts - 1 do
@@ -10630,7 +10630,7 @@ begin
           inc(cnt);
       end;
     if assigned(progressfunc) then
-      progressfunc(pregressstring, ((1 + i) / inv.numlooseparts) / 3 + 2 / 3);
+      progressfunc(progressstring, ((1 + i) / inv.numlooseparts) / 3 + 2 / 3);
   end;
 
   if cnt > 0 then
@@ -10638,7 +10638,7 @@ begin
 
   slist.Free;
   if assigned(progressfunc) then
-    progressfunc(pregressstring, 1.0);
+    progressfunc(progressstring, 1.0);
 end;
 
 function TSetsDatabase.RefreshSet(const s: string; const lite: boolean = False): boolean;
@@ -16898,14 +16898,14 @@ var
   s: TStringList;
   i, j: integer;
   k, tot: integer;
-  pregressstring: string;
+  progressstring: string;
   kp: THashStringList;
 begin
   AllowInternetAccess := False;
 
-  pregressstring := 'Export price guide...';
+  progressstring := 'Export price guide...';
   if Assigned(progressfunc) then
-    progressfunc(pregressstring, 0.0);
+    progressfunc(progressstring, 0.0);
 
   printf('TSetsDatabase.ExportPriceGuide(' + fname + ')'#13#10);
 
@@ -16934,12 +16934,12 @@ begin
         begin
           if j mod 500 = 0 then
             if Assigned(progressfunc) then
-              progressfunc(pregressstring, (k + j) / tot);
+              progressfunc(progressstring, (k + j) / tot);
           s.Add((kp.Objects[j] as TPieceColorInfo).dbExportStringPG);
         end;
         inc(k, kp.Count);
         if Assigned(progressfunc) then
-          progressfunc(pregressstring, k / tot);
+          progressfunc(progressstring, k / tot);
       end;
     end;
 
@@ -16947,7 +16947,7 @@ begin
   s.Free;
 
   if Assigned(progressfunc) then
-    progressfunc(pregressstring, 1.0);
+    progressfunc(progressstring, 1.0);
 
   AllowInternetAccess := True;
 end;
@@ -16968,13 +16968,13 @@ var
   avail_uQtyAvg: partout_t;
   s: TStringList;
   sset: string;
-  pregressstring: string;
+  progressstring: string;
 begin
   AllowInternetAccess := False;
 
-  pregressstring := 'Export partout guide...';
+  progressstring := 'Export partout guide...';
   if Assigned(progressfunc) then
-    progressfunc(pregressstring, 0.0);
+    progressfunc(progressstring, 0.0);
 
   printf('TSetsDatabase.ExportPartOutGuide(' + fname + ')'#13#10);
 
@@ -16992,7 +16992,7 @@ begin
   begin
     if i mod 100 = 0 then
       if Assigned(progressfunc) then
-        progressfunc(pregressstring, i / fallsets.Count);
+        progressfunc(progressstring, i / fallsets.Count);
 
     sset := fallsets.Strings[i];
     pg := Priceguide(sset);
@@ -17057,7 +17057,7 @@ begin
   s.Free;
 
   if Assigned(progressfunc) then
-    progressfunc(pregressstring, 1.0);
+    progressfunc(progressstring, 1.0);
 
   AllowInternetAccess := True;
 end;

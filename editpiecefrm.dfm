@@ -1044,7 +1044,7 @@ object EditPieceForm: TEditPieceForm
     Top = 344
     Width = 417
     Height = 257
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -13

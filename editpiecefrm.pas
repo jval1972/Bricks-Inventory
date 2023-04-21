@@ -32,7 +32,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, Buttons, ComCtrls;
+  Dialogs, StdCtrls, ExtCtrls, Buttons, ComCtrls, Consts;
 
 type
   TEditPieceForm = class(TForm)
@@ -723,13 +723,87 @@ begin
   end;
 end;
 
+function InputTagQuery(const ACaption, APrompt: string;
+  var Value: string): Boolean;
+var
+  Form: TForm;
+  Prompt: TLabel;
+  Combo: TComboBox;
+  DialogUnits: TPoint;
+  ButtonTop, ButtonWidth, ButtonHeight: Integer;
+begin
+  Result := False;
+  Form := TForm.Create(Application);
+  with Form do
+    try
+      Canvas.Font := Font;
+      DialogUnits := GetAveCharSize(Canvas);
+      BorderStyle := bsDialog;
+      Caption := ACaption;
+      ClientWidth := MulDiv(180, DialogUnits.X, 4);
+      Position := poScreenCenter;
+      Prompt := TLabel.Create(Form);
+      with Prompt do
+      begin
+        Parent := Form;
+        Caption := APrompt;
+        Left := MulDiv(8, DialogUnits.X, 4);
+        Top := MulDiv(8, DialogUnits.Y, 8);
+        Constraints.MaxWidth := MulDiv(164, DialogUnits.X, 4);
+        WordWrap := True;
+      end;
+      Combo := TComboBox.Create(Form);
+      with Combo do
+      begin
+        Parent := Form;
+        Left := Prompt.Left;
+        Top := Prompt.Top + Prompt.Height + 5;
+        Width := MulDiv(164, DialogUnits.X, 4);
+        MaxLength := 255;
+        Text := Value;
+        Items.Text := db.AllTags.Text;
+        SelectAll;
+      end;
+      ButtonTop := Combo.Top + Combo.Height + 15;
+      ButtonWidth := MulDiv(50, DialogUnits.X, 4);
+      ButtonHeight := MulDiv(14, DialogUnits.Y, 8);
+      with TButton.Create(Form) do
+      begin
+        Parent := Form;
+        Caption := SMsgDlgOK;
+        ModalResult := mrOk;
+        Default := True;
+        SetBounds(MulDiv(38, DialogUnits.X, 4), ButtonTop, ButtonWidth,
+          ButtonHeight);
+      end;
+      with TButton.Create(Form) do
+      begin
+        Parent := Form;
+        Caption := SMsgDlgCancel;
+        ModalResult := mrCancel;
+        Cancel := True;
+        SetBounds(MulDiv(92, DialogUnits.X, 4), Combo.Top + Combo.Height + 15,
+          ButtonWidth, ButtonHeight);
+        Form.ClientHeight := Top + Height + 13;          
+      end;
+      if ShowModal = mrOk then
+      begin
+        Value := Combo.Text;
+        Result := True;
+      end;
+    finally
+      Form.Free;
+    end;
+end;
+
+
 procedure TEditPieceForm.AddTagButtonClick(Sender: TObject);
 var
   newtag: string;
   idx: integer;
 begin
   newtag := '';
-  if InputQuery(Caption, 'Add tag', newtag) then
+  if InputTagQuery(Caption, 'Add tag', newtag) then
   begin
     if TagsListBox.Items.IndexOf(newtag) < 0 then
     begin

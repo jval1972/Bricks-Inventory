@@ -15758,11 +15758,13 @@ end;
 procedure TMainForm.About1Click(Sender: TObject);
 var
   rsTitle: string;
+  mused: float;
 begin
+  mused := GetMemoryUsed / 1024 / 1024;
   rsTitle := 'Bricks Inventory';
   MessageBox(
     Handle,
-    PChar(Format('%s'#13#10'Version %s'#13#10#13#10'A tool for managing your brick collection.'#13#10'© 2014 - 2023, jvalavanis@gmail.com', [rsTitle, I_VersionBuilt])),
+    PChar(Format('%s'#13#10'Version %s'#13#10#13#10'A tool for managing your brick collection.'#13#10'© 2014 - 2023, jvalavanis@gmail.com'#13#10'%2.2f MB memory used', [rsTitle, I_VersionBuilt, mused])),
     PChar(rsTitle),
     MB_OK or MB_ICONINFORMATION or MB_APPLMODAL);
 end;

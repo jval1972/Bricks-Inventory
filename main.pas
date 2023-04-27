@@ -11660,17 +11660,17 @@ procedure TMainForm.AdjustStreamsSize;
 var
   i, num, totalsize: integer;
 begin
-  // Limit to 200 streams if we have more than 300 streams;
-  if streams.Count > 300  then
+  // Limit to 150 streams if we have more than 200 streams;
+  if streams.Count > 200  then
   begin
-    for i := streams.Count - 1 downto 200 do
+    for i := streams.Count - 1 downto 150 do
     begin
       streams.Objects[i].Free;
       streams.Delete(i);
     end;
   end;
 
-  if GetMemoryUsed > 1024 * 1024 * 1024 then
+  if GetMemoryUsed > 512 * 1024 * 1024 then
   begin
     num := 2 * streams.Count div 3;
     for i := streams.Count - 1 downto num do

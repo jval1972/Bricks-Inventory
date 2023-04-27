@@ -59,6 +59,7 @@ type
     CheckBox9: TCheckBox;
     CheckBox10: TCheckBox;
     CheckBox11: TCheckBox;
+    CheckBox12: TCheckBox;
     procedure Edit1KeyPress(Sender: TObject; var Key: Char);
     procedure FormCreate(Sender: TObject);
   private
@@ -74,7 +75,7 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_delphi, bi_defs;
+  bi_delphi, bi_defs, bi_system;
 
 function BI_EditOptions: boolean;
 var
@@ -97,6 +98,7 @@ begin
     f.CheckBox9.Checked := optlocationsorders;
     f.CheckBox10.Checked := optlocationsreadylist;
     f.CheckBox11.Checked := dodraworderinfolite;
+    f.CheckBox12.Checked := quantizeimagetosavemem;
 
     if IsIntegerInRange(inventorysortmethod, 0, f.RadioGroup1.items.Count - 1) then
       f.RadioGroup1.ItemIndex := inventorysortmethod;
@@ -117,6 +119,7 @@ begin
       optlocationsorders := f.CheckBox9.Checked;
       optlocationsreadylist := f.CheckBox10.Checked;
       dodraworderinfolite := f.CheckBox11.Checked;
+      quantizeimagetosavemem := f.CheckBox12.Checked;
     end;
   finally
     f.Free;

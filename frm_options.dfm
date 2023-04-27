@@ -610,8 +610,8 @@ object OptionsForm: TOptionsForm
     Left = 24
     Top = 8
     Width = 313
-    Height = 217
-    ActivePage = TabSheet3
+    Height = 225
+    ActivePage = TabSheet1
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
     Font.Height = -13
@@ -668,6 +668,14 @@ object OptionsForm: TOptionsForm
         Height = 17
         Caption = 'Extended search of image files on net'
         TabOrder = 5
+      end
+      object CheckBox12: TCheckBox
+        Left = 8
+        Top = 168
+        Width = 281
+        Height = 17
+        Caption = 'Quantize images to reduce memory usage'
+        TabOrder = 6
       end
     end
     object TabSheet2: TTabSheet

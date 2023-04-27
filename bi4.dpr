@@ -145,7 +145,8 @@ uses
   StyleUn in 'StyleUn.pas',
   URLSubs in 'URLSubs.pas',
   vwPrint in 'vwPrint.pas',
-  zlibpas in 'zlibpas.pas';
+  zlibpas in 'zlibpas.pas',
+  bi_quantize in 'bi_quantize.pas';
 
 {$R *.res}
 

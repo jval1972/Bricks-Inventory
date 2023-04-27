@@ -30,6 +30,9 @@ unit bi_defs;
 
 interface
 
+uses
+  bi_system;
+
 type
   ttype_t = (tText, tInteger, tBoolean, tGroup);
 
@@ -48,9 +51,9 @@ type
 var
   dodraworderinfo: boolean;
   dodraworderinfolite: boolean;
-  usemultithread: boolean;
   domultipagedocuments: boolean;
   dpagesize: integer;
+  quantizeimagetosavemem: boolean;
   savealwayspartinvinfo: boolean;
   generatethumbnailsondemand: boolean;
   silentwarnings: boolean;
@@ -61,7 +64,7 @@ var
   optlocationsreadylist: boolean;
 
 const
-  NUMDEFAULTS = 16;
+  NUMDEFAULTS = 17;
 
   defaults: array[0..NUMDEFAULTS - 1] of default_t = (
     (name: 'General';
@@ -94,6 +97,14 @@ const
      defaultsvalue: '1';
      defaultivalue: 1;
      defaultbvalue: True;
+     _type: tBoolean),
+
+    (name: 'quantizeimagetosavemem';
+     location: @quantizeimagetosavemem;
+     setable: true;
+     defaultsvalue: '0';
+     defaultivalue: 0;
+     defaultbvalue: False;
      _type: tBoolean),
 
     (name: 'savealwayspartinvinfo';

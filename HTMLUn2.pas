@@ -475,6 +475,7 @@ implementation
 
 uses
   jpeg, DitherUnit,
+  bi_utils, bi_quantize, bi_defs,
   {$ifndef NoOldPng}
      PngImage1,
   {$endif}
@@ -2040,8 +2041,13 @@ try
         if not jpImage.GrayScale and (ColorBits = 8) then
           jpImage.Palette := CopyPalette(ThePalette);
         end
-      else jpImage.PixelFormat := jf24bit;
+      else
+        jpImage.PixelFormat := jf24bit;
       Result.Assign(jpImage.Bitmap);
+      if quantizeimagetosavemem then
+        if Result.PixelFormat in [pf15bit, pf16bit, pf24bit, pf32bit] then
+          if GetMemoryUsed > 512 * 1024 * 1024 then
+            ReduceTo8Bit(Result);
     finally
       jpImage.Free;                                                 
       end;

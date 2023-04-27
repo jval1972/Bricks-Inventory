@@ -11930,18 +11930,24 @@ begin
         check := 'class=pciItemNameLink><b>[%strColorString%]';
         s := SL.Text;
         p := Pos(check, s);
-        desc := '';
-        for i := p + length(check) to length(s) do
+        if p <= 0 then
         begin
-          if s[i] = '<' then
-            break
-          else
-          begin
-            if s[i] = ',' then
-              s[i] := ' ';
-            desc := desc + s[i];
-          end;
+          check := '<h1 id="item-name-title" style="font-size:16px;margin:0;display:inline-block;">';
+          p := Pos(check, s);
         end;
+        desc := '';
+        if p > 0 then
+          for i := p + length(check) to length(s) do
+          begin
+            if s[i] = '<' then
+              break
+            else
+            begin
+              if s[i] = ',' then
+                s[i] := ' ';
+              desc := desc + s[i];
+            end;
+          end;
         if desc <> '' then
           SetMoldName(spart, desc);
       end;

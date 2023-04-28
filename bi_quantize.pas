@@ -318,6 +318,37 @@ type
   PLongWordArray = ^TLongWordArray;
   TLongWordArray = array[0..$FFFF] of LongWord;
 
+type
+  qgetcolor_t = record
+    root: oct_node_p;
+    im: PLongWordArray;
+    start, stop: Integer;
+    allowzero: boolean;
+  end;
+  qgetcolor_p = ^qgetcolor_t;
+
+function getcolors_thr(p: Pointer): integer; stdcall;
+var
+  parms: qgetcolor_p;
+  root: oct_node_p;
+  im: PLongWordArray;
+  i, start, stop: Integer;
+  allowzero: boolean;
+begin
+  parms := qgetcolor_p(p);
+  root := parms.root;
+  im := parms.im;
+  start := parms.start;
+  stop := parms.stop;
+  allowzero := parms.allowzero;
+
+  for i := start to stop do
+    im[i] := get_color_quantized(root, im[i], allowzero);
+
+  Result := 0;
+end;
+
+
 procedure color_quantize_image(im: PLongWordArray; const imsize: integer;
   const n_colors: integer; const n: TDNumberList; const allowzero: boolean);
 var
@@ -325,6 +356,7 @@ var
   heap: node_heap_t;
   got, root: oct_node_p;
   dd: double;
+  parms: array[0..7] of qgetcolor_t;
 begin
   heap.alloc := 0;
   heap.n := 0;
@@ -350,8 +382,32 @@ begin
     n.Add(RGB(got.r, got.g, got.b));
   end;
 
-  for i := 0 to imsize - 1 do
-    im[i] := get_color_quantized(root, im[i], allowzero);
+  if usemultithread then
+  begin
+    for i := 0 to 7 do
+    begin
+      parms[i].root := root;
+      parms[i].im := im;
+      parms[i].start := (imsize * i) div 8;
+      parms[i].allowzero := allowzero;
+    end;
+    for i := 0 to 6 do
+      parms[i].stop := parms[i + 1].start - 1;
+    parms[7].stop := imsize - 1;
+    MT_Execute(
+        @getcolors_thr, @parms[0],
+        @getcolors_thr, @parms[1],
+        @getcolors_thr, @parms[2],
+        @getcolors_thr, @parms[3],
+        @getcolors_thr, @parms[4],
+        @getcolors_thr, @parms[5],
+        @getcolors_thr, @parms[6],
+        @getcolors_thr, @parms[7]
+      );
+  end
+  else
+    for i := 0 to imsize - 1 do
+      im[i] := get_color_quantized(root, im[i], allowzero);
 
   node_free;
   FreeMem(heap.buf);

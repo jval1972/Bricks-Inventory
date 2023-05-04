@@ -365,7 +365,7 @@ begin
     if PChar(res)^ = #0 then
       break;
     Result := Result + PChar(res)^;
-    res := pointer(integer(res) + 1);
+    res := pointer(LongWord(res) + 1);
   end;
   memfree(pointer(buffer), vsize + 1);
 end;

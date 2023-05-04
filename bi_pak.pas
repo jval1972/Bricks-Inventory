@@ -216,7 +216,7 @@ begin
   else
     Result := Sz;
 
-  memcpy(@buf, pointer(integer(data) + fPosition), Result);
+  memcpy(@buf, pointer(LongWord(data) + fPosition), Result);
   fPosition := fPosition + Result;
 end;
 

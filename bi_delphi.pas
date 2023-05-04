@@ -143,7 +143,7 @@ function memset(const dest0: pointer; const val: integer; const count0: integer)
 
 function malloc(const size: integer): Pointer;
 
-function mallocA(var Size: integer; const Align: integer; var original: pointer): pointer;
+function mallocA(var Size: LongWord; const Align: LongWord; var original: pointer): pointer;
 
 function mallocz(const size: integer): Pointer;
 
@@ -188,9 +188,9 @@ function decide(const condition: integer;
 function decidef(const condition: boolean;
   const iftrue: single; const iffalse: single): single; 
 
-function incp(var p: pointer; const size: integer = 1): pointer;
+function incp(var p: pointer; const size: LongWord = 1): pointer;
 
-function pDiff(const p1, p2: pointer; const size: integer): integer;
+function pDiff(const p1, p2: pointer; const size: LongWord): integer;
 
 function getenv(const env: string): string;
 
@@ -891,20 +891,14 @@ begin
     Exit;
   end;
 
-{  if abs(integer(dest0) - integer(src0)) < 8 then
-  begin
-    printf('memcpy(): FUCK!!');
-    Exit;
-  end;}
-
   // if copying more than 16 bytes and we can copy 8 byte aligned
-  if (count0 > 16) and (((integer(dest0) xor integer(src0)) and 7) = 0) then
+  if (count0 > 16) and (((LongWord(dest0) xor LongWord(src0)) and 7) = 0) then
   begin
     dest := PByte(dest0);
     src := PByte(src0);
 
     // copy up to the first 8 byte aligned boundary
-    count := integer(dest) and 7;
+    count := LongWord(dest) and 7;
     Move(src^, dest^, count);
     inc(dest, count);
     inc(src, count);
@@ -967,7 +961,7 @@ begin
   dest := PByte(dest0);
   count := count0;
 
-  while (count > 0) and (integer(dest) and 7 <> 0) do
+  while (count > 0) and (LongWord(dest) and 7 <> 0) do
   begin
     dest^ := val;
     inc(dest);
@@ -1082,13 +1076,13 @@ begin
   end;
 end;
 
-function mallocA(var Size: integer; const Align: integer; var original: pointer): pointer;
+function mallocA(var Size: LongWord; const Align: LongWord; var original: pointer): pointer;
 begin
   Size := Size + Align;
   Result := malloc(Size);
   original := Result; 
   if Result <> nil then
-    Result := pointer(integer(Result) and (1 - Align) + Align);
+    Result := pointer(LongWord(Result) and (1 - Align) + Align);
 end;
 
 function mallocz(const size: integer): Pointer;
@@ -1228,279 +1222,18 @@ begin
     Result := iffalse;
 end;
 
-function incp(var p: pointer; const size: integer = 1): pointer;
+function incp(var p: pointer; const size: LongWord = 1): pointer;
 begin
-  Result := Pointer(integer(p) + size);
+  Result := Pointer(LongWord(p) + size);
   p := Result;
 end;
 
-function pDiff(const p1, p2: pointer; const size: integer): integer;
+function pDiff(const p1, p2: pointer; const size: LongWord): integer;
 begin
-  Result := (Integer(p1) - Integer(p2)) div size;
+  Result := (LongWord(p1) - LongWord(p2)) div size;
 end;
 
-////////////////////////////////////////////////////////////////////////////////
-// TStream
-(*constructor TStream.Create;
-begin
-  FIOResult := 0;
-end;
 
-function TStream.IOResult: integer;
-begin
-  Result := FIOResult;
-  FIOResult := 0;
-end;
-
-////////////////////////////////////////////////////////////////////////////////
-// TMemoryStream
-constructor TMemoryStream.Create;
-begin
-  Inherited Create;
-  FSize := 0;
-  FPosition := 0;
-  FMemory := nil;
-end;
-
-destructor TMemoryStream.Destroy;
-begin
-  Resize(0);
-  Inherited Destroy;
-end;
-
-procedure TMemoryStream.Resize(newsize: integer);
-begin
-  if FSize <> newsize then
-  begin
-    realloc(FMemory, FSize, newsize);
-    FSize := newsize;
-    if FPosition > FSize then
-      FPosition := FSize;
-  end;
-end;
-
-function TMemoryStream.Read(var Buffer; Count: Longint): Longint;
-begin
-  if Count + FPosition > FSize then
-    Result := FSize - FPosition
-  else
-    Result := Count;
-
-  memcpy(@Buffer, pointer(integer(FMemory) + FPosition), Result);
-  FPosition := FPosition + Result;
-end;
-
-function TMemoryStream.Write(const Buffer; Count: Longint): Longint;
-begin
-  if Count + FPosition > FSize then
-    resize(Count + FPosition);
-  memcpy(pointer(integer(FMemory) + FPosition), @Buffer, Count);
-  FPosition := FPosition + Count;
-  Result := Count;
-end;
-
-function TMemoryStream.Seek(Offset: Longint; Origin: Word): Longint;
-begin
-  case Origin of
-    sFromBeginning:
-      Result := Offset;
-    sFromCurrent:
-      Result := FPosition + Offset;
-    sFromEnd:
-      Result := FPosition - Offset;
-  else
-    Result := 0;
-  end;
-  FPosition := Result;
-end;
-
-function TMemoryStream.Size: Longint;
-begin
-  Result := FSize;
-end;
-
-function TMemoryStream.Position: integer;
-begin
-  Result := FPosition;
-end;
-
-////////////////////////////////////////////////////////////////////////////////
-// TFile
-// File class
-constructor TFile.Create(const FileName: string; const mode: integer);
-begin
-  Inherited Create;
-  OnBeginBusy := nil;
-  OnEndBusy := nil;
-
-  fopen(f, FileName, mode);
-end;
-
-destructor TFile.Destroy;
-begin
-  close(f);
-  Inherited;
-end;
-
-function TFile.Read(var Buffer; Count: Longint): Longint;
-begin
-  if Assigned(OnBeginBusy) then OnBeginBusy;
-
-  {$I-}
-  BlockRead(f, Buffer, Count, Result);
-  {$I+}
-  FIOResult := IOResult;
-
-  if Assigned(OnEndBusy) then OnEndBusy;
-end;
-
-function TFile.Write(const Buffer; Count: Longint): Longint;
-begin
-  if Assigned(OnBeginBusy) then OnBeginBusy;
-
-  {$I-}
-  BlockWrite(f, Buffer, Count, Result);
-  {$I+}
-  FIOResult := IOResult;
-
-  if Assigned(OnEndBusy) then OnEndBusy;
-end;
-
-function TFile.Seek(Offset: Longint; Origin: Word): Longint;
-begin
-  case Origin of
-    sFromBeginning:
-      Result := Offset;
-    sFromCurrent:
-      Result := FilePos(f) + Offset;
-    sFromEnd:
-      Result := FileSize(f) - Offset;
-  else
-    Result := 0;
-  end;
-  {$I-}
-  system.Seek(f, Result);
-  {$I+}
-  FIOResult := IOResult;
-end;
-
-function TFile.Size: Longint;
-begin
-  {$I-}
-  Result := FileSize(f);
-  {$I+}
-  FIOResult := IOResult;
-end;
-
-function TFile.Position: integer;
-begin
-  {$I-}
-  Result := FilePos(f);
-  {$I+}
-  FIOResult := IOResult;
-end;
-
-////////////////////////////////////////////////////////////////////////////////
-// TCachedFile
-// Cache read file class
-constructor TCachedFile.Create(const FileName: string; mode: word; ABufSize: integer = $FFFF);
-begin
-  fInitialized := False;
-  Inherited Create(FileName, mode);
-  if ABufSize > Size then
-    fBufSize := Size
-  else
-    fBufSize := ABufSize;
-  fBuffer := malloc(fBufSize);
-  fPosition := 0;
-  ResetBuffer;
-  fSize := Inherited Size;
-  fInitialized := True;
-end;
-
-procedure TCachedFile.ResetBuffer;
-begin
-  fBufferStart := -1;
-  fBufferEnd := -1;
-end;
-
-destructor TCachedFile.Destroy;
-begin
-  memfree(fBuffer, fBufSize);
-  Inherited;
-end;
-
-function TCachedFile.Read(var Buffer; Count: Longint): Longint;
-var
-  x: Longint;
-begin
-// Buffer hit
-  if (fPosition >= fBufferStart) and (fPosition + Count <= fBufferEnd) then
-  begin
-    x := LongInt(fBuffer) + fPosition - fBufferStart;
-    Move(Pointer(x)^, Buffer, Count);
-    fPosition := fPosition + Count;
-    Result := Count;
-  end
-// Non Buffer hit, cache buffer
-  else if Count <= fBufSize then
-  begin
-    fPosition := Inherited Seek(fPosition, sFromBeginning);
-    x := Inherited Read(fBuffer^, fBufSize);
-    if x < Count then
-      Result := x
-    else
-      Result := Count;
-    Move(fBuffer^, Buffer, Count);
-    fBufferStart := fPosition;
-    fBufferEnd := fPosition + x;
-    fPosition := fPosition + Result;
-  end
-// Keep old buffer
-  else
-  begin
-    fPosition := Inherited Seek(fPosition, sFromBeginning);
-    Result := Inherited Read(Buffer, Count);
-    fPosition := fPosition + Result;
-  end;
-end;
-
-function TCachedFile.Write(const Buffer; Count: Longint): Longint;
-begin
-  fPosition := Inherited Seek(fPosition, sFromBeginning);
-  Result := Inherited Write(Buffer, Count);
-  fPosition := fPosition + Result;
-  if fSize < fPosition then
-    fSize := fPosition;
-end;
-
-function TCachedFile.Seek(Offset: Longint; Origin: Word): Longint;
-begin
-  if fInitialized then
-  begin
-    case Origin of
-      sFromBeginning: fPosition := Offset;
-      sFromCurrent: Inc(fPosition, Offset);
-      sFromEnd: fPosition := fSize + Offset;
-    end;
-    Result := fPosition;
-  end
-  else
-    Result := Inherited Seek(Offset, Origin);
-end;
-
-procedure TCachedFile.SetSize(NewSize: Longint);
-begin
-  Inherited;
-  fSize := NewSize;
-end;
-
-function TCachedFile.Position: integer;
-begin
-  Result := FPosition;
-end;
-*)
-////////////////////////////////////////////////////////////////////////////////
 // TDNumberList
 constructor TDNumberList.Create;
 begin
@@ -2027,10 +1760,10 @@ begin
   Clear;
   P := PChar(@A[0]);
   if P <> nil then
-    while (P^ <> #0) and (integer(P) <> integer(@A[Size])) do
+    while (P^ <> #0) and (LongWord(P) <> LongWord(@A[Size])) do
     begin
       Start := P;
-      while (not (P^ in [#0, #10, #13])) and (integer(P) <> integer(@A[Size])) do Inc(P);
+      while (not (P^ in [#0, #10, #13])) and (LongWord(P) <> LongWord(@A[Size])) do Inc(P);
       SetString(S, Start, P - Start);
       Add(S);
       if P^ = #13 then Inc(P);
@@ -2111,7 +1844,7 @@ begin
   Integer(Item2.FString) := Temp;
   Temp := Integer(Item1.FObject);
   Integer(Item1.FObject) := Integer(Item2.FObject);
-  Integer(Item2.FObject) := Temp;                
+  Integer(Item2.FObject) := Temp;
 end;
 
 function TDStringList.Get(Index: Integer): string;
@@ -2439,7 +2172,7 @@ begin
   dest := PByte(dest0);
   count := count0;
 
-  while (count > 0) and (integer(dest) and 7 <> 0) do
+  while (count > 0) and (LongWord(dest) and 7 <> 0) do
   begin
     dest^ := 0;
     inc(dest);
@@ -2985,13 +2718,6 @@ asm
 end;
 
 function fabs(const f: float): float;
-{var
-  tmp: integer;
-begin
-  tmp := PInteger(@f)^;
-  tmp := tmp and $7FFFFFFF;
-  Result := Pfloat(@tmp)^;
-end;}
 begin
   if f >= 0 then
     Result := f

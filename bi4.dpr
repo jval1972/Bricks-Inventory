@@ -146,7 +146,8 @@ uses
   URLSubs in 'URLSubs.pas',
   vwPrint in 'vwPrint.pas',
   zlibpas in 'zlibpas.pas',
-  bi_quantize in 'bi_quantize.pas';
+  bi_quantize in 'bi_quantize.pas',
+  bi_4gb in 'bi_4gb.pas';
 
 {$R *.res}
 

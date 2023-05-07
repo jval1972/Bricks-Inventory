@@ -264,6 +264,10 @@ type
     function totallooseparts: integer;
     function totalsetsbuilted(const asetid: string = ''): integer;
     function totalsetsdismantaled(const asetid: string = ''): integer;
+    function totalofficialsetsbuilted(const asetid: string = ''): integer;
+    function totalofficialsetsdismantaled(const asetid: string = ''): integer;
+    function totalmocsbuilted(const asetid: string = ''): integer;
+    function totalmocsdismantaled(const asetid: string = ''): integer;
     function GetMoldList: TStringList;
     function GetDismandaledSets: TStringList;
     function GetHistoryStatsRec: brickstatshistory_t;
@@ -4134,6 +4138,86 @@ begin
     for i := fnumsets - 1 downto 0 do
       if fsets[i].setid = asetid then
         Result := Result + fsets[i].dismantaled;
+  end;
+end;
+
+function TBrickInventory.totalofficialsetsbuilted(const asetid: string = ''): integer;
+var
+  i: integer;
+begin
+  Result := 0;
+  if asetid = '' then
+  begin
+    for i := fnumsets - 1 downto 0 do
+      if not db.IsMoc(fsets[i].setid) then
+        Result := Result + fsets[i].num;
+  end
+  else
+  begin
+    if not db.IsMoc(asetid) then
+      for i := fnumsets - 1 downto 0 do
+        if fsets[i].setid = asetid then
+          Result := Result + fsets[i].num;
+  end;
+end;
+
+function TBrickInventory.totalofficialsetsdismantaled(const asetid: string = ''): integer;
+var
+  i: integer;
+begin
+  Result := 0;
+  if asetid = '' then
+  begin
+    for i := fnumsets - 1 downto 0  do
+      if not db.IsMoc(fsets[i].setid) then
+        Result := Result + fsets[i].dismantaled;
+  end
+  else
+  begin
+    if not db.IsMoc(asetid) then
+      for i := fnumsets - 1 downto 0 do
+        if fsets[i].setid = asetid then
+          Result := Result + fsets[i].dismantaled;
+  end;
+end;
+
+function TBrickInventory.totalmocsbuilted(const asetid: string = ''): integer;
+var
+  i: integer;
+begin
+  Result := 0;
+  if asetid = '' then
+  begin
+    for i := fnumsets - 1 downto 0 do
+      if db.IsMoc(fsets[i].setid) then
+        Result := Result + fsets[i].num;
+  end
+  else
+  begin
+    if db.IsMoc(asetid) then
+      for i := fnumsets - 1 downto 0 do
+        if fsets[i].setid = asetid then
+          Result := Result + fsets[i].num;
+  end;
+end;
+
+function TBrickInventory.totalmocsdismantaled(const asetid: string = ''): integer;
+var
+  i: integer;
+begin
+  Result := 0;
+  if asetid = '' then
+  begin
+    for i := fnumsets - 1 downto 0  do
+      if db.IsMoc(fsets[i].setid) then
+        Result := Result + fsets[i].dismantaled;
+  end
+  else
+  begin
+    if db.IsMoc(asetid) then
+      for i := fnumsets - 1 downto 0 do
+        if fsets[i].setid = asetid then
+          Result := Result + fsets[i].dismantaled;
   end;
 end;
 

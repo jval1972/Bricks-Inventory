@@ -776,6 +776,7 @@ type
     procedure ShowMyMocs;
     procedure ShowMyOfficialSets;
     procedure ShowMySetsPieces;
+    procedure ShowMySetsAndMocsPieces;
     procedure ShowMyMocsPieces;
     procedure ShowMyMinifiguresMenu;
     procedure ShowMyPiecesValue;
@@ -3755,8 +3756,8 @@ begin
             if sinv <> nil then
               tot := tot + sinv.totallooseparts * inv.sets[i].num;
           end;
-      DrawHeadLine('My Official Sets <br><br>' +
-        'My official sets have <a href="ShowMyMocsPieces">' + IntToStr(tot) + ' parts</a><br><br>');
+      DrawHeadLine('My Official Sets (' + IntToStr(inv.totalofficialsetsbuilted) + ' builted - ' + IntToStr(inv.totalofficialsetsdismantaled) + ' dismantaled)<br><br>' +
+        'My builted official sets have <a href="ShowMySetsPieces">' + IntToStr(tot) + ' parts</a><br><br>');
     end;
 
     // Mocs only
@@ -3770,7 +3771,7 @@ begin
             if sinv <> nil then
               tot := tot + sinv.totallooseparts * inv.sets[i].num;
           end;
-      DrawHeadLine('My Mocs <br><br>' +
+      DrawHeadLine('My Mocs (' + IntToStr(inv.totalmocsbuilted) + ' builted - ' + IntToStr(inv.totalmocsdismantaled) + ' dismantaled)<br><br>' +
         'My builded mocs have <a href="ShowMyMocsPieces">' + IntToStr(tot) + ' parts</a><br><br>');
     end;
 
@@ -3785,7 +3786,7 @@ begin
             tot := tot + sinv.totallooseparts * inv.sets[i].num;
         end;
       DrawHeadLine('My <a href="myofficialsets">Official Sets</a> and <a href="mymocs">Mocs</a> (' + IntToStr(inv.numsets) + ' lots)<br>(' + IntToStr(inv.totalsetsbuilted) + ' builted - ' + IntToStr(inv.totalsetsdismantaled) + ' dismantaled)<br><br>' +
-        'My builded official sets and mocs have <a href="ShowMySetsPieces">' + IntToStr(tot) + ' parts</a><br><br>' +
+        'My builded official sets and mocs have <a href="ShowMySetsAndMocsPieces">' + IntToStr(tot) + ' parts</a><br><br>' +
         link);
     end;
 
@@ -13308,6 +13309,10 @@ begin
   begin
     ShowMySetsPieces;
   end
+  else if slink = 'ShowMySetsAndMocsPieces' then
+  begin
+    ShowMySetsAndMocsPieces;
+  end
   else if slink = 'ShowMyMinifiguresMenu' then
   begin
     ShowMyMinifiguresMenu;
@@ -14125,12 +14130,51 @@ begin
 
   inv := TBrickInventory.Create;
   for i := 0 to inventory.numsets - 1 do
+    if not db.IsMoc(inventory.sets[i].setid) then
+      for j := 1 to inventory.sets[i].num do
+        inv.AddSet(inventory.sets[i].setid, False);
+  inv.DismandalAllSets;
+  SortInventory(inv);
+
+  DrawHeadLine('My builded sets Inventory');
+
+  DrawInventoryTable(inv, False);
+  document.write('<br>');
+  document.write('<br>');
+  document.write('</p>');
+  document.write('</div>');
+  document.write('</body>');
+  inv.Free;
+  document.SaveBufferToFile(diskmirror);
+  document.Flash;
+  Screen.Cursor := crDefault;
+
+end;
+
+procedure TMainForm.ShowMySetsAndMocsPieces;
+var
+  inv: TBrickInventory;
+  i, j: integer;
+begin
+  Screen.Cursor := crHourGlass;
+
+  if domultipagedocuments then
+    document.NewMultiPageDocument('ShowMySetsAndMocsPieces', itoa(inventory.numsets));
+
+  document.write('<body background="splash.jpg">');
+  document.title('Pieces of my sets and mocs');
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+
+  inv := TBrickInventory.Create;
+  for i := 0 to inventory.numsets - 1 do
     for j := 1 to inventory.sets[i].num do
       inv.AddSet(inventory.sets[i].setid, False);
   inv.DismandalAllSets;
   SortInventory(inv);
 
-  DrawHeadLine('My builded sets Inventory');
+  DrawHeadLine('My builded sets and mocs Inventory');
 
   DrawInventoryTable(inv, False);
   document.write('<br>');

@@ -2017,30 +2017,30 @@ var
   Tmp: TBitmap;
   {$endif}             
 begin
-Result := Nil;
-AMask := Nil;
-if not Assigned(Stream) or (Stream.Memory = Nil) or (Stream.Size < 20) then
-  Exit;
-Stream.Position := 0;
-IT := KindOfImage(Stream.Memory);
+  Result := Nil;
+  AMask := Nil;
+  if not Assigned(Stream) or (Stream.Memory = Nil) or (Stream.Size < 20) then
+    Exit;
+  Stream.Position := 0;
+  IT := KindOfImage(Stream.Memory);
 
-if not (IT in [Bmp, Jpg, Png]) then
-  Exit;
+  if not (IT in [Bmp, Jpg, Png]) then
+    Exit;
 
-Result := TBitmap.Create;
-try
-  if IT = Jpg then
+  Result := TBitmap.Create;
+  try
+    if IT = Jpg then
     begin
     Transparent := NotTransp;
     jpImage := TJpegMod.Create;
     try
       jpImage.LoadFromStream(Stream);
       if ColorBits <= 8 then
-        begin
+      begin
         jpImage.PixelFormat := jf8bit;
         if not jpImage.GrayScale and (ColorBits = 8) then
           jpImage.Palette := CopyPalette(ThePalette);
-        end
+      end
       else
         jpImage.PixelFormat := jf24bit;
       Result.Assign(jpImage.Bitmap);
@@ -2049,14 +2049,14 @@ try
           if GetMemoryUsed > 512 * 1024 * 1024 then
             ReduceTo8Bit(Result);
     finally
-      jpImage.Free;                                                 
-      end;
-    end
+      jpImage.Free;
+    end;
+  end
   {$ifndef NoOldPng}
   else if IT = Png then
-    begin
+  begin
     if IsTransparentPNG(Stream, Color) then  {check for transparent PNG}
-      Transparent := TPng;   
+      Transparent := TPng;
     PI := TPngImage.Create;
     try
      PI.LoadFromStream(Stream);
@@ -2080,7 +2080,7 @@ try
      ;
   {$else}
   else if Transparent = TPng then
-    begin
+  begin
     AMask := GetImageMask(Result, True, Color);
     {Replace the background color with black.  This is needed if the Png is a
      background image.}
@@ -2099,11 +2099,11 @@ try
       BitBlt(Canvas.Handle, 0, 0, Width, Height, Tmp.Canvas.Handle, 0, 0, SrcInvert);
       end;
     Tmp.Free;
-    end;
+  end;
   {$endif}
   Result := ConvertImage(Result);
-except
-  Result.Free;
+  except
+    Result.Free;
   Result := Nil;
   end;
 end;
@@ -2120,12 +2120,12 @@ var
   F: File;
   I: integer;
 begin
-Result := Nil;
-AMask := Nil;
-if not Assigned(Stream) or (Stream.Memory = Nil) or (Stream.Size < 20) then
-  Exit;
-Stream.Position := 0;
-if GDIPlusActive and (KindOfImage(Stream.Memory) = png) then
+  Result := Nil;
+  AMask := Nil;
+  if not Assigned(Stream) or (Stream.Memory = Nil) or (Stream.Size < 20) then
+    Exit;
+  Stream.Position := 0;
+  if GDIPlusActive and (KindOfImage(Stream.Memory) = png) then
   begin
   try
     GetTempPath(Max_Path, @Path);

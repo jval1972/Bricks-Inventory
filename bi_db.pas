@@ -307,7 +307,7 @@ type
     legoColor: string[24];
     ldrawColor: integer;
     {$ENDIF}
-    BrickLingColor: integer;
+    BrickLinkColor: integer;
     RebrickableColor: integer;
     {$IFNDEF CRAWLER}
     PeeronColor: string[24];
@@ -3504,19 +3504,19 @@ begin
         s.Add(
           Format(
             '<ITEM><ITEMTYPE>%s</ITEMTYPE><ITEMID>%s</ITEMID><COLOR>%d</COLOR><MAXPRICE>%2.4f</MAXPRICE><MINQTY>%d</MINQTY><NOTIFY>N</NOTIFY><WANTEDLISTID>%d</WANTEDLISTID></ITEM>',
-            [pci.ItemType, db.BrickLinkPart(flooseparts[i].part), db.colors(flooseparts[i].color).BrickLingColor, pci.EvaluatePriceNew * pricefactor, flooseparts[i].num, wl]))
+            [pci.ItemType, db.BrickLinkPart(flooseparts[i].part), db.colors(flooseparts[i].color).BrickLinkColor, pci.EvaluatePriceNew * pricefactor, flooseparts[i].num, wl]))
       else
         s.Add(
           Format(
             '<ITEM><ITEMTYPE>%s</ITEMTYPE><ITEMID>%s</ITEMID><COLOR>%d</COLOR><MINQTY>%d</MINQTY><NOTIFY>N</NOTIFY><WANTEDLISTID>%d</WANTEDLISTID></ITEM>',
-            [pci.ItemType, db.BrickLinkPart(flooseparts[i].part), db.colors(flooseparts[i].color).BrickLingColor, flooseparts[i].num, wl]));
+            [pci.ItemType, db.BrickLinkPart(flooseparts[i].part), db.colors(flooseparts[i].color).BrickLinkColor, flooseparts[i].num, wl]));
     end
     else
     begin
       s.Add(
         Format(
           '<ITEM><ITEMTYPE>P</ITEMTYPE><ITEMID>%s</ITEMID><COLOR>%d</COLOR><MINQTY>%d</MINQTY><NOTIFY>N</NOTIFY><WANTEDLISTID>%d</WANTEDLISTID></ITEM>',
-          [db.BrickLinkPart(flooseparts[i].part), db.colors(flooseparts[i].color).BrickLingColor, flooseparts[i].num, wl]));
+          [db.BrickLinkPart(flooseparts[i].part), db.colors(flooseparts[i].color).BrickLinkColor, flooseparts[i].num, wl]));
     end;
   end;
   s.Add('</INVENTORY>');
@@ -3574,12 +3574,12 @@ begin
           s.Add(
             Format(
               '<ITEM><ITEMTYPE>%s</ITEMTYPE><ITEMID>%s</ITEMID><COLOR>%d</COLOR><MAXPRICE>%2.4f</MAXPRICE><MINQTY>%d</MINQTY><NOTIFY>N</NOTIFY><WANTEDLISTID>%d</WANTEDLISTID></ITEM>',
-              [pci.ItemType, db.BrickLinkPart(flooseparts[i].part), db.colors(flooseparts[i].color).BrickLingColor, pci.EvaluatePriceUsed * pricefactor, flooseparts[i].num, wl]))
+              [pci.ItemType, db.BrickLinkPart(flooseparts[i].part), db.colors(flooseparts[i].color).BrickLinkColor, pci.EvaluatePriceUsed * pricefactor, flooseparts[i].num, wl]))
         else
           s.Add(
             Format(
               '<ITEM><ITEMTYPE>%s</ITEMTYPE><ITEMID>%s</ITEMID><COLOR>%d</COLOR><MINQTY>%d</MINQTY><NOTIFY>N</NOTIFY><WANTEDLISTID>%d</WANTEDLISTID></ITEM>',
-              [pci.ItemType, db.BrickLinkPart(flooseparts[i].part), db.colors(flooseparts[i].color).BrickLingColor, flooseparts[i].num, wl]));
+              [pci.ItemType, db.BrickLinkPart(flooseparts[i].part), db.colors(flooseparts[i].color).BrickLinkColor, flooseparts[i].num, wl]));
       end;
     end
     else
@@ -3587,7 +3587,7 @@ begin
       s.Add(
         Format(
           '<ITEM><ITEMTYPE>P</ITEMTYPE><ITEMID>%s</ITEMID><COLOR>%d</COLOR><MINQTY>%d</MINQTY><NOTIFY>N</NOTIFY><WANTEDLISTID>%d</WANTEDLISTID></ITEM>',
-          [db.BrickLinkPart(flooseparts[i].part), db.colors(flooseparts[i].color).BrickLingColor, flooseparts[i].num, wl]));
+          [db.BrickLinkPart(flooseparts[i].part), db.colors(flooseparts[i].color).BrickLinkColor, flooseparts[i].num, wl]));
     end;
   end;
   s.Add('</INVENTORY>');
@@ -7143,21 +7143,21 @@ begin
   fcolors[MAXINFOCOLOR].id := MAXINFOCOLOR;
 
   fcolors[CATALOGCOLORINDEX].id := CATALOGCOLORINDEX;
-  fcolors[CATALOGCOLORINDEX].BrickLingColor := CATALOGCOLORINDEX;
+  fcolors[CATALOGCOLORINDEX].BrickLinkColor := CATALOGCOLORINDEX;
   fcolors[CATALOGCOLORINDEX].RebrickableColor := CATALOGCOLORINDEX;
   {$IFNDEF CRAWLER}
   fcolors[CATALOGCOLORINDEX].name := 'Catalog';
   {$ENDIF}
 
   fcolors[INSTRUCTIONCOLORINDEX].id := INSTRUCTIONCOLORINDEX;
-  fcolors[INSTRUCTIONCOLORINDEX].BrickLingColor := INSTRUCTIONCOLORINDEX;
+  fcolors[INSTRUCTIONCOLORINDEX].BrickLinkColor := INSTRUCTIONCOLORINDEX;
   fcolors[INSTRUCTIONCOLORINDEX].RebrickableColor := INSTRUCTIONCOLORINDEX;
   {$IFNDEF CRAWLER}
   fcolors[INSTRUCTIONCOLORINDEX].name := 'Instructions';
   {$ENDIF}
 
   fcolors[BOXCOLORINDEX].id := BOXCOLORINDEX;
-  fcolors[BOXCOLORINDEX].BrickLingColor := BOXCOLORINDEX;
+  fcolors[BOXCOLORINDEX].BrickLinkColor := BOXCOLORINDEX;
   fcolors[BOXCOLORINDEX].RebrickableColor := BOXCOLORINDEX;
   {$IFNDEF CRAWLER}
   fcolors[BOXCOLORINDEX].name := 'Original Box';
@@ -7190,12 +7190,12 @@ begin
             fc.legoColor := s1.Strings[7];
             fc.ldrawColor := StrToIntDef(s1.Strings[8], 0);
             {$ENDIF}
-            fc.BrickLingColor := StrToIntDef(s1.Strings[9], 0);
+            fc.BrickLinkColor := StrToIntDef(s1.Strings[9], 0);
             fc.RebrickableColor := id;
             {$IFNDEF CRAWLER}
             fc.PeeronColor := s1.Strings[10];
             {$ENDIF}
-            fbricklinkcolortosystemcolor[fc.BrickLingColor] := id;
+            fbricklinkcolortosystemcolor[fc.BrickLinkColor] := id;
             frebrickablecolortosystemcolor[fc.RebrickableColor] := id;
           end;
         end;
@@ -7225,11 +7225,11 @@ begin
             fc.legoColor := s1.Strings[8];
             fc.ldrawColor := StrToIntDef(s1.Strings[9], 0);
             {$ENDIF}
-            fc.BrickLingColor := StrToIntDef(s1.Strings[10], 0);
+            fc.BrickLinkColor := StrToIntDef(s1.Strings[10], 0);
             {$IFNDEF CRAWLER}
             fc.PeeronColor := s1.Strings[11];
             {$ENDIF}
-            fbricklinkcolortosystemcolor[fc.BrickLingColor] := id;
+            fbricklinkcolortosystemcolor[fc.BrickLinkColor] := id;
             frebrickablecolortosystemcolor[fc.RebrickableColor] := id;
           end;
         end;
@@ -12529,7 +12529,7 @@ begin
   if (pci.year <> 0) and not pci.canedityear then
     Exit;
 
-  bcolor := colors(pci.color).BrickLingColor;
+  bcolor := colors(pci.color).BrickLinkColor;
   if bcolor <= 0 then
     Exit;
 
@@ -18483,7 +18483,7 @@ begin
         fpiece,
         fcolor,
         db.BrickLinkPart(fpiece),
-        db.Colors(fcolor).BrickLingColor,
+        db.Colors(fcolor).BrickLinkColor,
         fpriceguide.nTimesSold,
         fpriceguide.nTotalQty,
         fpriceguide.nMinPrice,
@@ -18591,7 +18591,7 @@ begin
         db.RebrickablePart(fpiece),
         db.GetBLNetPieceName(fpiece),
         fcolor,
-        db.Colors(fcolor).BrickLingColor,
+        db.Colors(fcolor).BrickLinkColor,
         fcode,
         invstr,
         ayear,

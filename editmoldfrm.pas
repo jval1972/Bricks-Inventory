@@ -436,7 +436,7 @@ begin
 
   ColorPanel.Color := RGBInvert(db.Colors(cc).RGB);
   ColorLabel1.Caption := itoa(cc);
-  ColorLabel2.Caption := '(BL=' + itoa(db.colors(cc).BrickLingColor) + ')';
+  ColorLabel2.Caption := '(BL=' + itoa(db.colors(cc).BrickLinkColor) + ')';
   ColorLabel3.Caption := '(RB=' + itoa(db.colors(cc).RebrickableColor) + ')'
 end;
 

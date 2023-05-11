@@ -381,6 +381,10 @@ type
     Jumpers1: TMenuItem;
     Connectors1: TMenuItem;
     Doorrail1: TMenuItem;
+    N59: TMenuItem;
+    Mybuiltedsets1: TMenuItem;
+    Mybuiltedmocs1: TMenuItem;
+    Mylooseparts1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -629,6 +633,9 @@ type
     procedure Jumpers1Click(Sender: TObject);
     procedure Connectors1Click(Sender: TObject);
     procedure Doorrail1Click(Sender: TObject);
+    procedure Mybuiltedsets1Click(Sender: TObject);
+    procedure Mybuiltedmocs1Click(Sender: TObject);
+    procedure Mylooseparts1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -772,6 +779,7 @@ type
     procedure ShowMyMinifigInventory(const doloose, doofsets, domocs: boolean);
     procedure ShowHomePage;
     function ShowInventorySets(const inv: TBrickInventory; const header_flash: boolean; const mocflag: integer): boolean;
+    procedure ShowMyBuiltedSetsAndMocs(const mocflag: integer);
     procedure ShowMySetsAndMocs;
     procedure ShowMyMocs;
     procedure ShowMyOfficialSets;
@@ -2039,7 +2047,7 @@ var
     if p < 1 then
       Exit;
     n := Copy(SRC, 1, p - 1);
-    Result := itoa(db.colors(atoi(n)).BrickLingColor);
+    Result := itoa(db.colors(atoi(n)).BrickLinkColor);
   end;
 
   function RBCOLOR1: string;
@@ -3137,7 +3145,7 @@ begin
     pci := db.PieceColorInfo(brick);
     cinfo := db.colors(brick.color);
     document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name +
-      ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(brick.color) + '</td>');
+      ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(brick.color) + '</td>');
     document.write('<td width=10% align=right>' + IntToStr(brick.num));
     document.write('</td>');
     pi := db.PieceInfo(pci);
@@ -3316,12 +3324,12 @@ begin
     cinfo := db.colors(brick.color);
     if lite or (pci = nil) then
       document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name +
-        ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' +
+        ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' +
           GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
           HtmlDrawInvImgLink(brick.part, brick.color, pi) + '</td>')
     else
       document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name +
-        ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' +
+        ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' +
           GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
           HtmlDrawInvImgLink(brick.part, brick.color, pi) +
           decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) +
@@ -3549,7 +3557,7 @@ begin
     else
     begin
       document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name +
-        ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' +
+        ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' +
           GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
           HtmlDrawInvImgLink(brick.part, brick.color, pi));
       document.write('<br><a href=editpiece/' + brick.part + '/' + scolor + '><img src="images\edit.png"></a>');
@@ -3757,7 +3765,7 @@ begin
               tot := tot + sinv.totallooseparts * inv.sets[i].num;
           end;
       DrawHeadLine('My Official Sets (' + IntToStr(inv.totalofficialsetsbuilted) + ' builted - ' + IntToStr(inv.totalofficialsetsdismantaled) + ' dismantaled)<br><br>' +
-        'My builted official sets have <a href="ShowMySetsPieces">' + IntToStr(tot) + ' parts</a><br><br>');
+        'My <a href="mybuiltedsets/1">builted official sets</a> have <a href="ShowMySetsPieces">' + IntToStr(tot) + ' parts</a><br><br>');
     end;
 
     // Mocs only
@@ -3772,7 +3780,7 @@ begin
               tot := tot + sinv.totallooseparts * inv.sets[i].num;
           end;
       DrawHeadLine('My Mocs (' + IntToStr(inv.totalmocsbuilted) + ' builted - ' + IntToStr(inv.totalmocsdismantaled) + ' dismantaled)<br><br>' +
-        'My builded mocs have <a href="ShowMyMocsPieces">' + IntToStr(tot) + ' parts</a><br><br>');
+        'My <a href="mybuiltedsets/2">builted mocs</a> have <a href="ShowMyMocsPieces">' + IntToStr(tot) + ' parts</a><br><br>');
     end;
 
     // Official sets & mocs
@@ -3786,7 +3794,7 @@ begin
             tot := tot + sinv.totallooseparts * inv.sets[i].num;
         end;
       DrawHeadLine('My <a href="myofficialsets">Official Sets</a> and <a href="mymocs">Mocs</a> (' + IntToStr(inv.numsets) + ' lots)<br>(' + IntToStr(inv.totalsetsbuilted) + ' builted - ' + IntToStr(inv.totalsetsdismantaled) + ' dismantaled)<br><br>' +
-        'My builded official sets and mocs have <a href="ShowMySetsAndMocsPieces">' + IntToStr(tot) + ' parts</a><br><br>' +
+        'My <a href="mybuiltedsets/3">builted official sets and mocs</a> have <a href="ShowMySetsAndMocsPieces">' + IntToStr(tot) + ' parts</a><br><br>' +
         link);
     end;
 
@@ -3892,6 +3900,156 @@ begin
   Screen.Cursor := crDefault;
 
 end;
+
+procedure TMainForm.ShowMyBuiltedSetsAndMocs(const mocflag: integer);
+var
+  aa, i: integer;
+  set1: set_p;
+  sinv: TBrickInventory;
+  tot: integer;
+  ismoc: Boolean;
+  showit: boolean;
+  sid: string;
+  sdesc: string;
+begin
+  Screen.Cursor := crHourGlass;
+
+  ShowSplash;
+  SplashProgress('Working...', 0);
+
+  document.write('<body background="splash.jpg">');
+  document.title('Builted Sets/Mocs');
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+
+  tot := 0;
+
+  // Official sets only
+  if mocflag = 1 then
+  begin
+    for i := 0 to inventory.numsets - 1 do
+      if not db.IsMoc(inventory.sets[i].setid) then
+        if inventory.sets[i].num > 0 then
+        begin
+          sinv := db.GetSetInventory(inventory.sets[i].setid);
+          if sinv <> nil then
+            tot := tot + sinv.totallooseparts * inventory.sets[i].num;
+        end;
+    DrawHeadLine('My builted Official Sets<br><br>' +
+      'My builted official sets have <a href="ShowMySetsPieces">' + IntToStr(tot) + ' parts</a><br><br>');
+  end;
+
+  // Mocs only
+  if mocflag = 2 then
+  begin
+    for i := 0 to inventory.numsets - 1 do
+      if db.IsMoc(inventory.sets[i].setid) then
+        if inventory.sets[i].num > 0 then
+        begin
+          sinv := db.GetSetInventory(inventory.sets[i].setid);
+          if sinv <> nil then
+            tot := tot + sinv.totallooseparts * inventory.sets[i].num;
+        end;
+    DrawHeadLine('My builted Mocs<br><br>' +
+      'My builded mocs have <a href="ShowMyMocsPieces">' + IntToStr(tot) + ' parts</a><br><br>');
+  end;
+
+  // Official sets & mocs
+  if mocflag = 3 then
+  begin
+    for i := 0 to inventory.numsets - 1 do
+      if inventory.sets[i].num > 0 then
+      begin
+        sinv := db.GetSetInventory(inventory.sets[i].setid);
+        if sinv <> nil then
+          tot := tot + sinv.totallooseparts * inventory.sets[i].num;
+      end;
+    DrawHeadLine('My builted <a href="mybuiltedsets/1">Official Sets</a> and <a href="mybuiltedsets/2">Mocs</a><br><br>' +
+      'My builded official sets and mocs have <a href="ShowMySetsAndMocsPieces">' + IntToStr(tot) + ' parts</a><br><br>');
+  end;
+
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+  document.write('<tr bgcolor=' + THBGCOLOR + '>');
+  document.write('<th><b>#</b></th>');
+  if mocflag = 2 then
+    document.write('<th><b>Moc</b></th>')
+  else if mocflag = 1 then
+    document.write('<th><b>Set</b></th>')
+  else
+    document.write('<th><b>Set/Moc</b></th>');
+
+  document.write('<th>Num</th>');
+  document.write('</tr>');
+
+  set1 := @inventory.sets[0];
+  aa := 0;
+  for i := 0 to inventory.numsets - 1 do
+  begin
+    if mocflag = 3 then
+      showit := True
+    else
+    begin
+      ismoc := db.IsMoc(set1.setid);
+      if mocflag = 1 then
+        showit := not ismoc
+      else
+        showit := ismoc
+    end;
+
+    showit := showit and (set1.num > 0);
+
+    if showit then
+    begin
+      inc(aa);
+
+      sid := Trim(set1.setid);
+      inventory.StorePieceInventoryStatsRec(basedefault + 'out\' + sid + '\' + sid + '.history', sid, -1);
+
+      document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%>' +
+                      MakeThumbnailImage2(set1.setid, -1) + '<br>');
+      if db.GetSetInventory(set1.setid) <> nil then
+      begin
+        document.write('<a href="sinv/' + set1.setid + '">');
+        sdesc := db.SetDesc(set1.setid);
+        document.write('<b>' + set1.setid + '</b> - ' + sdesc)
+      end
+      else
+      begin
+        document.write('<a href="spiece/' + set1.setid + '">');
+        sdesc := db.PieceDesc(set1.setid);
+        document.write('<b>' + set1.setid + '</b> - ' + sdesc);
+      end;
+
+      document.write('</td><td width=15% align=right>');
+      document.write(IntToStr(set1.num) + '</td></tr>');
+    end;
+
+    Inc(set1);
+
+    if inventory.numsets > 1 then
+    begin
+      if inventory.numsets < 20 then
+        SplashProgress('Working...', i / (inventory.numsets - 1))
+      else
+        if (i mod 5) = 0 then
+          SplashProgress('Working...', i / (inventory.numsets - 1));
+    end;
+
+  end;
+
+  HideSplash;
+
+  document.write('</tr></table>');
+
+  document.write('</p><br><br></p></div></body>');
+
+  document.SaveBufferToFile(diskmirror);
+  document.Flash;
+
+  Screen.Cursor := crDefault;
+end;
+
 
 procedure TMainForm.ShowMySetsAndMocs;
 begin
@@ -5252,7 +5410,7 @@ begin
     DrawColorCell(i, 25);
 //    document.BlancColorCell(cp.RGB, 25);
     document.write('<a href="inv/' + IntToStr(Integer(inv)) +'/C/' + IntToStr(decide(i = -1, 9999, i)) + '">');
-    document.write('<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLingColor) +  ')' +
+    document.write('<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLinkColor) +  ')' +
       GetRebrickableColorHtml(i) + '</a></td>');
     document.write('<td width=20% align=right>' + IntToStr(inv.numlotsbycolor(i)) + '</td>');
     document.write('<td width=20% align=right>' + IntToStr(inv.totalloosepartsbycolor(i)) + '</td>');
@@ -5553,7 +5711,7 @@ begin
       DrawColorCell(i, 25);
       // document.BlancColorCell(cp.RGB, 25);
       document.write('<a href="invex/' + IntToStr(Integer(inv)) + '/' + IntToStr(decide(i = -1, 9999, i)) + '/' + IntToStr(cat) + '">');
-      document.write('<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLingColor) +  ')' +
+      document.write('<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLinkColor) +  ')' +
         GetRebrickableColorHtml(i) + '</a></td>');
       document.write('<td width=25% align=right>' + IntToStr(inv.numlotsbycatcolor(i, cat)) + '</td>');
       document.write('<td width=25% align=right>' + IntToStr(inv.totalloosepartsbycatcolor(i, cat)) + '</td>');
@@ -6280,7 +6438,7 @@ begin
   //            document.BlancColorCell(db.colors(i).RGB, 25);
               cinfo := db.colors(i);
               document.write('<a href=spiecec/' + pcs + '/' + si + '>' + cinfo.name +
-                ' (' + si + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(i) +
+                ' (' + si + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
                   '<img src="images\details.png"></a>' +
                   HtmlDrawInvImgLink(pcs, i, pi) + '</td>');
               document.write('<td width=10% align=right>' + Format('%d', [numpieces]) +
@@ -6341,7 +6499,7 @@ begin
             if pci <> nil then
             begin
               document.write('<a href=spiecec/' + pcs + '/' + si + '>' + cinfo.name +
-                ' (' + si + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(i) +
+                ' (' + si + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
                 '<img src="images\details.png"></a>' +
                 HtmlDrawInvImgLink(pcs, i, pi) +
                 decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
@@ -6351,7 +6509,7 @@ begin
             else
             begin
               document.write('<a href=spiecec/' + pcs + '/' + si + '>' + cinfo.name +
-                ' (' + si + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(i) + '<img src="images\details.png"></a>' +
+                ' (' + si + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '<img src="images\details.png"></a>' +
                 HtmlDrawInvImgLink(pcs, i, pi) + '</td>');
               document.write('<td width=10% align=right></td>');
             end;
@@ -7191,11 +7349,11 @@ begin
     cinfo := db.colors(cl);
     if pci = nil then
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) + '</td>')
     else
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
           decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
 
@@ -7349,11 +7507,11 @@ begin
     cinfo := db.colors(cl);
     if pci = nil then
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) + '</td>')
     else
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
           decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
 
@@ -7514,12 +7672,12 @@ begin
     cinfo := db.colors(cl);
     if pci = nil then
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) +
         '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) + '</td>')
     else
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) +
         '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
           decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
@@ -7643,7 +7801,7 @@ begin
     if pci = nil then
     begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
           '</td>');
       document.write('<td width=15% align=right>' + Format('%2.3f', [0.0]) +
@@ -7654,7 +7812,7 @@ begin
     else
     begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLingColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
+        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
        document.write('<td width=15% align=right>' + Format('%2.3f', [pci.nDemand]) +
@@ -7774,9 +7932,9 @@ begin
           DrawColorCell(i, 25);
           // document.BlancColorCell(db.colors(i).RGB, 25);
           if pci = nil then
-            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
+            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
           else
-            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')' + GetRebrickableColorHtml(i) +
+            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
               decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
           document.write('<td width=15% align=right>' + Format('%d', [numpieces]) + '</td>');
 
@@ -8019,9 +8177,9 @@ begin
           DrawColorCell(i, 25);
           // document.BlancColorCell(db.colors(i).RGB, 25);
           if pci = nil then
-            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
+            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
           else
-            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLingColor) + ')' + GetRebrickableColorHtml(i) +
+            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
               decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
           document.write('<td width=15% align=right>' + Format('%d', [numpieces]) + '</td>');
 
@@ -10015,7 +10173,7 @@ begin
 //    document.BlancColorCell(db.colors(ncolor).RGB, 25);
 
     document.write('<a href=spiecec/' + spart + '/' + scolor + '>' +  db.colors(ncolor).name +
-      ' (' + scolor + ') (BL=' + IntToStr(db.colors(ncolor).BrickLingColor) + ')' + GetRebrickableColorHtml(ncolor) + '<img src="images\details.png"></a>' +
+      ' (' + scolor + ') (BL=' + IntToStr(db.colors(ncolor).BrickLinkColor) + ')' + GetRebrickableColorHtml(ncolor) + '<img src="images\details.png"></a>' +
       HtmlDrawInvImgLink(spart, ncolor, pi));
     if pci <> nil then
       document.write((decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>'))
@@ -11426,7 +11584,7 @@ begin
       document.write('<a href="inv/' + invs +'/C/' + IntToStr(decide(colormask = -1, brick.color, -1)) + '">');
 
       document.write(db.colors(brick.color).name + ' (' + scolor + ') (BL=' +
-                     IntToStr(db.colors(brick.color).BrickLingColor) +  ')' + GetRebrickableColorHtml(brick.color) + '</a> <a href=spiecec/' +
+                     IntToStr(db.colors(brick.color).BrickLinkColor) +  ')' + GetRebrickableColorHtml(brick.color) + '</a> <a href=spiecec/' +
                      brick.part + '/' + scolor + '><img src="images\details.png"></a>' +  HtmlDrawInvImgLink(brick.part, brick.color, pi));
 
 //      pci := db.PieceColorInfo(brick.part, brick.color);
@@ -13305,6 +13463,11 @@ begin
     splitstring(slink, s1, s2, '/');
     NewPiecesMuchMoreExpensiveThanUsed(atof(s2));
   end
+  else if Pos1('mybuiltedsets/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowMyBuiltedSetsAndMocs(atoi(s2));
+  end
   else if slink = 'ShowMySetsPieces' then
   begin
     ShowMySetsPieces;
@@ -14344,7 +14507,7 @@ begin
   aa := 0;
 
   document.write('<p valign=top>');
-  stmp := db.colors(color).name + ' (' + itoa(color) + ') (BL=' + IntToStr(db.colors(color).BrickLingColor) + ')' + GetRebrickableColorHtml(color) +
+  stmp := db.colors(color).name + ' (' + itoa(color) + ') (BL=' + IntToStr(db.colors(color).BrickLinkColor) + ')' + GetRebrickableColorHtml(color) +
     '<table border=1 width=25 bgcolor="#' + IntToHex(db.colors(color).RGB, 6) + '"><tr><td><br></td></tr></table>';
   DrawHeadLine(stmp);
 
@@ -14459,7 +14622,7 @@ begin
   aa := 0;
 
   document.write('<p valign=top>');
-  stmp := db.colors(color).name + ' (' + itoa(color) + ') (BL=' + IntToStr(db.colors(color).BrickLingColor) + ')' + GetRebrickableColorHtml(color) +
+  stmp := db.colors(color).name + ' (' + itoa(color) + ') (BL=' + IntToStr(db.colors(color).BrickLinkColor) + ')' + GetRebrickableColorHtml(color) +
     '<table border=1 width=' + IntToStr(25) + ' bgcolor="#' + IntToHex(db.colors(color).RGB, 6) + '"><tr><td><br></td></tr></table>';
   DrawHeadLine(stmp);
 
@@ -14585,7 +14748,7 @@ begin
   aa := 0;
 
   document.write('<p valign=top>');
-  stmp := db.colors(color).name + ' (' + itoa(color) + ') (BL=' + IntToStr(db.colors(color).BrickLingColor) + ')' + GetRebrickableColorHtml(color) +
+  stmp := db.colors(color).name + ' (' + itoa(color) + ') (BL=' + IntToStr(db.colors(color).BrickLinkColor) + ')' + GetRebrickableColorHtml(color) +
     '<table border=1 width=' + IntToStr(25) + ' bgcolor="#' + IntToHex(db.colors(color).RGB, 6) + '"><tr><td><br></td></tr></table>';
   DrawHeadLine(stmp);
 
@@ -15466,7 +15629,7 @@ begin
     if pci = nil then
     begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name +
-        ' (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLingColor) + ')' + GetRebrickableColorHtml(cl) +
+        ' (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) +
         '<img src="images\details.png"></a>' + HtmlDrawInvImgLink(pcs, cl, pi) + '</td>');
       document.write(
         '<td width=15% align=right>' + Format('%2.3f', [0.0]) +
@@ -15476,7 +15639,7 @@ begin
     else
     begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name +
-        ' (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLingColor) + ')' + GetRebrickableColorHtml(cl) +
+        ' (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) +
         '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
         HtmlDrawInvCode(pci, '<br>', '') +
@@ -20840,6 +21003,27 @@ var
   foo: Boolean;
 begin
   HTMLClick('lengthquery/rail', foo);
+end;
+
+procedure TMainForm.Mybuiltedsets1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('mybuiltedsets/1', foo);
+end;
+
+procedure TMainForm.Mybuiltedmocs1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('mybuiltedsets/2', foo);
+end;
+
+procedure TMainForm.Mylooseparts1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('inv/0/C/-1', foo);
 end;
 
 end.

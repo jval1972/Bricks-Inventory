@@ -201,7 +201,7 @@ begin
         else
           tmp := 'http://' + BL_NET + '/' + 'priceGuideSummary.asp' + '?vcID=2&vatInc=y&' +
                  'a=' + parttype + '&itemID=' + db.GetBLNetPieceName(pci.piece) +
-                 '&colorID=' + itoa(db.colors(color).BrickLingColor) + '&viewdec=6';
+                 '&colorID=' + itoa(db.colors(color).BrickLinkColor) + '&viewdec=6';
       end;
 
       f.link := tmp;
@@ -302,7 +302,7 @@ procedure TEditBricklinkLinkForm.UpdateControls;
   function _GetBlColor(const scolor: integer): integer;
   begin
     if scolor <= LASTNORMALCOLORINDEX then
-      Result := db.Colors(scolor).BrickLingColor
+      Result := db.Colors(scolor).BrickLinkColor
     else
       Result := 0;
   end;

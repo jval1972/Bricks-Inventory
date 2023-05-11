@@ -1944,6 +1944,21 @@ object MainForm: TMainForm
     end
     object Inventory1: TMenuItem
       Caption = 'Inventory'
+      object Mylooseparts1: TMenuItem
+        Caption = 'My loose parts'
+        OnClick = Mylooseparts1Click
+      end
+      object Mybuiltedsets1: TMenuItem
+        Caption = 'My builted sets'
+        OnClick = Mybuiltedsets1Click
+      end
+      object Mybuiltedmocs1: TMenuItem
+        Caption = 'My builted mocs'
+        OnClick = Mybuiltedmocs1Click
+      end
+      object N59: TMenuItem
+        Caption = '-'
+      end
       object ools1: TMenuItem
         Caption = 'Storage Bins'
         object Missingfromstoragebins1: TMenuItem

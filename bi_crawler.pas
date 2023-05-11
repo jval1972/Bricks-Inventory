@@ -659,7 +659,7 @@ begin
     if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
       blcolor := 0
     else
-      blcolor := db.colors(cc).BrickLingColor;
+      blcolor := db.colors(cc).BrickLinkColor;
   end
   else
   begin
@@ -718,7 +718,7 @@ begin
       if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
         blcolor := 0
       else
-        blcolor := db.colors(cc).BrickLingColor;
+        blcolor := db.colors(cc).BrickLinkColor;
     end;
   end;
 
@@ -1250,7 +1250,7 @@ begin
         cc := StrToIntDef(color, -2);
         if (cc > -1) and (cc <= LASTNORMALCOLORINDEX) then
         begin
-          forcelink := NET_MakePriceGuideLink2('G', db.GetBLNetPieceName(id), db.colors(cc).BrickLingColor, 6);
+          forcelink := NET_MakePriceGuideLink2('G', db.GetBLNetPieceName(id), db.colors(cc).BrickLinkColor, 6);
           if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
           begin
             Result := True;
@@ -1357,7 +1357,7 @@ begin
       if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
         link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=4'
       else
-        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?P=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=4';
+        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?P=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLinkColor) + '&prDec=4';
       tryparttype := 'P';
     end;
   end;
@@ -1394,7 +1394,7 @@ begin
       if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
         link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?P=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=4'
       else
-        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?P=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=4';
+        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?P=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLinkColor) + '&prDec=4';
       tryparttype := 'P';
       savelink := True;
       loadedfromcache := False;
@@ -1418,7 +1418,7 @@ begin
       if (cc < -1) or (cc > LASTNORMALCOLORINDEX) then
         link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?G=' + db.GetBLNetPieceName(id) + '&colorID=0&prDec=4'
       else
-        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?G=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=4';
+        link := 'https://' + BL_NET + '/' + 'catalogPG.asp' + '?G=' + db.GetBLNetPieceName(id) + '&colorID=' + IntToStr(db.colors(cc).BrickLinkColor) + '&prDec=4';
       tryparttype := 'G';
       savelink := True;
       loadedfromcache := False;
@@ -1442,7 +1442,7 @@ begin
       if cc > LASTNORMALCOLORINDEX then
         link := 'https://' + BL_NET + '/catalogPriceGuide.asp?P=' + db.GetBLNetPieceName(id) + '&colorid=0&prDec=4'
       else
-        link := 'https://' + BL_NET + '/catalogPriceGuide.asp?P=' + db.GetBLNetPieceName(id) + '&colorid=' + IntToStr(db.colors(cc).BrickLingColor) + '&prDec=4';
+        link := 'https://' + BL_NET + '/catalogPriceGuide.asp?P=' + db.GetBLNetPieceName(id) + '&colorid=' + IntToStr(db.colors(cc).BrickLinkColor) + '&prDec=4';
       tryparttype := 'P';
     end;
     savelink := False;

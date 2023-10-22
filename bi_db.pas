@@ -3340,6 +3340,8 @@ begin
       else if bp.part = '973pb4125c01' then begin s.Add(Format('%s,%d,%d', ['973c31h03pr0001', bp.color, bp.num])); end
       // 20230404 Additions
       else if (bp.part = '3069bpb847') or (bp.part = '3069bpb0847') then begin s.Add(Format('%s,%d,%d', ['3069bpr0307', bp.color, bp.num])); end
+      // 20231022 Additions
+      else if bp.part = '4623b' then begin s.Add(Format('%s,%d,%d', ['4623a', bp.color, bp.num])); end
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;

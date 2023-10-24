@@ -51,6 +51,7 @@ type
     info: threadinfo_t;
     fstatus: integer;
     fterminated: boolean;
+    frunning: boolean;
   public
     constructor Create(const func: threadfunc_t = nil);
     destructor Destroy; override;
@@ -74,20 +75,25 @@ uses
   bi_system;
 
 function ThreadWorker(p: Pointer): integer; stdcall;
+var
+  th: TDThread;
 begin
-  Result := 0;
-  while True do
+  result := 0;
+  th := Pthreadinfo_t(p).thread;
+  while true do
   begin
-    while (Pthreadinfo_t(p).thread.fstatus = THR_IDLE) and (not Pthreadinfo_t(p).thread.fterminated) do
+    while (th.fstatus = THR_IDLE) and not th.fterminated do
     begin
       sleep(0);
     end;
-    if Pthreadinfo_t(p).thread.fterminated then
-      Exit;
-    Pthreadinfo_t(p).thread.ffunc(Pthreadinfo_t(p).thread.fparms);
-    if Pthreadinfo_t(p).thread.fterminated then
-      Exit;
-    Pthreadinfo_t(p).thread.fstatus := THR_IDLE;
+    if th.fterminated then
+      exit;
+    th.frunning := true;
+    th.ffunc(th.fparms);
+    th.frunning := false;
+    if th.fterminated then
+      exit;
+    th.fstatus := THR_IDLE;
   end;
 end;
 
@@ -97,6 +103,7 @@ begin
   ffunc := func;
   fparms := nil;
   fstatus := THR_IDLE;
+  frunning := false;
   info.thread := Self;
   fid := I_CreateProcess(@ThreadWorker, @info, True);
   suspended := True;
@@ -104,9 +111,11 @@ end;
 
 destructor TDThread.Destroy;
 begin
+  while frunning do
+    Sleep(0);
   fterminated := True;
   fstatus := THR_DEAD;
-  I_WaitForProcess(fid, 100);
+  I_WaitForProcess(fid, 1);
   Inherited Destroy;
 end;
 
@@ -134,7 +143,7 @@ begin
 
   while fstatus = THR_ACTIVE do
   begin
-    sleep(0);
+//    sleep(0);
   end;
   suspended := True;
   SuspendThread(fid);

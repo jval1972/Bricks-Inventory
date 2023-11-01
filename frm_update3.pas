@@ -45,13 +45,17 @@ type
     CheckBox1: TCheckBox;
     Label7: TLabel;
     procedure Button3Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
   public
+    dobricklink: boolean;
     { Public declarations }
   end;
 
 function UpdatePartColorsFromBricklink(const lst: TStringList): boolean;
+
+function UpdatePartColorsFromRebrickable(const lst: TStringList): boolean;
 
 implementation
 
@@ -69,6 +73,30 @@ begin
     Exit;
   f := TTUpdatePartColorBLForm.Create(nil);
   try
+    f.Caption := 'Update Part without known Colors (bricklink.com)';
+    f.dobricklink := True;
+    f.ShowModal;
+    if f.ModalResult = mrOK then
+    begin
+      lst.AddStrings(f.Memo1.Lines);
+      result := True;
+    end;
+  finally
+    f.Free;
+  end;
+end;
+
+function UpdatePartColorsFromRebrickable(const lst: TStringList): boolean;
+var
+  f: TTUpdatePartColorBLForm;
+begin
+  result := false;
+  if lst = nil then
+    Exit;
+  f := TTUpdatePartColorBLForm.Create(nil);
+  try
+    f.Caption := 'Update Part without known Colors (rebrickable.com)';
+    f.dobricklink := False;
     f.ShowModal;
     if f.ModalResult = mrOK then
     begin
@@ -92,25 +120,51 @@ begin
   try
     b := CheckBox1.Checked;
     Memo1.Lines.Clear;
-    for i := 0 to db.AllPieces.Count - 1 do
-      if db.MoldHasNoColors(db.AllPieces.Strings[i]) then
-      begin
-        tmp.Add('refreshpiecefrombricklinknorefresh/' + db.AllPieces.Strings[i]);
-        if b then
-          tmp.Add('spiece/' + db.AllPieces.Strings[i]);
-        if (tmp.Count > 200) or ((tmp.Count > 30) and (random > 0.6)) then
+    if dobricklink then
+    begin
+      for i := 0 to db.AllPieces.Count - 1 do
+        if db.MoldHasNoColors(db.AllPieces.Strings[i]) then
         begin
-          stmp := tmp.Strings[tmp.Count - 1];
-          tmp.Delete(tmp.Count - 1);
-          Memo1.Lines.AddStrings(tmp);
-          Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
-          Label7.Update;
-          Memo1.Lines.Add(stmp);
-          Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
-          Label7.Update;
-          tmp.Clear;
+          tmp.Add('refreshpiecefrombricklinknorefresh/' + db.AllPieces.Strings[i]);
+          if b then
+            tmp.Add('spiece/' + db.AllPieces.Strings[i]);
+          if (tmp.Count > 200) or ((tmp.Count > 30) and (random > 0.6)) then
+          begin
+            stmp := tmp.Strings[tmp.Count - 1];
+            tmp.Delete(tmp.Count - 1);
+            Memo1.Lines.AddStrings(tmp);
+            Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+            Label7.Update;
+            Memo1.Lines.Add(stmp);
+            Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+            Label7.Update;
+            tmp.Clear;
+          end;
         end;
-      end;
+    end
+    else
+    begin
+      for i := 0 to db.AllPieces.Count - 1 do
+        if Pos('pr', db.AllPieces.Strings[i]) > 1 then
+          if db.MoldHasNoColors(db.AllPieces.Strings[i]) then
+          begin
+            tmp.Add('refreshpieceorgearfromrebrickablenorefresh/' + db.AllPieces.Strings[i]);
+            if b then
+              tmp.Add('spiece/' + db.AllPieces.Strings[i]);
+            if (tmp.Count > 200) or ((tmp.Count > 30) and (random > 0.6)) then
+            begin
+              stmp := tmp.Strings[tmp.Count - 1];
+              tmp.Delete(tmp.Count - 1);
+              Memo1.Lines.AddStrings(tmp);
+              Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+              Label7.Update;
+              Memo1.Lines.Add(stmp);
+              Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+              Label7.Update;
+              tmp.Clear;
+            end;
+          end;
+    end;
     if tmp.Count > 0 then
     begin
       stmp := tmp.Strings[tmp.Count - 1];
@@ -125,6 +179,11 @@ begin
     tmp.Free;
     Screen.Cursor := crDefault;
   end;
+end;
+
+procedure TTUpdatePartColorBLForm.FormCreate(Sender: TObject);
+begin
+  dobricklink := True;
 end;
 
 end.

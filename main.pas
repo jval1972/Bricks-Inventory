@@ -385,6 +385,7 @@ type
     Mybuiltedsets1: TMenuItem;
     Mybuiltedmocs1: TMenuItem;
     Mylooseparts1: TMenuItem;
+    Partswithoutknowncolorsrebrickablecom1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -522,6 +523,7 @@ type
     procedure Sets3Click(Sender: TObject);
     procedure Partnamesrebrickable1Click(Sender: TObject);
     procedure Partswithoutknowncolors1Click(Sender: TObject);
+    procedure Partswithoutknowncolorsrebrickablecom1Click(Sender: TObject);
     procedure Newismuchmoreexpensivethanused1Click(Sender: TObject);
     procedure Newpartsbricklinkcom1Click(Sender: TObject);
     procedure Pieceswithmorethan30colors1Click(Sender: TObject);
@@ -18310,6 +18312,24 @@ begin
   sl.Free;
 end;
 
+procedure TMainForm.Partswithoutknowncolorsrebrickablecom1Click(
+  Sender: TObject);
+var
+  sl: TStringList;
+  i: integer;
+  foo: boolean;
+begin
+  sl := TStringList.Create;
+  if UpdatePartColorsFromRebrickable(sl) then
+  begin
+    Screen.Cursor := crHourglass;
+    for i := 0 to sl.Count - 1 do
+      HTMLClick(sl.Strings[i], foo);
+    S_FlashFileSystem;
+    Screen.Cursor := crDefault;
+  end;
+  sl.Free;
+end;
 
 procedure TMainForm.Newismuchmoreexpensivethanused1Click(Sender: TObject);
 var

@@ -545,6 +545,7 @@ object TUpdatePartColorBLForm: TTUpdatePartColorBLForm
     000000000000000000000000000000000000000000000000000000000000}
   OldCreateOrder = False
   Position = poScreenCenter
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel

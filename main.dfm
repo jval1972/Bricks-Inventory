@@ -1142,6 +1142,10 @@ object MainForm: TMainForm
           Caption = 'Parts without known colors (bricklink.com)'
           OnClick = Partswithoutknowncolors1Click
         end
+        object Partswithoutknowncolorsrebrickablecom1: TMenuItem
+          Caption = 'Parts without known colors (rebrickable.com)'
+          OnClick = Partswithoutknowncolorsrebrickablecom1Click
+        end
         object Newpartsbricklinkcom1: TMenuItem
           Caption = 'New parts (bricklink.com)'
           OnClick = Newpartsbricklinkcom1Click

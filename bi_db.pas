@@ -1029,6 +1029,7 @@ type
     function GetCodeFromPieceColor(const spiece: string; const scolor: integer): string;
     {$IFNDEF CRAWLER}
     function GetColorIdFromName(const cs: string; var cc: integer): boolean;
+    function AllPiecesIndex(const spiece: string): integer;
     {$ENDIF}
     function UpdatePartWeight(const pcs: string; const w: double): boolean; overload;
     function UpdatePartWeight(const pi: TPieceInfo; const w: double): boolean; overload;
@@ -1048,6 +1049,7 @@ type
     property AllSets: THashStringList read fallsets;
     property AllSetsWithOutExtra: THashStringList read fallsetswithoutextra;
     property AllPieces: TStringList read fpieces;
+    property AllPiecesHash: THashTable read fpieceshash;
     property crawlerfilename: string read fcrawlerfilename write fcrawlerfilename;
     property CacheDB: TCacheDB read fCacheDB;
     property pciloads: integer read st_pciloads;
@@ -16248,6 +16250,12 @@ begin
 
   Result := False;
 end;
+
+function TSetsDatabase.AllPiecesIndex(const spiece: string): integer;
+begin
+  Result := IndexOfString(fpieceshash, spiece);
+end;
+
 {$ENDIF}
 
 function TSetsDatabase.UpdatePartWeight(const pi: TPieceInfo; const w: double): boolean;

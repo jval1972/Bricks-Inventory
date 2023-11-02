@@ -4412,7 +4412,7 @@ begin
   lb := nil;
   if not lite then
   begin
-    pidx := db.AllPieces.IndexOf(setid);
+    pidx := db.AllPiecesIndex(setid);
     if pidx >= 0 then
     begin
       pi := db.AllPieces.Objects[pidx] as TPieceInfo;
@@ -6064,6 +6064,7 @@ var
   mycost: Double;
   bp: brickpool_t;
   desc: string;
+  stmp: string;
   tmpsets: TStringList;
   totpieces: integer;
   mycosttot: double;
@@ -6090,12 +6091,14 @@ var
   srelationships: string;
   rlst: TStringList;
   ts: TString;
+  _allpieces: TStringList;
   www: double;
 begin
   UpdateDismantaledsetsinv;
 
   pcs1 := db.RebrickablePart(pcs);
-  idx := db.AllPieces.IndexOf(pcs1);
+  _allpieces := db.AllPieces;
+  idx := _allpieces.IndexOf(pcs1);
 
   if idx >= 0 then
     pcs := pcs1;
@@ -6103,7 +6106,7 @@ begin
   if idx < 0 then
   begin
     pcs1 := db.BrickLinkPart(pcs);
-    idx := db.AllPieces.IndexOf(pcs1);
+    idx := _allpieces.IndexOf(pcs1);
     if idx >= 0 then
       pcs := pcs1;
   end;
@@ -6111,9 +6114,9 @@ begin
   if idx < 0 then
   begin
     upcs := strupper(pcs);
-    for i := 0 to db.AllPieces.Count - 1 do
+    for i := 0 to _allpieces.Count - 1 do
     begin
-      if upcs = strupper(db.AllPieces.Strings[i]) then
+      if upcs = strupper(_allpieces.Strings[i]) then
       begin
         idx := i;
         break;
@@ -6159,38 +6162,39 @@ begin
     validmask := IsValidDBMask(pcs);
     upcs := strupper(pcs);
 
-    for i := 0 to db.AllPieces.Count - 1 do
+    for i := 0 to _allpieces.Count - 1 do
     begin
+      stmp := _allpieces.Strings[i];
       if validmask then
       begin
-        if MatchesMask(db.AllPieces.Strings[i], pcs) then
-          tmpsets.Add(db.AllPieces.Strings[i])
-        else if MatchesMask(db.PieceDesc(db.AllPieces.Objects[i] as TPieceInfo), pcs) then
-          tmpsets.Add(db.AllPieces.Strings[i])
-        else if MatchesMask(db.GetNewPieceName(db.AllPieces.Strings[i]), pcs) then
-          tmpsets.Add(db.AllPieces.Strings[i]);
+        if MatchesMask(stmp, pcs) then
+          tmpsets.Add(stmp)
+        else if MatchesMask(db.PieceDesc(_allpieces.Objects[i] as TPieceInfo), pcs) then
+          tmpsets.Add(stmp)
+        else if MatchesMask(db.GetNewPieceName(stmp), pcs) then
+          tmpsets.Add(stmp);
 //        if tmpsets.Count >= 500 then
 //          Break;
       end;
 
-      if upcs = strupper(db.GetNewPieceName(db.AllPieces.Strings[i])) then
-        tmpsets.Insert(0, db.AllPieces.Strings[i]);
+      if upcs = strupper(db.GetNewPieceName(stmp)) then
+        tmpsets.Insert(0, stmp);
     end;
 
     if tmpsets.Count = 0 then
     begin
       upcs := strupper(pcs);
 
-      for i := 0 to db.AllPieces.Count - 1 do
+      for i := 0 to _allpieces.Count - 1 do
       begin
-        desc := db.PieceDesc(db.AllPieces.Objects[i] as TPieceInfo);
+        desc := db.PieceDesc(_allpieces.Objects[i] as TPieceInfo);
         if Pos(upcs, strupper(desc)) > 0 then
-          tmpsets.Add(db.AllPieces.Strings[i]);
+          tmpsets.Add(_allpieces.Strings[i]);
       end;
 
-      for i := 0 to db.AllPieces.Count - 1 do
+      for i := 0 to _allpieces.Count - 1 do
       begin
-        desc := db.AllPieces.Strings[i];
+        desc := _allpieces.Strings[i];
         if Pos(upcs, strupper(desc)) > 0 then
           tmpsets.Add(desc);
       end;
@@ -6232,16 +6236,16 @@ begin
   document.write('<p align=center>');
 
   if idx > 0 then
-    prevP := db.AllPieces.Strings[idx - 1]
+    prevP := _allpieces.Strings[idx - 1]
   else
     prevP := '';
 
-  if idx < db.AllPieces.Count - 1 then
-    nextP := db.AllPieces.Strings[idx + 1]
+  if idx < _allpieces.Count - 1 then
+    nextP := _allpieces.Strings[idx + 1]
   else
     nextP := '';
 
-  pi := db.AllPieces.Objects[idx] as TPieceInfo;
+  pi := _allpieces.Objects[idx] as TPieceInfo;
 
   refrhtml := ' <a href=refreshpiece/' + pcs + '><img src="images\refresh.png"></a>';
 
@@ -11868,6 +11872,7 @@ var
   tmpfname: string;
   SRC: string;
   PARAMS: string;
+  _allpieces: TStringList;
 
   function parseparamS(const QRY: string): string;
   var
@@ -12575,11 +12580,12 @@ begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
       ShowSplash;
-      idx := db.AllPieces.IndexOf(s2);
+      _allpieces := db.AllPieces;
+      idx := _allpieces.IndexOf(s2);
       if idx > -1 then
       begin
         for i := idx to idx + 99  do
-          db.RefreshPart(db.AllPieces.Strings[i mod db.AllPieces.Count]);
+          db.RefreshPart(_allpieces.Strings[i mod _allpieces.Count]);
       end;
       HideSplash;
       Screen.Cursor := crDefault;
@@ -12592,11 +12598,12 @@ begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
       ShowSplash;
-      idx := db.AllPieces.IndexOf(s2);
+      _allpieces := db.AllPieces;
+      idx := _allpieces.IndexOf(s2);
       if idx > -1 then
       begin
         for i := idx to idx + 999  do
-          db.RefreshPart(db.AllPieces.Strings[i mod db.AllPieces.Count]);
+          db.RefreshPart(_allpieces.Strings[i mod _allpieces.Count]);
       end;
       HideSplash;
       Screen.Cursor := crDefault;
@@ -12608,8 +12615,9 @@ begin
     begin
       Screen.Cursor := crHourglass;
       ShowSplash;
-      for i := 0 to db.AllPieces.Count - 1 do
-        db.RefreshPart(db.AllPieces.Strings[i]);
+      _allpieces := db.AllPieces;
+      for i := 0 to _allpieces.Count - 1 do
+        db.RefreshPart(_allpieces.Strings[i]);
       HideSplash;
       Screen.Cursor := crDefault;
       Handled := True;
@@ -19221,7 +19229,7 @@ begin
   Openlink1.Enabled := newtabUrl <> '';
 
   OpenItemPU1.Visible := False;
-  if db.AllPieces.IndexOf(Trim(HTML.SelText)) >= 0 then
+  if db.AllPiecesIndex(Trim(HTML.SelText)) >= 0 then
   begin
     OpenItemPU1.Visible := True;
     OpenItemPU1.Caption := 'Open item "' + Trim(HTML.SelText) + '"';
@@ -20426,7 +20434,7 @@ var
   foo: boolean;
 begin
   pcs := Trim(HTML.SelText);
-  if db.AllPieces.IndexOf(pcs) >= 0 then
+  if db.AllPiecesIndex(pcs) >= 0 then
     HTMLClick('spiece/' + pcs, foo);
 end;
 

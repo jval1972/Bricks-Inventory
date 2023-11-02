@@ -73,7 +73,7 @@ begin
     Exit;
   f := TTUpdatePartColorBLForm.Create(nil);
   try
-    f.Caption := 'Update Part without known Colors (bricklink.com)';
+    f.Caption := 'Update Parts without known Colors (bricklink.com)';
     f.dobricklink := True;
     f.ShowModal;
     if f.ModalResult = mrOK then
@@ -95,7 +95,7 @@ begin
     Exit;
   f := TTUpdatePartColorBLForm.Create(nil);
   try
-    f.Caption := 'Update Part without known Colors (rebrickable.com)';
+    f.Caption := 'Update Parts without known Colors (rebrickable.com)';
     f.dobricklink := False;
     f.ShowModal;
     if f.ModalResult = mrOK then

@@ -1124,7 +1124,9 @@ begin
     else if Result = 'scalaupn0027pr0001' then Result := 'scalaupn027pr01'
     else if Result = 'scalaupn0023pr0001' then Result := 'scalaupn023pr01'
     else if Result = 'scalaupn0024pr0001' then Result := 'scalaupn024pr01'
-    else if Result = 'scalaupn0024pr0001' then Result := 'scalaupn024pr01';
+    else if Result = 'scalaupn0024pr0001' then Result := 'scalaupn024pr01'
+    else if Result = 'scalaupn0104pat0002' then Result := 'scalaupn104pat2'
+    else if Result = 'scalaupn0013pr0001' then Result := 'scalaupn013pr01';
   end
   else if Pos1('dupupn00', Result) then
   begin
@@ -6984,6 +6986,7 @@ begin
           for i := 1 to s.Count - 1 do
           begin
             splitstring(s.Strings[i], spart, scolor, sdesc, ',');
+            spart := fixpartname(spart);
             check := UpperCase(spart + ',' + scolor);
             if (Trim(spart) <> '') and (buf.IndexOf(check) < 0) then
             begin
@@ -9150,7 +9153,7 @@ begin
           for i := 1 to sKP.Count - 1 do
           begin
             splitstring(sKP.Strings[i], s1, s2, s3, ',');
-            s1 := Trim(s1);
+            s1 := Trim(fixpartname(s1));
             s.Add(s1 + ',' + Trim(s3));
           end;
         end;

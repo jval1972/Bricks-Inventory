@@ -19369,6 +19369,8 @@ begin
   N20171.Visible := fexists(basedefault + 'lugbulks\2017.txt');
   N20181.Visible := fexists(basedefault + 'lugbulks\2018.txt');
   N20191.Visible := fexists(basedefault + 'lugbulks\2019.txt');
+  N20201.Visible := fexists(basedefault + 'lugbulks\2020.txt');
+  N20211.Visible := fexists(basedefault + 'lugbulks\2021.txt');
 end;
 
 procedure TMainForm.Setsbynumpieces1Click(Sender: TObject);

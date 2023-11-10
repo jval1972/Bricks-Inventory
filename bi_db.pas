@@ -778,6 +778,10 @@ type
     fmaximumcolors: integer;
     fPartTypeList: TStringList;
     fcrawlerrandom: byte;
+    last_rb_s: string;
+    last_rb_result: string;
+    last_bl_s: string;
+    last_bl_result: string;
 //    fpciloader: TDThread;
 //    fpciloaderparams: fpciloaderparams_t;
     procedure InitColors;
@@ -818,6 +822,7 @@ type
     function RemoveDoublesFromList2(const lst: TStringList): boolean; overload;
     function RemoveDoublesFromList2(const fname1: string): boolean; overload;
     procedure FixKnownPieces;
+    procedure ClearRBResult;
   public
     progressfunc: progressfunc_t;
     constructor Create; virtual;
@@ -6795,6 +6800,7 @@ begin
   falltags := TStringList.Create;
   fbasemolds := TStringList.Create;
   {$ENDIF}
+  ClearRBResult;
   ffixedblcolors := TStringList.Create;
   ffixedblcolors.Add('Aqua');
   ffixedblcolors.Add('Black');
@@ -7019,6 +7025,14 @@ begin
   finally
     s.Free;
   end;
+end;
+
+procedure TSetsDatabase.ClearRBResult;
+begin
+  last_rb_s :='';
+  last_rb_result :='';
+  last_bl_s := '';
+  last_bl_result := '';
 end;
 
 procedure TSetsDatabase.InitCreate(const app: string = '');
@@ -9540,6 +9554,7 @@ begin
       break;
   end;
 
+  ClearRBResult;
   if s.Count > 0 then
     if Trim(s.Strings[0]) = 'bricklink,rebricable' then
     begin
@@ -9727,16 +9742,25 @@ var
   idx: integer;
   spiece: string;
 begin
+  if last_bl_s = s then
+  begin
+    Result := last_bl_result;
+    Exit;
+  end;
+  last_bl_s := s;
+
   spiece := Trim(s);
   if fpiecesaliasBL = nil then
   begin
     Result := spiece;
+    last_bl_result := spiece;
     Exit;
   end;
   idx := IndexOfString(fpieceshash, spiece);
   if idx < 0 then
   begin
     Result := spiece;
+    last_bl_result := spiece;
     Exit;
   end;
   idx := fpiecesaliasBL.IndexOf(fixpartname(spiece));
@@ -9744,6 +9768,7 @@ begin
     Result := fixpartname((fpiecesaliasBL.Objects[idx] as TString).Text)
   else
     Result := fixpartname(spiece);
+  last_bl_result := Result;
 end;
 
 function TSetsDatabase.BrickLinkColorToSystemColor(const c: integer): integer;
@@ -9782,24 +9807,32 @@ function TSetsDatabase.RebrickablePart(const s: string): string;
 var
   idx: integer;
   spiece: string;
+  sfixed: string;
 begin
+  if last_rb_s = s then
+  begin
+    Result := last_rb_result;
+    Exit;
+  end;
+  last_rb_s := s;
+
   spiece := Trim(s);
   if fpiecesaliasRB = nil then
   begin
     Result := spiece;
+    last_rb_result := spiece;
     Exit;
   end;
-  idx := fpiecesaliasRB.IndexOf(fixpartname(spiece));
+  sfixed := fixpartname(spiece);
+  idx := fpiecesaliasRB.IndexOf(sfixed);
   if idx > -1 then
     Result := fixpartname((fpiecesaliasRB.Objects[idx] as TString).Text)
   else
-    Result := fixpartname(spiece);
+    Result := sfixed;
   idx := IndexOfString(fpieceshash, Result);
   if idx < 0 then
-  begin
     Result := spiece;
-    Exit;
-  end;
+  last_rb_result := Result;
 end;
 
 {$IFNDEF CRAWLER}

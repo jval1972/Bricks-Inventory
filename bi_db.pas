@@ -12579,11 +12579,18 @@ begin
     Exit;
 
   bcolor := colors(pci.color).BrickLinkColor;
-  if bcolor <= 0 then
+  if bcolor < 0 then
     Exit;
 
+  if bcolor = 0 then
+    if not (pci.sparttype in ['G', 'P']) then
+      Exit;
+
   stmpfn := I_NewTempFile(Trim(pci.piece) + '_' + itoa(bcolor));
-  urlstr := sbricklink + 'catalogItemIn.asp?P=' + GetBLNetPieceName(Trim(pci.piece)) + '&v=3&in=A&colorID=' + itoa(bcolor);
+  if pci.sparttype = 'G' then
+    urlstr := sbricklink + 'catalogItemIn.asp?G=' + GetBLNetPieceName(Trim(pci.piece)) + '&v=3&in=A&colorID=' + itoa(bcolor)
+  else
+    urlstr := sbricklink + 'catalogItemIn.asp?P=' + GetBLNetPieceName(Trim(pci.piece)) + '&v=3&in=A&colorID=' + itoa(bcolor);
   if UrlDownloadToFile(nil, PChar(urlstr), PChar(stmpfn), 0, nil) <> 0 then
 //    if not fexists(stmpfn) then
       Exit;
@@ -12712,6 +12719,7 @@ begin
   Result := False;
   N := GetMoldKnownColors(pid);
   for i := 0 to N.Count - 1 do
+  begin
     if N.Numbers[i] >= 0 then
     begin
       if N.Numbers[i] <= LASTNORMALCOLORINDEX then
@@ -12724,7 +12732,13 @@ begin
         if UpdateCatalogYearFromNet(pid) then
           Result := True;
       end;
+    end
+    else if N.Numbers[i] = -1 then
+    begin
+      if UpdatePartYearFromNet(pid, N.Numbers[i]) then
+        Result := True;
     end;
+  end;
   N.Free;
 end;
 

@@ -287,7 +287,7 @@ begin
       if f.YearEdit.ReadOnly then
         f.YearEdit.Color := clBtnFace;
       if not f.YearEdit.ReadOnly then
-        f.UpdateYearSpeedButton.Visible := db.HasSetColorsOnly(pci.piece) or (pci.sparttype = 'P') or (pci.sparttype = 'M') or (pci.sparttype = ' ');
+        f.UpdateYearSpeedButton.Visible := db.HasSetColorsOnly(pci.piece) or (pci.sparttype = 'P') or (pci.sparttype = 'M') or (pci.sparttype = ' ') or (pci.sparttype = 'G');
 
       f.Panel1.Color := RGBInvert(db.colors(color).RGB);
       f.PartTypePanel.Caption := pci.sparttype;
@@ -597,6 +597,17 @@ begin
     yearnum := db.GetSetYearFromDiskCache(fname);
     if (yearnum >= 1932) and (yearnum <= 2050) then
       YearEdit.Text := itoa(yearnum);
+  end
+  else if PartTypePanel.Caption = 'G' then
+  begin
+    Screen.Cursor := crHourglass;
+    try
+      if db.GetPartYearFromNet(Trim(NameEdit.Text), partcolor, yearnum) then
+        if (yearnum >= 1932) and (yearnum <= 2050) then
+          YearEdit.Text := itoa(yearnum);
+    finally
+      Screen.Cursor := crDefault;
+    end;
   end
   else if db.HasSetColorsOnly(NameEdit.Text) then
   begin

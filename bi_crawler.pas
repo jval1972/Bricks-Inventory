@@ -47,7 +47,9 @@ function NET_GetPriceGuideForElement(const pci: TPieceColorInfo; id: string; con
   var ret1: priceguide_t; var ret2: availability_t; const cachefile: string;
   var clink: string): boolean;
 
-function NET_GetBricklinkAlias(const id: string; const typ: char = 'P'): string;
+function NET_GetBricklinkAliasRB(const id: string; const typ: char = 'P'): string;
+
+function NET_GetBricklinkAliasBL(const id: string; const typ: char = 'P'): string;
 
 function NET_GetBricklinkCategory(const id: string; var fcat: integer; var fweight: double; var parttype: char): boolean;
 
@@ -1685,7 +1687,7 @@ begin
   Result := True;
 end;
 
-function NET_GetBricklinkAlias(const id: string; const typ: char = 'P'): string;
+function NET_GetBricklinkAliasRB(const id: string; const typ: char = 'P'): string;
 var
   s: string;
   s1: string;
@@ -1742,6 +1744,42 @@ begin
       else
         Result := Result + s[i];
     end;
+  end;
+end;
+
+function NET_GetBricklinkAliasBL(const id: string; const typ: char = 'P'): string;
+var
+  s: string;
+  s1, s2: string;
+  p1, p2: integer;
+  i: integer;
+  id1: string;
+begin
+  Result := '';
+
+  id1 := strtrim(id);
+
+  s := GetURLString(sbricklink + 'catalogReqList.asp?viewYear=&viewMonth=&viewGeDate=&q=' + id1 + '&viewStatus=1&itemType=&viewAction=I');
+
+  s1 := '</A>Changed <B>Item No</B> from {<B>';
+  p1 := Pos(s1, s);
+  if p1 <= 0 then
+    Exit;
+
+  s2 := s1 + id1 + '</B>} to {<B>';
+  p2 := Pos(s2, s);
+  if p2 <> p1 then
+    Exit;
+
+  SaveStringToFile(basedefault + 'db\molds\' + id1 + 'changes.htm', s);
+
+  p1 := p2 + Length(s2);
+  for i := p1 to length(s) do
+  begin
+    if (s[i] = '''') or (s[i] = '"') or (s[i] = '&') or (s[i] = '<') or (s[i] = '>') then
+      break
+    else
+      Result := Result + s[i];
   end;
 end;
 

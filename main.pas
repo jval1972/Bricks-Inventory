@@ -12249,7 +12249,7 @@ begin
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
-      s3 := NET_GetBricklinkAlias(s2);
+      s3 := NET_GetBricklinkAliasRB(s2);
       if s3 <> '' then
       begin
         ShowSplash;
@@ -12271,7 +12271,7 @@ begin
     begin
       splitstring(SRC, s1, s2, '/');
       Screen.Cursor := crHourglass;
-      s3 := NET_GetBricklinkAlias(s2);
+      s3 := NET_GetBricklinkAliasRB(s2);
       if s3 <> '' then
       begin
         ShowSplash;
@@ -12399,7 +12399,7 @@ begin
 //      if length(Trim(s2)) < 16 then
         if (s3 = '') or (s3 = s2) then
         begin
-          s3 := NET_GetBricklinkAlias(s2);
+          s3 := NET_GetBricklinkAliasRB(s2);
           if (s3 <> '') and (s3 <> s2) then
           begin
             db.SetNewPieceName(s2, s3);
@@ -12427,7 +12427,7 @@ begin
 //      if length(Trim(s2)) < 16 then
         if (s3 = '') or (s3 = s2) then
         begin
-          s3 := NET_GetBricklinkAlias(s2);
+          s3 := NET_GetBricklinkAliasRB(s2);
           if (s3 <> '') and (s3 <> s2) then
           begin
             db.SetNewPieceName(s2, s3);

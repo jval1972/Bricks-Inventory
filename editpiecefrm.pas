@@ -486,12 +486,16 @@ end;
 procedure TEditPieceForm.AutodetectButtonClick(Sender: TObject);
 var
   s: string;
-  spiece: string;
 begin
-  spiece := Trim(NameEdit.Text);
   Screen.Cursor := crHourglass;
-  s := NET_GetBricklinkAlias(NameEdit.Text);
-  Screen.Cursor := crDefault;
+  try
+    s := NET_GetBricklinkAliasRB(NameEdit.Text);
+    if s = '' then
+     s := NET_GetBricklinkAliasBL(NameEdit.Text);
+  finally
+    Screen.Cursor := crDefault;
+  end;
+
   if s = '' then
     if NewNameEdit.Text <> '' then
       Exit;

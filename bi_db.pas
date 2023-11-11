@@ -1135,6 +1135,15 @@ begin
     else if Result = 'scalaupn0104pat0002' then Result := 'scalaupn104pat2'
     else if Result = 'scalaupn0013pr0001' then Result := 'scalaupn013pr01';
   end
+  else if Pos1('dupfig0', Result) then
+  begin
+    if Result = 'dupfig0003pr0001' then Result := 'dupfig003pr0001'
+    else if Result = 'dupfig0004pr0003' then Result := 'dupfig004pr0003'
+    else if Result = 'dupfig0009pr0001' then Result := 'dupfig009pr0001'
+    else if Result = 'dupfig0011pr0001' then Result := 'dupfig011pr0001'
+    else if Result = 'dupfig0011pr0003' then Result := 'dupfig011pr0003'
+    else if Result = 'dupfig0012pr0002' then Result := 'dupfig012pr0002'
+  end
   else if Pos1('dupupn00', Result) then
   begin
     if Result = 'dupupn0013c02pr0001a' then Result := 'dupupn13c02pr1a'
@@ -10863,7 +10872,7 @@ begin
     bl := BrickLinkPart(slist.Strings[i]);
     if strupper(bl) = strupper(slist.Strings[i]) then
     begin
-      blNew := NET_GetBricklinkAlias(slist.Strings[i]);
+      blNew := NET_GetBricklinkAliasRB(slist.Strings[i]);
       if (Pos('3068bpb', blnew) = 1) and (length(blnew) = 10) then
         blnew := '3068bpb0' + blnew[8] + blnew[9] + blnew[10];
       if (blnew <> '') and (strupper(bl) <> strupper(blnew)) then

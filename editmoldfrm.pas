@@ -382,12 +382,15 @@ end;
 procedure TEditMoldForm.AutodetectButtonClick(Sender: TObject);
 var
   s: string;
-  spiece: string;
 begin
-  spiece := Trim(Edit2.Text);
   Screen.Cursor := crHourglass;
-  s := NET_GetBricklinkAlias(Edit2.Text);
-  Screen.Cursor := crDefault;
+  try
+    s := NET_GetBricklinkAliasRB(Edit2.Text);
+    if s = '' then
+     s := NET_GetBricklinkAliasBL(Edit2.Text);
+  finally
+    Screen.Cursor := crDefault;
+  end;
   if s = '' then
     if NewNameEdit.Text <> '' then
       Exit;

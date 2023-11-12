@@ -16970,7 +16970,7 @@ end;
 procedure TSetsDatabase.TmpSaveCrawler;
 begin
   {$IFDEF CRAWLER}
-  if fcrawlerpriority.Count mod 50 = 99 then
+  if fcrawlerpriority.Count mod 5000 = 4999 then
   {$ELSE}
   if fcrawlerpriority.Count mod 10 = 9 then
   {$ENDIF}

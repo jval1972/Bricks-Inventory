@@ -1759,6 +1759,12 @@ begin
 
   id1 := strtrim(id);
 
+  p1 := Pos('pr', id1);
+  if p1 > 1 then
+    if p1 < Length(id1) - 3 then
+      if IsNumeric(id1[p1 - 1]) and IsNumeric(id1[p1 + 3]) then
+        Exit; // Rebrickable part 
+
   s := GetURLString(sbricklink + 'catalogReqList.asp?viewYear=&viewMonth=&viewGeDate=&q=' + id1 + '&viewStatus=1&itemType=&viewAction=I');
 
   s1 := '</A>Changed <B>Item No</B> from {<B>';

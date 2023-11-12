@@ -486,6 +486,8 @@ begin
       fname := fname + '_#QUEST#_'
     else if aname[i] = '*' then
       fname := fname + '_#STAR#_'
+    else if aname[i] = #9 then
+      fname := fname + '_#TAB#_'
     else
       fname := fname + aname[i];
   end;

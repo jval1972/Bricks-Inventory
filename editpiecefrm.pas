@@ -491,7 +491,12 @@ begin
   try
     s := NET_GetBricklinkAliasRB(NameEdit.Text);
     if s = '' then
-     s := NET_GetBricklinkAliasBL(NameEdit.Text);
+    begin
+      if Trim(AliasEdit.Text) <> '' then
+        s := NET_GetBricklinkAliasBL(AliasEdit.Text);
+      if s = '' then
+        s := NET_GetBricklinkAliasBL(NameEdit.Text);
+    end;
   finally
     Screen.Cursor := crDefault;
   end;

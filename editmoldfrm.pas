@@ -387,7 +387,12 @@ begin
   try
     s := NET_GetBricklinkAliasRB(Edit2.Text);
     if s = '' then
-     s := NET_GetBricklinkAliasBL(Edit2.Text);
+    begin
+      if Trim(AliasEdit.Text) <> '' then
+        s := NET_GetBricklinkAliasBL(AliasEdit.Text);
+      if s = '' then
+       s := NET_GetBricklinkAliasBL(Edit2.Text);
+    end;
   finally
     Screen.Cursor := crDefault;
   end;

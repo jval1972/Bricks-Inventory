@@ -182,7 +182,8 @@ var
   f: file;
   i: integer;
   oldmode: byte;
-  b, b1, b2: byte;
+  b: byte;
+  BA: array[1..2] of byte;
   fsize: integer;
 begin
   IOResult;
@@ -205,21 +206,19 @@ begin
       if fsize > 1 then
       begin
         seek(f, FileSize(f) - 2);
-        BlockRead(f, b1, SizeOf(byte));
-        BlockRead(f, b2, SizeOf(byte));
+        BlockRead(f, BA, 2 * SizeOf(byte));
       end
       else
       begin
-        b1 := 0;
-        b2 := 0;
+        BA[1] := 0;
+        BA[2] := 0;
       end;
-      if (b1 <> 13) or (b2 <> 10) then
+      if (BA[1] <> 13) or (BA[2] <> 10) then
       begin
         seek(f, fsize);
-        b1 := 13;
-        b2 := 10;
-        BlockWrite(f, b1, SizeOf(byte));
-        BlockWrite(f, b2, SizeOf(byte));
+        BA[1] := 13;
+        BA[2] := 10;
+        BlockWrite(f, BA, 2 * SizeOf(byte));
       end;
     end;
   end;
@@ -230,10 +229,9 @@ begin
     b := Ord(line[i]);
     BlockWrite(f, b, SizeOf(byte));
   end;
-  b1 := 13;
-  b2 := 10;
-  BlockWrite(f, b1, SizeOf(byte));
-  BlockWrite(f, b2, SizeOf(byte));
+  BA[1] := 13;
+  BA[2] := 10;
+  BlockWrite(f, BA, 2 * SizeOf(byte));
   closeFile(f);
 
   FileMode := oldmode;

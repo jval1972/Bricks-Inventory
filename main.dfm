@@ -1742,6 +1742,16 @@ object MainForm: TMainForm
           OnClick = Reorganize1Click
         end
       end
+      object N60: TMenuItem
+        Caption = '-'
+      end
+      object Internalchecks1: TMenuItem
+        Caption = 'Internal checks'
+        object BricklinkandRebrickablenameconflicts1: TMenuItem
+          Caption = 'Bricklink and Rebrickable name conflicts'
+          OnClick = BricklinkandRebrickablenameconflicts1Click
+        end
+      end
     end
     object LugBulks1: TMenuItem
       Caption = 'LugBulks'

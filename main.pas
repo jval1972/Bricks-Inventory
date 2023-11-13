@@ -386,6 +386,9 @@ type
     Mybuiltedmocs1: TMenuItem;
     Mylooseparts1: TMenuItem;
     Partswithoutknowncolorsrebrickablecom1: TMenuItem;
+    N60: TMenuItem;
+    Internalchecks1: TMenuItem;
+    BricklinkandRebrickablenameconflicts1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -638,6 +641,7 @@ type
     procedure Mybuiltedsets1Click(Sender: TObject);
     procedure Mybuiltedmocs1Click(Sender: TObject);
     procedure Mylooseparts1Click(Sender: TObject);
+    procedure BricklinkandRebrickablenameconflicts1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -686,7 +690,7 @@ type
       const pi: TPieceInfo): string;
     function HtmlDrawInvCode(const pci: TPieceColorInfo; const extras1, extras2: string): string;
     procedure ShowCategories;
-    procedure ShowPiece(pcs: string; const year: integer = -1);
+    procedure ShowPiece(pcs: string; const year: integer = -1; const flags: LongWord = 0);
     procedure DoAddNewSetAsPiece(const pcs: string; const desc: string);
     procedure AddNewSetAsPiece(const pcs: string; const desc: string);
     procedure RefreshUnKnownPiecesCategory(const limit: integer);
@@ -698,6 +702,8 @@ type
     function GetAPieceColor(pcs: string): integer;
     procedure DrawMoldList(const tit: string; const lst: TStringList; const splitcolorflags: boolean;
       const donumlinks: boolean; const doctit: string = '');
+    procedure DrawMoldList2(const tit: string; const lst: TStringList; const splitcolorflags: boolean;
+      const donumlinks: boolean; const secondmoldtit: string; const doctit: string = '');
     procedure DrawMoldListCatalog(const tit: string; const lst: TStringList; const year: integer; const catid: integer; const typ: string);
     procedure ShowCatalogList(const ltyp: string; const year: integer; const catid1: integer; const doall: boolean);
     procedure DrawPieceList(const tit: string; const lst: TStringList; const sortorder: integer = 0;
@@ -793,6 +799,7 @@ type
     procedure ShowLengthQuery(const id: string);
     procedure ShowLengthQuerySlopes(const id: string);
     procedure ShowDimentionsQuery(const id: string);
+    procedure ShowBricklinkandRebrickablenameconflicts;
     procedure DrawNavigateBar;
     procedure DrawNavigateCatalog;
     procedure DrawHeadLine(const s: string);
@@ -881,6 +888,9 @@ const
   SORT_PRICE_USED = 2;
   SORT_DATE_UPDATE = 3;
   SORT_ITEMS_CINTEGER = 4;
+
+const
+  FLG_SP_NO_ALIAS = 1;  // .ShowPiece
 
 type
   TThumbnailCacheInfo = class(TObject)
@@ -6051,7 +6061,7 @@ begin
   Result := 0;
 end;
 
-procedure TMainForm.ShowPiece(pcs: string; const year: integer = -1);
+procedure TMainForm.ShowPiece(pcs: string; const year: integer = -1; const flags: LongWord = 0);
 var
   i: integer;
   idx: Integer;
@@ -6096,19 +6106,25 @@ var
 begin
   UpdateDismantaledsetsinv;
 
-  pcs1 := db.RebrickablePart(pcs);
   _allpieces := db.AllPieces;
-  idx := _allpieces.IndexOf(pcs1);
-
-  if idx >= 0 then
-    pcs := pcs1;
-
-  if idx < 0 then
+  if flags and FLG_SP_NO_ALIAS <> 0 then
   begin
-    pcs1 := db.BrickLinkPart(pcs);
+    pcs1 := pcs;
+    idx := _allpieces.IndexOf(pcs1);
+  end
+  else
+  begin
+    pcs1 := db.RebrickablePart(pcs);
     idx := _allpieces.IndexOf(pcs1);
     if idx >= 0 then
       pcs := pcs1;
+    if idx < 0 then
+    begin
+      pcs1 := db.BrickLinkPart(pcs);
+      idx := _allpieces.IndexOf(pcs1);
+      if idx >= 0 then
+        pcs := pcs1;
+    end;
   end;
 
   if idx < 0 then
@@ -6635,6 +6651,100 @@ begin
     else
       document.write('<td width=10%><p align=center>' + itoa(ncolors.Count) + '</p></td>');
     document.write('<td width=65%>');
+    if splitcolorflags then
+      DrawColorCells2(ncolors, 25)
+    else
+      DrawColorCells(ncolors, 25);
+    ncolors.Free;
+
+    document.write('</td></tr>');
+
+    SplashProgress('Working...', i / lst.Count);
+  end;
+
+  document.EndNavigateSection;
+
+  document.write('</table>');
+
+  document.MarkBottomNavigateSection;
+
+  document.write('<br></p>');
+  document.write('</div>');
+  document.write('</body>');
+  document.SaveBufferToFile(diskmirror);
+
+  SplashProgress('Working...', 1);
+
+  document.Flash;
+
+  HideSplash;
+end;
+
+procedure TMainForm.DrawMoldList2(const tit: string; const lst: TStringList; const splitcolorflags: boolean;
+  const donumlinks: boolean; const secondmoldtit: string; const doctit: string = '');
+// Same as DrawMoldList, but lst holds 2 pieces
+var
+  i: integer;
+  pcs, pcs2: string;
+  aa: integer;
+  ncolors: TDNumberList;
+begin
+  UpdateDismantaledsetsinv;
+  ShowSplash;
+  SplashProgress('Working...', 0);
+
+  if domultipagedocuments then
+    document.NewMultiPageDocument('DrawMoldList2' + tit, lst.Text);
+
+  document.write('<body background="splash.jpg">');
+  if doctit = '' then
+    document.title('Molds')
+  else
+    document.title(doctit);
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+
+  DrawHeadLine(tit);
+
+  document.StartNavigateSection;
+
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+  document.write('<tr bgcolor=' + THBGCOLOR + '>');
+  document.write('<th><b>#</b></th>');
+  document.write('<th><b>Mold</b></th>');
+  document.write('<th><b>' + secondmoldtit + '</b></th>');
+  document.write('<th>Num Colors</th>');
+  document.write('<th>Colors</th>');
+  document.write('</tr>');
+
+  aa := 0;
+
+  for i := 0 to lst.Count - 1 do
+  begin
+    splitstring(lst.Strings[i], pcs, pcs2, ',');
+    ncolors := db.GetMoldKnownColors(pcs);
+
+    inc(aa);
+    document.StartItemId(aa);
+    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
+
+    document.write('<td width=20%>');
+    document.write(MakeThumbnailImage2(pcs) + '<b><a href=spiecenal/' + pcs + '>' + pcs + '</a></b>');
+    document.write(' - ' + db.PieceDesc(pcs) + '</td>');
+
+    document.write('<td width=20%>');
+    document.write(MakeThumbnailImage2(pcs2) + '<b><a href=spiecenal/' + pcs2 + '>' + pcs2 + '</a></b>');
+    document.write(' - ' + db.PieceDesc(pcs2) + '</td>');
+
+
+    if donumlinks then
+      document.write('<td width=10%><p align=center>' +
+        '<a href=ShowMoldsWithNumColors/' + itoa(ncolors.Count) + '>' + itoa(ncolors.Count) + '</a>' +
+        '</p></td>')
+    else
+      document.write('<td width=10%><p align=center>' + itoa(ncolors.Count) + '</p></td>');
+    document.write('<td width=45%>');
     if splitcolorflags then
       DrawColorCells2(ncolors, 25)
     else
@@ -13353,6 +13463,11 @@ begin
     splitstring(slink, s1, s2, s3, '/');
     ShowPiece(s2, atoi(s3, -1));
   end
+  else if Pos1('spiecenal/', slink) then
+  begin
+    splitstring(slink, s1, s2, s3, '/');
+    ShowPiece(s2, atoi(s3, -1), FLG_SP_NO_ALIAS);
+  end
   else if Pos1('spiecec/', slink) then
   begin
     splitstring(slink, s1, s2, s3, s4, '/');
@@ -13669,6 +13784,10 @@ begin
   else if slink = 'ShowCheckStorageReport' then
   begin
    ShowCheckStorageReport;
+  end
+  else if slink = 'ShowBricklinkandRebrickablenameconflicts' then
+  begin
+    ShowBricklinkandRebrickablenameconflicts;
   end
   else
     Handled := False;
@@ -21061,6 +21180,113 @@ var
   foo: Boolean;
 begin
   HTMLClick('inv/0/C/-1', foo);
+end;
+
+type
+  BLRBConflictsParams_t = record
+    start, stop: integer;
+    list: TStringList;
+  end;
+  BLRBConflictsParams_p = ^BLRBConflictsParams_t;
+
+function BLRBConflicts_thr(p: pointer): integer; stdcall;
+var
+  parms: BLRBConflictsParams_p;
+  i: integer;
+  rpart, bpart: string;
+begin
+  parms := p;
+  for i := parms.start to parms.stop do
+  begin
+    rpart := db.AllPieces.Strings[i];
+    bpart := db.BrickLinkPart(rpart);
+    if rpart <> bpart then
+      if db.AllPiecesIndex(bpart) > -1 then
+        parms.list.Add(rpart + ',' + bpart);
+  end;
+  Result := 1;
+end;
+
+procedure TMainForm.BricklinkandRebrickablenameconflicts1Click(
+  Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('ShowBricklinkandRebrickablenameconflicts', foo);
+end;
+
+procedure TMainForm.ShowBricklinkandRebrickablenameconflicts;
+var
+  i: integer;
+  cmolds: TStringList;
+  cmolds2: TStringList;
+  cmolds3: TStringList;
+  cmolds4: TStringList;
+  params1: BLRBConflictsParams_t;
+  params2: BLRBConflictsParams_t;
+  params3: BLRBConflictsParams_t;
+  params4: BLRBConflictsParams_t;
+  cnt: integer;
+  tit: string;
+  step: integer;
+begin
+  Screen.Cursor := crHourglass;
+  cmolds := TStringList.Create;
+  try
+    cnt := db.AllPieces.Count;
+    if usemultithread and (cnt > 127) then
+    begin
+      cmolds2 := TStringList.Create;
+      cmolds3 := TStringList.Create;
+      cmolds4 := TStringList.Create;
+
+      step := cnt div 4;
+
+      params1.start := 0;
+      params1.stop := step;
+      params1.list := cmolds;
+
+      params2.start := params1.stop + 1;
+      params2.stop := params2.start + step;
+      params2.list := cmolds2;
+
+      params3.start := params2.stop + 1;
+      params3.stop := params3.start + step;
+      params3.list := cmolds3;
+
+      params4.start := params3.stop + 1;
+      params4.stop := cnt - 1;
+      params4.list := cmolds4;
+
+      MT_Execute(
+        @BLRBConflicts_thr, @params1,
+        @BLRBConflicts_thr, @params2,
+        @BLRBConflicts_thr, @params3,
+        @BLRBConflicts_thr, @params4);
+
+      cmolds.AddStrings(cmolds2);
+      cmolds.AddStrings(cmolds3);
+      cmolds.AddStrings(cmolds4);
+
+      cmolds2.Free;
+      cmolds3.Free;
+      cmolds4.Free;
+    end
+    else
+    begin
+      params1.start := 0;
+      params1.stop := cnt - 1;
+      params1.list := cmolds;
+      BLRBConflicts_thr(@params1);
+    end;
+
+    tit := 'Brickling and Rebrickable name conflicts';
+    DrawMoldList2(tit, cmolds, False, False, 'Bricklink mold', tit);
+
+  finally
+    cmolds.Free;
+    Screen.Cursor := crDefault;
+  end;
 end;
 
 end.

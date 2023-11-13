@@ -17734,15 +17734,18 @@ begin
   if not Result then
   begin
     invname := db.GetBLNetPieceName(fname);
-    Result := db.partsinventories.IndexOf(invname) > 0;
+    if invname <> fname then
+      Result := db.partsinventories.IndexOf(invname) > 0;
     if not Result then
     begin
       invname := db.BrickLinkPart(fname);
-      Result := db.partsinventories.IndexOf(invname) > 0;
+    if invname <> fname then
+        Result := db.partsinventories.IndexOf(invname) > 0;
       if not Result then
       begin
         invname := db.RebrickablePart(fname);
-        Result := db.partsinventories.IndexOf(invname) > 0;
+        if invname <> fname then
+          Result := db.partsinventories.IndexOf(invname) > 0;
       end;
     end;
   end;

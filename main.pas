@@ -832,6 +832,7 @@ type
     procedure ShowMoldVariations(const basepcs: string);
     procedure ShowPieceAlternates(const basepcs: string);
     procedure ShowPiecePatterns(const basepcs: string);
+    procedure ShowRelatedPieces(const basepcs: string);
     procedure ShowPiecePrints(const basepcs: string);
     function MakeThumbnailImageEx(const pcs1: string; const typof: char; const ncolor: integer = -1000): string;
     function MakeThumbnailImageExCache(const pcs: string; const typof: char; const ncolor: integer = -1000): string;
@@ -6099,6 +6100,7 @@ var
   si: string;
   ypdateyearlink: string;
   srelationships: string;
+  srelated: TStringList;
   rlst: TStringList;
   ts: TString;
   _allpieces: TStringList;
@@ -6374,6 +6376,11 @@ begin
     srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td><a href=ShowPiecePatterns/' + pcs + '>Patterns</a></td></tr>';
   if pi.prints.Count > 0 then
     srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td><a href=ShowPiecePrints/' + pcs + '>Prints</a></td></tr>';
+
+  srelated := db.GetRelatedPieces(pcs);
+  if srelated.Count > 1 then
+    srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td><a href=ShowRelatedPieces/' + pcs + '>Related Pieces</a></td></tr>';
+  srelated.Free;
 
   if srelationships = '' then
   begin
@@ -13404,6 +13411,11 @@ begin
     splitstring(slink, s1, s2, '/');
     ShowPiecePatterns(s2);
   end
+  else if Pos1('ShowRelatedPieces/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowRelatedPieces(s2);
+  end
   else if Pos1('ShowPiecePrints/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
@@ -18808,6 +18820,24 @@ begin
     DrawMoldList('No patterns for ' + linkstr, pi.patterns, False, False, titstr)
   else
     DrawMoldList('Patterns for ' + linkstr, pi.patterns, False, False, titstr);
+end;
+
+procedure TMainForm.ShowRelatedPieces(const basepcs: string);
+var
+  linkstr, titstr: string;
+  pi: TPieceInfo;
+  srelated: TStringList;
+begin
+  pi := db.PieceInfo(basepcs);
+  linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  titstr := 'Related Pieces for ' + basepcs;
+  srelated := db.GetRelatedPieces(basepcs);
+  srelated.Delete(0);
+  if srelated.Count > 0 then
+    DrawMoldList('Related Pieces for ' + linkstr, srelated, False, False, titstr)
+  else
+    DrawMoldList('No Related Pieces for ' + linkstr, srelated, False, False, titstr);
+  srelated.Free;
 end;
 
 procedure TMainForm.ShowPiecePrints(const basepcs: string);

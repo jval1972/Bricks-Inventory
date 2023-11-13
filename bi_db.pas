@@ -845,6 +845,7 @@ type
     procedure SetPieceCode(const pci: TPieceColorInfo; const newcode: string);
     function GetUnknownPiecesFromCache: TStringList;
     function RemoveUnknownPiecesFromCache: integer;
+    function GetRelatedPieces(const pcs: string): TStringList;
     {$ENDIF}
     procedure GetCacheHashEfficiency(var hits, total: integer);
     function Colors(const i: Integer): colorinfo_p;
@@ -19394,6 +19395,41 @@ begin
     end;
   end;
   cachedb.FlashAll;
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+function TSetsDatabase.GetRelatedPieces(const pcs: string): TStringList;
+var
+  ptmp: string;
+  i, idx: integer;
+  lst: TStringList;
+
+  procedure _AddRelatedPiece(const s: string);
+  begin
+    if lst.IndexOf(s) < 0 then
+      if s <> '(Unknown)' then
+        lst.Add(s);
+  end;
+
+begin
+  lst := TStringList.Create;
+  _AddRelatedPiece(pcs);
+
+  _AddRelatedPiece(GetBLNetPieceName(pcs));
+
+  _AddRelatedPiece(BrickLinkPart(pcs));
+
+  _AddRelatedPiece(RebrickablePart(pcs));
+
+  for i := 0 to fpiecenewnames.Count - 1 do
+  begin
+    ptmp := (fpiecenewnames.Objects[i] as TString).text;
+    if lst.IndexOf(ptmp) >= 0 then
+      _AddRelatedPiece(PieceInfo(fpiecenewnames.Strings[i]).name);
+  end;
+
+  Result := lst;
 end;
 {$ENDIF}
 

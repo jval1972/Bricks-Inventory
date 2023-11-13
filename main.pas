@@ -18505,7 +18505,7 @@ end;
 
 procedure TMainForm.ShowMoldsWithNumColorsBetween(const mincolors, maxcolors: integer);
 var
-  i: integer;
+  i, n: integer;
   cmolds: TStringList;
   cmolds2: TStringList;
   cmolds3: TStringList;
@@ -18573,9 +18573,12 @@ begin
     else
     begin
       for i := 0 to cnt - 1 do
-        if db.GetMoldNumColors(db.AllPieces.Strings[i]) >= mincolors then
-          if db.GetMoldNumColors(db.AllPieces.Strings[i]) <= maxcolors then
+      begin
+        n := db.GetMoldNumColors(db.AllPieces.Strings[i]);
+        if n >= mincolors then
+          if n <= maxcolors then
             cmolds.Add(db.AllPieces.Strings[i]);
+      end;
     end;
 
     tit := '';

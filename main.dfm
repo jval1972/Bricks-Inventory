@@ -1481,7 +1481,7 @@ object MainForm: TMainForm
         end
       end
       object MoldQueries1: TMenuItem
-        Caption = 'Mold Queries'
+        Caption = 'Mold queries'
         object MoldsFirstAppeared1: TMenuItem
           Caption = 'First appeared molds '
           OnClick = MoldsFirstAppeared1Click

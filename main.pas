@@ -18479,13 +18479,17 @@ type
 function ShowMoldsWithMoreThanColors_thr(p: pointer): integer; stdcall;
 var
   parms: ShowMoldsWithMoreThanColorsParams_p;
+  n: integer;
   i: integer;
 begin
   parms := p;
   for i := parms.start to parms.stop do
-    if db.GetMoldNumColors(db.AllPieces.Strings[i]) >= parms.mincolors then
-      if db.GetMoldNumColors(db.AllPieces.Strings[i]) <= parms.maxcolors then
+  begin
+    n := db.GetMoldNumColors(db.AllPieces.Strings[i]);
+    if n >= parms.mincolors then
+      if n <= parms.maxcolors then
         parms.list.Add(db.AllPieces.Strings[i]);
+  end;
   Result := 1;
 end;
 

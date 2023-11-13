@@ -17739,7 +17739,7 @@ begin
     if not Result then
     begin
       invname := db.BrickLinkPart(fname);
-    if invname <> fname then
+      if invname <> fname then
         Result := db.partsinventories.IndexOf(invname) > 0;
       if not Result then
       begin

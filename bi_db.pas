@@ -12000,21 +12000,28 @@ var
   SL: TStringList;
   desc: string;
   i, j, k: integer;
-  s, check: string;
+  s, check, txt: string;
   urlstr, spart: string;
   sCheck: TStringList;
   snum: string;
   N: TDNumberList;
   p, num: integer;
   w: double;
-  pi: TPieceInfo;
+  pi, pi2: TPieceInfo;
+  pci, pci2: TPieceColorInfo;
+  cl: integer;
+  yyyy: integer;
   ret1, ret2: boolean;
+  salternates: TStringList;
+  alcheck: string;
 begin
   Result := False;
   spart := Trim(pid);
   if spart = '' then
     Exit;
   fname := basedefault + 'db\molds\' + spart + '.htm';
+
+  salternates := nil;
 
   if donet then
   begin
@@ -12036,7 +12043,30 @@ begin
     sCheck.Add('//img.' + s_bricklink + '.com/ItemImage/PN/');
     sCheck.Add('onclick="showInventoryWithColor( ');
     S_LoadFromFile(SL, fname);
-    SL.Text := RemoveSpecialTagsFromString(SL.Text);
+
+    // Find alternates
+    txt := SL.Text;
+    alcheck := 'Alternate Item No: <span style="color: #2C6EA5; font-weight: bold;">';
+    p := Pos(alcheck, txt);
+    if p > 0 then
+    begin
+      alcheck := '';
+      for i := p + SizeOf(alcheck) to Length(txt) do
+      begin
+        if txt[i] = '<' then
+          break;
+        if txt[i] = '&' then
+        begin
+          alcheck := '';
+          break;
+        end;
+        if txt[i] <> ' ' then
+          alcheck := alcheck + txt[i];
+      end;
+      salternates := string2stringlist(alcheck, ',');
+    end;
+
+    SL.Text := RemoveSpecialTagsFromString(txt);
     for i := 0 to SL.Count - 1 do
     begin
       s := Trim(SL.Strings[i]);
@@ -12099,6 +12129,7 @@ begin
       for i := 0 to N.Count - 1 do
         AddKnownPiece(spart, BrickLinkColorToSystemColor(N.Numbers[i]), desc);
       UpdateItemYearFromDiskCache(spart);
+
       pi := PieceInfo(spart);
       if pi <> nil then
         if pi <> fstubpieceinfo then
@@ -12109,6 +12140,34 @@ begin
               if pi.weight <> w then
                 UpdatePartWeight(pi, w);
         end;
+
+      // Update alternates from base part (spart)
+      if salternates <> nil then
+      begin
+        for k := 0 to salternates.Count - 1 do
+        begin
+          SetNewPieceName(salternates.Strings[k], spart);
+          for i := 0 to N.Count - 1 do
+          begin
+            cl := BrickLinkColorToSystemColor(N.Numbers[i]);
+            AddKnownPiece(salternates.Strings[k], cl, desc);
+            pci := PieceColorInfo(spart, cl);
+            if pci <> nil then
+            begin
+              pci2 := PieceColorInfo(salternates.Strings[k], cl);
+              if pci2 <> nil then
+              begin
+                yyyy := pci.year;
+                if yyyy > 0 then
+                  SetItemYear(pci2, yyyy);
+              end;
+            end;
+          end;
+          pi2 := PieceInfo(salternates.Strings[k]);
+          UpdatePartWeight(pi2, pi.weight);
+        end;
+
+      end;
       Result := True;
     end;
   finally
@@ -12127,6 +12186,9 @@ begin
       if not Result then
         Result := UpdateMinifigAsPartFromBricklink(pid);
     end;
+
+  if salternates <> nil then
+    salternates.Free;
 end;
 {$ENDIF}
 

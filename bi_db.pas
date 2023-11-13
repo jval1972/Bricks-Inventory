@@ -1047,6 +1047,9 @@ type
     function SetPartType(const pcs: string; const cl: integer; const pt: char = ' '): boolean; overload;
     function SetPartTypeIndirect(const pcs: string; const cl: integer; const pt: char): boolean;
     procedure FlashPartTypes;
+    {$IFNDEF CRAWLER}
+    procedure FlashCategories;
+    {$ENDIF}
     property lastcrawlpiece: string read flastcrawlpiece;
     property loaded: boolean read floaded;
     property categories: categoryinfoarray_t read fcategories;
@@ -10052,6 +10055,9 @@ destructor TSetsDatabase.Destroy;
 var
   i: integer;
 begin
+  {$IFNDEF CRAWLER}
+  FlashCategories;
+  {$ENDIF}
   FlashPartTypes;
   fPartTypeList.Free;
 
@@ -11006,7 +11012,12 @@ begin
     Exit;
   oldcat := pinf.category;
   if oldcat = newcat then
-    Exit;
+  begin
+    if (newcat > 0) and (newcat < MAXCATEGORIES) then
+      if fcategories[newcat].knownpieces <> nil then
+        if fcategories[newcat].knownpieces.IndexOf(spiece) > -1 then
+          Exit;
+  end;
 
   tmpcat := newcat;
   if (tmpcat <= 0) or (tmpcat >= MAXCATEGORIES) then
@@ -19588,6 +19599,65 @@ begin
     sl.Free;
   end;
 end;
+
+{$IFNDEF CRAWLER}
+procedure TSetsDatabase.FlashCategories;
+var
+  fn: string;
+  sl: TStringList;
+  i, j: integer;
+  tmpparts: TStringList;
+  scat, spart: string;
+  dosave: boolean;
+begin
+  sl := TStringList.Create;
+  fn := basedefault + 'db\db_pieces_categories.txt';
+  if fexists(fn) then
+  begin
+    S_LoadFromFile(sl, fn);
+    if sl.Count > 0 then
+      if sl.Strings[0] = 'Category,Part' then
+        sl.Delete(0);
+  end;
+
+  tmpparts := TStringList.Create;
+
+  for i := 0 to sl.Count - 1 do
+  begin
+    splitstring(sl.Strings[i], scat, spart, ',');
+    tmpparts.Add(spart);
+  end;
+  tmpparts.Sorted := True;
+
+  dosave := False;
+
+  for i := 0 to MAXCATEGORIES - 1 do
+    if fcategories[i].knownpieces <> nil then
+    begin
+      scat := itoa(i) + ',';
+      for j := 0 to fcategories[i].knownpieces.Count - 1 do
+      begin
+        spart := fcategories[i].knownpieces.Strings[j];
+        if tmpparts.IndexOf(spart) < 0 then
+        begin
+          sl.Add(scat + spart);
+          dosave := True;
+        end;
+      end;
+    end;
+
+  tmpparts.Free;
+
+  if dosave then
+  begin
+    sl.Insert(0, 'Category,Part');
+    S_BackupFile(fn);
+    S_SaveToFile(sl, fn);
+  end;
+
+  sl.Free;
+end;
+{$ENDIF}
 
 function TSetsDatabase.SetPartType(const pci: TPieceColorInfo; const pt: char = ' '): boolean;
 var

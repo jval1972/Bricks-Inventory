@@ -19478,9 +19478,10 @@ var
 
   procedure _AddRelatedPiece(const s: string);
   begin
-    if lst.IndexOf(s) < 0 then
-      if s <> '(Unknown)' then
-        lst.Add(s);
+    if s <> '' then
+      if lst.IndexOf(s) < 0 then
+        if s <> '(Unknown)' then
+          lst.Add(s);
   end;
 
 begin

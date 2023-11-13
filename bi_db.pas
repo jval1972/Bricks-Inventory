@@ -12013,6 +12013,7 @@ var
   yyyy: integer;
   ret1, ret2: boolean;
   salternates: TStringList;
+  salternate: string;
   alcheck: string;
 begin
   Result := False;
@@ -12050,20 +12051,23 @@ begin
     p := Pos(alcheck, txt);
     if p > 0 then
     begin
-      alcheck := '';
-      for i := p + SizeOf(alcheck) to Length(txt) do
+      salternate := '';
+      for i := p + Length(alcheck) to Length(txt) do
       begin
         if txt[i] = '<' then
           break;
         if txt[i] = '&' then
         begin
-          alcheck := '';
+          salternate := '';
           break;
         end;
         if txt[i] <> ' ' then
-          alcheck := alcheck + txt[i];
+          salternate := salternate + txt[i];
       end;
-      salternates := string2stringlist(alcheck, ',');
+      salternates := string2stringlist(salternate, ',');
+      for i := salternates.Count - 1 downto 0 do
+        if not IsPathString(salternates.Strings[i]) then
+          salternates.Delete(i);
     end;
 
     SL.Text := RemoveSpecialTagsFromString(txt);
@@ -12146,20 +12150,22 @@ begin
       begin
         for k := 0 to salternates.Count - 1 do
         begin
-          SetNewPieceName(salternates.Strings[k], spart);
           for i := 0 to N.Count - 1 do
           begin
+            SetNewPieceName(salternates.Strings[k], spart);
             cl := BrickLinkColorToSystemColor(N.Numbers[i]);
-            AddKnownPiece(salternates.Strings[k], cl, desc);
-            pci := PieceColorInfo(spart, cl);
-            if pci <> nil then
+            pci2 := nil;
+            if AddKnownPiece(salternates.Strings[k], cl, desc, pci2) then
             begin
-              pci2 := PieceColorInfo(salternates.Strings[k], cl);
-              if pci2 <> nil then
+              pci := PieceColorInfo(spart, cl);
+              if pci <> nil then
               begin
-                yyyy := pci.year;
-                if yyyy > 0 then
-                  SetItemYear(pci2, yyyy);
+                if pci2 <> nil then
+                begin
+                  yyyy := pci.year;
+                  if yyyy > 0 then
+                    SetItemYear(pci2, yyyy);
+                end;
               end;
             end;
           end;

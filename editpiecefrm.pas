@@ -89,6 +89,7 @@ type
     Label2: TLabel;
     PrefLocationEdit: TEdit;
     ClearPrefSpeedButton: TSpeedButton;
+    AliasNameChangeButton1: TSpeedButton;
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -112,12 +113,16 @@ type
     procedure LugbulksListBoxClick(Sender: TObject);
     procedure OrdersListBoxClick(Sender: TObject);
     procedure ClearPrefSpeedButtonClick(Sender: TObject);
+    procedure AliasNameChangeButton1Click(Sender: TObject);
+    procedure AliasEditChange(Sender: TObject);
+    procedure NewNameEditChange(Sender: TObject);
   private
     { Private declarations }
   protected
     parttype: char;
     partcolor: integer;
     partname: string;
+    procedure AliasUpdate;
   public
     { Public declarations }
   end;
@@ -318,6 +323,7 @@ begin
         f.NumPiecesEdit.Text := itoa(num);
         f.NumPiecesLabel.Caption := 'Num Pieces: ';
       end;
+      f.AliasUpdate;
       f.ShowModal;
       if f.ModalResult = mrOK then
       begin
@@ -841,6 +847,31 @@ end;
 procedure TEditPieceForm.ClearPrefSpeedButtonClick(Sender: TObject);
 begin
   PrefLocationEdit.Text := '';
+end;
+
+procedure TEditPieceForm.AliasNameChangeButton1Click(Sender: TObject);
+begin
+  if Trim(AliasEdit.Text) <> '' then
+    if Trim(NewNameEdit.Text) = '' then
+    begin
+      NewNameEdit.Text := Trim(AliasEdit.Text);
+      AliasEdit.Text := '';
+    end;
+end;
+
+procedure TEditPieceForm.AliasUpdate;
+begin
+  AliasNameChangeButton1.Enabled := (Trim(AliasEdit.Text) <> '') and (Trim(NewNameEdit.Text) = '');
+end;
+
+procedure TEditPieceForm.AliasEditChange(Sender: TObject);
+begin
+  AliasUpdate;
+end;
+
+procedure TEditPieceForm.NewNameEditChange(Sender: TObject);
+begin
+  AliasUpdate;
 end;
 
 end.

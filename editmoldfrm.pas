@@ -70,13 +70,18 @@ type
     ColorPanel: TPanel;
     TabSheet2: TTabSheet;
     Memo1: TMemo;
+    SpeedButton2: TSpeedButton;
     procedure AutodetectButtonClick(Sender: TObject);
     procedure Image1DblClick(Sender: TObject);
     procedure CheckListBox1Click(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
+    procedure AliasEditChange(Sender: TObject);
+    procedure NewNameEditChange(Sender: TObject);
   private
     { Private declarations }
+    procedure AliasUpdate;
   public
     { Public declarations }
     procedure UpdateColorPanel;
@@ -308,6 +313,7 @@ begin
         
     kc.Free;
 
+    f.AliasUpdate;
     f.ShowModal;
     if f.ModalResult = mrOK then
     begin
@@ -494,6 +500,31 @@ end;
 procedure TEditMoldForm.FormCreate(Sender: TObject);
 begin
   PageControl1.ActivePageIndex := 0;
+end;
+
+procedure TEditMoldForm.SpeedButton2Click(Sender: TObject);
+begin
+  if Trim(AliasEdit.Text) <> '' then
+    if Trim(NewNameEdit.Text) = '' then
+    begin
+      NewNameEdit.Text := Trim(AliasEdit.Text);
+      AliasEdit.Text := '';
+    end;
+end;
+
+procedure TEditMoldForm.AliasUpdate;
+begin
+  SpeedButton2.Enabled := (Trim(AliasEdit.Text) <> '') and (Trim(NewNameEdit.Text) = '');
+end;
+
+procedure TEditMoldForm.AliasEditChange(Sender: TObject);
+begin
+  AliasUpdate;
+end;
+
+procedure TEditMoldForm.NewNameEditChange(Sender: TObject);
+begin
+  AliasUpdate;
 end;
 
 end.

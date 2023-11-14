@@ -8894,7 +8894,11 @@ var
   stmp: TStringList;
   fname: string;
   i: integer;
+  progressstring: string;
 begin
+  progressstring := 'Loading parts inventories...';
+  if Assigned(progressfunc) then
+    progressfunc(progressstring, 0.0);
   fpartsinventories := TStringList.Create;
   fname := basedefault + 'db\db_pieces_inventories.txt';
   if fexists(fname) then
@@ -8903,12 +8907,19 @@ begin
     try
       S_LoadFromFile(stmp, fname);
       for i := 0 to stmp.Count - 1 do
+      begin
         fpartsinventories.Add(fixpartname(stmp.Strings[i]));
+        if i mod 100 = 50 then
+          if Assigned(progressfunc) then
+            progressfunc(progressstring, i / stmp.Count);
+      end;
     finally
       stmp.Free;
     end;
   end;
   fpartsinventories.Sorted := True;
+  if Assigned(progressfunc) then
+    progressfunc(progressstring, 1.0);
 end;
 
 procedure TSetsDatabase.InitSetReferences;

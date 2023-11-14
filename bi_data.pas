@@ -998,6 +998,6 @@ initialization
 
   dataarray[21].data := @img_rotate_right;
   dataarray[21].size := 707;
-  dataarray[21].fname := 'images\rotate_left.png';
+  dataarray[21].fname := 'images\rotate_right.png';
 
 end.

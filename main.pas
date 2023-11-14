@@ -2119,7 +2119,7 @@ begin
     begin
       Screen.Cursor := crHourglass;
       ps.Free;
-      if (RightStr(SRC, 4) = '.jpg') and (Pos('s\', scheck) = 1)then // set
+      if (RightStr(SRC, 4) = '.jpg') and (Pos('s\', scheck) = 1) then // set
       begin
         ForceDirectories(basedefault + 's\');
         jpgfilename := ExtractFileName(SRC);

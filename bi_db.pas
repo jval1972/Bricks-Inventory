@@ -9201,25 +9201,35 @@ begin
       stmp2[i] := stmp[i];
 
   s.Text := stmp2;
-  if s.Count > 0 then
+
+  if s.Count > 1 then
+  begin
     if Trim(s.Strings[0]) = 'piece_id,descr' then
     begin
-      for i := 1 to s.Count - 1 do
+      s.Delete(0);
+      // Only 1 occurance
+      SetDoubleStringsToSpace(s);
+
+      for i := 0 to s.Count - 1 do
       begin
         stmp := s.Strings[i];
-        p := CharPos(',', stmp);
-        if p > 0 then
+        if stmp <> '' then
         begin
-          sp := TPieceInfo.Create;
-          sp.name := fixpartname(Trim(Copy(stmp, 1, p - 1)));
-          sp.lname := LowerCase(sp.name);
-          {$IFNDEF CRAWLER}
-          sp.desc := fixdescname(Trim(Copy(stmp, p + 1, Length(stmp) - p)));
-          {$ENDIF}
-          fpieces.AddObject(sp.name, sp);
+          p := CharPos(',', stmp);
+          if p > 0 then
+          begin
+            sp := TPieceInfo.Create;
+            sp.name := fixpartname(Trim(Copy(stmp, 1, p - 1)));
+            sp.lname := LowerCase(sp.name);
+            {$IFNDEF CRAWLER}
+            sp.desc := fixdescname(Trim(Copy(stmp, p + 1, Length(stmp) - p)));
+            {$ENDIF}
+            fpieces.AddObject(sp.name, sp);
+          end;
         end;
       end;
     end;
+  end;
 
   InitPiecesAlias;
   InitNewNames;

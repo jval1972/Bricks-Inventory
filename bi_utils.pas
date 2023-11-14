@@ -166,12 +166,15 @@ function SortListAndFindFirstLeftMatch(const l: TStringList; const s: string): i
 
 function GetMemoryUsed: LongWord;
 
+procedure SetDoubleStringsToSpace(const lst: TStringList);
+
 implementation
 
 uses
   FastMM4,
   bi_delphi, bi_db, jpeg, bi_pak, bi_tmp, URLMon, Clipbrd, pngimage, GIFImage,
-  bi_globals, bi_cachefile, Forms, StdCtrls, Controls, bi_crawler, StrUtils;
+  bi_globals, bi_cachefile, bi_system, bi_multithread, Forms, StdCtrls, Controls,
+  bi_crawler, StrUtils;
 
 function IndexOfString(const hash: THashTable; const s: string): integer;
 begin
@@ -1978,6 +1981,105 @@ begin
   begin
     sb := @st.SmallBlockTypeStates[i];
     result := result + sb.UseableBlockSize * sb.AllocatedBlockCount;
+  end;
+end;
+
+type
+  SDSTS_data_t = record
+    start, stop: integer;
+    lst: TStringList;
+  end;
+  SDSTS_data_p = ^SDSTS_data_t;
+
+function SetDoubleStringsToSpace_thr(p: pointer): integer; stdcall;
+var
+  parms: SDSTS_data_p;
+  i: integer;
+  lst: TStringList;
+begin
+  parms := SDSTS_data_p(p);
+  lst := parms.lst;
+  for i := parms.start downto parms.stop do
+    if lst.Strings[i] = lst.Strings[i - 1] then
+      lst.Strings[i] := '';
+  Result := 1;
+end;
+
+procedure SetDoubleStringsToSpace(const lst: TStringList);
+const
+  INDEXES = '1234567890abcdefghijklmnopqrstuvwxyz';
+var
+  i, j, cnt: integer;
+  parms: array[0..7] of SDSTS_data_t;
+  lists: array[0..Length(INDEXES)] of TStringList;
+  s: string;
+begin
+//  lst.Sort;
+  cnt := lst.Count;
+  if usemultithread and (cnt > 1024) then
+  begin
+    for i := 0 to Length(INDEXES) do
+      lists[i] := TStringList.Create;
+
+    for i := 0 to cnt - 1 do
+    begin
+      s := lst.Strings[i];
+      if s <> '' then
+      begin
+        j := CharPos(tolower(s[1]), INDEXES);
+        lists[j].Add(s);
+      end;
+    end;
+
+    for i := 0 to Length(INDEXES) do
+      lists[i].Sort;
+
+    for j := 0 to Length(INDEXES) do
+    begin
+      cnt := lists[j].Count;
+      if cnt > 128 then
+      begin
+        for i := 0 to 7 do
+        begin
+          parms[i].lst := lists[j];
+          parms[i].start := cnt - 1 - i * (cnt div 8);
+        end;
+        for i := 0 to 6 do
+          parms[i].stop := parms[i + 1].start;
+        parms[7].stop := 1;
+        MT_Execute(
+          @SetDoubleStringsToSpace_thr, @parms[0],
+          @SetDoubleStringsToSpace_thr, @parms[1],
+          @SetDoubleStringsToSpace_thr, @parms[2],
+          @SetDoubleStringsToSpace_thr, @parms[3],
+          @SetDoubleStringsToSpace_thr, @parms[4],
+          @SetDoubleStringsToSpace_thr, @parms[5],
+          @SetDoubleStringsToSpace_thr, @parms[6],
+          @SetDoubleStringsToSpace_thr, @parms[7]
+        );
+      end
+      else
+      begin
+        parms[0].start := cnt - 1;
+        parms[0].stop := 1;
+        parms[0].lst := lists[j];
+        SetDoubleStringsToSpace_thr(@parms[0]);
+      end;
+    end;
+    lst.Clear;
+    for i := 0 to Length(INDEXES) do
+    begin
+      lst.AddStrings(lists[i]);
+      lists[i].Free;
+    end;
+  end
+  else
+  begin
+    lst.Sort;
+    parms[0].start := cnt - 1;
+    parms[0].stop := 1;
+    parms[0].lst := lst;
+    SetDoubleStringsToSpace_thr(@parms[0]);
   end;
 end;
 

@@ -1417,7 +1417,7 @@ function RemoveHTMLTags(S: string): string;
 var
   TagBegin, TagEnd, TagLength: integer;
 begin
-  TagBegin := CharPos( '<', S);      // search position of first <
+  TagBegin := CharPos( '<', S); // search position of first <
 
   while (TagBegin > 0) do
   begin  // while there is a < in S

@@ -225,7 +225,7 @@ begin
   if not domultithread then
   begin
     parm1.idx := 0;
-    parm1.numidxs := 4;
+    parm1.numidxs := 1;
     parm1.param := parm;
     parm1.list := Result;
     func(@parm1);

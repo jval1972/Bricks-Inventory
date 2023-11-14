@@ -111,18 +111,18 @@ type
 
   // Color reduction methods
   TColorReduction =
-    (rmNone,      // Do not perform color reduction
-     rmWindows20,    // Reduce to the Windows 20 color system palette
-     rmWindows256,    // Reduce to the Windows 256 color halftone palette (Only works in 256 color display mode)
-     rmNetscape,    // Reduce to the Netscape 216 color palette
+    (rmNone,            // Do not perform color reduction
+     rmWindows20,       // Reduce to the Windows 20 color system palette
+     rmWindows256,      // Reduce to the Windows 256 color halftone palette (Only works in 256 color display mode)
+     rmNetscape,        // Reduce to the Netscape 216 color palette
      rmMyPalette,
-     rmQuantizeWindows    // Reduce to optimal 256 color windows palette
+     rmQuantizeWindows  // Reduce to optimal 256 color windows palette
     );
   TDitherMode =
-    (dmNearest,      // Nearest color matching w/o error correction
-     dmFloydSteinberg    // Floyd Steinberg Error Diffusion dithering
-     // dmOrdered,    // Ordered dither
-     // dmCustom    // Custom palette
+    (dmNearest,         // Nearest color matching w/o error correction
+     dmFloydSteinberg   // Floyd Steinberg Error Diffusion dithering
+     // dmOrdered,      // Ordered dither
+     // dmCustom        // Custom palette
     );
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -148,13 +148,13 @@ type
 ////////////////////////////////////////////////////////////////////////////////
 resourcestring
   // GIF Error messages
-  sOutOfData    = 'Premature end of data';
-  sOutOfMemDIB    = 'Failed to allocate memory for GIF DIB';
-  sDIBCreate    = 'Failed to create DIB from Bitmap';
-  sNoDIB    = 'Image has no DIB';
-  sInvalidBitmap        = 'Bitmap image is not valid';  
-  SInvalidPixelFormat   = 'Invalid pixel format';      
-  SScanLine = 'Scan line index out of range';   
+  sOutOfData = 'Premature end of data';
+  sOutOfMemDIB = 'Failed to allocate memory for GIF DIB';
+  sDIBCreate = 'Failed to create DIB from Bitmap';
+  sNoDIB = 'Image has no DIB';
+  sInvalidBitmap = 'Bitmap image is not valid';
+  SInvalidPixelFormat = 'Invalid pixel format';
+  SScanLine = 'Scan line index out of range';
 
 function GetBitmap(Source: TPersistent): TBitmap;  {LDB}
 ////////////////////////////////////////////////////////////////////////////////
@@ -183,14 +183,14 @@ uses
 function WebPalette: HPalette;
 type
   TLogWebPalette  = packed record
-    palVersion    : word;
-    palNumEntries  : word;
-    PalEntries    : array[0..5,0..5,0..5] of TPaletteEntry;
+    palVersion: word;
+    palNumEntries: word;
+    PalEntries: array[0..5,0..5,0..5] of TPaletteEntry;
   end;
 var
-  r, g, b    : byte;
-  LogWebPalette    : TLogWebPalette;
-  LogPalette    : TLogpalette absolute LogWebPalette; // Stupid typecast
+  r, g, b: byte;
+  LogWebPalette: TLogWebPalette;
+  LogPalette: TLogpalette absolute LogWebPalette; // Stupid typecast
 begin
   with LogWebPalette do
   begin
@@ -230,7 +230,7 @@ function AlignBit(Bits, BitsPerPixel, Alignment: Cardinal): Cardinal;
 begin
   Dec(Alignment);
   Result := ((Bits * BitsPerPixel) + Alignment) and not Alignment;
-  Result := Result SHR 3;
+  Result := Result shr 3;
 end;
 
 type
@@ -258,20 +258,20 @@ procedure InitializeBitmapInfoHeader(Bitmap: HBITMAP; var Info: TBitmapInfoHeade
   PixelFormat: TPixelFormat);
 // From graphics.pas, "optimized" for our use
 var
-  DIB    : TDIBSection;
-  Bytes    : Integer;
+  DIB: TDIBSection;
+  Bytes: Integer;
 begin
-  FillChar(DIB, sizeof(DIB), 0);     
+  FillChar(DIB, SizeOf(DIB), 0);
   Bytes := GetObject(Bitmap, SizeOf(DIB), @DIB);
   if (Bytes = 0) then
     Error(sInvalidBitmap);
 
-  if (Bytes >= (sizeof(DIB.dsbm) + sizeof(DIB.dsbmih))) and
-    (DIB.dsbmih.biSize >= sizeof(DIB.dsbmih)) then
+  if (Bytes >= (SizeOf(DIB.dsbm) + SizeOf(DIB.dsbmih))) and
+    (DIB.dsbmih.biSize >= SizeOf(DIB.dsbmih)) then
     Info := DIB.dsbmih
   else
   begin
-    FillChar(Info, sizeof(Info), 0);
+    FillChar(Info, SizeOf(Info), 0);
     with Info, DIB.dsbm do
     begin
       biSize := SizeOf(Info);
@@ -316,11 +316,11 @@ procedure InternalGetDIBSizes(Bitmap: HBITMAP; var InfoHeaderSize: Integer;
   var ImageSize: longInt; PixelFormat: TPixelFormat);
 // From graphics.pas, "optimized" for our use
 var
-  Info    : TBitmapInfoHeader;
+  Info: TBitmapInfoHeader;
 begin
   InitializeBitmapInfoHeader(Bitmap, Info, PixelFormat);
   // Check for palette device format
-  if (Info.biBitCount > 8) then
+  if Info.biBitCount > 8 then
   begin
     // Header but no palette
     InfoHeaderSize := SizeOf(TBitmapInfoHeader);
@@ -358,14 +358,14 @@ function InternalGetDIB(Bitmap: HBITMAP; Palette: HPALETTE;
   var BitmapInfo; var Bits; PixelFormat: TPixelFormat): Boolean;
 // From graphics.pas, "optimized" for our use
 var
-  OldPal  : HPALETTE;
-  DC    : HDC;
+  OldPal: HPALETTE;
+  DC: HDC;
 begin
   InitializeBitmapInfoHeader(Bitmap, TBitmapInfoHeader(BitmapInfo), PixelFormat);
   OldPal := 0;
   DC := CreateCompatibleDC(0);
   try
-    if (Palette <> 0) then
+    if Palette <> 0 then
     begin
       OldPal := SelectPalette(DC, Palette, False);
       RealizePalette(DC);
@@ -373,7 +373,7 @@ begin
     Result := (GetDIBits(DC, Bitmap, 0, abs(TBitmapInfoHeader(BitmapInfo).biHeight),
       @Bits, TBitmapInfo(BitmapInfo), DIB_RGB_COLORS) <> 0);
   finally
-    if (OldPal <> 0) then
+    if OldPal <> 0 then
       SelectPalette(DC, OldPal, False);
     DeleteDC(DC);
   end;
@@ -446,13 +446,12 @@ var
 
 procedure SafeSetPixelFormat(Bitmap: TBitmap; PixelFormat: TPixelFormat);
 var
-  Width      ,
-  Height  : integer;
+  Width, Height: integer;
 begin
-  if (PixelFormat = pf8bit) then
+  if PixelFormat = pf8bit then
   begin
     // Solution to "TBitmap.PixelFormat := pf8bit" leak by Greg Chapman <glc@well.com>
-    if (pf8BitBitmap = nil) then
+    if pf8BitBitmap = nil then
     begin
       // Create a "template" bitmap
       // The bitmap is deleted in the finalization section of the unit.
@@ -469,7 +468,8 @@ begin
     // Restore the original size
     Bitmap.Width := Width;
     Bitmap.Height := Height;
-  end else
+  end
+  else
     // This is safe since only pf8bit leaks
     Bitmap.PixelFormat := PixelFormat;
 end;
@@ -487,8 +487,8 @@ end;
 type
   TDIB = class(TObject)
   private
-    FBitmap    : TBitmap;
-    FPixelFormat  : TPixelFormat;
+    FBitmap: TBitmap;
+    FPixelFormat: TPixelFormat;
     function GetScanline(Row: integer): pointer; virtual; abstract;
   public
     constructor Create(ABitmap: TBitmap; APixelFormat: TPixelFormat); virtual;
@@ -507,10 +507,10 @@ type
   TDIBWriter = class(TDIB)
   private
 {$ifdef PIXELFORMAT_TOO_SLOW}
-    FDIBInfo    : PBitmapInfo;
-    FDIBBits    : pointer;
-    FDIBInfoSize  : integer;
-    FDIBBitsSize  : longInt;
+    FDIBInfo: PBitmapInfo;
+    FDIBBits: pointer;
+    FDIBInfoSize: integer;
+    FDIBBitsSize: longint;
 {$endif}
   protected
     procedure CreateDIB;
@@ -552,7 +552,7 @@ end;
 constructor TDIBWriter.Create(ABitmap: TBitmap; APixelFormat: TPixelFormat);
 {$ifndef PIXELFORMAT_TOO_SLOW}
 var
-  SavePalette    : HPalette;
+  SavePalette: HPalette;
 {$endif}
 begin
   inherited Create(ABitmap, APixelFormat);
@@ -581,7 +581,7 @@ begin
 {$ifdef PIXELFORMAT_TOO_SLOW}
   NeedDIB;
 
-  if (FDIBBits = nil) then
+  if FDIBBits = nil then
     Error(sNoDIB);
   with FDIBInfo^.bmiHeader do
   begin
@@ -601,8 +601,7 @@ end;
 procedure TDIBWriter.CreateDIB;
 {$IFDEF PIXELFORMAT_TOO_SLOW}
 var
-  SrcColors    ,
-  DstColors    : WORD;
+  SrcColors, DstColors: WORD;
 
   // From Delphi 3.02 graphics.pas
   // There is a bug in the ByteSwapColors from Delphi 3.0
@@ -621,7 +620,7 @@ var
           JE    @@386
     @@1:  MOV   EAX, [EDX+ECX*4]
           BSWAP EAX
-          SHR   EAX,8
+          shr   EAX,8
           MOV   [EDX+ECX*4],EAX
           DEC   ECX
           JNS   @@1
@@ -632,8 +631,8 @@ var
           MOV   EAX, [EDX+ECX*4]
           MOV   BH, AL
           MOV   BL, AH
-          SHR   EAX,16
-          SHL   EBX,8
+          shr   EAX,16
+          shl   EBX,8
           MOV   BL, AL
           MOV   [EDX+ECX*4],EBX
           DEC   ECX
@@ -645,7 +644,7 @@ var
 {$ENDIF}
 begin
 {$ifdef PIXELFORMAT_TOO_SLOW}
-  if (FBitmap.Handle = 0) then
+  if FBitmap.Handle = 0 then
     Error(sInvalidBitmap);
 
   FreeDIB;
@@ -658,23 +657,23 @@ begin
   try
     // Allocate pixel buffer
     FDIBBits := GlobalAllocPtr(GMEM_MOVEABLE, FDIBBitsSize);
-    if (FDIBBits = nil) then
+    if FDIBBits = nil then
       raise EOutOfMemory.Create(sOutOfMemDIB);
     // Get pixel data
     if not(InternalGetDIB(FBitmap.Handle, FBitmap.Palette, FDIBInfo^, FDIBBits^, FPixelFormat)) then
       Error(sDIBCreate);
 
-    if (FPixelFormat <= pf8bit) then
+    if FPixelFormat <= pf8bit then
     begin
       // Find number of colors defined by palette
       if (FBitmap.Palette = 0) or
-        (GetObject(FBitmap.Palette, sizeof(SrcColors), @SrcColors) = 0) or
+        (GetObject(FBitmap.Palette, SizeOf(SrcColors), @SrcColors) = 0) or
         (SrcColors = 0) then
         exit;
       // Determine how many colors there are room for in DIB header
       DstColors := FDIBInfo^.bmiHeader.biClrUsed;
-      if (DstColors = 0) then
-        DstColors := 1 SHL FDIBInfo^.bmiHeader.biBitCount;
+      if DstColors = 0 then
+        DstColors := 1 shl FDIBInfo^.bmiHeader.biBitCount;
       // Don't copy any more colors than there are room for
       if (DstColors <> 0) and (DstColors < SrcColors) then
         SrcColors := DstColors;
@@ -701,9 +700,9 @@ end;
 procedure TDIBWriter.FreeDIB;
 begin
 {$ifdef PIXELFORMAT_TOO_SLOW}
-  if (FDIBInfo <> nil) then
+  if FDIBInfo <> nil then
     FreeMem(FDIBInfo);
-  if (FDIBBits <> nil) then
+  if FDIBBits <> nil then
     GlobalFreePtr(FDIBBits);
   FDIBInfo := nil;
   FDIBBits := nil;
@@ -713,7 +712,7 @@ end;
 procedure TDIBWriter.NeedDIB;
 begin
 {$ifdef PIXELFORMAT_TOO_SLOW}
-  if (FDIBBits = nil) then
+  if FDIBBits = nil then
     CreateDIB;
 {$endif}
 end;
@@ -722,9 +721,9 @@ end;
 procedure TDIBWriter.UpdateBitmap;
 {$ifdef PIXELFORMAT_TOO_SLOW}
 var
-  Stream    : TMemoryStream;
-  FileSize    : longInt;
-  BitmapFileHeader  : TBitmapFileHeader;
+  Stream: TMemoryStream;
+  FileSize: longint;
+  BitmapFileHeader: TBitmapFileHeader;
 {$endif}
 begin
 {$ifdef PIXELFORMAT_TOO_SLOW}
@@ -733,18 +732,18 @@ begin
   Stream := TMemoryStream.Create;
   try
     // Make room in stream for a TBitmapInfo and pixel data
-    FileSize := sizeof(TBitmapFileHeader) + FDIBInfoSize + FDIBBitsSize;
+    FileSize := SizeOf(TBitmapFileHeader) + FDIBInfoSize + FDIBBitsSize;
     Stream.SetSize(FileSize);
     // Initialize file header
-    FillChar(BitmapFileHeader, sizeof(TBitmapFileHeader), 0);
+    FillChar(BitmapFileHeader, SizeOf(TBitmapFileHeader), 0);
     with BitmapFileHeader do
     begin
       bfType := $4D42; // 'BM' = Windows BMP signature
       bfSize := FileSize; // File size (not needed)
-      bfOffBits := sizeof(TBitmapFileHeader) + FDIBInfoSize; // Offset of pixel data
+      bfOffBits := SizeOf(TBitmapFileHeader) + FDIBInfoSize; // Offset of pixel data
     end;
     // Save file header
-    Stream.Write(BitmapFileHeader, sizeof(TBitmapFileHeader));
+    Stream.Write(BitmapFileHeader, SizeOf(TBitmapFileHeader));
     // Save TBitmapInfo structure
     Stream.Write(FDIBInfo^, FDIBInfoSize);
     // Save pixel data
@@ -767,15 +766,15 @@ end;
 type
   TColorLookup = class(TObject)
   private
-    FColors    : integer;
-    function Lookup(Red, Green, Blue: BYTE; var R, G, B: BYTE): char; virtual; abstract;
+    FColors: integer;
+    function Lookup(Red, Green, Blue: byte; var R, G, B: byte): char; virtual; abstract;
   public
     constructor Create(Palette: hPalette); virtual;
     property Colors: integer read FColors;
   end;
 
   PRGBQuadArray = ^TRGBQuadArray;    // From Delphi 3 graphics.pas
-  TRGBQuadArray = array[Byte] of TRGBQuad;  // From Delphi 3 graphics.pas
+  TRGBQuadArray = array[byte] of TRGBQuad;  // From Delphi 3 graphics.pas
 
   BGRArray = array[0..0] of TRGBTriple;
   PBGRArray = ^BGRArray;
@@ -790,7 +789,7 @@ type
   // approx. 15% but reduces the complexity of the color reduction routines that
   // uses it. If bitmap to GIF conversion speed is really important to you, the
   // implementation can easily be inlined again.
-  TInverseLookup = array[0..1 SHL 15-1] of SmallInt;
+  TInverseLookup = array[0..1 shl 15 - 1] of SmallInt;
   PInverseLookup = ^TInverseLookup;
 
   TFastColorLookup = class(TColorLookup)
@@ -800,14 +799,14 @@ type
   public
     constructor Create(Palette: hPalette); override;
     destructor Destroy; override;
-    function Lookup(Red, Green, Blue: BYTE; var R, G, B: BYTE): char; override;
+    function Lookup(Red, Green, Blue: byte; var R, G, B: byte): char; override;
   end;
 
   // TNetscapeColorLookup maps colors to the netscape 6*6*6 color cube.
   TNetscapeColorLookup = class(TColorLookup)
   public
     constructor Create(Palette: hPalette); override;
-    function Lookup(Red, Green, Blue: BYTE; var R, G, B: BYTE): char; override;
+    function Lookup(Red, Green, Blue: byte; var R, G, B: byte): char; override;
   end;
 
 constructor TColorLookup.Create(Palette: hPalette);
@@ -817,12 +816,12 @@ end;
 
 constructor TFastColorLookup.Create(Palette: hPalette);
 var
-  i      : integer;
-  InverseIndex    : integer;
+  i: integer;
+  InverseIndex: integer;
 begin
   inherited Create(Palette);
 
-  GetMem(FPaletteEntries, sizeof(TPaletteEntry) * 256);
+  GetMem(FPaletteEntries, SizeOf(TPaletteEntry) * 256);
   FColors := GetPaletteEntries(Palette, 0, 256, FPaletteEntries^);
 
   New(FInverseLookup);
@@ -831,10 +830,10 @@ begin
 
   // Premap palette colors
   if (FColors > 0) then
-    for i := 0 to FColors-1 do
+    for i := 0 to FColors - 1 do
       with FPaletteEntries^[i] do
       begin
-        InverseIndex := (peRed SHR 3) OR ((peGreen AND $F8) SHL 2) OR ((peBlue AND $F8) SHL 7);
+        InverseIndex := (peRed shr 3) OR ((peGreen AND $F8) shl 2) OR ((peBlue AND $F8) shl 7);
         if (FInverseLookup^[InverseIndex] = -1) then
           FInverseLookup^[InverseIndex] := i;
       end;
@@ -842,27 +841,25 @@ end;
 
 destructor TFastColorLookup.Destroy;
 begin
-  if (FPaletteEntries <> nil) then
+  if FPaletteEntries <> nil then
     FreeMem(FPaletteEntries);
-  if (FInverseLookup <> nil) then
+  if FInverseLookup <> nil then
     Dispose(FInverseLookup);
 
   inherited Destroy;
 end;
 
 // Map color to arbitrary palette
-function TFastColorLookup.Lookup(Red, Green, Blue: BYTE; var R, G, B: BYTE): char;
+function TFastColorLookup.Lookup(Red, Green, Blue: byte; var R, G, B: byte): char;
 var
-  i      : integer;
-  InverseIndex    : integer;
-  Delta      ,
-  MinDelta    ,
-  MinColor    : integer;
+  i: integer;
+  InverseIndex: integer;
+  Delta, MinDelta, MinColor: integer;
 begin
   // Reduce color space with 3 bits in each dimension
-  InverseIndex := (Red SHR 3) OR ((Green AND $F8) SHL 2) OR ((Blue AND $F8) SHL 7);
+  InverseIndex := (Red shr 3) OR ((Green and $F8) shl 2) OR ((Blue and $F8) shl 7);
 
-  if (FInverseLookup^[InverseIndex] <> -1) then
+  if FInverseLookup^[InverseIndex] <> -1 then
     Result := char(FInverseLookup^[InverseIndex])
   else
   begin
@@ -894,15 +891,15 @@ end;
 constructor TNetscapeColorLookup.Create(Palette: hPalette);
 begin
   inherited Create(Palette);
-  FColors := 6*6*6; // This better be true or something is wrong
+  FColors := 6 * 6 * 6; // This better be true or something is wrong
 end;
 
 // Map color to netscape 6*6*6 color cube
-function TNetscapeColorLookup.Lookup(Red, Green, Blue: BYTE; var R, G, B: BYTE): char;
+function TNetscapeColorLookup.Lookup(Red, Green, Blue: byte; var R, G, B: byte): char;
 begin
-  R := (Red+3) DIV 51;
-  G := (Green+3) DIV 51;
-  B := (Blue+3) DIV 51;
+  R := (Red+3) div 51;
+  G := (Green+3) div 51;
+  B := (Blue+3) div 51;
   Result := char(B + 6*G + 36*R);
   R := R * 51;
   G := G * 51;
@@ -918,13 +915,13 @@ end;
 type
   TDitherEngine = class
   protected
-    FDirection    : integer;
-    FColumn    : integer;
-    FLookup    : TColorLookup;
-    Width    : integer;
+    FDirection: integer;
+    FColumn: integer;
+    FLookup: TColorLookup;
+    Width: integer;
   public
     constructor Create(AWidth: integer; Lookup: TColorLookup); virtual;
-    function Dither(Red, Green, Blue: BYTE; var R, G, B: BYTE): char; virtual;
+    function Dither(Red, Green, Blue: byte; var R, G, B: byte): char; virtual;
     procedure NextLine; virtual;
 
     property Direction: integer read FDirection;
@@ -934,32 +931,32 @@ type
   // Note: TErrorTerm does only *need* to be 16 bits wide, but since
   // it is *much* faster to use native machine words (32 bit), we sacrifice
   // some bytes (a lot actually) to improve performance.
-  TErrorTerm    = Integer;
-  TErrors    = array[0..0] of TErrorTerm;
-  PErrors    = ^TErrors;
+  TErrorTerm = Integer;
+  TErrors = array[0..0] of TErrorTerm;
+  PErrors = ^TErrors;
 
   TFloydSteinbergEngine = class(TDitherEngine)
   private
-    ErrorsR    ,
-    ErrorsG    ,
-    ErrorsB    : PErrors;
-    ErrorR    ,
-    ErrorG    ,
-    ErrorB    : PErrors;
-    CurrentErrorR  ,    // Current error or pixel value
-    CurrentErrorG  ,
-    CurrentErrorB  ,
-    BelowErrorR    ,    // Error for pixel below current
-    BelowErrorG    ,
-    BelowErrorB    ,
-    BelowPrevErrorR  ,    // Error for pixel below previous pixel
-    BelowPrevErrorG  ,
-    BelowPrevErrorB  : TErrorTerm;
+    ErrorsR,
+    ErrorsG,
+    ErrorsB: PErrors;
+    ErrorR,
+    ErrorG,
+    ErrorB: PErrors;
+    CurrentErrorR,      // Current error or pixel value
+    CurrentErrorG,
+    CurrentErrorB,
+    BelowErrorR,        // Error for pixel below current
+    BelowErrorG,
+    BelowErrorB,
+    BelowPrevErrorR,    // Error for pixel below previous pixel
+    BelowPrevErrorG,
+    BelowPrevErrorB: TErrorTerm;
 
   public
     constructor Create(AWidth: integer; Lookup: TColorLookup); override;
     destructor Destroy; override;
-    function Dither(Red, Green, Blue: BYTE; var R, G, B: BYTE): char; override;
+    function Dither(Red, Green, Blue: byte; var R, G, B: byte): char; override;
     procedure NextLine; override;
   end;
 
@@ -974,7 +971,7 @@ begin
   FColumn := 0;
 end;
 
-function TDitherEngine.Dither(Red, Green, Blue: BYTE; var R, G, B: BYTE): char;
+function TDitherEngine.Dither(Red, Green, Blue: byte; var R, G, B: byte): char;
 begin
   // Map color to palette
   Result := FLookup.Lookup(Red, Green, Blue, R, G, B);
@@ -984,13 +981,15 @@ end;
 procedure TDitherEngine.NextLine;
 begin
   FDirection := -FDirection;
-  if (FDirection = 1) then
+  if FDirection = 1 then
     FColumn := 0
   else
-    FColumn := Width-1;
+    FColumn := Width - 1;
 end;
 
 constructor TFloydSteinbergEngine.Create(AWidth: integer; Lookup: TColorLookup);
+var
+  sz: integer;
 begin
   inherited Create(AWidth, Lookup);
 
@@ -1002,12 +1001,13 @@ begin
   // need only a few extra variables to hold the errors immediately around the
   // current column.  (If we are lucky, those variables are in registers, but
   // even if not, they're probably cheaper to access than array elements are.)
-  GetMem(ErrorsR, sizeof(TErrorTerm)*(Width+2));
-  GetMem(ErrorsG, sizeof(TErrorTerm)*(Width+2));
-  GetMem(ErrorsB, sizeof(TErrorTerm)*(Width+2));
-  FillChar(ErrorsR^, sizeof(TErrorTerm)*(Width+2), 0);
-  FillChar(ErrorsG^, sizeof(TErrorTerm)*(Width+2), 0);
-  FillChar(ErrorsB^, sizeof(TErrorTerm)*(Width+2), 0);
+  sz := SizeOf(TErrorTerm) * (Width + 2);
+  GetMem(ErrorsR, sz);
+  GetMem(ErrorsG, sz);
+  GetMem(ErrorsB, sz);
+  FillChar(ErrorsR^, sz, 0);
+  FillChar(ErrorsG^, sz, 0);
+  FillChar(ErrorsB^, sz, 0);
   ErrorR := ErrorsR;
   ErrorG := ErrorsG;
   ErrorB := ErrorsB;
@@ -1034,27 +1034,27 @@ end;
   {$DEFINE R_PLUS}
   {$RANGECHECKS OFF}
 {$ENDIF}
-function TFloydSteinbergEngine.Dither(Red, Green, Blue: BYTE; var R, G, B: BYTE): char;
+function TFloydSteinbergEngine.Dither(Red, Green, Blue: byte; var R, G, B: byte): char;
 var
-  BelowNextError  : TErrorTerm;
-  Delta      : TErrorTerm;
+  BelowNextError : TErrorTerm;
+  Delta: TErrorTerm;
 begin
-  CurrentErrorR := Red + (CurrentErrorR + ErrorR[FDirection] + 8) DIV 16;
-  if (CurrentErrorR < 0) then
+  CurrentErrorR := Red + (CurrentErrorR + ErrorR[FDirection] + 8) div 16;
+  if CurrentErrorR < 0 then
     CurrentErrorR := 0
-  else if (CurrentErrorR > 255) then
+  else if CurrentErrorR > 255 then
     CurrentErrorR := 255;
 
-  CurrentErrorG := Green + (CurrentErrorG + ErrorG[FDirection] + 8) DIV 16;
-  if (CurrentErrorG < 0) then
+  CurrentErrorG := Green + (CurrentErrorG + ErrorG[FDirection] + 8) div 16;
+  if CurrentErrorG < 0 then
     CurrentErrorG := 0
-  else if (CurrentErrorG > 255) then
+  else if CurrentErrorG > 255 then
     CurrentErrorG := 255;
 
-  CurrentErrorB := Blue + (CurrentErrorB + ErrorB[FDirection] + 8) DIV 16;
-  if (CurrentErrorB < 0) then
+  CurrentErrorB := Blue + (CurrentErrorB + ErrorB[FDirection] + 8) div 16;
+  if CurrentErrorB < 0 then
     CurrentErrorB := 0
-  else if (CurrentErrorB > 255) then
+  else if CurrentErrorB > 255 then
     CurrentErrorB := 255;
 
   // Map color to palette
@@ -1070,60 +1070,61 @@ begin
 
   // Red component
   CurrentErrorR := CurrentErrorR - R;
-  BelowNextError := CurrentErrorR;      // Error * 1
+  BelowNextError := CurrentErrorR;                  // Error * 1
 
   Delta := CurrentErrorR * 2;
   CurrentErrorR := CurrentErrorR + Delta;
-  ErrorR[0] := BelowPrevErrorR + CurrentErrorR;    // Error * 3
+  ErrorR[0] := BelowPrevErrorR + CurrentErrorR;     // Error * 3
 
   CurrentErrorR := CurrentErrorR + Delta;
-  BelowPrevErrorR := BelowErrorR + CurrentErrorR;  // Error * 5
+  BelowPrevErrorR := BelowErrorR + CurrentErrorR;   // Error * 5
 
-  BelowErrorR := BelowNextError;      // Error * 1
+  BelowErrorR := BelowNextError;                    // Error * 1
 
-  CurrentErrorR := CurrentErrorR + Delta;    // Error * 7
+  CurrentErrorR := CurrentErrorR + Delta;           // Error * 7
 
   // Green component
   CurrentErrorG := CurrentErrorG - G;
-  BelowNextError := CurrentErrorG;      // Error * 1
+  BelowNextError := CurrentErrorG;                  // Error * 1
 
   Delta := CurrentErrorG * 2;
   CurrentErrorG := CurrentErrorG + Delta;
-  ErrorG[0] := BelowPrevErrorG + CurrentErrorG;    // Error * 3
+  ErrorG[0] := BelowPrevErrorG + CurrentErrorG;     // Error * 3
 
   CurrentErrorG := CurrentErrorG + Delta;
-  BelowPrevErrorG := BelowErrorG + CurrentErrorG;  // Error * 5
+  BelowPrevErrorG := BelowErrorG + CurrentErrorG;   // Error * 5
 
-  BelowErrorG := BelowNextError;      // Error * 1
+  BelowErrorG := BelowNextError;                    // Error * 1
 
-  CurrentErrorG := CurrentErrorG + Delta;    // Error * 7
+  CurrentErrorG := CurrentErrorG + Delta;           // Error * 7
 
   // Blue component
   CurrentErrorB := CurrentErrorB - B;
-  BelowNextError := CurrentErrorB;      // Error * 1
+  BelowNextError := CurrentErrorB;                  // Error * 1
 
   Delta := CurrentErrorB * 2;
   CurrentErrorB := CurrentErrorB + Delta;
-  ErrorB[0] := BelowPrevErrorB + CurrentErrorB;    // Error * 3
+  ErrorB[0] := BelowPrevErrorB + CurrentErrorB;     // Error * 3
 
   CurrentErrorB := CurrentErrorB + Delta;
-  BelowPrevErrorB := BelowErrorB + CurrentErrorB;  // Error * 5
+  BelowPrevErrorB := BelowErrorB + CurrentErrorB;   // Error * 5
 
-  BelowErrorB := BelowNextError;      // Error * 1
+  BelowErrorB := BelowNextError;                    // Error * 1
 
-  CurrentErrorB := CurrentErrorB + Delta;    // Error * 7
+  CurrentErrorB := CurrentErrorB + Delta;           // Error * 7
 
   // Move on to next column
-  if (FDirection = 1) then
+  if FDirection = 1 then
   begin
-    inc(longInt(ErrorR), sizeof(TErrorTerm));
-    inc(longInt(ErrorG), sizeof(TErrorTerm));
-    inc(longInt(ErrorB), sizeof(TErrorTerm));
-  end else
+    inc(longInt(ErrorR), SizeOf(TErrorTerm));
+    inc(longInt(ErrorG), SizeOf(TErrorTerm));
+    inc(longInt(ErrorB), SizeOf(TErrorTerm));
+  end
+  else
   begin
-    dec(longInt(ErrorR), sizeof(TErrorTerm));
-    dec(longInt(ErrorG), sizeof(TErrorTerm));
-    dec(longInt(ErrorB), sizeof(TErrorTerm));
+    dec(longInt(ErrorR), SizeOf(TErrorTerm));
+    dec(longInt(ErrorG), SizeOf(TErrorTerm));
+    dec(longInt(ErrorB), SizeOf(TErrorTerm));
   end;
 end;
 {$IFDEF R_PLUS}
@@ -1188,13 +1189,13 @@ type
 
   TOctreeNode = Class(TObject)
   public
-    IsLeaf    : Boolean;
-    PixelCount    : integer;
-    RedSum    : integer;
-    GreenSum    : integer;
-    BlueSum    : integer;
-    Next    : TOctreeNode;
-    Child    : TReducibleNodes;
+    IsLeaf: Boolean;
+    PixelCount: integer;
+    RedSum: integer;
+    GreenSum: integer;
+    BlueSum: integer;
+    Next: TOctreeNode;
+    Child: TReducibleNodes;
 
     constructor Create(Level: integer; ColorBits: integer; var LeafCount: integer;
       var ReducibleNodes: TReducibleNodes);
@@ -1203,11 +1204,11 @@ type
 
   TColorQuantizer = class(TObject)
   private
-    FTree    : TOctreeNode;
-    FLeafCount    : integer;
-    FReducibleNodes  : TReducibleNodes;
-    FMaxColors    : integer;
-    FColorBits    : integer;
+    FTree: TOctreeNode;
+    FLeafCount: integer;
+    FReducibleNodes: TReducibleNodes;
+    FMaxColors: integer;
+    FColorBits: integer;
 
   protected
     procedure AddColor(var Node: TOctreeNode; r, g, b: byte; ColorBits: integer;
@@ -1231,7 +1232,7 @@ type
 constructor TOctreeNode.Create(Level: integer; ColorBits: integer;
   var LeafCount: integer; var ReducibleNodes: TReducibleNodes);
 var
-  i      : integer;
+  i: integer;
 begin
   PixelCount := 0;
   RedSum := 0;
@@ -1241,11 +1242,12 @@ begin
     Child[i] := nil;
 
   IsLeaf := (Level = ColorBits);
-  if (IsLeaf) then
+  if IsLeaf then
   begin
     Next := nil;
     inc(LeafCount);
-  end else
+  end
+  else
   begin
     Next := ReducibleNodes[Level];
     ReducibleNodes[Level] := self;
@@ -1262,7 +1264,7 @@ end;
 
 constructor TColorQuantizer.Create(MaxColors: integer; ColorBits: integer);
 var
-  i      : integer;
+  i: integer;
 begin
   ASSERT(ColorBits <= 8, 'ColorBits must be 8 or less');
 
@@ -1279,13 +1281,13 @@ end;
 
 destructor TColorQuantizer.Destroy;
 begin
-  if (FTree <> nil) then
+  if FTree <> nil then
     DeleteTree(FTree);
 end;
 
 procedure TColorQuantizer.GetColorTable(var RGBQuadArray: TRGBQuadArray);
 var
-  Index      : integer;
+  Index: integer;
 begin
   Index := 0;
   GetPaletteColors(FTree, RGBQuadArray, Index);
@@ -1298,10 +1300,9 @@ end;
 // DDB.
 function TColorQuantizer.ProcessImage(const DIB: TDIBReader): boolean;
 var
-  i      ,
-  j      : integer;
-  ScanLine    : pointer;
-  Pixel      : PRGBTriple;
+  i, j: integer;
+  ScanLine: pointer;
+  Pixel: PRGBTriple;
 begin
   Result := True;
 
@@ -1326,10 +1327,10 @@ procedure TColorQuantizer.AddColor(var Node: TOctreeNode; r,g,b: byte;
   ColorBits: integer; Level: integer; var LeafCount: integer;
   var ReducibleNodes: TReducibleNodes);
 const
-  Mask:  array[0..7] of BYTE = ($80, $40, $20, $10, $08, $04, $02, $01);
+  Mask: array[0..7] of byte = ($80, $40, $20, $10, $08, $04, $02, $01);
 var
-  Index      : integer;
-  Shift      : integer;
+  Index: integer;
+  Shift: integer;
 begin
   // If the node doesn't exist, create it.
   if (Node = nil) then
@@ -1346,9 +1347,9 @@ begin
     // Recurse a level deeper if the node is not a leaf.
     Shift := 7 - Level;
 
-    Index := (((r and mask[Level]) SHR Shift) SHL 2)  or
-             (((g and mask[Level]) SHR Shift) SHL 1)  or
-              ((b and mask[Level]) SHR Shift);
+    Index := (((r and mask[Level]) shr Shift) shl 2)  or
+             (((g and mask[Level]) shr Shift) shl 1)  or
+              ((b and mask[Level]) shr Shift);
     AddColor(Node.Child[Index], r, g, b, ColorBits, Level+1, LeafCount, ReducibleNodes);
   end;
 end;
@@ -1368,17 +1369,17 @@ end;
 procedure TColorQuantizer.GetPaletteColors(const Node: TOctreeNode;
   var RGBQuadArray: TRGBQuadArray; var Index: integer);
 var
-  i      : integer;
+  i: integer;
 begin
-  if (Node.IsLeaf) then
+  if Node.IsLeaf then
   begin
     with RGBQuadArray[Index] do
     begin
       if (Node.PixelCount <> 0) then
       begin
-        rgbRed   := BYTE(Node.RedSum   DIV Node.PixelCount);
-        rgbGreen := BYTE(Node.GreenSum DIV Node.PixelCount);
-        rgbBlue  := BYTE(Node.BlueSum  DIV Node.PixelCount);
+        rgbRed   := byte(Node.RedSum   div Node.PixelCount);
+        rgbGreen := byte(Node.GreenSum div Node.PixelCount);
+        rgbBlue  := byte(Node.BlueSum  div Node.PixelCount);
       end else
       begin
         rgbRed := 0;
@@ -1388,7 +1389,8 @@ begin
       rgbReserved := 0;
     end;
     inc(Index);
-  end else
+  end
+  else
   begin
     for i := Low(Node.Child) to High(Node.Child) do
       if (Node.Child[i] <> nil) then
@@ -1399,12 +1401,12 @@ end;
 procedure TColorQuantizer.ReduceTree(ColorBits: integer; var LeafCount: integer;
   var ReducibleNodes: TReducibleNodes);
 var
-  RedSum    ,
-  GreenSum    ,
-  BlueSum     : integer;
-  Children    : integer;
-  i      : integer;
-  Node      : TOctreeNode;
+  RedSum,
+  GreenSum,
+  BlueSum: integer;
+  Children: integer;
+  i: integer;
+  Node: TOctreeNode;
 begin
   // Find the deepest level containing at least one reducible node
   i := Colorbits - 1;
@@ -1451,12 +1453,12 @@ end;
 function doCreateOptimizedPaletteForSingleBitmap(const DIB: TDIBReader;
   Colors, ColorBits: integer; Windows: boolean): hPalette;
 var
-  SystemPalette    : HPalette;
-  ColorQuantizer  : TColorQuantizer;
-  i      : integer;
-  LogicalPalette  : TMaxLogPalette;
-  RGBQuadArray    : TRGBQuadArray;
-  Offset    : integer;
+  SystemPalette: HPalette;
+  ColorQuantizer: TColorQuantizer;
+  i: integer;
+  LogicalPalette: TMaxLogPalette;
+  RGBQuadArray: TRGBQuadArray;
+  Offset: integer;
 begin
   LogicalPalette.palVersion := $0300;
   LogicalPalette.palNumEntries := Colors;
@@ -1497,7 +1499,7 @@ end;
 function CreateOptimizedPaletteForSingleBitmap(const Bitmap: TBitmap;
   Colors, ColorBits: integer; Windows: boolean): hPalette;
 var
-  DIB      : TDIBReader;
+  DIB: TDIBReader;
 begin
   DIB := TDIBReader.Create(Bitmap, pf24bit);
   try
@@ -1519,17 +1521,17 @@ end;
 function ReduceColors(Bitmap: TBitmap; ColorReduction: TColorReduction;
   DitherMode: TDitherMode): TBitmap;
 var
-  Palette    : hPalette;
-  ColorLookup    : TColorLookup;
-  Ditherer    : TDitherEngine;
-  Row      : Integer;
-  DIBResult    : TDIBWriter;
-  DIBSource    : TDIBReader;
-  SrcScanLine    ,
-  Src      : PRGBTriple;
-  DstScanLine    ,
-  Dst      : PChar;
-  BGR      : TRGBTriple;
+  Palette: hPalette;
+  ColorLookup: TColorLookup;
+  Ditherer: TDitherEngine;
+  Row: Integer;
+  DIBResult: TDIBWriter;
+  DIBSource: TDIBReader;
+  SrcScanLine,
+  Src: PRGBTriple;
+  DstScanLine,
+  Dst: PChar;
+  BGR: TRGBTriple;
 {$ifdef DEBUG_DITHERPERFORMANCE}
   TimeStart    ,
   TimeStop    : DWORD;
@@ -1620,7 +1622,7 @@ begin
         begin
           SrcScanline := DIBSource.ScanLine[Row];
           DstScanline := DIBResult.ScanLine[Row];
-          Src := pointer(longInt(SrcScanLine) + Ditherer.Column*sizeof(TRGBTriple));
+          Src := pointer(longInt(SrcScanLine) + Ditherer.Column * SizeOf(TRGBTriple));
           Dst := pointer(longInt(DstScanLine) + Ditherer.Column);
 
           while (Ditherer.Column < Ditherer.Width) and (Ditherer.Column >= 0) do

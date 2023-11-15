@@ -295,7 +295,7 @@ function TBinarySetCollection.GetSetAsText(const setname: string): string;
 var
   rec: TBinarySetRecord;
   recSM: TBinarySetRecordSM;
-  recMD: TBinarySetRecordSM;
+  recMD: TBinarySetRecordMD;
   i, idx, idxSM, idxMD: integer;
 begin
   Result := 'Part,Color,Num';

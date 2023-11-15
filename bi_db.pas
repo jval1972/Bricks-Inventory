@@ -519,7 +519,7 @@ type
     {$ENDIF}
     fpiece: string;
     fcolor: integer;
-    fcolorstr: string;
+    fcolorstr: string[4];
     fsets: TStringList;
     fparts: TStringList;
     {$IFNDEF CRAWLER}

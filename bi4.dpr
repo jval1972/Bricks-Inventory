@@ -147,7 +147,8 @@ uses
   vwPrint in 'vwPrint.pas',
   zlibpas in 'zlibpas.pas',
   bi_quantize in 'bi_quantize.pas',
-  bi_4gb in 'bi_4gb.pas';
+  bi_4gb in 'bi_4gb.pas',
+  bi_description_compress in 'bi_description_compress.pas';
 
 {$R *.res}
 

@@ -368,6 +368,11 @@ type
     finventoryfound: boolean;
     fpartsinventoriesvalidcount: integer;
     finventoryname: string;
+  protected
+    {$IFNDEF CRAWLER}
+    function GetDesc: string;
+    procedure SetDesc(const v: string);
+    {$ENDIF}
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -377,7 +382,7 @@ type
     property name: string read fname write fname;
     property lname: string read flname write flname;
     {$IFNDEF CRAWLER}
-    property desc: string read fdesc write fdesc;
+    property desc: string read GetDesc write SetDesc;
     {$ENDIF}
     property category: integer read fcategory write fcategory;
     property weight: Double read fweight write fweight;
@@ -1096,7 +1101,8 @@ implementation
 
 uses
   bi_system, bi_utils, bi_crawler, StrUtils, bi_priceadjust, bi_tmp, bi_globals,
-  UrlMon, bi_multithread, bi_cachefile{$IFNDEF CRAWLER}, DateUtils, bi_pghistory{$ENDIF};
+  UrlMon, bi_multithread, bi_cachefile{$IFNDEF CRAWLER}, DateUtils, bi_pghistory,
+  bi_description_compress{$ENDIF};
 
 function fixpartname(const spart: string): string;
 var
@@ -17787,6 +17793,18 @@ begin
 
   fpartsinventoriesvalidcount := dbvalid;
 end;
+
+{$IFNDEF CRAWLER}
+function TPieceInfo.GetDesc: string;
+begin
+  Result := BI_DecodeDesc(fdesc);
+end;
+
+procedure TPieceInfo.SetDesc(const v: string);
+begin
+  fdesc := BI_EncodeDesc(v);
+end;
+{$ENDIF}
 
 function PartTypeToPartTypeName(const pt: char): string;
 begin

@@ -54,9 +54,9 @@ type
   TBinarySetData = array[0..BIMAXSETITEMS - 1] of TBinarySetItem;
   PBinarySetData = ^TBinarySetData;
   TBinarySetDataSM = array[0..BIMINSETITEMS - 1] of TBinarySetItem;
-  PBinarySetDataSM = ^TBinarySetData;
+  PBinarySetDataSM = ^TBinarySetDataSM;
   TBinarySetDataMD = array[0..BIMIDSETITEMS - 1] of TBinarySetItem;
-  PBinarySetDataMD = ^TBinarySetData;
+  PBinarySetDataMD = ^TBinarySetDataMD;
 
 type
   TBinarySetRecord = record

@@ -18877,11 +18877,7 @@ begin
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
   titstr := 'Child molds for ' + basepcs;
   if cmolds = nil then
-  begin
-    cmolds := TStringList.Create;
-    DrawMoldList('No child molds found for ' + linkstr, cmolds, False, False, titstr);
-    cmolds.Free;
-  end
+    DrawMoldList('No child molds found for ' + linkstr, cmolds, False, False, titstr)
   else
     DrawMoldList('Child molds for ' + linkstr, cmolds, False, False, titstr);
 end;
@@ -18895,11 +18891,7 @@ begin
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
   titstr := 'Variations and/or other prints for ' + basepcs;
   if cmolds = nil then
-  begin
-    cmolds := TStringList.Create;
-    DrawMoldList('No variations and/or other prints for ' + linkstr, cmolds, False, False, titstr);
-    cmolds.Free;
-  end
+    DrawMoldList('No variations and/or other prints for ' + linkstr, nil, False, False, titstr)
   else
     DrawMoldList('Variations and/or other prints for ' + linkstr, cmolds, False, False, titstr);
 end;
@@ -18913,7 +18905,7 @@ begin
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
   titstr := 'Mold variations for ' + basepcs;
   if pi.GetMoldVariationsCount = 0 then
-    DrawMoldList('No mold variations for ' + linkstr, pi.moldvariations, False, False, titstr)
+    DrawMoldList('No mold variations for ' + linkstr, nil, False, False, titstr)
   else
     DrawMoldList('Mold variations for ' + linkstr, pi.moldvariations, False, False, titstr);
 end;
@@ -18927,7 +18919,7 @@ begin
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
   titstr := 'Alternates for ' + basepcs;
   if pi.GetAlternatesCount = 0 then
-    DrawMoldList('No alternates for ' + linkstr, pi.alternates, False, False, titstr)
+    DrawMoldList('No alternates for ' + linkstr, nil, False, False, titstr)
   else
     DrawMoldList('Alternates for ' + linkstr, pi.alternates, False, False, titstr);
 end;
@@ -18941,7 +18933,7 @@ begin
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
   titstr := 'Patterns for ' + basepcs;
   if pi.GetPatternsCount = 0 then
-    DrawMoldList('No patterns for ' + linkstr, pi.patterns, False, False, titstr)
+    DrawMoldList('No patterns for ' + linkstr, nil, False, False, titstr)
   else
     DrawMoldList('Patterns for ' + linkstr, pi.patterns, False, False, titstr);
 end;
@@ -18960,7 +18952,7 @@ begin
   if srelated.Count > 0 then
     DrawMoldList('Related Pieces for ' + linkstr, srelated, False, False, titstr)
   else
-    DrawMoldList('No Related Pieces for ' + linkstr, srelated, False, False, titstr);
+    DrawMoldList('No Related Pieces for ' + linkstr, nil, False, False, titstr);
   srelated.Free;
 end;
 
@@ -18973,7 +18965,7 @@ begin
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
   titstr := 'Prints for ' + basepcs;
   if pi.GetPrintsCount = 0 then
-    DrawMoldList('No prints for ' + linkstr, pi.prints, False, False, titstr)
+    DrawMoldList('No prints for ' + linkstr, nil, False, False, titstr)
   else
     DrawMoldList('Prints for ' + linkstr, pi.prints, False, False, titstr);
 end;

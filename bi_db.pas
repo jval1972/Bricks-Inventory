@@ -622,7 +622,9 @@ type
     {$ENDIF}
     procedure SetSPartType(const t: char);
   public
+    {$IFNDEF CRAWLER}
     prefferedlocation: string;
+    {$ENDIF}
     constructor Create(const apiece: string; const acolor: integer); virtual;
     destructor Destroy; override;
     procedure Assign(const pg: priceguide_t); overload;
@@ -18278,7 +18280,9 @@ end;
 constructor TPieceColorInfo.Create(const apiece: string; const acolor: integer);
 begin
   flastinternetupdate := Now - 1.0;
+  {$IFNDEF CRAWLER}
   prefferedlocation := '';
+  {$ENDIF}
   fsparttype := ' ';
   {$IFNDEF CRAWLER}
   fsetmost := '';

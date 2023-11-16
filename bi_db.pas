@@ -478,12 +478,34 @@ type
     property inventoryname: string read finventoryname write finventoryname;
   end;
 
+const
+  SEI_FLG_MOC = 1;
+  SEI_FLG_INSTR = 2;
+  SEI_FLG_BOX = 4;
+  SEI_FLG_FIXED_INSTR = 8;
+  SEI_FLG_FIXED_BOX = 16;
+
 type
   TSetExtraInfo = class(TObject)
   private
+    fflags: LongWord;
     {$IFNDEF CRAWLER}
     finstructionsdimensions: dimensions_p;
     foriginalboxdimensions: dimensions_p;
+    {$ENDIF}
+    function GetMoc: boolean;
+    procedure SetMoc(const v: boolean);
+    function GetHasInstructions: boolean;
+    procedure SetHasInstructions(const v: boolean);
+    function GetHasOriginalBox: boolean;
+    procedure SetHasOriginalBox(const v: boolean);
+    {$IFNDEF CRAWLER}
+    function GetFixedInstructions: boolean;
+    procedure SetFixedInstructions(const v: boolean);
+    function GetFixedOriginalBox: boolean;
+    procedure SetFixedOriginalBox(const v: boolean);
+    {$ENDIF}
+    {$IFNDEF CRAWLER}
     function GetIDimensionX: Double;
     procedure SetIDimensionX(const v: double);
     function GetIDimensionY: Double;
@@ -498,20 +520,20 @@ type
     procedure SetBDimensionZ(const v: double);
     {$ENDIF}
   public
-    moc: boolean;
-    hasinstructions: boolean;
-    hasoriginalbox: boolean;
     {$IFNDEF CRAWLER}
     text: string;
     year: integer;
-    fixedinstructions: boolean;
     instructionsweight: double;
-    fixedoriginalbox: boolean;
     originalboxweight: double;
     {$ENDIF}
     constructor Create; virtual;
     destructor Destroy; override;
+    property moc: boolean read GetMoc write SetMoc;
+    property hasinstructions: boolean read GetHasInstructions write SetHasInstructions;
+    property hasoriginalbox: boolean read GetHasOriginalBox write SetHasOriginalBox;
     {$IFNDEF CRAWLER}
+    property fixedinstructions: boolean read GetFixedInstructions write SetFixedInstructions;
+    property fixedoriginalbox: boolean read GetFixedOriginalBox write SetFixedOriginalBox;
     property instructionsdimentionx: double read GetIDimensionX write SetIDimensionX;
     property instructionsdimentiony: double read GetIDimensionY write SetIDimensionY;
     property instructionsdimentionz: double read GetIDimensionZ write SetIDimensionZ;
@@ -8215,16 +8237,12 @@ end;
 
 constructor TSetExtraInfo.Create;
 begin
-  moc := False;
-  hasinstructions := False;
-  hasoriginalbox := False;
+  fflags := 0;
   {$IFNDEF CRAWLER}
   text := '';
   year := 0;
-  fixedinstructions := False;
   init_dimensions(finstructionsdimensions);
   instructionsweight := 0.0;
-  fixedoriginalbox := False;
   init_dimensions(foriginalboxdimensions);
   originalboxweight := 0.0;
   {$ENDIF}
@@ -8239,6 +8257,73 @@ begin
   {$ENDIF}
   Inherited Destroy;
 end;
+
+function TSetExtraInfo.GetMoc: boolean;
+begin
+  Result := fflags and SEI_FLG_MOC <> 0;
+end;
+
+procedure TSetExtraInfo.SetMoc(const v: boolean);
+begin
+  if v then
+    fflags := fflags or SEI_FLG_MOC
+  else
+    fflags := fflags and not SEI_FLG_MOC
+end;
+
+function TSetExtraInfo.GetHasInstructions: boolean;
+begin
+  Result := fflags and SEI_FLG_INSTR <> 0;
+end;
+
+procedure TSetExtraInfo.SetHasInstructions(const v: boolean);
+begin
+  if v then
+    fflags := fflags or SEI_FLG_INSTR
+  else
+    fflags := fflags and not SEI_FLG_INSTR
+end;
+
+function TSetExtraInfo.GetHasOriginalBox: boolean;
+begin
+  Result := fflags and SEI_FLG_BOX <> 0;
+end;
+
+procedure TSetExtraInfo.SetHasOriginalBox(const v: boolean);
+begin
+  if v then
+    fflags := fflags or SEI_FLG_BOX
+  else
+    fflags := fflags and not SEI_FLG_BOX
+end;
+
+{$IFNDEF CRAWLER}
+function TSetExtraInfo.GetFixedInstructions: boolean;
+begin
+  Result := fflags and SEI_FLG_FIXED_INSTR <> 0;
+end;
+
+procedure TSetExtraInfo.SetFixedInstructions(const v: boolean);
+begin
+  if v then
+    fflags := fflags or SEI_FLG_FIXED_INSTR
+  else
+    fflags := fflags and not SEI_FLG_FIXED_INSTR
+end;
+
+function TSetExtraInfo.GetFixedOriginalBox: boolean;
+begin
+  Result := fflags and SEI_FLG_FIXED_BOX <> 0;
+end;
+
+procedure TSetExtraInfo.SetFixedOriginalBox(const v: boolean);
+begin
+  if v then
+    fflags := fflags or SEI_FLG_FIXED_BOX
+  else
+    fflags := fflags and not SEI_FLG_FIXED_BOX
+end;
+{$ENDIF}
 
 {$IFNDEF CRAWLER}
 function TSetExtraInfo.GetIDimensionX: Double;

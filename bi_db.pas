@@ -575,10 +575,16 @@ type
 
   parecdate3_p = ^parecdate3_t;
 
+const
+  PCI_FLAG_NEEDSAVE = 1;
+  PCI_FLAG_HAS_LOADED = 2;
+  PCI_FLAG_CACHE_READ = 4;
+  PCI_FLAG_CANEDITYEAR = 8;
+
+type
   TPieceColorInfo = class(TObject)
   private
-    fneedssave: boolean;
-    fhasloaded: boolean;
+    fflags: LongWord;
     fhash: LongWord;
     fpriceguide: priceguide_t;
     favailability: availability_t;
@@ -605,11 +611,9 @@ type
     fpartmost: string;
     fpartmostnum: integer;
     {$ENDIF}
-    fcacheread: boolean;
     fcode: string;
     {$IFNDEF CRAWLER}
     ffirstsetyear, flastsetyear, fyear: integer;
-    fcanedityear: boolean;
     flugbulkflags: integer;
     {$ENDIF}
     fparttype: integer;
@@ -621,6 +625,17 @@ type
     procedure SetYear(const y: integer);
     {$ENDIF}
     procedure SetSPartType(const t: char);
+    function GetNeedsSave: Boolean;
+    procedure SetNeedsSave(const Value: Boolean);
+    function GetHasLoaded: Boolean;
+    procedure SetHasLoaded(const Value: Boolean);
+    function GetCacheRead: Boolean;
+    procedure SetCacheRead(const Value: Boolean);
+    {$IFNDEF CRAWLER}
+    function GetCanEditYear: Boolean;
+    procedure SetCanEditYear(const Value: Boolean);
+    {$ENDIF}
+    property needssave: boolean read GetNeedsSave write SetNeedsSave;
   public
     {$IFNDEF CRAWLER}
     prefferedlocation: string;
@@ -700,7 +715,7 @@ type
     {$ENDIF}
     property piece: string read fpiece;
     property color: integer read fcolor;
-    property hasloaded: boolean read fhasloaded;
+    property hasloaded: boolean read GetHasLoaded write SetHasLoaded;
     property sets: TStringList read fsets;
     property parts: TStringListContainer read fparts;
     {$IFNDEF CRAWLER}
@@ -714,12 +729,12 @@ type
     property partmost: string read fpartmost;
     property partmostnum: integer read fpartmostnum;
     {$ENDIF}
-    property cacheread: boolean read fcacheread;
+    property cacheread: boolean read GetCacheRead write SetCacheRead;
     {$IFNDEF CRAWLER}
     property firstsetyear: integer read ffirstsetyear;
     property lastsetyear: integer read flastsetyear;
     property year: integer read fyear write SetYear;
-    property canedityear: boolean read fcanedityear write fcanedityear;
+    property canedityear: boolean read GetCanEditYear write SetCanEditYear;
     {$ENDIF}
     function invalid: boolean;
     property code: string read fcode write fcode;
@@ -18280,6 +18295,7 @@ end;
 constructor TPieceColorInfo.Create(const apiece: string; const acolor: integer);
 begin
   flastinternetupdate := Now - 1.0;
+  fflags := 0;
   {$IFNDEF CRAWLER}
   prefferedlocation := '';
   {$ENDIF}
@@ -18302,7 +18318,7 @@ begin
     fparttype := TYPE_BOX
   else
     fparttype := TYPE_PART;
-  fcacheread := False;
+  cacheread := False;
   fsets := TStringList.Create;
   fsets.Sorted := True;
   fparts := TStringListContainer.Create;
@@ -18323,11 +18339,11 @@ begin
   fcolor := acolor;
   fhash := MkPCIHash(apiece, acolor);
   fcolorstr := IntToStr(fcolor);
-  fneedssave := False;
-  fhasloaded := False;
+  needssave := False;
+  hasloaded := False;
   fdate := Now;
   {$IFNDEF CRAWLER}
-  fcanedityear := False;
+  canedityear := False;
   ffirstsetyear := 9999;
   flastsetyear := 0;
   fyear := 0;
@@ -18374,6 +18390,60 @@ begin
   fsparttype := t;
 end;
 
+function TPieceColorInfo.GetNeedsSave: Boolean;
+begin
+  Result := fflags and PCI_FLAG_NEEDSAVE <> 0;
+end;
+
+procedure TPieceColorInfo.SetNeedsSave(const Value: Boolean);
+begin
+  if Value then
+    fflags := fflags or PCI_FLAG_NEEDSAVE
+  else
+    fflags := fflags and not PCI_FLAG_NEEDSAVE;
+end;
+
+function TPieceColorInfo.GetHasLoaded: Boolean;
+begin
+  Result := fflags and PCI_FLAG_HAS_LOADED <> 0;
+end;
+
+procedure TPieceColorInfo.SetHasLoaded(const Value: Boolean);
+begin
+  if Value then
+    fflags := fflags or PCI_FLAG_HAS_LOADED
+  else
+    fflags := fflags and not PCI_FLAG_HAS_LOADED;
+end;
+
+function TPieceColorInfo.GetCacheRead: Boolean;
+begin
+  Result := fflags and PCI_FLAG_CACHE_READ <> 0;
+end;
+
+procedure TPieceColorInfo.SetCacheRead(const Value: Boolean);
+begin
+  if Value then
+    fflags := fflags or PCI_FLAG_CACHE_READ
+  else
+    fflags := fflags and not PCI_FLAG_CACHE_READ;
+end;
+
+{$IFNDEF CRAWLER}
+function TPieceColorInfo.GetCanEditYear: Boolean;
+begin
+  Result := fflags and PCI_FLAG_CANEDITYEAR <> 0;
+end;
+
+procedure TPieceColorInfo.SetCanEditYear(const Value: Boolean);
+begin
+  if Value then
+    fflags := fflags or PCI_FLAG_CANEDITYEAR
+  else
+    fflags := fflags and not PCI_FLAG_CANEDITYEAR;
+end;
+{$ENDIF}
+
 function TPieceColorInfo.LoadFromDisk: boolean;
 var
   fname: string;
@@ -18382,13 +18452,13 @@ var
   pad: parecdate_t;
   sz: integer;
 begin
-  fcacheread := False;
+  cacheread := False;
   inc(db.st_pciloads);
   if db.CacheDB.LoadPCI(self) then
   begin
     inc(db.st_pciloadscache);
-    fneedssave := False;
-    fcacheread := True;
+    needssave := False;
+    cacheread := True;
     Result := True;
     Exit;
   end;
@@ -18439,7 +18509,7 @@ begin
     PRICEADJUST(fpiece, fcolor, pa.priceguide, pa.availability, fdate);
     Assign(pa.priceguide);
     Assign(pa.availability);
-    fneedssave := False;
+    needssave := False;
     Result := Check;
   end;
 end;
@@ -18455,7 +18525,7 @@ end;
 
 procedure TPieceColorInfo.SaveToDisk;
 begin
-  if not fneedssave then
+  if not needssave then
     Exit;
 
   DoSaveToDisk;
@@ -18471,7 +18541,7 @@ var
   d: TDateTime;
   sz: Int64;
 begin
-  if not fhasloaded then
+  if not hasloaded then
     Exit;
 
   fdir := PieceColorCacheDir(fpiece, fcolorstr);
@@ -18527,7 +18597,7 @@ begin
   f.Free;
 
   db.CacheDB.SavePCI(self);
-  fneedssave := False;
+  needssave := False;
 end;
 
 procedure TPieceColorInfo.InternetUpdate;
@@ -18901,7 +18971,7 @@ begin
     fpriceguide.nAvgPrice := 0;
     fpriceguide.nQtyAvgPrice := 0;
     fpriceguide.nMaxPrice := 0;
-    fneedssave := True;
+    needssave := True;
     Result := False;
   end;
 
@@ -18925,7 +18995,7 @@ begin
     fpriceguide.uAvgPrice := 0;
     fpriceguide.uQtyAvgPrice := 0;
     fpriceguide.uMaxPrice := 0;
-    fneedssave := True;
+    needssave := True;
     Result := False;
   end;
 
@@ -18949,7 +19019,7 @@ begin
     favailability.nAvgPrice := 0;
     favailability.nQtyAvgPrice := 0;
     favailability.nMaxPrice := 0;
-    fneedssave := True;
+    needssave := True;
     Result := False;
   end;
 
@@ -18973,7 +19043,7 @@ begin
     favailability.uAvgPrice := 0;
     favailability.uQtyAvgPrice := 0;
     favailability.uMaxPrice := 0;
-    fneedssave := True;
+    needssave := True;
     Result := False;
   end;
 
@@ -19001,8 +19071,8 @@ begin
     fpriceguide.uQtyAvgPrice := pg.uQtyAvgPrice;
   if pg.uMaxPrice > 0 then
     fpriceguide.uMaxPrice := pg.uMaxPrice;
-  fneedssave := True;
-  fhasloaded := True;
+  needssave := True;
+  hasloaded := True;
 end;
 
 procedure TPieceColorInfo.Assign(const av: availability_t);
@@ -19027,13 +19097,13 @@ begin
     favailability.uQtyAvgPrice := av.uQtyAvgPrice;
   if av.uMaxPrice > 0 then
     favailability.uMaxPrice := av.uMaxPrice;
-  fneedssave := True;
-  fhasloaded := True;
+  needssave := True;
+  hasloaded := True;
 end;
 
 function TPieceColorInfo.EvaluatePriceNew: double;
 begin
-  if not fhasloaded then
+  if not hasloaded then
     Load;
   if fpriceguide.nTimesSold > 0 then
     Result := fpriceguide.nQtyAvgPrice
@@ -19049,7 +19119,7 @@ end;
 
 function TPieceColorInfo.EvaluatePriceNewAvg: double;
 begin
-  if not fhasloaded then
+  if not hasloaded then
     Load;
   if fpriceguide.nTimesSold > 0 then
     Result := fpriceguide.nAvgPrice
@@ -19065,7 +19135,7 @@ end;
 
 function TPieceColorInfo.EvaluatePriceUsed: double;
 begin
-  if not fhasloaded then
+  if not hasloaded then
     Load;
   if fpriceguide.uTimesSold > 0 then
     Result := fpriceguide.uQtyAvgPrice
@@ -19081,7 +19151,7 @@ end;
 
 function TPieceColorInfo.EvaluatePriceUsedAvg: double;
 begin
-  if not fhasloaded then
+  if not hasloaded then
     Load;
   if fpriceguide.uTimesSold > 0 then
     Result := fpriceguide.uAvgPrice
@@ -19097,7 +19167,7 @@ end;
 
 function TPieceColorInfo.dbExportStringPG: string;
 begin
-  if not fhasloaded then
+  if not hasloaded then
     Load;
 
   Result :=
@@ -19148,7 +19218,7 @@ var
   invstr: string;
   ayear: integer;
 begin
-  if not fhasloaded then
+  if not hasloaded then
     Load;
 
   pi := db.PieceInfo(self);
@@ -19241,7 +19311,7 @@ end;
                                      
 function TPieceColorInfo.nDemand: double;
 begin
-  if not fhasloaded then
+  if not hasloaded then
     Load;
 
   Result := F_nDemand(favailability, fpriceguide);
@@ -19264,7 +19334,7 @@ end;
 
 function TPieceColorInfo.uDemand: double;
 begin
-  if not fhasloaded then
+  if not hasloaded then
     Load;
 
   Result := F_uDemand(favailability, fpriceguide);

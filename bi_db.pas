@@ -626,14 +626,19 @@ const
   PCI_FLAG_HAS_LOADED = 2;
   PCI_FLAG_CACHE_READ = 4;
   PCI_FLAG_CANEDITYEAR = 8;
+  PCI_FLAG_MUSTFREEPAREC_PG = 16;
+  PCI_FLAG_MUSTFREEPAREC_AV = 32;
+
+type
+  pci_parecsrc_t = (pci_src_internal, pci_src_cache);
 
 type
   TPieceColorInfo = class(TObject)
   private
     fflags: LongWord;
     fhash: LongWord;
-    fpriceguide: priceguide_t;
-    favailability: availability_t;
+    fpriceguide: priceguide_p;
+    favailability: availability_p;
     {$IFNDEF CRAWLER}
     fappearsinsets: integer;        // In how many sets appears?
     fappearsinsetstotal: integer;   // How many pieces in all set?
@@ -666,6 +671,7 @@ type
     fsparttype: char;
     flastinternetupdate: double;
     fpieceinfo: TObject;
+    function CheckPGAV: boolean;
   protected
     {$IFNDEF CRAWLER}
     procedure SetYear(const y: integer);
@@ -677,20 +683,27 @@ type
     procedure SetHasLoaded(const Value: Boolean);
     function GetCacheRead: Boolean;
     procedure SetCacheRead(const Value: Boolean);
+    function GetMustFreeParecPG: Boolean;
+    procedure SetMustFreeParecPG(const Value: Boolean);
+    function GetMustFreeParecAV: Boolean;
+    procedure SetMustFreeParecAV(const Value: Boolean);
     {$IFNDEF CRAWLER}
     function GetCanEditYear: Boolean;
     procedure SetCanEditYear(const Value: Boolean);
     {$ENDIF}
+    function GetPriceGuide: priceguide_t;
+    function GetAvailability: availability_t;
+    procedure FreeParec;
     property needssave: boolean read GetNeedsSave write SetNeedsSave;
+    property mustfreeparecpg: boolean read GetMustFreeParecPG write SetMustFreeParecPG;
+    property mustfreeparecav: boolean read GetMustFreeParecAV write SetMustFreeParecAV;
   public
     {$IFNDEF CRAWLER}
     prefferedlocation: string;
     {$ENDIF}
     constructor Create(const apiece: string; const acolor: integer); virtual;
     destructor Destroy; override;
-    procedure Assign(const pg: priceguide_t); overload;
-    procedure Assign(const av: availability_t); overload;
-    function Check: boolean;
+    procedure AssignPGAV(const pg: priceguide_p; const av: availability_p; const src: pci_parecsrc_t);
     procedure AddSetReference(const aset: string; const numpieces: integer{$IFNDEF CRAWLER}; const LugbulkYear: integer{$ENDIF});
     procedure UpdateSetReference(const aset: string; const numpieces: integer);
     procedure AddPartReference(const apart: string; const numpieces: integer);
@@ -751,8 +764,8 @@ type
     function AV_uMaxPriceAt(const at: TDateTime): double;
     {$ENDIF}
 
-    property priceguide: priceguide_t read fpriceguide;
-    property availability: availability_t read favailability;
+    property priceguide: priceguide_t read GetPriceGuide;
+    property availability: availability_t read GetAvailability;
     {$IFNDEF CRAWLER}
     property appearsinsets: integer read fappearsinsets;
     property appearsinsetstotal: integer read fappearsinsetstotal;
@@ -6834,8 +6847,7 @@ begin
     if pc.color = p.color then
       if apart(pc) = p.piece then
       begin
-        p.Assign(pc.parec.priceguide);
-        p.Assign(pc.parec.availability);
+        p.AssignPGAV(@pc.parec.priceguide, @pc.parec.availability, pci_src_cache);
         p.fdate := pc.parec.date;
         {$IFNDEF CRAWLER}
         inc(st_pcihitcnt);
@@ -18534,8 +18546,8 @@ begin
   fstorage := TStringListContainer.Create;
   ftags := TStringListContainer.Create;
   {$ENDIF}
-  FillChar(fpriceguide, SizeOf(priceguide_t), 0);
-  FillChar(favailability, SizeOf(availability_t), 0);
+  fpriceguide := nil;
+  favailability := nil;
   {$IFNDEF CRAWLER}
   fappearsinsets := 0;
   fappearsinsetstotal := 0;
@@ -18566,6 +18578,7 @@ begin
   FreeListContainer(fstorage);
   FreeListContainer(ftags);
   {$ENDIF}
+  FreeParec;
   inherited;
 end;
 
@@ -18636,6 +18649,32 @@ begin
     fflags := fflags and not PCI_FLAG_CACHE_READ;
 end;
 
+function TPieceColorInfo.GetMustFreeParecPG: Boolean;
+begin
+  Result := fflags and PCI_FLAG_MUSTFREEPAREC_PG <> 0;
+end;
+
+procedure TPieceColorInfo.SetMustFreeParecPG(const Value: Boolean);
+begin
+  if Value then
+    fflags := fflags or PCI_FLAG_MUSTFREEPAREC_PG
+  else
+    fflags := fflags and not PCI_FLAG_MUSTFREEPAREC_PG;
+end;
+
+function TPieceColorInfo.GetMustFreeParecAV: Boolean;
+begin
+  Result := fflags and PCI_FLAG_MUSTFREEPAREC_AV <> 0;
+end;
+
+procedure TPieceColorInfo.SetMustFreeParecAV(const Value: Boolean);
+begin
+  if Value then
+    fflags := fflags or PCI_FLAG_MUSTFREEPAREC_AV
+  else
+    fflags := fflags and not PCI_FLAG_MUSTFREEPAREC_AV;
+end;
+
 {$IFNDEF CRAWLER}
 function TPieceColorInfo.GetCanEditYear: Boolean;
 begin
@@ -18651,6 +18690,42 @@ begin
 end;
 {$ENDIF}
 
+function TPieceColorInfo.GetPriceGuide: priceguide_t;
+begin
+  if fpriceguide = nil then
+  begin
+    fpriceguide := mallocz(SizeOf(priceguide_t));
+    mustfreeparecpg := True;
+  end;
+
+  Result := fpriceguide^;
+end;
+
+function TPieceColorInfo.GetAvailability: availability_t;
+begin
+  if favailability = nil then
+  begin
+    favailability := mallocz(SizeOf(availability_t));
+    mustfreeparecav := True;
+  end;
+
+  Result := favailability^;
+end;
+
+procedure TPieceColorInfo.FreeParec;
+begin
+  if mustfreeparecpg then
+  begin
+    memfree(pointer(fpriceguide), SizeOf(priceguide_t));
+    mustfreeparecpg := False;
+  end;
+  if mustfreeparecav then
+  begin
+    memfree(pointer(favailability), SizeOf(availability_t));
+    mustfreeparecav := False;
+  end;
+end;
+
 function TPieceColorInfo.LoadFromDisk: boolean;
 var
   fname: string;
@@ -18661,6 +18736,7 @@ var
 begin
   cacheread := False;
   inc(db.st_pciloads);
+  FreeParec;
   if db.CacheDB.LoadPCI(self) then
   begin
     inc(db.st_pciloadscache);
@@ -18670,6 +18746,12 @@ begin
     Exit;
   end;
   Result := False;
+
+  mustfreeparecpg := True;
+  fpriceguide := mallocz(SizeOf(priceguide_t));
+  mustfreeparecav := True;
+  favailability := mallocz(SizeOf(availability_t));
+
   fname := PieceColorCacheFName(fpiece, fcolorstr);
   if fexists(fname) then
   begin
@@ -18714,10 +18796,9 @@ begin
       fdate := GetFileCreationTime(fname);
     end;
     PRICEADJUST(fpiece, fcolor, pa.priceguide, pa.availability, fdate);
-    Assign(pa.priceguide);
-    Assign(pa.availability);
+    AssignPGAV(@pa.priceguide, @pa.availability, pci_src_internal);
     needssave := False;
-    Result := Check;
+    Result := CheckPGAV;
   end;
 end;
 
@@ -18759,12 +18840,13 @@ begin
   if not fexists(fname) then
   begin
     try
-      f := TFileStream.Create(fname, fmCreate or fmShareDenyWrite);
+      f := TFileStream.Create(fname, fmCreate);
     except
       Sleep(150);
       try
-        f := TFileStream.Create(fname, fmCreate or fmShareDenyWrite);
+        f := TFileStream.Create(fname, fmCreate);
       except
+        f.Free;
         Exit;
       end;
     end;
@@ -18772,7 +18854,7 @@ begin
   else
   begin
     d := GetFileCreationTime(fname);
-    f := TFileStream.Create(fname, fmOpenReadWrite or fmShareDenyWrite);
+    f := TFileStream.Create(fname, fmOpenReadWrite);
     sz := f.size;
     if sz = SizeOf(parec_t) then
     begin
@@ -18796,9 +18878,9 @@ begin
   end;
 
   f.Position := f.Size;
-  Check;
-  f.Write(fpriceguide, SizeOf(priceguide_t));
-  f.Write(favailability, SizeOf(availability_t));
+  CheckPGAV;
+  f.Write(fpriceguide^, SizeOf(priceguide_t));
+  f.Write(favailability^, SizeOf(availability_t));
   f.Write(fdate, SizeOf(TDateTime));
 
   f.Free;
@@ -18826,8 +18908,7 @@ begin
   begin
     fdate := Now;
     PRICEADJUST(fpiece, fcolor, pg, av, fdate);
-    Assign(pg);
-    Assign(av);
+    AssignPGAV(@pg, @av, pci_src_internal);
     SaveToDisk;
   end
   else if not fexists(PieceColorCacheFName(fpiece, fcolorstr)) then
@@ -18836,16 +18917,18 @@ begin
     FillChar(av, SizeOf(availability_t), 0);
     fdate := Now;
     PRICEADJUST(fpiece, fcolor, pg, av, fdate);
-    Assign(pg);
-    Assign(av);
+    AssignPGAV(@pg, @av, pci_src_internal);
     SaveToDisk;
   end;
 end;
 
 function TPieceColorInfo.invalid: boolean;
 begin
-  Result := fpriceguide.nTimesSold + fpriceguide.nTotalQty + fpriceguide.uTimesSold + fpriceguide.uTotalQty +
-            favailability.nTotalLots + favailability.nTotalQty + favailability.uTotalLots + favailability.uTotalQty = 0;
+  if (fpriceguide = nil) or (favailability = nil) then
+    Result := True
+  else
+    Result := fpriceguide.nTimesSold + fpriceguide.nTotalQty + fpriceguide.uTimesSold + fpriceguide.uTotalQty +
+              favailability.nTotalLots + favailability.nTotalQty + favailability.uTotalLots + favailability.uTotalQty = 0;
 end;
 
 procedure TPieceColorInfo.AddPartReference(const apart: string; const numpieces: integer);
@@ -19152,7 +19235,7 @@ begin
   end;
 end;
 
-function TPieceColorInfo.Check: boolean;
+function TPieceColorInfo.CheckPGAV: boolean;
 const
   MAXPRICE = 250000.00;
 begin
@@ -19256,8 +19339,20 @@ begin
 
 end;
 
-procedure TPieceColorInfo.Assign(const pg: priceguide_t);
+procedure TPieceColorInfo.AssignPGAV(const pg: priceguide_p; const av: availability_p; const src: pci_parecsrc_t);
 begin
+  if src = pci_src_internal then
+  begin
+    fpriceguide^ := pg^;
+    favailability^ := av^;
+  end
+  else
+  begin
+    FreeParec;
+    fpriceguide := pg;
+    favailability := av;
+  end;
+
   fpriceguide.nTimesSold := pg.nTimesSold;
   fpriceguide.nTotalQty := pg.nTotalQty;
   if pg.nMinPrice > 0 then
@@ -19278,12 +19373,7 @@ begin
     fpriceguide.uQtyAvgPrice := pg.uQtyAvgPrice;
   if pg.uMaxPrice > 0 then
     fpriceguide.uMaxPrice := pg.uMaxPrice;
-  needssave := True;
-  hasloaded := True;
-end;
 
-procedure TPieceColorInfo.Assign(const av: availability_t);
-begin
   favailability.nTotalLots := av.nTotalLots;
   favailability.nTotalQty := av.nTotalQty;
   if av.nMinPrice > 0 then
@@ -19521,7 +19611,7 @@ begin
   if not hasloaded then
     Load;
 
-  Result := F_nDemand(favailability, fpriceguide);
+  Result := F_nDemand(favailability^, fpriceguide^);
 end;
 
 function F_uDemand(const favailability: availability_t; const fpriceguide: priceguide_t): double;
@@ -19544,7 +19634,7 @@ begin
   if not hasloaded then
     Load;
 
-  Result := F_uDemand(favailability, fpriceguide);
+  Result := F_uDemand(favailability^, fpriceguide^);
 end;
 
 function iscardboard(const pci: TPieceColorInfo): Boolean;

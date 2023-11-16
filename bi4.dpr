@@ -148,7 +148,8 @@ uses
   zlibpas in 'zlibpas.pas',
   bi_quantize in 'bi_quantize.pas',
   bi_4gb in 'bi_4gb.pas',
-  bi_description_compress in 'bi_description_compress.pas';
+  bi_description_compress in 'bi_description_compress.pas',
+  bi_dimensions in 'bi_dimensions.pas';
 
 {$R *.res}
 

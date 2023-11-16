@@ -32,7 +32,7 @@ interface
 
 uses
   SysUtils, Classes, bi_hash, bi_hash512, bi_threads, bi_currency, bi_delphi,
-  bi_binaryset, bi_binarypart, bi_utils;
+  bi_binaryset, bi_binarypart,{$IFNDEF CRAWLER} bi_dimensions,{$ENDIF} bi_utils;
 
 type
   progressfunc_t = procedure (const s: string; a: double) of object;
@@ -397,14 +397,10 @@ type
     fdesc: string;
     {$ENDIF}
     fcategory: integer;
-    fweight: Double;
+    fweight: double;
     {$IFNDEF CRAWLER}
     frelationships: TPieceInfoRelationships;
-    {$ENDIF}
-    {$IFNDEF CRAWLER}
-    fdimentionx: Double;
-    fdimentiony: Double;
-    fdimentionz: Double;
+    fdimensions: dimensions_p;
     {$ENDIF}
     finventoryfound: boolean;
     fpartsinventoriesvalidcount: integer;
@@ -425,6 +421,14 @@ type
     procedure SetPatterns(const l: TStringList);
     function GetPrints: TStringList;
     procedure SetPrints(const l: TStringList);
+    {$ENDIF}
+    {$IFNDEF CRAWLER}
+    function GetDimensionX: Double;
+    procedure SetDimensionX(const v: double);
+    function GetDimensionY: Double;
+    procedure SetDimensionY(const v: double);
+    function GetDimensionZ: Double;
+    procedure SetDimensionZ(const v: double);
     {$ENDIF}
   public
     constructor Create; virtual;
@@ -466,9 +470,9 @@ type
     property printscount: integer read GetPrintsCount;
     {$ENDIF}
     {$IFNDEF CRAWLER}
-    property dimentionx: Double read fdimentionx write fdimentionx;
-    property dimentiony: Double read fdimentiony write fdimentiony;
-    property dimentionz: Double read fdimentionz write fdimentionz;
+    property dimentionx: Double read GetDimensionX write SetDimensionX;
+    property dimentiony: Double read GetDimensionY write SetDimensionY;
+    property dimentionz: Double read GetDimensionZ write SetDimensionZ;
     {$ENDIF}
     property inventoryfound: boolean read finventoryfound write finventoryfound;
     property inventoryname: string read finventoryname write finventoryname;
@@ -476,6 +480,23 @@ type
 
 type
   TSetExtraInfo = class(TObject)
+  private
+    {$IFNDEF CRAWLER}
+    finstructionsdimensions: dimensions_p;
+    foriginalboxdimensions: dimensions_p;
+    function GetIDimensionX: Double;
+    procedure SetIDimensionX(const v: double);
+    function GetIDimensionY: Double;
+    procedure SetIDimensionY(const v: double);
+    function GetIDimensionZ: Double;
+    procedure SetIDimensionZ(const v: double);
+    function GetBDimensionX: Double;
+    procedure SetBDimensionX(const v: double);
+    function GetBDimensionY: Double;
+    procedure SetBDimensionY(const v: double);
+    function GetBDimensionZ: Double;
+    procedure SetBDimensionZ(const v: double);
+    {$ENDIF}
   public
     moc: boolean;
     hasinstructions: boolean;
@@ -484,17 +505,20 @@ type
     text: string;
     year: integer;
     fixedinstructions: boolean;
-    instructionsdimentionx: double;
-    instructionsdimentiony: double;
-    instructionsdimentionz: double;
     instructionsweight: double;
     fixedoriginalbox: boolean;
-    originalboxinstructionx: double;
-    originalboxinstructiony: double;
-    originalboxinstructionz: double;
     originalboxweight: double;
     {$ENDIF}
     constructor Create; virtual;
+    destructor Destroy; override;
+    {$IFNDEF CRAWLER}
+    property instructionsdimentionx: double read GetIDimensionX write SetIDimensionX;
+    property instructionsdimentiony: double read GetIDimensionY write SetIDimensionY;
+    property instructionsdimentionz: double read GetIDimensionZ write SetIDimensionZ;
+    property originalboxinstructionx: double read GetBDimensionX write SetBDimensionX;
+    property originalboxinstructiony: double read GetBDimensionX write SetBDimensionX;
+    property originalboxinstructionz: double read GetBDimensionX write SetBDimensionX;
+    {$ENDIF}
   end;
 
 const
@@ -8198,18 +8222,85 @@ begin
   text := '';
   year := 0;
   fixedinstructions := False;
-  instructionsdimentionx := 0.0;
-  instructionsdimentiony := 0.0;
-  instructionsdimentionz := 0.0;
+  init_dimensions(finstructionsdimensions);
   instructionsweight := 0.0;
   fixedoriginalbox := False;
-  originalboxinstructionx := 0.0;
-  originalboxinstructiony := 0.0;
-  originalboxinstructionz := 0.0;
+  init_dimensions(foriginalboxdimensions);
   originalboxweight := 0.0;
   {$ENDIF}
   Inherited;
 end;
+
+destructor TSetExtraInfo.Destroy;
+begin
+  {$IFNDEF CRAWLER}
+  dispose_dimensions(finstructionsdimensions);
+  dispose_dimensions(foriginalboxdimensions);
+  {$ENDIF}
+  Inherited Destroy;
+end;
+
+{$IFNDEF CRAWLER}
+function TSetExtraInfo.GetIDimensionX: Double;
+begin
+  Result := wd_getx(finstructionsdimensions);
+end;
+
+procedure TSetExtraInfo.SetIDimensionX(const v: double);
+begin
+  wd_setx(finstructionsdimensions, v);
+end;
+
+function TSetExtraInfo.GetIDimensionY: Double;
+begin
+  Result := wd_gety(finstructionsdimensions);
+end;
+
+procedure TSetExtraInfo.SetIDimensionY(const v: double);
+begin
+  wd_sety(finstructionsdimensions, v);
+end;
+
+function TSetExtraInfo.GetIDimensionZ: Double;
+begin
+  Result := wd_getz(finstructionsdimensions);
+end;
+
+procedure TSetExtraInfo.SetIDimensionZ(const v: double);
+begin
+  wd_setz(finstructionsdimensions, v);
+end;
+
+function TSetExtraInfo.GetBDimensionX: Double;
+begin
+  Result := wd_getx(foriginalboxdimensions);
+end;
+
+procedure TSetExtraInfo.SetBDimensionX(const v: double);
+begin
+  wd_setx(foriginalboxdimensions, v);
+end;
+
+function TSetExtraInfo.GetBDimensionY: Double;
+begin
+  Result := wd_gety(foriginalboxdimensions);
+end;
+
+procedure TSetExtraInfo.SetBDimensionY(const v: double);
+begin
+  wd_sety(foriginalboxdimensions, v);
+end;
+
+function TSetExtraInfo.GetBDimensionZ: Double;
+begin
+  Result := wd_getz(foriginalboxdimensions);
+end;
+
+procedure TSetExtraInfo.SetBDimensionZ(const v: double);
+begin
+  wd_setz(foriginalboxdimensions, v);
+end;
+{$ENDIF}
 
 procedure TSetsDatabase.InitSets;
 var
@@ -17840,16 +17931,12 @@ begin
   fname := '';
   {$IFNDEF CRAWLER}
   fdesc := '';
+  fweight := 0.0;
   {$ENDIF}
   fcategory := 0;
-  fweight := 0;
   {$IFNDEF CRAWLER}
   frelationships := nil;
-  {$ENDIF}
-  {$IFNDEF CRAWLER}
-  fdimentionx := 0;
-  fdimentiony := 0;
-  fdimentionz := 0;
+  init_dimensions(fdimensions);
   {$ENDIF}
   finventoryfound := False;
   fpartsinventoriesvalidcount := 0;
@@ -17862,6 +17949,7 @@ begin
   {$IFNDEF CRAWLER}
   if frelationships <> nil then
     frelationships.Free;
+  dispose_dimensions(fdimensions);
   {$ENDIF}
   Inherited Destroy;
 end;
@@ -18248,6 +18336,38 @@ begin
   if frelationships = nil then
     frelationships := TPieceInfoRelationships.Create;
   frelationships.AddPrint(s);
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+function TPieceInfo.GetDimensionX: Double;
+begin
+  Result := wd_getx(fdimensions);
+end;
+
+procedure TPieceInfo.SetDimensionX(const v: double);
+begin
+  wd_setx(fdimensions, v);
+end;
+
+function TPieceInfo.GetDimensionY: Double;
+begin
+  Result := wd_gety(fdimensions);
+end;
+
+procedure TPieceInfo.SetDimensionY(const v: double);
+begin
+  wd_sety(fdimensions, v);
+end;
+
+function TPieceInfo.GetDimensionZ: Double;
+begin
+  Result := wd_getz(fdimensions);
+end;
+
+procedure TPieceInfo.SetDimensionZ(const v: double);
+begin
+  wd_setz(fdimensions, v);
 end;
 {$ENDIF}
 

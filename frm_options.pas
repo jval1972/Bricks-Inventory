@@ -60,6 +60,7 @@ type
     CheckBox10: TCheckBox;
     CheckBox11: TCheckBox;
     CheckBox12: TCheckBox;
+    CheckBox13: TCheckBox;
     procedure Edit1KeyPress(Sender: TObject; var Key: Char);
     procedure FormCreate(Sender: TObject);
   private
@@ -99,6 +100,7 @@ begin
     f.CheckBox10.Checked := optlocationsreadylist;
     f.CheckBox11.Checked := dodraworderinfolite;
     f.CheckBox12.Checked := quantizeimagetosavemem;
+    f.CheckBox13.Checked := savealwayswantedlists;
 
     if IsIntegerInRange(inventorysortmethod, 0, f.RadioGroup1.items.Count - 1) then
       f.RadioGroup1.ItemIndex := inventorysortmethod;
@@ -120,6 +122,7 @@ begin
       optlocationsreadylist := f.CheckBox10.Checked;
       dodraworderinfolite := f.CheckBox11.Checked;
       quantizeimagetosavemem := f.CheckBox12.Checked;
+      savealwayswantedlists := f.CheckBox13.Checked;
     end;
   finally
     f.Free;

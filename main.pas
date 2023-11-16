@@ -4294,35 +4294,39 @@ begin
   inventory.StorePieceInventoryStatsRec(basedefault + 'out\' + Trim(setid) + '\' + Trim(setid) + '.history', Trim(setid), -1);
 
   swanted := s1 + setid + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(swanted + '_NEW_030%.xml', 0.3);
 
-  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(swanted + '_USED_030%.xml', 0.3);
+  if savealwayswantedlists then
+  begin
+    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_030%.xml', 0.3);
+
+    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_030%.xml', 0.3);
+  end;
 
 
   for j := 0 to inv.numlooseparts - 1 do
@@ -5556,21 +5560,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'Tag_' + MakePathString(tag);
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -5635,21 +5643,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'TagInv_' + MakePathString(tag);
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+  end;
 
   document.write('<br>');
   document.write('<br>');
@@ -10427,35 +10439,38 @@ begin
   s1 := s1 + 'missing_' + setid + '_X_' + IntToStrZfill(3, numsets);
   inv.SaveLooseParts(s1 + '.txt');
   s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_030%.xml', 0.3);
+  if savealwayswantedlists then
+  begin
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_030%.xml', 0.3);
 
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_030%.xml', 0.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_030%.xml', 0.3);
+  end;
 
   if sinv <> nil then
   begin
@@ -10552,35 +10567,39 @@ begin
   s1 := s1 + legstr;
   inv.SaveLooseParts(s1 + '.txt');
   s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_030%.xml', 0.3);
 
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_030%.xml', 0.3);
+  if savealwayswantedlists then
+  begin
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_030%.xml', 0.3);
+
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_030%.xml', 0.3);
+  end;
 
   DrawHeadLine(Format('<a href="sinv/%s">%s - %s</a><br><br><img width=360px src=s\' + setid + '.jpg>', [setid, setid, db.SetDesc(setid)]));
 
@@ -10679,35 +10698,39 @@ begin
   s1 := s1 + legstr;
   inv.SaveLooseParts(s1 + '.txt');
   s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_030%.xml', 0.3);
 
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_030%.xml', 0.3);
+  if savealwayswantedlists then
+  begin
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_030%.xml', 0.3);
+
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_030%.xml', 0.3);
+  end;
 
   DrawHeadLine(Format('<a href="sinv/%s">%s - %s</a><br><br><img width=360px src=s\' + setid + '.jpg>', [setid, setid, db.SetDesc(setid)]));
 
@@ -11247,35 +11270,39 @@ begin
     setids.SaveToFile(s1 + '_sets.txt');
   end;
   s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_030%.xml', 0.3);
 
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_030%.xml', 0.3);
+  if savealwayswantedlists then
+  begin
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_030%.xml', 0.3);
+
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_030%.xml', 0.3);
+  end;
 
   s1 := '';
   for i := 0 to setids.Count - 1 do
@@ -14066,21 +14093,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'PiecesUnknownWeight';
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -14118,21 +14149,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'InstructionsUnknownWeight';
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -14170,21 +14205,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'BoxesUnknownWeight';
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -14277,21 +14316,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'UsedPiecesbelow' + IntToStrzFill(4, x) + 'euroKgr';
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -14380,21 +14423,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'NewPiecesbelow' + IntToStrzFill(4, x) + 'euroKgr';
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 
@@ -15414,21 +15461,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'partlist';
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 
@@ -16282,21 +16333,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'UsedPiecesabove' + IntToStrzFill(4, x) + 'euroKgr';
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 
@@ -16379,21 +16434,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'NewPiecesabove' + IntToStrzFill(4, x) + 'euroKgr';
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 
@@ -16667,21 +16726,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'PriceGuideQry_' + typ + '_' + itoa(n) + '_' + itoa(btoi(dosoldnew)) + '_' + itoa(btoi(dosoldused)) + '_' + itoa(btoi(doavailnew)) + '_' + itoa(btoi(doavailused));
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -16738,21 +16801,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'NewPiecesCheaperUsed';
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -16846,21 +16913,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'NewPiecesPriceAbove_' + Format('%2.4f', [x]);
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -16919,21 +16990,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'UsedPiecesPriceAbove_' + Format('%2.4f', [x]);
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -16989,21 +17064,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'NewPiecesPriceAboveEvaluated_' + Format('%2.4f', [x]);
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -17059,21 +17138,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'UsedPiecesPriceAboveEvaluated_' + Format('%2.4f', [x]);
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -17647,21 +17730,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'PiecesDiscontinuedAtYear_' + itoa(y);
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -17767,21 +17854,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'PiecesNewAtYear_' + itoa(y);
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -17853,21 +17944,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'PiecesDiscontinuedAtYearExcludingVariations_' + itoa(y);
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -17928,21 +18023,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'PiecesNewAtYearExcludingVariations_' + itoa(y);
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -18192,21 +18291,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'PiecesNewAtYear_Minifigure_' + itoa(y);
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -18285,21 +18388,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'MinifigurePiecesDiscontinuedAtYear' + itoa(y);
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -18551,35 +18658,40 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'NewPiecesMuchMoreExpensiveThanUsed_' + ffmt;
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListNew(s1 + '_NEW_030%.xml', 0.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_USED_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_NEW_030%.xml', 0.3);
+
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_USED_030%.xml', 0.3);
+  end;
 
   inv.Free;
 end;
@@ -19806,21 +19918,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'PiecesWithDaysToUpdate' + IntToStrzFill(4, x);
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 
@@ -19906,21 +20022,25 @@ begin
     ForceDirectories(s1);
   s1 := s1 + 'PiecesWithDaysToUpdateRange_' + IntToStrzFill(4, x) + '_' + IntToStrzFill(4, x2);
   inv.SaveLooseParts(s1 + '.txt');
-  s1 := s1 + '_wantedlist';
-  inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
-  inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+  end;
 
   inv.Free;
 

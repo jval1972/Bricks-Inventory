@@ -4,7 +4,7 @@ object OptionsForm: TOptionsForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 289
+  ClientHeight = 320
   ClientWidth = 354
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -550,7 +550,7 @@ object OptionsForm: TOptionsForm
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 248
+    Top = 279
     Width = 354
     Height = 41
     Align = alBottom
@@ -610,7 +610,7 @@ object OptionsForm: TOptionsForm
     Left = 24
     Top = 8
     Width = 313
-    Height = 225
+    Height = 249
     ActivePage = TabSheet1
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
@@ -676,6 +676,14 @@ object OptionsForm: TOptionsForm
         Height = 17
         Caption = 'Quantize images to reduce memory usage'
         TabOrder = 6
+      end
+      object CheckBox13: TCheckBox
+        Left = 8
+        Top = 192
+        Width = 265
+        Height = 17
+        Caption = 'Always save wanted lists'
+        TabOrder = 7
       end
     end
     object TabSheet2: TTabSheet

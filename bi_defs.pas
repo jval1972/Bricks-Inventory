@@ -55,6 +55,7 @@ var
   dpagesize: integer;
   quantizeimagetosavemem: boolean;
   savealwayspartinvinfo: boolean;
+  savealwayswantedlists: boolean;
   generatethumbnailsondemand: boolean;
   silentwarnings: boolean;
   searchdownloadimg: boolean;
@@ -64,7 +65,7 @@ var
   optlocationsreadylist: boolean;
 
 const
-  NUMDEFAULTS = 17;
+  NUMDEFAULTS = 18;
 
   defaults: array[0..NUMDEFAULTS - 1] of default_t = (
     (name: 'General';
@@ -109,6 +110,14 @@ const
 
     (name: 'savealwayspartinvinfo';
      location: @savealwayspartinvinfo;
+     setable: true;
+     defaultsvalue: '0';
+     defaultivalue: 0;
+     defaultbvalue: False;
+     _type: tBoolean),
+
+    (name: 'savealwayswantedlists';
+     location: @savealwayswantedlists;
      setable: true;
      defaultsvalue: '0';
      defaultivalue: 0;

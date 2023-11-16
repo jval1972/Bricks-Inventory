@@ -6364,17 +6364,17 @@ begin
   end;
 
   srelationships := '';
-  if pi.moldvariations.Count > 0 then
+  if pi.GetMoldVariationsCount > 0 then
     srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td><a href=ShowMoldVariations/' + pcs + '>Mold Variations</a></td></tr>';
-  if pi.alternates.Count > 0 then
+  if pi.GetAlternatesCount > 0 then
     srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td><a href=ShowPieceAlternates/' + pcs + '>Alternates</a></td></tr>';
   if pi.patternof <> '' then
     srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td>Pattern of <a href=spiece/' + pi.patternof + '>' + pi.patternof + '</a></td></tr>';
   if pi.printof <> '' then
     srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td>Print of <a href=spiece/' + pi.printof + '>' + pi.printof + '</a></td></tr>';
-  if pi.patterns.Count > 0 then
+  if pi.GetPatternsCount > 0 then
     srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td><a href=ShowPiecePatterns/' + pcs + '>Patterns</a></td></tr>';
-  if pi.prints.Count > 0 then
+  if pi.GetPrintsCount > 0 then
     srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td><a href=ShowPiecePrints/' + pcs + '>Prints</a></td></tr>';
 
   srelated := db.GetRelatedPieces(pcs);
@@ -6608,7 +6608,12 @@ begin
   SplashProgress('Working...', 0);
 
   if domultipagedocuments then
-    document.NewMultiPageDocument('DrawMoldList' + tit, lst.Text);
+  begin
+    if lst <> nil then
+      document.NewMultiPageDocument('DrawMoldList' + tit, lst.Text)
+    else
+      document.NewMultiPageDocument('DrawMoldList' + tit, 'DEADDEAD');
+  end;
 
   document.write('<body background="splash.jpg">');
   if doctit = '' then
@@ -6633,41 +6638,42 @@ begin
 
   aa := 0;
 
-  for i := 0 to lst.Count - 1 do
-  begin
-    pcs := lst.Strings[i];
-    ncolors := db.GetMoldKnownColors(pcs);
-    if ncolors.Count = 0 then
+  if lst <> nil then
+    for i := 0 to lst.Count - 1 do
     begin
+      pcs := lst.Strings[i];
+      ncolors := db.GetMoldKnownColors(pcs);
+      if ncolors.Count = 0 then
+      begin
+        ncolors.Free;
+        Continue;
+      end;
+
+      inc(aa);
+      document.StartItemId(aa);
+      document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
+
+      document.write('<td width=25%>');
+      document.write(MakeThumbnailImage2(pcs) + '<b><a href=spiece/' + pcs + '>' + pcs + '</a></b>');
+      document.write(' - ' + db.PieceDesc(pcs) + '</td>');
+
+      if donumlinks then
+        document.write('<td width=10%><p align=center>' +
+          '<a href=ShowMoldsWithNumColors/' + itoa(ncolors.Count) + '>' + itoa(ncolors.Count) + '</a>' +
+          '</p></td>')
+      else
+        document.write('<td width=10%><p align=center>' + itoa(ncolors.Count) + '</p></td>');
+      document.write('<td width=65%>');
+      if splitcolorflags then
+        DrawColorCells2(ncolors, 25)
+      else
+        DrawColorCells(ncolors, 25);
       ncolors.Free;
-      Continue;
+
+      document.write('</td></tr>');
+
+      SplashProgress('Working...', i / lst.Count);
     end;
-
-    inc(aa);
-    document.StartItemId(aa);
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
-
-    document.write('<td width=25%>');
-    document.write(MakeThumbnailImage2(pcs) + '<b><a href=spiece/' + pcs + '>' + pcs + '</a></b>');
-    document.write(' - ' + db.PieceDesc(pcs) + '</td>');
-
-    if donumlinks then
-      document.write('<td width=10%><p align=center>' +
-        '<a href=ShowMoldsWithNumColors/' + itoa(ncolors.Count) + '>' + itoa(ncolors.Count) + '</a>' +
-        '</p></td>')
-    else
-      document.write('<td width=10%><p align=center>' + itoa(ncolors.Count) + '</p></td>');
-    document.write('<td width=65%>');
-    if splitcolorflags then
-      DrawColorCells2(ncolors, 25)
-    else
-      DrawColorCells(ncolors, 25);
-    ncolors.Free;
-
-    document.write('</td></tr>');
-
-    SplashProgress('Working...', i / lst.Count);
-  end;
 
   document.EndNavigateSection;
 
@@ -6701,7 +6707,12 @@ begin
   SplashProgress('Working...', 0);
 
   if domultipagedocuments then
-    document.NewMultiPageDocument('DrawMoldList2' + tit, lst.Text);
+  begin
+    if lst <> nil then
+      document.NewMultiPageDocument('DrawMoldList2' + tit, lst.Text)
+    else
+      document.NewMultiPageDocument('DrawMoldList2' + tit, 'DEADDEAD');
+  end;
 
   document.write('<body background="splash.jpg">');
   if doctit = '' then
@@ -6727,41 +6738,42 @@ begin
 
   aa := 0;
 
-  for i := 0 to lst.Count - 1 do
-  begin
-    splitstring(lst.Strings[i], pcs, pcs2, ',');
-    ncolors := db.GetMoldKnownColors(pcs);
+  if lst <> nil then
+    for i := 0 to lst.Count - 1 do
+    begin
+      splitstring(lst.Strings[i], pcs, pcs2, ',');
+      ncolors := db.GetMoldKnownColors(pcs);
 
-    inc(aa);
-    document.StartItemId(aa);
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
+      inc(aa);
+      document.StartItemId(aa);
+      document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
 
-    document.write('<td width=20%>');
-    document.write(MakeThumbnailImage2(pcs) + '<b><a href=spiecenal/' + pcs + '>' + pcs + '</a></b>');
-    document.write(' - ' + db.PieceDesc(pcs) + '</td>');
+      document.write('<td width=20%>');
+      document.write(MakeThumbnailImage2(pcs) + '<b><a href=spiecenal/' + pcs + '>' + pcs + '</a></b>');
+      document.write(' - ' + db.PieceDesc(pcs) + '</td>');
 
-    document.write('<td width=20%>');
-    document.write(MakeThumbnailImage2(pcs2) + '<b><a href=spiecenal/' + pcs2 + '>' + pcs2 + '</a></b>');
-    document.write(' - ' + db.PieceDesc(pcs2) + '</td>');
+      document.write('<td width=20%>');
+      document.write(MakeThumbnailImage2(pcs2) + '<b><a href=spiecenal/' + pcs2 + '>' + pcs2 + '</a></b>');
+      document.write(' - ' + db.PieceDesc(pcs2) + '</td>');
 
 
-    if donumlinks then
-      document.write('<td width=10%><p align=center>' +
-        '<a href=ShowMoldsWithNumColors/' + itoa(ncolors.Count) + '>' + itoa(ncolors.Count) + '</a>' +
-        '</p></td>')
-    else
-      document.write('<td width=10%><p align=center>' + itoa(ncolors.Count) + '</p></td>');
-    document.write('<td width=45%>');
-    if splitcolorflags then
-      DrawColorCells2(ncolors, 25)
-    else
-      DrawColorCells(ncolors, 25);
-    ncolors.Free;
+      if donumlinks then
+        document.write('<td width=10%><p align=center>' +
+          '<a href=ShowMoldsWithNumColors/' + itoa(ncolors.Count) + '>' + itoa(ncolors.Count) + '</a>' +
+          '</p></td>')
+      else
+        document.write('<td width=10%><p align=center>' + itoa(ncolors.Count) + '</p></td>');
+      document.write('<td width=45%>');
+      if splitcolorflags then
+        DrawColorCells2(ncolors, 25)
+      else
+        DrawColorCells(ncolors, 25);
+      ncolors.Free;
 
-    document.write('</td></tr>');
+      document.write('</td></tr>');
 
-    SplashProgress('Working...', i / lst.Count);
-  end;
+      SplashProgress('Working...', i / lst.Count);
+    end;
 
   document.EndNavigateSection;
 
@@ -18788,7 +18800,7 @@ begin
   pi := db.PieceInfo(basepcs);
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
   titstr := 'Mold variations for ' + basepcs;
-  if pi.moldvariations.Count = 0 then
+  if pi.GetMoldVariationsCount = 0 then
     DrawMoldList('No mold variations for ' + linkstr, pi.moldvariations, False, False, titstr)
   else
     DrawMoldList('Mold variations for ' + linkstr, pi.moldvariations, False, False, titstr);
@@ -18802,7 +18814,7 @@ begin
   pi := db.PieceInfo(basepcs);
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
   titstr := 'Alternates for ' + basepcs;
-  if pi.alternates.Count = 0 then
+  if pi.GetAlternatesCount = 0 then
     DrawMoldList('No alternates for ' + linkstr, pi.alternates, False, False, titstr)
   else
     DrawMoldList('Alternates for ' + linkstr, pi.alternates, False, False, titstr);
@@ -18816,7 +18828,7 @@ begin
   pi := db.PieceInfo(basepcs);
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
   titstr := 'Patterns for ' + basepcs;
-  if pi.patterns.Count = 0 then
+  if pi.GetPatternsCount = 0 then
     DrawMoldList('No patterns for ' + linkstr, pi.patterns, False, False, titstr)
   else
     DrawMoldList('Patterns for ' + linkstr, pi.patterns, False, False, titstr);
@@ -18848,7 +18860,7 @@ begin
   pi := db.PieceInfo(basepcs);
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
   titstr := 'Prints for ' + basepcs;
-  if pi.prints.Count = 0 then
+  if pi.GetPrintsCount = 0 then
     DrawMoldList('No prints for ' + linkstr, pi.prints, False, False, titstr)
   else
     DrawMoldList('Prints for ' + linkstr, pi.prints, False, False, titstr);

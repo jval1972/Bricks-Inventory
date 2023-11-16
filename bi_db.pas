@@ -343,6 +343,52 @@ type
   categoryinfoarray_p = ^categoryinfoarray_t;
 
 type
+  {$IFNDEF CRAWLER}
+  TPieceInfoRelationships = class(TObject)
+  private
+    fmoldvariations: TStringList;
+    falternates: TStringList;
+    fpatternof: string;
+    fprintof: string;
+    fpatterns: TStringList;
+    fprints: TStringList;
+  protected
+    function GetMoldVariations: TStringList;
+    procedure SetMoldVariations(const l: TStringList);
+    function GetMoldVariationsCount: integer;
+    function GetMoldVariationsIndexOf(const s: string): integer;
+    procedure AddMoldVariation(const s: string);
+    function GetAlternates: TStringList;
+    procedure SetAlternates(const l: TStringList);
+    function GetAlternatesCount: integer;
+    function GetAlternatesIndexOf(const s: string): integer;
+    procedure AddAlternate(const s: string);
+    function GetPatterns: TStringList;
+    procedure SetPatterns(const l: TStringList);
+    function GetPatternsCount: integer;
+    function GetPatternsIndexOf(const s: string): integer;
+    procedure AddPattern(const s: string);
+    function GetPrints: TStringList;
+    procedure SetPrints(const l: TStringList);
+    function GetPrintsCount: integer;
+    function GetPrintsIndexOf(const s: string): integer;
+    procedure AddPrint(const s: string);
+  public
+    constructor Create; virtual;
+    destructor Destroy; override;
+    property patternof: string read fpatternof write fpatternof;
+    property printof: string read fprintof write fprintof;
+    property moldvariations: TStringList read GetMoldVariations write SetMoldVariations;
+    property moldvariationscount: integer read GetMoldVariationsCount;
+    property alternates: TStringList read GetAlternates write SetAlternates;
+    property alternatescount: integer read GetAlternatesCount;
+    property patterns: TStringList read GetPatterns write SetPatterns;
+    property patternscount: integer read GetPatternsCount;
+    property prints: TStringList read GetPrints write SetPrints;
+    property printscount: integer read GetPrintsCount;
+  end;
+  {$ENDIF}
+
   TPieceInfo = class(TObject)
   private
     fname: string;
@@ -353,12 +399,7 @@ type
     fcategory: integer;
     fweight: Double;
     {$IFNDEF CRAWLER}
-    fmoldvariations: TStringList;
-    falternates: TStringList;
-    fpatternof: string;
-    fprintof: string;
-    fpatterns: TStringList;
-    fprints: TStringList;
+    frelationships: TPieceInfoRelationships;
     {$ENDIF}
     {$IFNDEF CRAWLER}
     fdimentionx: Double;
@@ -372,10 +413,36 @@ type
     {$IFNDEF CRAWLER}
     function GetDesc: string;
     procedure SetDesc(const v: string);
+    function GetPatternOf: string;
+    procedure SetPatternOf(const v: string);
+    function GetPrintOf: string;
+    procedure SetPrintOf(const v: string);
+    function GetMoldVariations: TStringList;
+    procedure SetMoldVariations(const l: TStringList);
+    function GetAlternates: TStringList;
+    procedure SetAlternates(const l: TStringList);
+    function GetPatterns: TStringList;
+    procedure SetPatterns(const l: TStringList);
+    function GetPrints: TStringList;
+    procedure SetPrints(const l: TStringList);
     {$ENDIF}
   public
     constructor Create; virtual;
     destructor Destroy; override;
+    {$IFNDEF CRAWLER}
+    function GetMoldVariationsCount: integer;
+    function GetMoldVariationsIndexOf(const s: string): integer;
+    procedure AddMoldVariation(const s: string);
+    function GetAlternatesCount: integer;
+    function GetAlternatesIndexOf(const s: string): integer;
+    procedure AddAlternate(const s: string);
+    function GetPatternsCount: integer;
+    function GetPatternsIndexOf(const s: string): integer;
+    procedure AddPattern(const s: string);
+    function GetPrintsCount: integer;
+    function GetPrintsIndexOf(const s: string): integer;
+    procedure AddPrint(const s: string);
+    {$ENDIF}
     function hasinventory: boolean;
     function Inventory(const color: integer): TBrickInventory;
     function InventoryAsText(const color: integer): string;
@@ -387,12 +454,16 @@ type
     property category: integer read fcategory write fcategory;
     property weight: Double read fweight write fweight;
     {$IFNDEF CRAWLER}
-    property moldvariations: TStringList read fmoldvariations write fmoldvariations;
-    property alternates: TStringList read falternates write falternates;
-    property patternof: string read fpatternof write fpatternof;
-    property printof: string read fprintof write fprintof;
-    property patterns: TStringList read fpatterns write fpatterns;
-    property prints: TStringList read fprints write fprints;
+    property patternof: string read GetPatternOf write SetPatternOf;
+    property printof: string read GetPrintOf write SetPrintOf;
+    property moldvariations: TStringList read GetMoldVariations write SetMoldVariations;
+    property moldvariationscount: integer read GetMoldVariationsCount;
+    property alternates: TStringList read GetAlternates write SetAlternates;
+    property alternatescount: integer read GetAlternatesCount;
+    property patterns: TStringList read GetPatterns write SetPatterns;
+    property patternscount: integer read GetPatternsCount;
+    property prints: TStringList read GetPrints write SetPrints;
+    property printscount: integer read GetPrintsCount;
     {$ENDIF}
     {$IFNDEF CRAWLER}
     property dimentionx: Double read fdimentionx write fdimentionx;
@@ -8057,27 +8128,27 @@ begin
                     case styp[1] of
                       'A':
                         begin
-                          if pic.alternates.IndexOf(pip.name) < 0 then
-                            pic.alternates.Add(pip.name);
-                          if pip.alternates.IndexOf(pic.name) < 0 then
-                            pip.alternates.Add(pic.name);
+                          if pic.GetAlternatesIndexOf(pip.name) < 0 then
+                            pic.AddAlternate(pip.name);
+                          if pip.GetAlternatesIndexOf(pic.name) < 0 then
+                            pip.AddAlternate(pic.name);
                         end;
                       'M':
                         begin
-                          if pic.moldvariations.IndexOf(pip.name) < 0 then
-                            pic.moldvariations.Add(pip.name);
-                          if pip.moldvariations.IndexOf(pic.name) < 0 then
-                            pip.moldvariations.Add(pic.name);
+                          if pic.GetMoldVariationsIndexOf(pip.name) < 0 then
+                            pic.AddMoldVariation(pip.name);
+                          if pip.GetMoldVariationsIndexOf(pic.name) < 0 then
+                            pip.AddMoldVariation(pic.name);
                         end;
                       'P':
                         begin
                           pic.printof := pip.name;
-                          pip.prints.Add(pic.name);
+                          pip.AddPrint(pic.name);
                         end;
                       'T':
                         begin
                           pic.patternof := pip.name;
-                          pip.patterns.Add(pic.name);
+                          pip.AddPattern(pic.name);
                         end;
                     end;
                   end;
@@ -17573,6 +17644,180 @@ begin
 end;
 {$ENDIF}
 
+{$IFNDEF CRAWLER}
+constructor TPieceInfoRelationships.Create;
+begin
+  Inherited Create;
+  fmoldvariations := nil;
+  falternates := nil;
+  fpatternof := '';
+  fprintof := '';
+  fpatterns := nil;
+  fprints := nil;
+end;
+
+destructor TPieceInfoRelationships.Destroy;
+begin
+  FreeList(fmoldvariations);
+  FreeList(falternates);
+  FreeList(fpatterns);
+  FreeList(fprints);
+  Inherited;
+end;
+
+function TPieceInfoRelationships.GetMoldVariations: TStringList;
+begin
+  if fmoldvariations = nil then
+    fmoldvariations := TStringList.Create;
+  Result := fmoldvariations;
+end;
+
+procedure TPieceInfoRelationships.SetMoldVariations(const l: TStringList);
+begin
+  if fmoldvariations <> nil then
+    fmoldvariations.Free;
+  if fmoldvariations <> l then
+    fmoldvariations := l;
+end;
+
+function TPieceInfoRelationships.GetMoldVariationsCount: integer;
+begin
+  if fmoldvariations = nil then
+    Result := 0
+  else
+    Result := fmoldvariations.Count;
+end;
+
+function TPieceInfoRelationships.GetMoldVariationsIndexOf(const s: string): integer;
+begin
+  if fmoldvariations = nil then
+    Result := -1
+  else
+    Result := fmoldvariations.IndexOf(s);
+end;
+
+procedure TPieceInfoRelationships.AddMoldVariation(const s: string);
+begin
+  if fmoldvariations = nil then
+    fmoldvariations := TStringList.Create;
+  fmoldvariations.Add(s);
+end;
+
+function TPieceInfoRelationships.GetAlternates: TStringList;
+begin
+  if falternates = nil then
+    falternates := TStringList.Create;
+  Result := falternates;
+end;
+
+procedure TPieceInfoRelationships.SetAlternates(const l: TStringList);
+begin
+  if falternates <> nil then
+    falternates.Free;
+  if falternates <> l then
+    falternates := l;
+end;
+
+function TPieceInfoRelationships.GetAlternatesCount: integer;
+begin
+  if falternates = nil then
+    Result := 0
+  else
+    Result := falternates.Count;
+end;
+
+function TPieceInfoRelationships.GetAlternatesIndexOf(const s: string): integer;
+begin
+  if falternates = nil then
+    Result := -1
+  else
+    Result := falternates.IndexOf(s);
+end;
+
+procedure TPieceInfoRelationships.AddAlternate(const s: string);
+begin
+  if falternates = nil then
+    falternates := TStringList.Create;
+  falternates.Add(s);
+end;
+
+function TPieceInfoRelationships.GetPatterns: TStringList;
+begin
+  if fpatterns = nil then
+    fpatterns := TStringList.Create;
+  Result := fpatterns;
+end;
+
+procedure TPieceInfoRelationships.SetPatterns(const l: TStringList);
+begin
+  if fpatterns <> nil then
+    fpatterns.Free;
+  if fpatterns <> l then
+    fpatterns := l;
+end;
+
+function TPieceInfoRelationships.GetPatternsCount: integer;
+begin
+  if fpatterns = nil then
+    Result := 0
+  else
+    Result := fpatterns.Count;
+end;
+
+function TPieceInfoRelationships.GetPatternsIndexOf(const s: string): integer;
+begin
+  if fpatterns = nil then
+    Result := -1
+  else
+    Result := fpatterns.IndexOf(s);
+end;
+
+procedure TPieceInfoRelationships.AddPattern(const s: string);
+begin
+  if fpatterns = nil then
+    fpatterns := TStringList.Create;
+  fpatterns.Add(s);
+end;
+
+function TPieceInfoRelationships.GetPrints: TStringList;
+begin
+  if fprints = nil then
+    fprints := TStringList.Create;
+  Result := fprints;
+end;
+
+procedure TPieceInfoRelationships.SetPrints(const l: TStringList);
+begin
+  if fprints <> nil then
+    fprints.Free;
+  if fprints <> l then
+    fprints := l;
+end;
+
+function TPieceInfoRelationships.GetPrintsCount: integer;
+begin
+  if fprints = nil then
+    Result := 0
+  else
+    Result := fprints.Count;
+end;
+
+function TPieceInfoRelationships.GetPrintsIndexOf(const s: string): integer;
+begin
+  if fprints = nil then
+    Result := -1
+  else
+    Result := fprints.IndexOf(s);
+end;
+
+procedure TPieceInfoRelationships.AddPrint(const s: string);
+begin
+  if fprints = nil then
+    fprints := TStringList.Create;
+  fprints.Add(s);
+end;
+{$ENDIF}
+
 constructor TPieceInfo.Create;
 begin
   fname := '';
@@ -17582,12 +17827,7 @@ begin
   fcategory := 0;
   fweight := 0;
   {$IFNDEF CRAWLER}
-  fmoldvariations := TStringList.Create;
-  falternates := TStringList.Create;
-  fpatternof := '';
-  fprintof := '';
-  fpatterns := TStringList.Create;
-  fprints := TStringList.Create;
+  frelationships := nil;
   {$ENDIF}
   {$IFNDEF CRAWLER}
   fdimentionx := 0;
@@ -17603,10 +17843,8 @@ end;
 destructor TPieceInfo.Destroy;
 begin
   {$IFNDEF CRAWLER}
-  FreeList(fmoldvariations);
-  FreeList(falternates);
-  FreeList(fpatterns);
-  FreeList(fprints);
+  if frelationships <> nil then
+    frelationships.Free;
   {$ENDIF}
   Inherited Destroy;
 end;
@@ -17803,6 +18041,196 @@ end;
 procedure TPieceInfo.SetDesc(const v: string);
 begin
   fdesc := BI_EncodeDesc(v);
+end;
+
+function TPieceInfo.GetPatternOf: string;
+begin
+  if frelationships = nil then
+    Result := ''
+  else
+    Result := frelationships.patternof;
+end;
+
+procedure TPieceInfo.SetPatternOf(const v: string);
+begin
+  if frelationships = nil then
+  begin
+    if v = '' then
+      Exit;
+    frelationships := TPieceInfoRelationships.Create;
+  end;
+  frelationships.patternof := v;
+end;
+
+function TPieceInfo.GetPrintOf: string;
+begin
+  if frelationships = nil then
+    Result := ''
+  else
+    Result := frelationships.printof;
+end;
+
+procedure TPieceInfo.SetPrintOf(const v: string);
+begin
+  if frelationships = nil then
+  begin
+    if v = '' then
+      Exit;
+    frelationships := TPieceInfoRelationships.Create
+  end;
+  frelationships.printof := v;
+end;
+
+function TPieceInfo.GetMoldVariations: TStringList;
+begin
+  if frelationships = nil then
+    Result := nil
+  else
+    Result := frelationships.moldvariations;
+end;
+
+procedure TPieceInfo.SetMoldVariations(const l: TStringList);
+begin
+  if frelationships = nil then
+    frelationships := TPieceInfoRelationships.Create;
+  frelationships.moldvariations := l;
+end;
+
+function TPieceInfo.GetAlternates: TStringList;
+begin
+  if frelationships = nil then
+    Result := nil
+  else
+    Result := frelationships.alternates;
+end;
+
+procedure TPieceInfo.SetAlternates(const l: TStringList);
+begin
+  if frelationships = nil then
+    frelationships := TPieceInfoRelationships.Create;
+  frelationships.alternates := l;
+end;
+
+function TPieceInfo.GetPatterns: TStringList;
+begin
+  if frelationships = nil then
+    Result := nil
+  else
+    Result := frelationships.patterns;
+end;
+
+procedure TPieceInfo.SetPatterns(const l: TStringList);
+begin
+  if frelationships = nil then
+    frelationships := TPieceInfoRelationships.Create;
+  frelationships.prints := l;
+end;
+
+function TPieceInfo.GetPrints: TStringList;
+begin
+  if frelationships = nil then
+    Result := nil
+  else
+    Result := frelationships.prints;
+end;
+
+procedure TPieceInfo.SetPrints(const l: TStringList);
+begin
+  if frelationships = nil then
+    frelationships := TPieceInfoRelationships.Create;
+  frelationships.prints := l;
+end;
+
+function TPieceInfo.GetMoldVariationsCount: integer;
+begin
+  if frelationships = nil then
+    Result := 0
+  else
+    Result := frelationships.GetMoldVariationsCount;
+end;
+
+function TPieceInfo.GetMoldVariationsIndexOf(const s: string): integer;
+begin
+  if frelationships = nil then
+    Result := -1
+  else
+    Result := frelationships.GetMoldVariationsIndexOf(s);
+end;
+
+procedure TPieceInfo.AddMoldVariation(const s: string);
+begin
+  if frelationships = nil then
+    frelationships := TPieceInfoRelationships.Create;
+  frelationships.AddMoldVariation(s);
+end;
+
+function TPieceInfo.GetAlternatesCount: integer;
+begin
+  if frelationships = nil then
+    Result := 0
+  else
+    Result := frelationships.GetAlternatesCount;
+end;
+
+function TPieceInfo.GetAlternatesIndexOf(const s: string): integer;
+begin
+  if frelationships = nil then
+    Result := -1
+  else
+    Result := frelationships.GetAlternatesIndexOf(s);
+end;
+
+procedure TPieceInfo.AddAlternate(const s: string);
+begin
+  if frelationships = nil then
+    frelationships := TPieceInfoRelationships.Create;
+  frelationships.AddAlternate(s);
+end;
+
+function TPieceInfo.GetPatternsCount: integer;
+begin
+  if frelationships = nil then
+    Result := 0
+  else
+    Result := frelationships.GetPatternsCount;
+end;
+
+function TPieceInfo.GetPatternsIndexOf(const s: string): integer;
+begin
+  if frelationships = nil then
+    Result := -1
+  else
+    Result := frelationships.GetPatternsIndexOf(s);
+end;
+
+procedure TPieceInfo.AddPattern(const s: string);
+begin
+  if frelationships = nil then
+    frelationships := TPieceInfoRelationships.Create;
+  frelationships.AddPattern(s);
+end;
+
+function TPieceInfo.GetPrintsCount: integer;
+begin
+  if frelationships = nil then
+    Result := 0
+  else
+    Result := frelationships.GetPrintsCount;
+end;
+
+function TPieceInfo.GetPrintsIndexOf(const s: string): integer;
+begin
+  if frelationships = nil then
+    Result := -1
+  else
+    Result := frelationships.GetPrintsIndexOf(s);
+end;
+
+procedure TPieceInfo.AddPrint(const s: string);
+begin
+  if frelationships = nil then
+    frelationships := TPieceInfoRelationships.Create;
+  frelationships.AddPrint(s);
 end;
 {$ENDIF}
 

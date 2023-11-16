@@ -168,6 +168,54 @@ function GetMemoryUsed: LongWord;
 
 procedure SetDoubleStringsToSpace(const lst: TStringList);
 
+type
+  TStringListContainer = class(TObject)
+  private
+    flist: TStringList;
+    fflags: LongWord;
+    procedure CreateList;
+    function GetSorted: Boolean;
+    procedure SetSorted(Value: Boolean);
+    function GetCaseSensitive: Boolean;
+    procedure SetCaseSensitive(const Value: Boolean);
+  protected
+    function GetCount: integer;
+    function Get(Index: Integer): string;
+    procedure Put(Index: Integer; const S: string);
+    function GetObject(Index: Integer): TObject;
+    procedure PutObject(Index: Integer; AObject: TObject);
+    function GetTextStr: string;
+    procedure SetTextStr(const Value: string);
+  public
+    constructor Create; virtual;
+    destructor Destroy; override;
+    function Add(const S: string): Integer;
+    function AddObject(const S: string; AObject: TObject): Integer;
+    procedure Clear;
+    procedure Delete(Index: Integer);
+    procedure Exchange(Index1, Index2: Integer);
+    function IndexOf(const S: string): Integer;
+    procedure Insert(Index: Integer; const S: string);
+    procedure InsertObject(Index: Integer; const S: string;
+      AObject: TObject);
+    procedure Sort;
+    procedure CustomSort(Compare: TStringListSortCompare);
+
+    procedure LoadFromFile(const FileName: string);
+    procedure LoadFromStream(Stream: TStream);
+    procedure SaveToFile(const FileName: string);
+    procedure SaveToStream(Stream: TStream);
+    property Count: Integer read GetCount;
+    property Objects[Index: Integer]: TObject read GetObject write PutObject;
+    property Strings[Index: Integer]: string read Get write Put; default;
+    property Text: string read GetTextStr write SetTextStr;
+
+    property Sorted: Boolean read GetSorted write SetSorted;
+    property CaseSensitive: Boolean read GetCaseSensitive write SetCaseSensitive;
+  end;
+
+procedure FreeListContainer(var s: TStringListContainer);
+
 implementation
 
 uses
@@ -2081,6 +2129,272 @@ begin
     parms[0].lst := lst;
     SetDoubleStringsToSpace_thr(@parms[0]);
   end;
+end;
+
+const
+  FLG_LST_SORTED = 1;
+  FLG_LST_CASESENSITIVE = 2;
+
+constructor TStringListContainer.Create;
+begin
+  Inherited Create;
+  flist := nil;
+  fflags := FLG_LST_CASESENSITIVE;
+end;
+
+destructor TStringListContainer.Destroy;
+begin
+  if flist <> nil then
+  begin
+    flist.Free;
+    flist := nil;
+  end;
+  Inherited Destroy;
+end;
+
+procedure TStringListContainer.CreateList;
+begin
+  if flist <> nil then
+    Exit;
+
+  flist := TStringList.Create;
+  flist.CaseSensitive := fflags and FLG_LST_CASESENSITIVE <> 0;
+  flist.Sorted := fflags and FLG_LST_SORTED <> 0;
+end;
+
+function TStringListContainer.GetSorted: Boolean;
+begin
+  Result := fflags and FLG_LST_SORTED <> 0;
+end;
+
+procedure TStringListContainer.SetSorted(Value: Boolean);
+begin
+  if Value <> (fflags and FLG_LST_SORTED <> 0) then
+  begin
+    if Value then
+      fflags := fflags or FLG_LST_SORTED
+    else
+      fflags := fflags and not FLG_LST_SORTED;
+    if flist <> nil then
+      flist.Sorted := Value;
+  end;
+end;
+
+function TStringListContainer.GetCaseSensitive: Boolean;
+begin
+  Result := fflags and FLG_LST_CASESENSITIVE <> 0;
+end;
+
+procedure TStringListContainer.SetCaseSensitive(const Value: Boolean);
+begin
+  if Value <> (fflags and FLG_LST_CASESENSITIVE <> 0) then
+  begin
+    if Value then
+      fflags := fflags or FLG_LST_CASESENSITIVE
+    else
+      fflags := fflags and not FLG_LST_CASESENSITIVE;
+    if flist <> nil then
+      flist.CaseSensitive := Value;
+  end;
+end;
+
+
+function TStringListContainer.GetCount: integer;
+begin
+  if flist = nil then
+    Result := 0
+  else
+    Result := flist.Count;
+end;
+
+function TStringListContainer.Get(Index: Integer): string;
+begin
+  if flist = nil then
+    Result := ''
+  else
+    Result := flist.Strings[Index];
+end;
+
+procedure TStringListContainer.Put(Index: Integer; const S: string);
+begin
+  CreateList;
+  flist.Strings[Index] := S;
+end;
+
+function TStringListContainer.GetObject(Index: Integer): TObject;
+begin
+  if flist = nil then
+    Result := nil
+  else
+    Result := flist.Objects[Index];
+end;
+
+procedure TStringListContainer.PutObject(Index: Integer; AObject: TObject);
+begin
+  CreateList;
+  flist.Objects[Index] := AObject;
+end;
+
+function TStringListContainer.GetTextStr: string;
+begin
+  if flist = nil then
+    Result := ''
+  else
+    Result := flist.Text;
+end;
+
+procedure TStringListContainer.SetTextStr(const Value: string);
+begin
+  if Value = '' then
+  begin
+    if flist <> nil then
+    begin
+      flist.Free;
+      flist := nil;
+    end;
+    Exit;
+  end;
+  CreateList;
+  flist.Text := Value;
+end;
+
+function TStringListContainer.Add(const S: string): Integer;
+begin
+  CreateList;
+  Result := flist.Add(S);
+end;
+
+function TStringListContainer.AddObject(const S: string; AObject: TObject): Integer;
+begin
+  CreateList;
+  Result := flist.AddObject(S, AObject);
+end;
+
+procedure TStringListContainer.Clear;
+begin
+  if flist <> nil then
+  begin
+    flist.Free;
+    flist := nil;
+  end;
+  Exit;
+end;
+
+procedure TStringListContainer.Delete(Index: Integer);
+begin
+  if flist = nil then
+    Exit;
+  flist.Delete(Index);
+  if flist.Count = 0 then
+  begin
+    flist.Free;
+    flist := nil;
+  end;
+end;
+
+procedure TStringListContainer.Exchange(Index1, Index2: Integer);
+begin
+  if flist <> nil then
+    flist.Exchange(Index1, Index2);
+end;
+
+function TStringListContainer.IndexOf(const S: string): Integer;
+begin
+  if flist = nil then
+    Result := -1
+  else
+    Result := flist.IndexOf(S);
+end;
+
+procedure TStringListContainer.Insert(Index: Integer; const S: string);
+begin
+  CreateList;
+  flist.Insert(Index, S);
+end;
+
+procedure TStringListContainer.InsertObject(Index: Integer; const S: string;
+  AObject: TObject);
+begin
+  CreateList;
+  flist.InsertObject(Index, S, AObject);
+end;
+
+procedure TStringListContainer.Sort;
+begin
+  if flist = nil then
+    Exit;
+  flist.Sort;
+end;
+
+procedure TStringListContainer.CustomSort(Compare: TStringListSortCompare);
+begin
+  if flist = nil then
+    Exit;
+  flist.CustomSort(Compare);
+end;
+
+procedure TStringListContainer.LoadFromFile(const FileName: string);
+begin
+  CreateList;
+  flist.LoadFromFile(FileName);
+  if flist.Count = 0 then
+  begin
+    flist.Free;
+    flist := nil;
+  end;
+end;
+
+procedure TStringListContainer.LoadFromStream(Stream: TStream);
+begin
+  CreateList;
+  flist.LoadFromStream(Stream);
+  if flist.Count = 0 then
+  begin
+    flist.Free;
+    flist := nil;
+  end;
+end;
+
+procedure TStringListContainer.SaveToFile(const FileName: string);
+begin
+  CreateList;
+  flist.SaveToFile(FileName);
+  if flist.Count = 0 then
+  begin
+    flist.Free;
+    flist := nil;
+  end;
+end;
+
+procedure TStringListContainer.SaveToStream(Stream: TStream);
+begin
+  CreateList;
+  flist.SaveToStream(Stream);
+  if flist.Count = 0 then
+  begin
+    flist.Free;
+    flist := nil;
+  end;
+end;
+
+procedure FreeListContainer(var s: TStringListContainer);
+var
+  i: integer;
+begin
+  if s = nil then
+    Exit;
+  for i := 0 to s.Count - 1 do
+    try
+      if s.Objects[i] <> nil then
+      begin
+        s.Objects[i].Free;
+        s.Objects[i] := nil;
+      end;
+    except
+      s.Objects[i] := nil;
+    end;
+  FreeAndNil(s);
+  s := nil;
 end;
 
 end.

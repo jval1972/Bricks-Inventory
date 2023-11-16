@@ -12293,6 +12293,7 @@ var
   i, j, k: integer;
   s, check, txt: string;
   urlstr, spart: string;
+  blname: string;
   sCheck: TStringList;
   snum: string;
   N: TDNumberList;
@@ -12315,9 +12316,10 @@ begin
 
   salternates := nil;
 
+  blname := GetBLNetPieceName(spart);
   if donet then
   begin
-    urlstr := sbricklink + 'v2/catalog/catalogitem.page?P=' + GetBLNetPieceName(spart);
+    urlstr := sbricklink + 'v2/catalog/catalogitem.page?P=' + blname;
     if UrlDownloadToFile(nil, PChar(urlstr), PChar(fname), 0, nil) <> 0 then
       if not fexists(fname) then
         Exit;
@@ -12443,7 +12445,7 @@ begin
         begin
           for i := 0 to N.Count - 1 do
           begin
-            SetNewPieceName(salternates.Strings[k], spart);
+            SetNewPieceName(salternates.Strings[k], blname);
             cl := BrickLinkColorToSystemColor(N.Numbers[i]);
             pci2 := nil;
             if AddKnownPiece(salternates.Strings[k], cl, desc, pci2) then

@@ -32,7 +32,7 @@ interface
 
 uses
   SysUtils, Classes, bi_hash, bi_hash512, bi_threads, bi_currency, bi_delphi,
-  bi_binaryset, bi_binarypart;
+  bi_binaryset, bi_binarypart, bi_utils;
 
 type
   progressfunc_t = procedure (const s: string; a: double) of object;
@@ -592,10 +592,10 @@ type
     fcolor: integer;
     fcolorstr: string[4];
     fsets: TStringList;
-    fparts: TStringList;
+    fparts: TStringListContainer;
     {$IFNDEF CRAWLER}
-    fstorage: TStringList;
-    ftags: TStringList;
+    fstorage: TStringListContainer;
+    ftags: TStringListContainer;
     {$ENDIF}
     fdate: TDateTime;
     fcrawlerlink: string;
@@ -700,10 +700,10 @@ type
     property color: integer read fcolor;
     property hasloaded: boolean read fhasloaded;
     property sets: TStringList read fsets;
-    property parts: TStringList read fparts;
+    property parts: TStringListContainer read fparts;
     {$IFNDEF CRAWLER}
-    property storage: TStringList read fstorage;
-    property tags: TStringList read ftags;
+    property storage: TStringListContainer read fstorage;
+    property tags: TStringListContainer read ftags;
     {$ENDIF}
     property Hash: LongWord read fhash;
     {$IFNDEF CRAWLER}
@@ -1171,7 +1171,7 @@ function fixpartname(const spart: string): string;
 implementation
 
 uses
-  bi_system, bi_utils, bi_crawler, StrUtils, bi_priceadjust, bi_tmp, bi_globals,
+  bi_system, bi_crawler, StrUtils, bi_priceadjust, bi_tmp, bi_globals,
   UrlMon, bi_multithread, bi_cachefile{$IFNDEF CRAWLER}, DateUtils, bi_pghistory,
   bi_description_compress{$ENDIF};
 
@@ -18301,11 +18301,11 @@ begin
   fcacheread := False;
   fsets := TStringList.Create;
   fsets.Sorted := True;
-  fparts := TStringList.Create;
+  fparts := TStringListContainer.Create;
   fparts.Sorted := True;
   {$IFNDEF CRAWLER}
-  fstorage := TStringList.Create;
-  ftags := TStringList.Create;
+  fstorage := TStringListContainer.Create;
+  ftags := TStringListContainer.Create;
   {$ENDIF}
   FillChar(fpriceguide, SizeOf(priceguide_t), 0);
   FillChar(favailability, SizeOf(availability_t), 0);
@@ -18334,10 +18334,10 @@ end;
 destructor TPieceColorInfo.Destroy;
 begin
   FreeList(fsets);
-  FreeList(fparts);
+  FreeListContainer(fparts);
   {$IFNDEF CRAWLER}
-  FreeList(fstorage);
-  FreeList(ftags);
+  FreeListContainer(fstorage);
+  FreeListContainer(ftags);
   {$ENDIF}
   inherited;
 end;

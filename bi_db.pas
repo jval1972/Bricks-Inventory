@@ -283,6 +283,7 @@ type
     procedure SortPiecesByPriceUsed;
     procedure SortPiecesByColor;
     {$ENDIF}
+    procedure SetPartCapacity(const x: integer);
     property numlooseparts: integer read fnumlooseparts;
     property looseparts: brickpool_pa read flooseparts;
     property numsets: integer read fnumsets;
@@ -982,7 +983,8 @@ type
     destructor Destroy; override;
     function LoadFromDisk(const fname: string): boolean;
     procedure AddSetPiece(const setid: string; const part: string; const typ: string;
-      const color: integer; const num: integer; const pci: TObject = nil);
+      const color: integer; const num: integer; const pci: TObject = nil;
+      const invsize: integer = -1);
     procedure AddPieceAlias(const bl, rb: string);
     procedure AddCrawlerLink(const part: string; const color: integer; const link: string);
     function CrawlerLink(const part: string; const color: integer): string;
@@ -1518,6 +1520,17 @@ begin
     frealnumlooseparts := frealnumlooseparts + delta;
     ReallocMem(flooseparts, frealnumlooseparts * SizeOf(brickpool_t));
   end;
+end;
+
+procedure TBrickInventory.SetPartCapacity(const x: integer);
+begin
+  if x > 0 then
+    if x >= fnumlooseparts then
+      if x <> frealnumlooseparts then
+      begin
+        frealnumlooseparts := x;
+        ReallocMem(flooseparts, frealnumlooseparts * SizeOf(brickpool_t));
+      end;
 end;
 
 procedure TBrickInventory._growsets;
@@ -9262,7 +9275,7 @@ begin
                 end
                 else
                   pci := fcolors[cc].knownpieces.Objects[idx] as TPieceColorInfo;
-                AddSetPiece(sset, spiece, '1', cc, num, pci);
+                AddSetPiece(sset, spiece, '1', cc, num, pci, numrecs);
                 {$IFNDEF CRAWLER}
                 if PieceInfo(sset).category = CATEGORYLUGBULK then
                   lyear := PieceColorInfo(sset, -1).year
@@ -9278,6 +9291,7 @@ begin
         begin
          // numrecs := 0;
           S_LoadFromFile(s, basedefault + 'db\sets\' + sset + '.txt');
+          numrecs := s.Count - 1;
           for j := 1 to s.Count - 1 do
           begin
             splitstring(s.strings[j], spiece, scolor, snum, scost, ',');
@@ -9325,7 +9339,7 @@ begin
                 end
                 else
                   pci := fcolors[cc].knownpieces.Objects[idx] as TPieceColorInfo;
-                AddSetPiece(sset, spiece, '1', cc, num, pci);
+                AddSetPiece(sset, spiece, '1', cc, num, pci, numrecs);
                 {$IFNDEF CRAWLER}
                 if PieceInfo(sset).category = CATEGORYLUGBULK then
                   lyear := PieceColorInfo(sset, -1).year
@@ -20069,7 +20083,8 @@ var
   cacheidx2: Integer = -1;
 
 procedure TSetsDatabase.AddSetPiece(const setid: string; const part: string;
-  const typ: string; const color: integer; const num: integer; const pci: TObject = nil);
+  const typ: string; const color: integer; const num: integer; const pci: TObject = nil;
+  const invsize: integer = -1);
 var
   idx: integer;
   inv: TBrickInventory;
@@ -20082,6 +20097,7 @@ begin
     if idx < 0 then
     begin
       inv := TBrickInventory.Create;
+      inv.SetPartCapacity(invsize);
       idx := fallsets.AddObject(setid, inv);
     end
     else
@@ -20103,6 +20119,7 @@ begin
     if idx < 0 then
     begin
       inv := TBrickInventory.Create;
+      inv.SetPartCapacity(invsize);
       idx := fallsetswithoutextra.AddObject(setid, inv);
     end
     else

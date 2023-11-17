@@ -686,12 +686,12 @@ object OptionsForm: TOptionsForm
         Top = 16
         Width = 145
         Height = 24
+        Style = csDropDownList
         ItemHeight = 16
-        ItemIndex = 0
         TabOrder = 0
-        Text = 'None'
         Items.Strings = (
           'None'
+          'Basic'
           'Normal'
           'Extended')
       end

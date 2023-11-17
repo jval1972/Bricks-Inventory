@@ -9666,7 +9666,7 @@ begin
     begin
       s.Delete(0);
       // Only 1 occurance
-      SetDoubleStringsToSpace(s);
+      SetDoubleStringsToSpaceMT_New(s);
 
       for i := 0 to s.Count - 1 do
       begin

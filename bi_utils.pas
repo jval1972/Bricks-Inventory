@@ -168,6 +168,8 @@ function GetMemoryUsed: LongWord;
 
 procedure SetDoubleStringsToSpace(const lst: TStringList);
 
+procedure SetDoubleStringsToSpaceMT_New(const lst: TStringList);
+
 type
   TStringListContainer = class(TObject)
   private
@@ -2128,6 +2130,176 @@ begin
     parms[0].stop := 1;
     parms[0].lst := lst;
     SetDoubleStringsToSpace_thr(@parms[0]);
+  end;
+end;
+
+type
+  SDSTS_data_new_t = record
+    lst1, lst2, lst3, lst4, lst5: TStringList;
+  end;
+  SDSTS_data_new_p = ^SDSTS_data_new_t;
+
+function SetDoubleStringsToSpace_new_thr(p: pointer): integer; stdcall;
+var
+  parms: SDSTS_data_new_p;
+  i: integer;
+  lst: TStringList;
+begin
+  parms := SDSTS_data_new_p(p);
+
+  lst := parms.lst1;
+  if lst <> nil then
+  begin
+    lst.Sort;
+    for i := lst.Count - 1 downto 1 do
+      if lst.Strings[i] = lst.Strings[i - 1] then
+        lst.Strings[i] := '';
+  end;
+
+  lst := parms.lst2;
+  if lst <> nil then
+  begin
+    lst.Sort;
+    for i := lst.Count - 1 downto 1 do
+      if lst.Strings[i] = lst.Strings[i - 1] then
+        lst.Strings[i] := '';
+  end;
+
+  lst := parms.lst3;
+  if lst <> nil then
+  begin
+    lst.Sort;
+    for i := lst.Count - 1 downto 1 do
+      if lst.Strings[i] = lst.Strings[i - 1] then
+        lst.Strings[i] := '';
+  end;
+
+  lst := parms.lst4;
+  if lst <> nil then
+  begin
+    lst.Sort;
+    for i := lst.Count - 1 downto 1 do
+      if lst.Strings[i] = lst.Strings[i - 1] then
+        lst.Strings[i] := '';
+  end;
+
+  lst := parms.lst5;
+  if lst <> nil then
+  begin
+    lst.Sort;
+    for i := lst.Count - 1 downto 1 do
+      if lst.Strings[i] = lst.Strings[i - 1] then
+        lst.Strings[i] := '';
+  end;
+
+  Result := 1;
+end;
+
+procedure SetDoubleStringsToSpaceMT_New(const lst: TStringList);
+const
+  INDEXES = '1234567890abcdefghijklmnopqrstuvwxyz';
+  SS_NUMTHREADS = 8;
+var
+  i, j, cnt: integer;
+  parms: array[0..SS_NUMTHREADS - 1] of SDSTS_data_new_t;
+  lists: array[0..Length(INDEXES)] of TStringList;
+  s: string;
+  sl: TStringList;
+  tot: integer;
+  target: integer;
+begin
+//  lst.Sort;
+  cnt := lst.Count;
+
+  if not usemultithread or (cnt < 2048) then
+  begin
+    SetDoubleStringsToSpace(lst);
+    Exit;
+  end;
+
+  for i := 0 to Length(INDEXES) do
+    lists[i] := TStringList.Create;
+
+  for i := 0 to cnt - 1 do
+  begin
+    s := lst.Strings[i];
+    if s <> '' then
+    begin
+      j := CharPos(tolower(s[1]), INDEXES);
+      lists[j].Add(s);
+    end;
+  end;
+
+  sl := TStringList.Create;
+  for i := 0 to Length(INDEXES) do
+    sl.Add(itoa(lists[i].Count));
+  sl.SaveToFile('lengths.txt');
+  sl.free;
+
+  parms[0].lst1 := lists[0];
+  parms[0].lst2 := lists[1];
+  parms[0].lst3 := lists[2];
+  parms[0].lst4 := nil;
+  parms[0].lst5 := lists[4];
+
+  parms[1].lst1 := lists[5];
+  parms[1].lst2 := lists[6];
+  parms[1].lst3 := lists[7];
+  parms[1].lst4 := lists[8];
+  parms[1].lst5 := nil;
+
+  parms[2].lst1 := lists[10];
+  parms[2].lst2 := lists[11];
+  parms[2].lst3 := lists[12];
+  parms[2].lst4 := lists[13];
+  parms[2].lst5 := lists[14];
+
+  parms[3].lst1 := lists[15];
+  parms[3].lst2 := lists[16];
+  parms[3].lst3 := lists[17];
+  parms[3].lst4 := lists[18];
+  parms[3].lst5 := lists[19];
+
+  parms[4].lst1 := lists[20];
+  parms[4].lst2 := lists[21];
+  parms[4].lst3 := lists[22];
+  parms[4].lst4 := lists[23];
+  parms[4].lst5 := lists[24];
+
+  parms[5].lst1 := lists[25];
+  parms[5].lst2 := lists[26];
+  parms[5].lst3 := lists[27];
+  parms[5].lst4 := lists[28];
+  parms[5].lst5 := lists[29];
+
+  parms[6].lst1 := lists[30];
+  parms[6].lst2 := lists[31];
+  parms[6].lst3 := lists[3];
+  parms[6].lst4 := lists[33];
+  parms[6].lst5 := lists[34];
+
+  parms[7].lst1 := lists[35];
+  parms[7].lst2 := lists[36];
+  parms[7].lst3 := lists[9];
+  parms[7].lst4 := lists[32];
+  parms[7].lst5 := nil;
+
+  MT_Execute(
+    @SetDoubleStringsToSpace_new_thr, @parms[0],
+    @SetDoubleStringsToSpace_new_thr, @parms[1],
+    @SetDoubleStringsToSpace_new_thr, @parms[2],
+    @SetDoubleStringsToSpace_new_thr, @parms[3],
+    @SetDoubleStringsToSpace_new_thr, @parms[4],
+    @SetDoubleStringsToSpace_new_thr, @parms[5],
+    @SetDoubleStringsToSpace_new_thr, @parms[6],
+    @SetDoubleStringsToSpace_new_thr, @parms[7]
+  );
+
+  lst.Clear;
+  for i := 0 to Length(INDEXES) do
+  begin
+    lst.AddStrings(lists[i]);
+    lists[i].Free;
   end;
 end;
 

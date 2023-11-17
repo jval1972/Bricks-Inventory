@@ -1294,7 +1294,7 @@ begin
 
   if Result = '6141' then
     Result := '4073'
-  else if Pos('Mx', Result) = 1 then
+  else if Pos1('Mx', Result) then
     Result := LowerCase(Result)
   else if Result = '10830pat0001pr0001' then
     Result := '10830pat01pr01'
@@ -1302,7 +1302,7 @@ begin
     Result := 'Ferrand-1'
   else if Result = 'ISBN1338112120-1' then
     Result := 'ISBN1338112120'
-  else if Pos('scalaupn00', Result) = 1 then
+  else if Pos1('scalaupn00', Result) then
   begin
     if Result = 'scalaupn0024pr0001' then Result := 'scalaupn024pr01'
     else if Result = 'scalaupn0022pr0001' then Result := 'scalaupn022pr01'

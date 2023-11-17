@@ -389,6 +389,7 @@ type
     N60: TMenuItem;
     Internalchecks1: TMenuItem;
     BricklinkandRebrickablenameconflicts1: TMenuItem;
+    Pieceswithoutupdatethelast3years1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -642,6 +643,7 @@ type
     procedure Mybuiltedmocs1Click(Sender: TObject);
     procedure Mylooseparts1Click(Sender: TObject);
     procedure BricklinkandRebrickablenameconflicts1Click(Sender: TObject);
+    procedure Pieceswithoutupdatethelast3years1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -20068,6 +20070,14 @@ var
   foo: Boolean;
 begin
   HTMLClick('PiecesWithDaysToUpdate/365', foo);
+end;
+
+procedure TMainForm.Pieceswithoutupdatethelast3years1Click(
+  Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('PiecesWithDaysToUpdate/' + itoa(365 * 3), foo);
 end;
 
 var

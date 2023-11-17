@@ -1520,6 +1520,10 @@ object MainForm: TMainForm
           Caption = 'Pieces without update the last 365 days '
           OnClick = Pieceswithoutupdatethelast365days1Click
         end
+        object Pieceswithoutupdatethelast3years1: TMenuItem
+          Caption = 'Pieces without update the last 3 years'
+          OnClick = Pieceswithoutupdatethelast3years1Click
+        end
         object N36: TMenuItem
           Caption = '-'
         end

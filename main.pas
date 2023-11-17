@@ -20325,6 +20325,7 @@ begin
   end;
   SplashProgress(smsg, 1.0);
   Screen.Cursor := crDefault;
+  HideSplash;
 end;
 
 procedure TMainForm.UpdateAllPartsUnknownYear;

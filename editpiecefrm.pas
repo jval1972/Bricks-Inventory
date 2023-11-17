@@ -606,7 +606,7 @@ begin
       end;
 
     yearnum := db.GetSetYearFromDiskCache(fname);
-    if (yearnum >= 1932) and (yearnum <= 2050) then
+    if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
       YearEdit.Text := itoa(yearnum);
   end
   else if PartTypePanel.Caption = 'G' then
@@ -614,7 +614,7 @@ begin
     Screen.Cursor := crHourglass;
     try
       if db.GetPartYearFromNet(Trim(NameEdit.Text), partcolor, yearnum) then
-        if (yearnum >= 1932) and (yearnum <= 2050) then
+        if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
           YearEdit.Text := itoa(yearnum);
     finally
       Screen.Cursor := crDefault;
@@ -648,7 +648,7 @@ begin
       end;
 
     yearnum := db.GetSetYearFromDiskCache(fname);
-    if (yearnum >= 1932) and (yearnum <= 2050) then
+    if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
       YearEdit.Text := itoa(yearnum);
   end
   else if PartTypePanel.Caption = 'M' then
@@ -673,7 +673,7 @@ begin
       Exit;
 
     yearnum := db.GetSetYearFromDiskCache(fname);
-    if (yearnum >= 1932) and (yearnum <= 2050) then
+    if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
     begin
       YearEdit.Text := itoa(yearnum);
       Exit;
@@ -695,7 +695,7 @@ begin
       Exit;
 
     yearnum := db.GetSetYearFromDiskCache(fname);
-    if (yearnum >= 1932) and (yearnum <= 2050) then
+    if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
     begin
       YearEdit.Text := itoa(yearnum);
       Exit;
@@ -707,7 +707,7 @@ begin
     Screen.Cursor := crHourglass;
     try
       if db.GetPartYearFromNet(Trim(NameEdit.Text), partcolor, yearnum) then
-        if (yearnum >= 1932) and (yearnum <= 2050) then
+        if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
           YearEdit.Text := itoa(yearnum);
     finally
       Screen.Cursor := crDefault;

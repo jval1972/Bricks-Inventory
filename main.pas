@@ -8364,7 +8364,7 @@ begin
                   inc(aa);
                   document.StartItemId(aa);
                   inv := db.GetSetInventory(tmpset);
-                  if tmpyear > 1931 then
+                  if tmpyear >= MIN_ACCEPRABLE_YEAR then
                     y := Format('[Year: <a href=ShowSetsAtYear/%d>%d</a>]', [tmpyear, tmpyear])
                   else
                     y := '';
@@ -17711,7 +17711,7 @@ begin
       end;
   end;
 
-  if y > 1931 then
+  if y >= MIN_ACCEPRABLE_YEAR then
     prevstr := '<a href=PiecesDiscontinuedAtYear/' + itoa(y - 1) + '>Pieces discontinued at year ' + itoa(y - 1) + '</a><br>'
   else
     prevstr := '';
@@ -17835,7 +17835,7 @@ begin
       end;
   end;
 
-  if y > 1931 then
+  if y >= MIN_ACCEPRABLE_YEAR then
     prevstr := '<a href=PiecesNewAtYear/' + itoa(y - 1) + '>Pieces first appeared at year ' + itoa(y - 1) + '</a><br>'
   else
     prevstr := '';
@@ -17925,7 +17925,7 @@ begin
         end;
     end;
 
-  if y > 1931 then
+  if y >= MIN_ACCEPRABLE_YEAR then
     prevstr := '<a href=PiecesDiscontinuedAtYearExcludingVariations/' + itoa(y - 1) + '>Pieces discontinued at year ' + itoa(y - 1) + ' (Excluding variations)</a><br>'
   else
     prevstr := '';
@@ -18004,7 +18004,7 @@ begin
         end;
     end;
 
-  if y > 1931 then
+  if y >= MIN_ACCEPRABLE_YEAR then
     prevstr := '<a href=PiecesNewAtYearExcludingVariations/' + itoa(y - 1) + '>Pieces first appeared at year ' + itoa(y - 1) + ' (Excluding variations)</a><br>'
   else
     prevstr := '';
@@ -18272,7 +18272,7 @@ begin
         end;
     end;
 
-  if y > 1931 then
+  if y >= MIN_ACCEPRABLE_YEAR then
     prevstr := '<a href=MinifigurePiecesNewAtYear/' + itoa(y - 1) + '>Minifigure parts first appeared at year ' + itoa(y - 1) + '</a><br>'
   else
     prevstr := '';
@@ -18369,7 +18369,7 @@ begin
         end;
     end;
 
-  if y > 1931 then
+  if y >= MIN_ACCEPRABLE_YEAR then
     prevstr := '<a href=MinifigurePiecesDiscontinuedAtYear/' + itoa(y - 1) + '>Minifigure parts discontinued at year ' + itoa(y - 1) + '</a><br>'
   else
     prevstr := '';
@@ -20509,8 +20509,8 @@ begin
             if pci <> nil then
             begin
               y := pci.firstsetyear;
-              if y >= 1931 then
-                if y <= 2050 then
+              if y >= MIN_ACCEPRABLE_YEAR then
+                if y <= MAX_ACCEPTABLE_YEAR then
                   params.list.AddObject(kp.Strings[j], TCInteger.Create(y));
             end;
           end;
@@ -20570,7 +20570,7 @@ begin
         molds.Delete(i);
       end;
     end;
-    if y > 1931 then
+    if y >= MIN_ACCEPRABLE_YEAR then
       prevstr := '<a href=MoldsFirstAppearedAtYear/' + itoa(y - 1) + '>Molds first appeared at year ' + itoa(y - 1) + '</a><br>'
     else
       prevstr := '';
@@ -20592,7 +20592,7 @@ begin
         molds.Delete(i);
       end;
     end;
-    if y > 1931 then
+    if y >= MIN_ACCEPRABLE_YEAR then
       prevstr := '<a href=MoldsDiscontinuedAtYear/' + itoa(y - 1) + '>Molds discontinued at year ' + itoa(y - 1) + '</a><br>'
     else
       prevstr := '';
@@ -20768,8 +20768,8 @@ begin
                     sset := sset + '-1';
 
                   y := db.SetYear(sset);
-                  if y >= 1931 then
-                    if y <= 2050 then
+                  if y >= MIN_ACCEPRABLE_YEAR then
+                    if y <= MAX_ACCEPTABLE_YEAR then
                       params.list.AddObject(pci.piece, TCInteger.Create(y));
                 end;
               end;
@@ -20806,8 +20806,8 @@ begin
                 sset := sset + '-1';
 
               y := db.SetYear(sset);
-              if y >= 1931 then
-                if y <= 2050 then
+              if y >= MIN_ACCEPRABLE_YEAR then
+                if y <= MAX_ACCEPTABLE_YEAR then
                   params.list.AddObject(pci.piece, TCInteger.Create(y));
             end;
           end;

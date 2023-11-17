@@ -358,7 +358,7 @@ begin
           if db.Colors(INSTRUCTIONCOLORINDEX).knownpieces.IndexOfUCS(part) >= 0 then
           begin
             yyyy := db.SetYear(part);
-            if (yyyy >= 1932) and (yyyy <= 2050) then
+            if (yyyy >= MIN_ACCEPRABLE_YEAR) and (yyyy <= MAX_ACCEPTABLE_YEAR) then
             begin
               pci := db.PieceColorInfo(part, INSTRUCTIONCOLORINDEX);
               if pci <> nil then
@@ -369,7 +369,7 @@ begin
           if db.Colors(BOXCOLORINDEX).knownpieces.IndexOfUCS(part) >= 0 then
           begin
             yyyy := db.SetYear(part);
-            if (yyyy >= 1932) and (yyyy <= 2050) then
+            if (yyyy >= MIN_ACCEPRABLE_YEAR) and (yyyy <= MAX_ACCEPTABLE_YEAR) then
             begin
               pci := db.PieceColorInfo(part, BOXCOLORINDEX);
               if pci <> nil then

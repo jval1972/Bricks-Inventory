@@ -486,6 +486,10 @@ const
   SEI_FLG_FIXED_INSTR = 8;
   SEI_FLG_FIXED_BOX = 16;
 
+const
+  MIN_ACCEPRABLE_YEAR = 1932;
+  MAX_ACCEPTABLE_YEAR = 2100;
+
 type
   TSetExtraInfo = class(TObject)
   private
@@ -7863,7 +7867,7 @@ begin
           splitstring(s, spiece, scolor, syear, ',');
 
           yyyy := atoi(syear);
-          if (yyyy > 1931) and (yyyy <= 2050) then
+          if (yyyy >= MIN_ACCEPRABLE_YEAR) and (yyyy <= MAX_ACCEPTABLE_YEAR) then
           begin
             spiece := fixpartname(spiece);
             spiece := RebrickablePart(spiece);
@@ -11805,8 +11809,8 @@ begin
           end;
         end;
         y := atoi(tmp2, -1);
-        if y > 1931 then
-          if y < 2050 then
+        if y >= MIN_ACCEPRABLE_YEAR then
+          if y < MAX_ACCEPTABLE_YEAR then
             Result.year := y;
       end;
     end
@@ -11830,8 +11834,8 @@ begin
           end;
         end;
         y := atoi(tmp2, -1);
-        if y >= 1932 then
-          if y <= 2050 then
+        if y >= MIN_ACCEPRABLE_YEAR then
+          if y <= MAX_ACCEPTABLE_YEAR then
             Result.year := y;
       end;
     end;
@@ -12641,7 +12645,7 @@ begin
           cl := BrickLinkColorToSystemColor(N.Numbers[i]);
           AddKnownPiece(spart, cl, desc, pci);
           if pci <> nil then
-            if (yearnum >= 1932) and (yearnum <= 2050) then
+            if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
               SetItemYear(pci, yearnum);
           SetPartType(spart, BrickLinkColorToSystemColor(N.Numbers[i]), 'G');
         end;
@@ -12650,7 +12654,7 @@ begin
           AddKnownPiece(spart, INSTRUCTIONCOLORINDEX, desc, pci);
           if pci <> nil then
           begin
-            if (yearnum >= 1932) and (yearnum <= 2050) then
+            if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
               SetItemYear(pci, yearnum);
             SetPartType(pci, 'I');
           end;
@@ -12790,7 +12794,7 @@ begin
           cl := BrickLinkColorToSystemColor(N.Numbers[i]);
           AddKnownPiece(spart, cl, desc, pci);
           if pci <> nil then
-            if (yearnum >= 1932) and (yearnum <= 2050) then
+            if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
               SetItemYear(pci, yearnum);
           SetPartType(spart, BrickLinkColorToSystemColor(N.Numbers[i]), 'B');
         end;
@@ -12880,12 +12884,12 @@ begin
             break;
         end;
         yearnum := atoi(snum);
-        if (yearnum >= 1932) and (yearnum <= 2050) then
+        if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
           break;
       end;
     end;
 
-    if (yearnum >= 1932) and (yearnum <= 2050) then
+    if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
     begin
       N := GetMoldKnownColors(spart);
       for i := 0 to N.Count - 1 do
@@ -12944,8 +12948,8 @@ var
 begin
   yyyy := 0;
   if GetPartYearFromNet(pci, yyyy) then
-    if yyyy >= 1932 then
-      if yyyy <= 2050 then
+    if yyyy >= MIN_ACCEPRABLE_YEAR then
+      if yyyy <= MAX_ACCEPTABLE_YEAR then
       begin
         SetItemYear(pci, yyyy);
         Result := True;
@@ -13022,13 +13026,13 @@ begin
           end;
           nyear := atoi(syear);
           if nyear < yyyy then
-            if nyear >= 1932 then
-              if nyear <= 2050 then
+            if nyear >= MIN_ACCEPRABLE_YEAR then
+              if nyear <= MAX_ACCEPTABLE_YEAR then
                 yyyy := nyear;
         end;
       end;
-      if yyyy >= 1932 then
-        if yyyy <= 2050 then
+      if yyyy >= MIN_ACCEPRABLE_YEAR then
+        if yyyy <= MAX_ACCEPTABLE_YEAR then
           Result := True;
     end;
   finally
@@ -13076,12 +13080,12 @@ begin
           syear := htm[p1 + 2] + htm[p1 + 3] + htm[p1 + 4] + htm[p1 + 5];
           nyear := atoi(syear);
           if nyear < yyyy then
-            if nyear >= 1932 then
-              if nyear <= 2050 then
+            if nyear >= MIN_ACCEPRABLE_YEAR then
+              if nyear <= MAX_ACCEPTABLE_YEAR then
                 yyyy := nyear;
         end;
-      if yyyy >= 1932 then
-        if yyyy <= 2050 then
+      if yyyy >= MIN_ACCEPRABLE_YEAR then
+        if yyyy <= MAX_ACCEPTABLE_YEAR then
           Result := True;
     end;
   finally
@@ -13096,8 +13100,8 @@ var
 begin
   yyyy := 0;
   if GetCatalogYearFromNet(cid, yyyy) then
-    if yyyy >= 1932 then
-      if yyyy <= 2050 then
+    if yyyy >= MIN_ACCEPRABLE_YEAR then
+      if yyyy <= MAX_ACCEPTABLE_YEAR then
       begin
         pci := PieceColorInfo(cid, CATALOGCOLORINDEX);
         if pci <> nil then
@@ -13200,7 +13204,7 @@ begin
   if spart = '' then
     Exit;
 
-  if (yearnum < 1932) or (yearnum > 2050) then
+  if (yearnum < MIN_ACCEPRABLE_YEAR) or (yearnum > MAX_ACCEPTABLE_YEAR) then
     Exit;
 
   N := GetMoldKnownColors(spart);
@@ -13250,7 +13254,7 @@ begin
         break;
     end;
     yearnum := atoi(snum);
-    if (yearnum >= 1932) and (yearnum <= 2050) then
+    if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
       Result := yearnum;
     Exit;
   end;
@@ -13269,7 +13273,7 @@ begin
         break;
     end;
     yearnum := atoi(snum);
-    if (yearnum >= 1932) and (yearnum <= 2050) then
+    if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
       Result := yearnum;
     Exit;
   end;
@@ -13292,7 +13296,7 @@ begin
     Exit;
 
   yearnum := GetSetYearFromDiskCache(fname);
-  if (yearnum >= 1932) and (yearnum <= 2050) then
+  if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
     Result := UpdateYearForAllColors(spart, yearnum);
 end;
 {$ENDIF}
@@ -13313,7 +13317,7 @@ begin
     Exit;
 
   yearnum := GetSetYearFromDiskCache(fname);
-  if (yearnum >= 1932) and (yearnum <= 2050) then
+  if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
     Result := UpdateYearForAllColors(spart, yearnum);
 end;
 {$ENDIF}
@@ -13323,7 +13327,7 @@ procedure TSetsDatabase.SetItemYear(const pci: TPieceColorInfo; const yyyy: inte
 begin
   if pci = nil then
     Exit;
-  if (yyyy < 1932) or (yyyy > 2050) then
+  if (yyyy < MIN_ACCEPRABLE_YEAR) or (yyyy > MAX_ACCEPTABLE_YEAR) then
     Exit;
   if pci.year <> yyyy then
   begin
@@ -13344,7 +13348,7 @@ var
   i: integer;
   check, checkU: string;
 begin
-  if (yyyy < 1932) or (yyyy > 2050) then
+  if (yyyy < MIN_ACCEPRABLE_YEAR) or (yyyy > MAX_ACCEPTABLE_YEAR) then
     Exit;
 
   gy := TStringList.Create;
@@ -13462,7 +13466,7 @@ begin
             Break;
         end;
         yyyy := atoi(stmp);
-        if (yyyy <= 1931) or (yyyy >= 2050) then
+        if (yyyy < MIN_ACCEPRABLE_YEAR) or (yyyy >= MAX_ACCEPTABLE_YEAR) then
           yyyy := 0;
         pci.year := yyyy;
 
@@ -14979,8 +14983,8 @@ begin
     Exit;
 
   if pci2.year <= 0 then
-    if pci1.year > 1931 then
-      if pci1.year <= 2050 then
+    if pci1.year >= MIN_ACCEPRABLE_YEAR then
+      if pci1.year <= MAX_ACCEPTABLE_YEAR then
       begin
         SetItemYear(pci2, pci1.year);
         Result := True;
@@ -16023,7 +16027,7 @@ begin
       if fexists(yearfname) then
       begin
         yyy := GetSetYearFromDiskCache(yearfname);
-        if (yyy >= 1932) and (yyy <= 2050) then
+        if (yyy >= MIN_ACCEPRABLE_YEAR) and (yyy <= MAX_ACCEPTABLE_YEAR) then
         begin
           pci := PieceColorInfo(s, -1);
           pci.canedityear := True;
@@ -18998,7 +19002,7 @@ begin
     yyyy := fyear
   else
     yyyy := y;
-  if (yyyy < 1932) or (yyyy > 2050) then
+  if (yyyy < MIN_ACCEPRABLE_YEAR) or (yyyy > MAX_ACCEPTABLE_YEAR) then
     Exit;
 
   if yyyy < ffirstsetyear then
@@ -19027,7 +19031,7 @@ begin
     yyyy := db.SetYear(setid)
   else
     yyyy := y;
-  if (yyyy < 1932) or (yyyy > 2050) then
+  if (yyyy < MIN_ACCEPRABLE_YEAR) or (yyyy > MAX_ACCEPTABLE_YEAR) then
     Exit;
   if yyyy < ffirstsetyear then
   begin
@@ -19196,9 +19200,9 @@ end;
 {$IFNDEF CRAWLER}
 procedure TPieceColorInfo.SetYear(const y: integer);
 begin
-  if (y < 1932) or (y > 2050) then
+  if (y < MIN_ACCEPRABLE_YEAR) or (y > MAX_ACCEPTABLE_YEAR) then
     Exit;
-  if (y > ffirstsetyear) and (ffirstsetyear >= 1932) and (ffirstsetyear <= 2050) then
+  if (y > ffirstsetyear) and (ffirstsetyear >= MIN_ACCEPRABLE_YEAR) and (ffirstsetyear <= MAX_ACCEPTABLE_YEAR) then
     fyear := ffirstsetyear
   else
     fyear := y;

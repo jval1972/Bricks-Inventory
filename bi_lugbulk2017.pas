@@ -113,7 +113,7 @@ begin
         syear := syear + fn[i];
       ayear := atoi(syear);
       if ayear >= 2000 then
-        if ayear < 2050 then
+        if ayear <= MAX_ACCEPTABLE_YEAR then
           fyear := ayear;
     end;
 end;

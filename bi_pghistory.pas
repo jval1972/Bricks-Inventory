@@ -557,7 +557,7 @@ begin
             len := Length(s1);
             if len = 8 then
               s2 := s1
-            else if (len = 4) and IsIntegerInRange(atoi(s1), 2014, 2050) then
+            else if (len = 4) and IsIntegerInRange(atoi(s1), 2014, MAX_ACCEPTABLE_YEAR) then
             begin
               s2 := s1 + '1231';
               s1 := s1 + '0101';

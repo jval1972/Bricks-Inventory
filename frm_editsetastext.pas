@@ -316,7 +316,7 @@ begin
   if fexists(fname) then
   begin
     yearnum := db.GetSetYearFromDiskCache(fname);
-    if (yearnum >= 1932) and (yearnum <= 2050) then
+    if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
     begin
       YearEdit.Text := itoa(yearnum);
       Exit;
@@ -347,7 +347,7 @@ begin
     Exit;
 
   yearnum := db.GetSetYearFromDiskCache(fname);
-  if (yearnum >= 1932) and (yearnum <= 2050) then
+  if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
   begin
     YearEdit.Text := itoa(yearnum);
     Exit;
@@ -366,7 +366,7 @@ begin
     Exit;
 
   yearnum := db.GetSetYearFromDiskCache(fname);
-  if (yearnum >= 1932) and (yearnum <= 2050) then
+  if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
   begin
     YearEdit.Text := itoa(yearnum);
     Exit;

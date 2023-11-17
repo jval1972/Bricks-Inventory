@@ -20443,7 +20443,9 @@ begin
   begin
     Done := True;
     fneedsidletime := False;
-  end;
+  end
+  else
+    Done := False;
 end;
 {$ENDIF}
 

@@ -63,9 +63,10 @@ var
   optlocationslugbulk: boolean;
   optlocationsorders: boolean;
   optlocationsreadylist: boolean;
+  optenablecrawling: boolean;
 
 const
-  NUMDEFAULTS = 18;
+  NUMDEFAULTS = 19;
 
   defaults: array[0..NUMDEFAULTS - 1] of default_t = (
     (name: 'General';
@@ -154,6 +155,14 @@ const
      defaultsvalue: '0';
      defaultivalue: 0;
      defaultbvalue: True;
+     _type: tInteger),
+
+    (name: 'optenablecrawling';
+     location: @optenablecrawling;
+     setable: true;
+     defaultsvalue: '0';
+     defaultivalue: 0;
+     defaultbvalue: False;
      _type: tInteger),
 
     (name: 'MultiPage';

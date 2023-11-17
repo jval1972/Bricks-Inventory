@@ -644,6 +644,7 @@ type
     procedure Mylooseparts1Click(Sender: TObject);
     procedure BricklinkandRebrickablenameconflicts1Click(Sender: TObject);
     procedure Pieceswithoutupdatethelast3years1Click(Sender: TObject);
+    procedure AddressEditChange(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -861,6 +862,7 @@ type
     function lugbulklinks(const pci: TPieceColorInfo): string;
     function GetSetCostDbl(const setid: string): double;
     function GetItemCostDbl(const apart: string; const acolor: integer): double;
+    procedure IdleEventHandler(Sender: TObject; var Done: Boolean);
   public
     { Public declarations }
     activebits: integer;
@@ -1071,6 +1073,7 @@ begin
   outproc := outprocmemo;
   printf('Starting BrickInventory...'#13#10);
   BI_LoadDefaults(basedefault + 'bi4.ini');
+  CheckBox1.Checked := optenablecrawling;
   activebits := 0;
   storagebinsupdatetime := 0.0;
   newtabUrl := '';
@@ -2542,6 +2545,7 @@ begin
 
   document.Free;
 
+  optenablecrawling := CheckBox1.Checked;
   BI_SaveDefaults(basedefault + 'bi4.ini');
 end;
 
@@ -12068,6 +12072,8 @@ begin
 
   diskmirror := '';
 
+  activebits := 20000;
+
   scrollx := 0;
   scrolly := 0;
   if SRC <> 'refresh' then
@@ -13979,7 +13985,8 @@ end;
 
 procedure TMainForm.FormDeactivate(Sender: TObject);
 begin
-  activebits := 10000;
+  if activebits > 0 then
+    activebits := activebits - 10000;
 end;
 
 procedure TMainForm.Piece1Click(Sender: TObject);
@@ -19124,7 +19131,14 @@ begin
   else if db.needsidletime then
     Application.OnIdle := db.IdleEventHandler
   else
-    Application.OnIdle := nil;
+    Application.OnIdle := self.IdleEventHandler;
+end;
+
+procedure TMainForm.IdleEventHandler(Sender: TObject; var Done: Boolean);
+begin
+  if activebits > 0 then
+    activebits := activebits - 1000;
+  Done := False;
 end;
 
 function TMainForm.MakeThumbnailImageEx(const pcs1: string; const typof: char; const ncolor: integer = -1000): string;
@@ -21455,6 +21469,11 @@ begin
     cmolds.Free;
     Screen.Cursor := crDefault;
   end;
+end;
+
+procedure TMainForm.AddressEditChange(Sender: TObject);
+begin
+  activebits := 20000; 
 end;
 
 end.

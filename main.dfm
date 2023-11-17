@@ -937,6 +937,7 @@ object MainForm: TMainForm
       Width = 433
       Height = 20
       TabOrder = 1
+      OnChange = AddressEditChange
     end
     object ProgressBar1: TProgressBar
       Left = 776

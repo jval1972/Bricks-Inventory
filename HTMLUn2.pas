@@ -683,7 +683,7 @@ if not IsWin32Platform then
 else
   begin   {win95,98,ME}
   SetLength(Tmp, 2*Len);
-  NewLen := WideCharToMultiByte(CP_ACP, 0, PWideChar(S), Len, PChar(Tmp), 2*Len, Nil, Nil);
+  NewLen := WideCharToMultiByte(CP_ACP, 0, PWideChar(S), Len, PChar(Tmp), 2*Len, nil, nil);
   SetLength(Tmp, NewLen);
   Tmp := AnsiUppercase(Tmp);
   SetLength(Result, Len);
@@ -705,7 +705,7 @@ if not IsWin32Platform then
 else
   begin   {win95,98,ME}
   SetLength(Tmp, 2*Len);
-  NewLen := WideCharToMultiByte(CP_ACP, 0, PWideChar(S), Len, PChar(Tmp), 2*Len, Nil, Nil);
+  NewLen := WideCharToMultiByte(CP_ACP, 0, PWideChar(S), Len, PChar(Tmp), 2*Len, nil, nil);
   SetLength(Tmp, NewLen);
   Tmp := AnsiLowercase(Tmp);
   SetLength(Result, Len);
@@ -935,7 +935,7 @@ var
 
 begin
 if not IsWin32Platform then
-  GetTextExtentExPointW(DC, P, N, 0, @Dummy, Nil, ExtS)
+  GetTextExtentExPointW(DC, P, N, 0, @Dummy, nil, ExtS)
 else
   GetTextExtentPoint32W(DC, P, N, ExtS);  {win95, 98 ME}
 Result := ExtS.cx;
@@ -1957,7 +1957,7 @@ function ConvertImage(Bitmap: TBitmap): TBitmap;
 begin
   if not Assigned(Bitmap) then
   begin
-    Result := Nil;
+    Result := nil;
     Exit;
   end;
 
@@ -1986,8 +1986,8 @@ function GetImageAndMaskFromFile(const Filename: String; var Transparent: Transp
 var
   Stream: TMemoryStream;
 begin
-  Result := Nil;
-  Mask := Nil;
+  Result := nil;
+  Mask := nil;
   if not FileExists(Filename) then Exit;
   if GDIPlusActive and (KindOfImageFile(Filename) = Png) then
   begin
@@ -2017,9 +2017,9 @@ var
   Tmp: TBitmap;
   {$endif}             
 begin
-  Result := Nil;
-  AMask := Nil;
-  if not Assigned(Stream) or (Stream.Memory = Nil) or (Stream.Size < 20) then
+  Result := nil;
+  AMask := nil;
+  if not Assigned(Stream) or (Stream.Memory = nil) or (Stream.Size < 20) then
     Exit;
   Stream.Position := 0;
   IT := KindOfImage(Stream.Memory);
@@ -2068,7 +2068,7 @@ begin
     end
   {$else}
   else if IT = Png then
-    Result := Nil
+    Result := nil
   {$endif}
   else
     begin
@@ -2104,7 +2104,7 @@ begin
   Result := ConvertImage(Result);
   except
     Result.Free;
-  Result := Nil;
+  Result := nil;
   end;
 end;
 
@@ -2120,9 +2120,9 @@ var
   F: File;
   I: integer;
 begin
-  Result := Nil;
-  AMask := Nil;
-  if not Assigned(Stream) or (Stream.Memory = Nil) or (Stream.Size < 20) then
+  Result := nil;
+  AMask := nil;
+  if not Assigned(Stream) or (Stream.Memory = nil) or (Stream.Size < 20) then
     Exit;
   Stream.Position := 0;
   if GDIPlusActive and (KindOfImage(Stream.Memory) = png) then
@@ -2151,7 +2151,7 @@ if not Assigned(Result) then
   begin
   Result := ThtMetafile.Create;
   try
-    AMask := Nil;
+    AMask := nil;
     Transparent := NotTransp;
     ThtMetaFile(Result).LoadFromStream(Stream);
   except
@@ -2178,7 +2178,7 @@ try
     FreeAndNil(Result);
     end;
 except
-  Result := Nil;
+  Result := nil;
   end;
 end;
 
@@ -2196,7 +2196,7 @@ var
     TmpGif: TGifImage;
     NonAnimated: boolean;
   begin
-    Result := Nil;
+    Result := nil;
     TmpGif := CreateAGifFromStream(NonAnimated, Stream);
     if Assigned(TmpGif) then
     begin
@@ -2205,14 +2205,14 @@ var
         Result.Assign(TmpGif.Bitmap);
       except
         Result.Free;
-        Result := Nil;
+        Result := nil;
       end;
       TmpGif.Free;
     end
   end;
 
 begin
-  Result := Nil;
+  Result := nil;
   try
     Stream := TMemoryStream.Create;
     try
@@ -2245,7 +2245,7 @@ begin
       Stream.Free;
     end;
   except
-    Result := Nil;
+    Result := nil;
   end;
 end;
 
@@ -2509,7 +2509,7 @@ procedure IndentManagerBasic.Clear;
 begin
   R.Clear;
   L.Clear;
-  CurrentID := Nil;
+  CurrentID := nil;
 end;
 
 {----------------IndentManagerBasic.Reset}
@@ -2517,7 +2517,7 @@ procedure IndentManagerBasic.Reset(Lf, Rt: integer);
 begin
   LfEdge := Lf;
   RtEdge := Rt;
-  CurrentID := Nil;
+  CurrentID := nil;
 end;
 
 procedure IndentManagerBasic.UpdateTable(Y: integer; IW: integer; IH: integer;
@@ -2857,7 +2857,7 @@ begin
   with List as TSectionList do
   begin
     Pos := FindDocPos(ChPos, False);
-    if CursorToXY(Nil, Pos, X, Y) then
+    if CursorToXY(nil, Pos, X, Y) then
         Result := Y
     else
       Result := 0;
@@ -3087,10 +3087,10 @@ else
   begin
   Len := Length(W);
   SetLength(Result, 3*Len);
-  NewLen := WideCharToMultiByte(CodePage, 0, PWideChar(W), Len, PChar(Result), 3*Len, Nil, Nil);
+  NewLen := WideCharToMultiByte(CodePage, 0, PWideChar(W), Len, PChar(Result), 3*Len, nil, nil);
   if NewLen = 0 then
     { Invalid code page. Try default.}
-    NewLen := WideCharToMultiByte(CP_ACP, 0, PWideChar(W), Len, PChar(Result), 3*Len, Nil, Nil);
+    NewLen := WideCharToMultiByte(CP_ACP, 0, PWideChar(W), Len, PChar(Result), 3*Len, nil, nil);
   SetLength(Result, NewLen);
   end;
 end;
@@ -3955,8 +3955,8 @@ try
     if S[I] in [bssSolid, bssInset, bssOutset] then
       begin
       Bnd[0] := PO[I];
-      Bnd[1] := PO[(I+1) Mod 4];
-      Bnd[2] := PI[(I+1) Mod 4];
+      Bnd[1] := PO[(I+1) mod 4];
+      Bnd[2] := PI[(I+1) mod 4];
       Bnd[3] := PI[I];
       Color := C[I] or PalRelative;
       case S[I] of
@@ -3980,8 +3980,8 @@ try
       begin    {ridge or groove}
       Color := C[I] or PalRelative;
       Bnd[0] := PO[I];
-      Bnd[1] := PO[(I+1) Mod 4];
-      Bnd[2] := PM[(I+1) Mod 4];
+      Bnd[1] := PO[(I+1) mod 4];
+      Bnd[2] := PM[(I+1) mod 4];
       Bnd[3] := PM[I];
       case S[I] of
         bssGroove:
@@ -3999,8 +3999,8 @@ try
         end;
       Color := C[I] or PalRelative;  
       Bnd[0] := PM[I];
-      Bnd[1] := PM[(I+1) Mod 4];
-      Bnd[2] := PI[(I+1) Mod 4];
+      Bnd[1] := PM[(I+1) mod 4];
+      Bnd[2] := PI[(I+1) mod 4];
       Bnd[3] := PI[I];
       case S[I] of
         bssRidge:
@@ -4021,13 +4021,13 @@ try
       begin
       Color := C[I] or PalRelative;
       Bnd[0] := PO[I];
-      Bnd[1] := PO[(I+1) Mod 4];
-      Bnd[2] := P1[(I+1) Mod 4];
+      Bnd[1] := PO[(I+1) mod 4];
+      Bnd[2] := P1[(I+1) mod 4];
       Bnd[3] := P1[I];
       DrawOnePolygon(Canvas, Bnd, Color, I, Print);
       Bnd[0] := P2[I];
-      Bnd[1] := P2[(I+1) Mod 4];
-      Bnd[2] := PI[(I+1) Mod 4];
+      Bnd[1] := P2[(I+1) mod 4];
+      Bnd[2] := PI[(I+1) mod 4];
       Bnd[3] := PI[I];
       DrawOnePolygon(Canvas, Bnd, Color, I, Print);
       end
@@ -4041,10 +4041,10 @@ try
         if S[I] = bssDotted then
           PenType := PS_Dot or ps_EndCap_Round
         else PenType := PS_Dash or ps_EndCap_Square;
-        Pn := ExtCreatePen(PS_GEOMETRIC or PenType or ps_Join_Miter, W[I], lb, 0, Nil);
+        Pn := ExtCreatePen(PS_GEOMETRIC or PenType or ps_Join_Miter, W[I], lb, 0, nil);
         OldPn := SelectObject(Canvas.Handle, Pn);
         BeginPath(Canvas.Handle);
-        Windows.movetoEx(Canvas.Handle, PM[I].x, PM[I].y, Nil);
+        Windows.movetoEx(Canvas.Handle, PM[I].x, PM[I].y, nil);
         Start := I;
         InPath := True;
         end;

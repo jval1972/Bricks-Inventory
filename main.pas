@@ -18983,10 +18983,8 @@ end;
 procedure TMainForm.ShowRelatedPieces(const basepcs: string);
 var
   linkstr, titstr: string;
-  pi: TPieceInfo;
   srelated: TStringList;
 begin
-  pi := db.PieceInfo(basepcs);
   linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
   titstr := 'Related Pieces for ' + basepcs;
   srelated := db.GetRelatedPieces(basepcs);

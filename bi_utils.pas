@@ -2204,9 +2204,6 @@ var
   parms: array[0..SS_NUMTHREADS - 1] of SDSTS_data_new_t;
   lists: array[0..Length(INDEXES)] of TStringList;
   s: string;
-  sl: TStringList;
-  tot: integer;
-  target: integer;
 begin
 //  lst.Sort;
   cnt := lst.Count;
@@ -2229,12 +2226,6 @@ begin
       lists[j].Add(s);
     end;
   end;
-
-  sl := TStringList.Create;
-  for i := 0 to Length(INDEXES) do
-    sl.Add(itoa(lists[i].Count));
-  sl.SaveToFile('lengths.txt');
-  sl.free;
 
   parms[0].lst1 := lists[0];
   parms[0].lst2 := lists[1];

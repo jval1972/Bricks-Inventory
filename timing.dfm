@@ -549,7 +549,6 @@ object TimingForm: TTimingForm
   PixelsPerInch = 96
   TextHeight = 12
   object CrawlerTimer: TTimer
-    Interval = 20000
     OnTimer = CrawlerTimerTimer
     Left = 48
     Top = 32

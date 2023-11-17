@@ -51,7 +51,6 @@ type
     CheckBox4: TCheckBox;
     CheckBox5: TCheckBox;
     CheckBox6: TCheckBox;
-    CheckBox7: TCheckBox;
     TabSheet3: TTabSheet;
     RadioGroup1: TRadioGroup;
     GroupBox1: TGroupBox;
@@ -59,8 +58,11 @@ type
     CheckBox9: TCheckBox;
     CheckBox10: TCheckBox;
     CheckBox11: TCheckBox;
-    CheckBox12: TCheckBox;
     CheckBox13: TCheckBox;
+    TabSheet4: TTabSheet;
+    ComboBox1: TComboBox;
+    Label2: TLabel;
+    CheckBox12: TCheckBox;
     procedure Edit1KeyPress(Sender: TObject; var Key: Char);
     procedure FormCreate(Sender: TObject);
   private
@@ -94,7 +96,8 @@ begin
     f.CheckBox4.Checked := savealwayspartinvinfo;
     f.CheckBox5.Checked := generatethumbnailsondemand;
     f.CheckBox6.Checked := silentwarnings;
-    f.CheckBox7.Checked := searchdownloadimg;
+    if IsIntegerInRange(searchdownloadimg, 0, f.ComboBox1.Items.Count - 1) then
+      f.ComboBox1.ItemIndex := searchdownloadimg;
     f.CheckBox8.Checked := optlocationslugbulk;
     f.CheckBox9.Checked := optlocationsorders;
     f.CheckBox10.Checked := optlocationsreadylist;
@@ -115,7 +118,7 @@ begin
       savealwayspartinvinfo := f.CheckBox4.Checked;
       generatethumbnailsondemand := f.CheckBox5.Checked;
       silentwarnings := f.CheckBox6.Checked;
-      searchdownloadimg := f.CheckBox7.Checked;
+      searchdownloadimg := f.ComboBox1.ItemIndex;
       inventorysortmethod := f.RadioGroup1.ItemIndex;
       optlocationslugbulk := f.CheckBox8.Checked;
       optlocationsorders := f.CheckBox9.Checked;

@@ -4,7 +4,7 @@ object OptionsForm: TOptionsForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 320
+  ClientHeight = 291
   ClientWidth = 354
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -550,7 +550,7 @@ object OptionsForm: TOptionsForm
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 279
+    Top = 250
     Width = 354
     Height = 41
     Align = alBottom
@@ -610,8 +610,8 @@ object OptionsForm: TOptionsForm
     Left = 24
     Top = 8
     Width = 313
-    Height = 249
-    ActivePage = TabSheet1
+    Height = 225
+    ActivePage = TabSheet4
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
     Font.Height = -13
@@ -661,29 +661,47 @@ object OptionsForm: TOptionsForm
         Caption = 'Silent warnings'
         TabOrder = 4
       end
-      object CheckBox7: TCheckBox
-        Left = 8
-        Top = 144
-        Width = 273
-        Height = 17
-        Caption = 'Extended search of image files on net'
-        TabOrder = 5
-      end
-      object CheckBox12: TCheckBox
-        Left = 8
-        Top = 168
-        Width = 281
-        Height = 17
-        Caption = 'Quantize images to reduce memory usage'
-        TabOrder = 6
-      end
       object CheckBox13: TCheckBox
         Left = 8
-        Top = 192
+        Top = 144
         Width = 265
         Height = 17
         Caption = 'Always save wanted lists'
-        TabOrder = 7
+        TabOrder = 5
+      end
+    end
+    object TabSheet4: TTabSheet
+      Caption = 'Images'
+      ImageIndex = 3
+      object Label2: TLabel
+        Left = 16
+        Top = 16
+        Width = 93
+        Height = 16
+        Caption = 'Internet search: '
+        FocusControl = ComboBox1
+      end
+      object ComboBox1: TComboBox
+        Left = 120
+        Top = 16
+        Width = 145
+        Height = 24
+        ItemHeight = 16
+        ItemIndex = 0
+        TabOrder = 0
+        Text = 'None'
+        Items.Strings = (
+          'None'
+          'Normal'
+          'Extended')
+      end
+      object CheckBox12: TCheckBox
+        Left = 8
+        Top = 48
+        Width = 281
+        Height = 17
+        Caption = 'Quantize to reduce memory usage'
+        TabOrder = 1
       end
     end
     object TabSheet2: TTabSheet

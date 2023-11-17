@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2019 by Jim Valavanis
+//  Copyright (C) 2014-2023 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -58,7 +58,7 @@ var
   savealwayswantedlists: boolean;
   generatethumbnailsondemand: boolean;
   silentwarnings: boolean;
-  searchdownloadimg: boolean;
+  searchdownloadimg: integer;
   inventorysortmethod: integer;
   optlocationslugbulk: boolean;
   optlocationsorders: boolean;
@@ -144,10 +144,10 @@ const
     (name: 'searchdownloadimg';
      location: @searchdownloadimg;
      setable: true;
-     defaultsvalue: '0';
-     defaultivalue: 0;
+     defaultsvalue: '1';
+     defaultivalue: 1;
      defaultbvalue: True;
-     _type: tBoolean),
+     _type: tInteger),
 
     (name: 'inventorysortmethod';
      location: @inventorysortmethod;

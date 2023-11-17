@@ -543,8 +543,8 @@ type
     property instructionsdimentiony: double read GetIDimensionY write SetIDimensionY;
     property instructionsdimentionz: double read GetIDimensionZ write SetIDimensionZ;
     property originalboxinstructionx: double read GetBDimensionX write SetBDimensionX;
-    property originalboxinstructiony: double read GetBDimensionX write SetBDimensionX;
-    property originalboxinstructionz: double read GetBDimensionX write SetBDimensionX;
+    property originalboxinstructiony: double read GetBDimensionY write SetBDimensionY;
+    property originalboxinstructionz: double read GetBDimensionZ write SetBDimensionZ;
     {$ENDIF}
   end;
 

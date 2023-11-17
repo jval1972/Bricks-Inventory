@@ -836,7 +836,9 @@ function PartTypeToPartTypeName(const pt: char): string;
 function PartTypeNameToPartType(const pn: string): char;
 
 const
-  CACHEDBHASHSIZE = $80000;
+  CACHEDBHASHBLOCKSIZE = $8000;
+  CACHEDBHASHBLOCKS = 16;
+  CACHEDBHASHSIZE = CACHEDBHASHBLOCKSIZE * CACHEDBHASHBLOCKS;
   CACHEDBSTRINGSIZE = 16;
 
 type
@@ -881,6 +883,8 @@ type
     function apart(const it: cachedbitem_p): string;
     procedure Flash; virtual;
     procedure FlashAll; virtual;
+    procedure WriteParecs;
+    procedure ReadParecs;
   public
     constructor Create(const aname: string); virtual;
     destructor Destroy; override;
@@ -6634,6 +6638,10 @@ var
   i, j, idx: integer;
   h: LongWord;
   spart: string;
+{$IFNDEF CRAWLER}
+  progresstring: string;
+  mx: integer;
+{$ENDIF}
 begin
   {$IFNDEF CRAWLER}
   st_pcihitcnt := 0;
@@ -6650,12 +6658,27 @@ begin
     begin
       if fstream.Size <> SizeOf(cachedbparec_t) then
       begin
+        {$IFNDEF CRAWLER}
+        progresstring := 'Loading "cache.db"';
+        if Assigned(db.progressfunc) then
+          db.progressfunc(progresstring, 0.0);
+        mx := fstream.Size div SizeOf(cachedbitem_t);
+        if mx > CACHEDBHASHSIZE then
+          mx := CACHEDBHASHSIZE;
+        {$ENDIF}
         MT_ZeroMemory(parecs, SizeOf(cachedbparec_t));
         for i := 0 to fstream.Size div SizeOf(cachedbitem_t) - 1 do
         begin
           if i = CACHEDBHASHSIZE then
             break;
+
+          {$IFNDEF CRAWLER}
+          if i mod (CACHEDBHASHBLOCKSIZE div 10) = CACHEDBHASHBLOCKSIZE div 20 then
+            if Assigned(db.progressfunc) then
+              db.progressfunc(progresstring, i / mx);
+          {$ENDIF}
           fstream.Read(item, SizeOf(cachedbitem_t));
+
           spart := Trim(apart(@item));
           if spart <> '' then
           begin
@@ -6670,14 +6693,18 @@ begin
               end;
             end;
           end;
+          {$IFNDEF CRAWLER}
+          if Assigned(db.progressfunc) then
+            db.progressfunc(progresstring, 1.0);
+          {$ENDIF}
         end;
         CloseDB;
         OpenDB('c');
         if fstream <> nil then
-          fstream.Write(parecs^, SizeOf(cachedbparec_t));
+          WriteParecs;
       end
       else
-        fstream.Read(parecs^, SizeOf(cachedbparec_t));
+        ReadParecs;
       CloseDB;
     end
     else
@@ -6689,11 +6716,67 @@ begin
     OpenDB('c');
     if fstream <> nil then
     begin
-      fstream.Write(parecs^, SizeOf(cachedbparec_t));
+      WriteParecs;
       CloseDB;
     end;
   end;
   Inherited Create;
+end;
+
+procedure TCacheDB.WriteParecs;
+{$IFNDEF CRAWLER}
+var
+  i: integer;
+  progresstring: string;
+{$ENDIF}
+begin
+  if fstream = nil then
+    Exit;
+
+  fstream.Position := 0;
+{$IFDEF CRAWLER}
+  fstream.Write(parecs^, SizeOf(cachedbparec_t));
+{$ELSE}
+  progresstring := 'Saving "cache.db"';
+  if Assigned(db.progressfunc) then
+    db.progressfunc(progresstring, 0.0);
+  for i := 0 to CACHEDBHASHBLOCKS - 1 do
+  begin
+    if Assigned(db.progressfunc) then
+      db.progressfunc(progresstring, i / CACHEDBHASHBLOCKS);
+    fstream.Write((@parecs[i * CACHEDBHASHBLOCKSIZE])^, CACHEDBHASHBLOCKSIZE * SizeOf(cachedbitem_t));
+  end;
+  if Assigned(db.progressfunc) then
+    db.progressfunc(progresstring, 1.0);
+{$ENDIF}
+end;
+
+procedure TCacheDB.ReadParecs;
+{$IFNDEF CRAWLER}
+var
+  i: integer;
+  progresstring: string;
+{$ENDIF}
+begin
+  if fstream = nil then
+    Exit;
+
+  fstream.Position := 0;
+{$IFDEF CRAWLER}
+  fstream.Read(parecs^, SizeOf(cachedbparec_t));
+{$ELSE}
+  progresstring := 'Loading "cache.db"';
+  if Assigned(db.progressfunc) then
+    db.progressfunc(progresstring, 0.0);
+  for i := 0 to CACHEDBHASHBLOCKS - 1 do
+  begin
+    if Assigned(db.progressfunc) then
+      db.progressfunc(progresstring, i / CACHEDBHASHBLOCKS);
+    fstream.Read((@parecs[i * CACHEDBHASHBLOCKSIZE])^, CACHEDBHASHBLOCKSIZE * SizeOf(cachedbitem_t));
+  end;
+  if Assigned(db.progressfunc) then
+    db.progressfunc(progresstring, 1.0);
+{$ENDIF}
 end;
 
 procedure TCacheDB.Reorganize;
@@ -6708,7 +6791,7 @@ begin
   S_BackupFile(fname);
   OpenDB('c');
   if fstream <> nil then
-    fstream.Write(parecs^, SizeOf(cachedbparec_t));
+    WriteParecs;
   CloseDB;
 
   OpenDB('r');
@@ -6763,7 +6846,7 @@ begin
 
   OpenDB('c');
   if fstream <> nil then
-    fstream.Write(parecs^, SizeOf(cachedbparec_t));
+    WriteParecs;
   CloseDB;
 end;
 
@@ -6964,7 +7047,7 @@ begin
   OpenDB('w');
   if fstream <> nil then
   begin
-    fstream.Write(parecs^, SizeOf(cachedbparec_t));
+    WriteParecs;
     CloseDB;
   end;
 end;
@@ -7234,6 +7317,11 @@ begin
 end;
 
 procedure TSetsDatabase.InitCreate(const app: string = '');
+{$IFNDEF CRAWLER}
+var
+  lst: TStringList;
+  i: integer;
+{$ENDIF}
 begin
 //  fpciloaderparams.db := self;
   if app = '' then
@@ -7250,23 +7338,36 @@ begin
     MkDir(basedefault + 'out\');
 
   {$IFNDEF CRAWLER}
+  lst := TStringList.Create;
+  lst.Add('db_books.txt');
+  lst.Add('db_boxes.txt');
+  lst.Add('db_catalogs.txt');
+  lst.Add('db_categories.txt');
+  lst.Add('db_codes.txt');
+  lst.Add('db_gears.txt');
+  lst.Add('db_knownpieces.txt');
+  lst.Add('db_mocs.txt');
+  lst.Add('db_newnames.txt');
+  lst.Add('db_pieces_alias.txt');
+  lst.Add('db_pieces_categories.txt');
+  lst.Add('db_pieces_inventories.txt');
+  lst.Add('db_pieces_weight.txt');
+  lst.Add('db_pieces_years.txt');
+  lst.Add('db_set_assets.txt');
+  lst.Add('db_sets.txt');
+
+  if Assigned(progressfunc) then
+    progressfunc('Loading "' + fcrawlerfilename + '"', 0.0);
   S_SetCacheFile(basedefault + 'cache\' + fcrawlerfilename);
-  S_SetCacheFile(basedefault + 'db\db_books.txt');
-  S_SetCacheFile(basedefault + 'db\db_boxes.txt');
-  S_SetCacheFile(basedefault + 'db\db_catalogs.txt');
-  S_SetCacheFile(basedefault + 'db\db_categories.txt');
-  S_SetCacheFile(basedefault + 'db\db_codes.txt');
-  S_SetCacheFile(basedefault + 'db\db_gears.txt');
-  S_SetCacheFile(basedefault + 'db\db_knownpieces.txt');
-  S_SetCacheFile(basedefault + 'db\db_mocs.txt');
-  S_SetCacheFile(basedefault + 'db\db_newnames.txt');
-  S_SetCacheFile(basedefault + 'db\db_pieces_alias.txt');
-  S_SetCacheFile(basedefault + 'db\db_pieces_categories.txt');
-  S_SetCacheFile(basedefault + 'db\db_pieces_inventories.txt');
-  S_SetCacheFile(basedefault + 'db\db_pieces_weight.txt');
-  S_SetCacheFile(basedefault + 'db\db_pieces_years.txt');
-  S_SetCacheFile(basedefault + 'db\db_set_assets.txt');
-  S_SetCacheFile(basedefault + 'db\db_sets.txt');
+
+  for i := 0 to lst.Count - 1 do
+  begin
+    if Assigned(progressfunc) then
+      progressfunc('Loading "' + lst.Strings[i] + '"', (i + 1) / lst.Count);
+    S_SetCacheFile(basedefault + 'db\' + lst.Strings[i]);
+  end;
+
+  lst.Free;
   {$ENDIF}
 
 {  RemoveDoublesFromList1(basedefault + 'db\db_pieces.extra.txt');
@@ -9014,7 +9115,7 @@ var
   i: integer;
   progressstring: string;
 begin
-  progressstring := 'Loading Parts Inventories...';
+  progressstring := 'Loading Parts References...';
   if Assigned(progressfunc) then
     progressfunc(progressstring, 0.0);
   for i := 0 to fpartsinventories.Count - 1 do
@@ -9407,6 +9508,11 @@ begin
   fpieces := TStringList.Create;
   fpieceshash := THashTable.Create;
 
+  {$IFNDEF CRAWLER}
+  if Assigned(progressfunc) then
+    progressfunc('Processing "db_pieces.txt"', 0.0);
+  {$ENDIF}
+
   s := TStringList.Create;
   S_LoadFromFile(s, basedefault + 'db\db_pieces.txt');
   fn := basedefault + 'db\db_pieces.extra.txt';
@@ -9447,6 +9553,11 @@ begin
     end;
   end;
 
+  {$IFNDEF CRAWLER}
+  if Assigned(progressfunc) then
+    progressfunc('Processing "db_books.txt"', 0.05);
+  {$ENDIF}
+
   fn := basedefault + 'db\db_books.txt';
   if fexists(fn) then
   begin
@@ -9470,6 +9581,11 @@ begin
       sBooks.Free;
     end;
   end;
+
+  {$IFNDEF CRAWLER}
+  if Assigned(progressfunc) then
+    progressfunc('Processing "db_catalogs.txt"', 0.1);
+  {$ENDIF}
 
   fn := basedefault + 'db\db_catalogs.txt';
   if fexists(fn) then
@@ -9495,6 +9611,11 @@ begin
     end;
   end;
 
+  {$IFNDEF CRAWLER}
+  if Assigned(progressfunc) then
+    progressfunc('Processing "db_knownpieces.txt"', 0.2);
+  {$ENDIF}
+
   fn := basedefault + 'db\db_knownpieces.txt';
   if fexists(fn) then
   begin
@@ -9511,6 +9632,11 @@ begin
             splitstring(sKP.Strings[i], s1, s2, s3, ',');
             s1 := Trim(fixpartname(s1));
             s.Add(s1 + ',' + Trim(s3));
+            {$IFNDEF CRAWLER}
+            if i mod 1000 = 0 then
+              if Assigned(progressfunc) then
+                progressfunc('Processing "db_knownpieces.txt"', 0.2 + i / sKP.Count * 0.3);
+            {$ENDIF}
           end;
         end;
       end;
@@ -9529,6 +9655,11 @@ begin
 
   s.Text := stmp2;
 
+  {$IFNDEF CRAWLER}
+  if Assigned(progressfunc) then
+    progressfunc('Compressing Descriptions...', 0.5);
+  {$ENDIF}
+
   if s.Count > 1 then
   begin
     if Trim(s.Strings[0]) = 'piece_id,descr' then
@@ -9539,6 +9670,11 @@ begin
 
       for i := 0 to s.Count - 1 do
       begin
+        {$IFNDEF CRAWLER}
+        if i mod 2000 = 0 then
+          if Assigned(progressfunc) then
+            progressfunc('Compressing Descriptions...', 0.5 + i / s.Count * 0.2);
+        {$ENDIF}
         stmp := s.Strings[i];
         if stmp <> '' then
         begin
@@ -9558,7 +9694,18 @@ begin
     end;
   end;
 
+  {$IFNDEF CRAWLER}
+  if Assigned(progressfunc) then
+    progressfunc('Processing Aliases...', 0.7);
+  {$ENDIF}
+
   InitPiecesAlias;
+
+  {$IFNDEF CRAWLER}
+  if Assigned(progressfunc) then
+    progressfunc('Processing Aliases...', 0.75);
+  {$ENDIF}
+
   InitNewNames;
   // Remove duplicates
 {  for i := 0 to fpieces.Count - 1 do
@@ -9575,7 +9722,17 @@ begin
     fpieces.Strings[i] := spart;
   end;     }
 
+  {$IFNDEF CRAWLER}
+  if Assigned(progressfunc) then
+    progressfunc('Sorting...', 0.8);
+  {$ENDIF}
   fpieces.Sort;
+
+  {$IFNDEF CRAWLER}
+  if Assigned(progressfunc) then
+    progressfunc('Removing Duplicated Keys...', 0.9);
+  {$ENDIF}
+
   {$IFNDEF CRAWLER}
   for i := fpieces.Count - 1 downto 1 do
     if fpieces.Strings[i] = fpieces.Strings[i - 1] then
@@ -9600,6 +9757,12 @@ begin
       fpieces.Delete(i);
     end;
   {$ENDIF}
+
+  {$IFNDEF CRAWLER}
+  if Assigned(progressfunc) then
+    progressfunc('Processing...', 0.95);
+  {$ENDIF}
+
   for i := 0 to fpieces.Count - 1 do
   begin
     sp := (fpieces.Objects[i] as TPieceInfo);
@@ -9607,7 +9770,18 @@ begin
     fpieces.Strings[i] := s1;
   end;
 
+  {$IFNDEF CRAWLER}
+  if Assigned(progressfunc) then
+    progressfunc('Processing...', 0.98);
+  {$ENDIF}
   fpieces.Sorted := True;
+
+
+  {$IFNDEF CRAWLER}
+  if Assigned(progressfunc) then
+    progressfunc('Processing...', 1.0);
+  {$ENDIF}
+
   fpieceshash.AssignStringList(fpieces);
   s.Free;
 

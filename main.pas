@@ -1126,7 +1126,6 @@ begin
   SaveDialogPartsColors.Filename := basedefault + 'dbexport_parts_colors.txt';
 
   Application.OnIdle := nil;
-  IdleTimer.Enabled := True;
 end;
 
 procedure TMainForm.Navigate(const akey: string; const pg: integer);
@@ -2661,6 +2660,9 @@ begin
   tb := TTabItem.Create(TabControl1);
   tb.Store(HTML, 'home', goback, gofwd);
   TabControl1.Tabs.AddObject(HTML.DocumentTitle, tb);
+
+  IdleTimer.Enabled := True;
+
 {  db.CrawlerPriorityPart('15714', 15);
   db.CrawlerPriorityPart('15714', 41);
   db.CrawlerPriorityPart('15714', 14);
@@ -19119,6 +19121,8 @@ procedure TMainForm.IdleTimerTimer(Sender: TObject);
 begin
   if document.needsidletime then
     Application.OnIdle := document.IdleEventHandler
+  else if db.needsidletime then
+    Application.OnIdle := db.IdleEventHandler
   else
     Application.OnIdle := nil;
 end;

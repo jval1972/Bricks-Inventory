@@ -343,8 +343,8 @@ type
   categoryinfoarray_t = array[0..MAXCATEGORIES - 1] of categoryinfo_t;
   categoryinfoarray_p = ^categoryinfoarray_t;
 
+{$IFNDEF CRAWLER}
 type
-  {$IFNDEF CRAWLER}
   TPieceInfoRelationships = class(TObject)
   private
     fmoldvariations: TStringList;
@@ -388,8 +388,13 @@ type
     property prints: TStringList read GetPrints write SetPrints;
     property printscount: integer read GetPrintsCount;
   end;
-  {$ENDIF}
+{$ENDIF}
 
+const
+  PI_FLG_INVFOUND = 1;
+  PI_FLG_ADDITIONAL_COMPRESS = 2;
+
+type
   TPieceInfo = class(TObject)
   private
     fname: string;
@@ -403,7 +408,7 @@ type
     frelationships: TPieceInfoRelationships;
     fdimensions: dimensions_p;
     {$ENDIF}
-    finventoryfound: boolean;
+    fflags: LongWord;
     fpartsinventoriesvalidcount: integer;
     finventoryname: string;
   protected
@@ -430,6 +435,13 @@ type
     procedure SetDimensionY(const v: double);
     function GetDimensionZ: Double;
     procedure SetDimensionZ(const v: double);
+    function GetAdditionalCompress: Boolean;
+    procedure SetAdditionalCompress(const v: Boolean);
+    {$ENDIF}
+    function GetInventoryFound: Boolean;
+    procedure SetInventoryFound(const v: Boolean);
+    {$IFNDEF CRAWLER}
+    property didadditionalcompress: Boolean read GetAdditionalCompress write SetAdditionalCompress;
     {$ENDIF}
   public
     constructor Create; virtual;
@@ -447,6 +459,7 @@ type
     function GetPrintsCount: integer;
     function GetPrintsIndexOf(const s: string): integer;
     procedure AddPrint(const s: string);
+    procedure DescCompressEx;
     {$ENDIF}
     function hasinventory: boolean;
     function Inventory(const color: integer): TBrickInventory;
@@ -475,7 +488,7 @@ type
     property dimentiony: Double read GetDimensionY write SetDimensionY;
     property dimentionz: Double read GetDimensionZ write SetDimensionZ;
     {$ENDIF}
-    property inventoryfound: boolean read finventoryfound write finventoryfound;
+    property inventoryfound: boolean read GetInventoryFound write SetInventoryFound;
     property inventoryname: string read finventoryname write finventoryname;
   end;
 
@@ -931,7 +944,9 @@ type
     fCrawlerCache: TStringList;
     {$IFNDEF CRAWLER}
     fStorageBinsCache: TStringList;
+    compressnamerover: integer;
     {$ENDIF}
+    fneedsidletime: boolean;
     fmaximumcolors: integer;
     fPartTypeList: TStringList;
     fcrawlerrandom: byte;
@@ -1004,6 +1019,7 @@ type
     function GetUnknownPiecesFromCache: TStringList;
     function RemoveUnknownPiecesFromCache: integer;
     function GetRelatedPieces(const pcs: string): TStringList;
+    procedure IdleEventHandler(Sender: TObject; var Done: Boolean);
     {$ENDIF}
     procedure GetCacheHashEfficiency(var hits, total: integer);
     function Colors(const i: Integer): colorinfo_p;
@@ -1230,9 +1246,8 @@ type
     property basemolds: TStringList read fbasemolds;
     property AllTags: TStringList read falltags;
     {$ENDIF}
-    {$IFDEF CRAWLER}
     property crawlerpriority: TStringList read fcrawlerpriority;
-    {$ENDIF}
+    property needsidletime: boolean read fneedsidletime;
     property crawlerrandom: byte read fcrawlerrandom write fcrawlerrandom;
   end;
 
@@ -6971,6 +6986,7 @@ begin
   fcrawlerrandom := 0;
   {$IFNDEF CRAWLER}
   S_InitFileSystem;
+  compressnamerover := 0;
   {$ENDIF}
   inherited Create;
   fPartTypeList := TStringList.Create;
@@ -18055,7 +18071,7 @@ begin
   frelationships := nil;
   init_dimensions(fdimensions);
   {$ENDIF}
-  finventoryfound := False;
+  fflags := 0;
   fpartsinventoriesvalidcount := 0;
   finventoryname := '';
   inherited;
@@ -18209,7 +18225,7 @@ var
   dbvalid: integer;
   invname: string;
 begin
-  if finventoryfound then
+  if inventoryfound then
   begin
     Result := True;
     Exit;
@@ -18245,7 +18261,7 @@ begin
 
   if Result then
   begin
-    finventoryfound := True;
+    inventoryfound := True;
     finventoryname := invname;
   end
   else
@@ -18263,6 +18279,7 @@ end;
 procedure TPieceInfo.SetDesc(const v: string);
 begin
   fdesc := BI_EncodeDesc(v);
+  didadditionalcompress := False;
 end;
 
 function TPieceInfo.GetPatternOf: string;
@@ -18486,7 +18503,42 @@ procedure TPieceInfo.SetDimensionZ(const v: double);
 begin
   wd_setz(fdimensions, v);
 end;
+
+function TPieceInfo.GetAdditionalCompress: Boolean;
+begin
+  Result := fflags and PI_FLG_ADDITIONAL_COMPRESS <> 0;
+end;
+
+procedure TPieceInfo.SetAdditionalCompress(const v: Boolean);
+begin
+  if v then
+    fflags := fflags or PI_FLG_ADDITIONAL_COMPRESS
+  else
+    fflags := fflags and not PI_FLG_ADDITIONAL_COMPRESS;
+end;
+
+procedure TPieceInfo.DescCompressEx;
+begin
+  if not didadditionalcompress then
+  begin
+    fdesc := BI_EncodeDescEx(fdesc);
+    didadditionalcompress := True;
+  end;
+end;
 {$ENDIF}
+
+function TPieceInfo.GetInventoryFound: Boolean;
+begin
+  Result := fflags and PI_FLG_INVFOUND <> 0;
+end;
+
+procedure TPieceInfo.SetInventoryFound(const v: Boolean);
+begin
+  if v then
+    fflags := fflags or PI_FLG_INVFOUND
+  else
+    fflags := fflags and not PI_FLG_INVFOUND;
+end;
 
 function PartTypeToPartTypeName(const pt: char): string;
 begin
@@ -20080,6 +20132,7 @@ begin
   Result := True;
   AllowInternetAccess := True;
   floaded := True;
+  fneedsidletime := True;
 end;
 
 var
@@ -20361,6 +20414,36 @@ begin
   end;
 
   Result := lst;
+end;
+
+procedure TSetsDatabase.IdleEventHandler(Sender: TObject; var Done: Boolean);
+
+  function _handle_name_compress: boolean;
+  const
+    NAME_COMPRESS_MAX = 100;
+  var
+    start, i: integer;
+  begin
+    start := compressnamerover;
+    if start >= fpieces.Count then
+    begin
+      Result := False;
+      Exit;
+    end;
+    compressnamerover := start +  NAME_COMPRESS_MAX;
+    if compressnamerover > fpieces.Count then
+      compressnamerover := fpieces.Count;
+    for i := start to compressnamerover - 1 do
+      (fpieces.Objects[i] as TPIeceInfo).DescCompressEx;
+    Result := True;
+  end;
+
+begin
+  if not _handle_name_compress then
+  begin
+    Done := True;
+    fneedsidletime := False;
+  end;
 end;
 {$ENDIF}
 

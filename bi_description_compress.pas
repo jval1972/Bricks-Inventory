@@ -804,6 +804,8 @@ const
 
 function BI_EncodeDesc(const s: string): string;
 
+function BI_EncodeDescEx(const s: string): string;
+
 function BI_DecodeDesc(const s: string): string;
 
 implementation
@@ -842,7 +844,6 @@ var
   i: integer;
   stmp: string;
   sret: string;
-  len, len2: integer;
 
   procedure addtoret;
   var
@@ -877,6 +878,14 @@ begin
     end;
   addtoret;
   Result := sret;
+end;
+
+function BI_EncodeDescEx(const s: string): string;
+var
+  i: integer;
+  len, len2: integer;
+begin
+  Result := s;
   for i := 1 to 22 do
     if Length(DC_dictionary_desc1[i].aliasword) > 1 then
       Result := StringReplace(Result, DC_dictionary_desc1[i].aliasword, Chr(i), [rfReplaceAll]);

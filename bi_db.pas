@@ -20332,7 +20332,7 @@ end;
 function TSetsDatabase.GetRelatedPieces(const pcs: string): TStringList;
 var
   ptmp: string;
-  i, idx: integer;
+  i: integer;
   lst: TStringList;
 
   procedure _AddRelatedPiece(const s: string);

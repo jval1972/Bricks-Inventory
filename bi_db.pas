@@ -10107,8 +10107,8 @@ begin
       end;
     end;
 
-{  fpiecesaliasBL.Sorted := True;
-  fpiecesaliasRB.Sorted := True;}
+  fpiecesaliasBL.Sorted := True;
+  fpiecesaliasRB.Sorted := True;
   s.Free;
 end;
 

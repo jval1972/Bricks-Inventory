@@ -11795,7 +11795,7 @@ begin
   document.write('<p align=center>');
   if (colormask <> -1) and (cat <> -1) then
     DrawHeadLine('Loose Parts - ' +
-      IntToStr(inv.numlotsbycolor(colormask)) + ' lots, ' +
+      IntToStr(inv.numlotsbycatcolor(colormask, cat)) + ' lots, ' +
       IntToStr(inv.totalloosepartsbycatcolor(colormask, cat)) + ' parts (filtered)')
   else if colormask <> -1 then
     DrawHeadLine('Loose Parts - ' +

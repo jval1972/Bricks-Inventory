@@ -691,6 +691,7 @@ type
     procedure ShowCategoryColors(const cat: integer);
     function HtmlDrawInvImgLink(const pcs: string; const color: integer;
       const pi: TPieceInfo): string;
+    function HtmlDrawSetMostLink(const pci: TPieceColorInfo): string;
     function HtmlDrawInvCode(const pci: TPieceColorInfo; const extras1, extras2: string): string;
     procedure ShowCategories;
     procedure ShowPiece(pcs: string; const year: integer = -1; const flags: LongWord = 0);
@@ -3353,8 +3354,7 @@ begin
         ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' +
           GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
           HtmlDrawInvImgLink(brick.part, brick.color, pi) +
-          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) +
-          ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
+          HtmlDrawSetMostLink(pci));
     if not lite then
     begin
       if pci <> nil then
@@ -5921,6 +5921,17 @@ begin
     Result := '';
 end;
 
+function TMainForm.HtmlDrawSetMostLink(const pci: TPieceColorInfo): string;
+begin
+  if pci.setmost = '' then
+  begin
+    Result := lugbulklinks(pci) + '</td>';
+    Exit;
+  end;
+  Result := '<br><a href=sinv/' + pci.setmost +'>Appears ' +
+          decide(pci.setmostnum = 1, '1 time in', itoa(pci.setmostnum) + ' times') + ' in ' + pci.setmost + '</a>' + lugbulklinks(pci) + '</td>';
+end;
+
 function TMainForm.HtmlDrawInvCode(const pci: TPieceColorInfo; const extras1, extras2: string): string;
 begin
   if pci = nil then
@@ -6551,7 +6562,7 @@ begin
                 ' (' + si + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
                 '<img src="images\details.png"></a>' +
                 HtmlDrawInvImgLink(pcs, i, pi) +
-                decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
+                HtmlDrawSetMostLink(pci));
               document.write('<td width=10% align=right>');
               document.write('N=%2.3f<br>U=%2.3f</td>', [pci.nDemand, pci.uDemand]);
             end
@@ -7510,7 +7521,7 @@ begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
         ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
+        HtmlDrawSetMostLink(pci));
 
     document.write('<td width=15% align=right>' + Format('%d', [numpieces]) +
             '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
@@ -7668,7 +7679,7 @@ begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
         ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
+        HtmlDrawSetMostLink(pci));
 
     document.write('<td width=10% align=right>' + Format('%d', [numpieces]) +
             '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
@@ -7835,7 +7846,7 @@ begin
         ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) +
         '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-          decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
+        HtmlDrawSetMostLink(pci));
 
     document.write('<td width=15% align=right>' +
             '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
@@ -7969,8 +7980,8 @@ begin
       document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
         ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
-         decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
-       document.write('<td width=15% align=right>' + Format('%2.3f', [pci.nDemand]) +
+        HtmlDrawSetMostLink(pci));
+      document.write('<td width=15% align=right>' + Format('%2.3f', [pci.nDemand]) +
               '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
               '<br><a href=diagrampiece/' + pcs + '/' + itoa(cl) + '><img src="images\diagram.png"></a>' +
               '</td>');
@@ -8090,7 +8101,7 @@ begin
             document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
           else
             document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
-              decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + lugbulklinks(pci) + '</td>');
+                  HtmlDrawSetMostLink(pci));
           document.write('<td width=15% align=right>' + Format('%d', [numpieces]) + '</td>');
 
           if pci <> nil then
@@ -8335,7 +8346,8 @@ begin
             document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
           else
             document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
-              decide(pci.setmost='', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+              HtmlDrawSetMostLink(pci));
+              
           document.write('<td width=15% align=right>' + Format('%d', [numpieces]) + '</td>');
 
           if pci <> nil then
@@ -10331,7 +10343,7 @@ begin
       ' (' + scolor + ') (BL=' + IntToStr(db.colors(ncolor).BrickLinkColor) + ')' + GetRebrickableColorHtml(ncolor) + '<img src="images\details.png"></a>' +
       HtmlDrawInvImgLink(spart, ncolor, pi));
     if pci <> nil then
-      document.write((decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>'))
+      document.write(HtmlDrawSetMostLink(pci))
     else
       document.write('</td>');
 
@@ -11758,10 +11770,10 @@ begin
                      brick.part + '/' + scolor + '><img src="images\details.png"></a>' +  HtmlDrawInvImgLink(brick.part, brick.color, pi));
 
 //      pci := db.PieceColorInfo(brick.part, brick.color);
-      if pci = nil then
-        document.write('</td>')
+      if pci <> nil then
+        document.write(HtmlDrawSetMostLink(pci))
       else
-        document.write(decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+        document.write('</td>');
 
       if pci <> nil then
       begin
@@ -15858,7 +15870,7 @@ begin
         '<img src="images\details.png"></a>' +
         HtmlDrawInvImgLink(pcs, cl, pi) +
         HtmlDrawInvCode(pci, '<br>', '') +
-         decide(pci.setmost = '', '', '<br><a href=sinv/' + pci.setmost +'>Appears ' + itoa(pci.setmostnum) + ' times in ' + pci.setmost + '</a>') + '</td>');
+        HtmlDrawSetMostLink(pci));
       document.write(
         '<td width=15% align=right>' + Format('%2.3f', [pci.nDemand]) +
         '<br><a href=editpiece/' + pcs + '/' + col + '><img src="images\edit.png"></a>' +

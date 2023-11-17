@@ -1474,10 +1474,10 @@ end;
 
 function TGif.GetSignature: string;
 var
-    s:      string;
+  s: string;
 begin
-s := fSignature^.rSignature;
-GetSignature := s;
+  s := fSignature^.rSignature;
+  GetSignature := s;
 end;
 
 
@@ -1486,7 +1486,7 @@ end;
 
 function TGif.GetScreenDescriptor: PGifScreenDescriptor;
 begin
-GetScreenDescriptor := fScreenDescriptor;
+  GetScreenDescriptor := fScreenDescriptor;
 end;
 
 
@@ -1494,14 +1494,15 @@ end;
 
 function TGif.GetImageCount: integer;
 begin
-GetImageCount := fImageDescriptorList.Count;
+  GetImageCount := fImageDescriptorList.Count;
 end;
 
 
 function TGif.GetImageDescriptor(image: integer): PGifImageDescriptor;
 begin
-if ((image < 0) or (image >= fImageDescriptorList.Count)) then GIF_Error(15);
-GetImageDescriptor := fImageDescriptorList.Items[image];
+  if ((image < 0) or (image >= fImageDescriptorList.Count)) then
+    GIF_Error(15);
+  GetImageDescriptor := fImageDescriptorList.Items[image];
 end;
 
 
@@ -1509,14 +1510,15 @@ end;
 
 function TGif.GetBitmap(image: integer): TBitmap;
 var
-    p:      PGifImageDescriptor;
-    b:      TBitmap;
+  p: PGifImageDescriptor;
+  b: TBitmap;
 begin
-p := GetImageDescriptor(image);
-if (p^.rBitmap = nil) then MakeBitmaps;
-b := p^.rBitmap;
+  p := GetImageDescriptor(image);
+  if (p^.rBitmap = nil) then 
+    MakeBitmaps;
+  b := p^.rBitmap;
 
-GetBitmap := b;
+  GetBitmap := b;
 end;
 
 { ---------------------------------------------------------------------------- }

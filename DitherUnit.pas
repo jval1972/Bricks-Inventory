@@ -326,7 +326,8 @@ begin
     InfoHeaderSize := SizeOf(TBitmapInfoHeader);
     if ((Info.biCompression and BI_BITFIELDS) <> 0) then
       Inc(InfoHeaderSize, 12);
-  end else
+  end
+  else
     // Header and palette
     InfoHeaderSize := SizeOf(TBitmapInfoHeader) + SizeOf(TRGBQuad) * (1 shl Info.biBitCount);
   ImageSize := Info.biSizeImage;
@@ -897,10 +898,10 @@ end;
 // Map color to netscape 6*6*6 color cube
 function TNetscapeColorLookup.Lookup(Red, Green, Blue: byte; var R, G, B: byte): char;
 begin
-  R := (Red+3) div 51;
-  G := (Green+3) div 51;
-  B := (Blue+3) div 51;
-  Result := char(B + 6*G + 36*R);
+  R := (Red + 3) div 51;
+  G := (Green + 3) div 51;
+  B := (Blue + 3) div 51;
+  Result := char(B + 6 * G + 36 * R);
   R := R * 51;
   G := G * 51;
   B := B * 51;
@@ -1163,11 +1164,12 @@ begin
     ErrorR := ErrorsR;
     ErrorG := ErrorsG;
     ErrorB := ErrorsB;
-  end else
+  end
+  else
   begin
-    ErrorR := @ErrorsR[Width+1];
-    ErrorG := @ErrorsG[Width+1];
-    ErrorB := @ErrorsB[Width+1];
+    ErrorR := @ErrorsR[Width + 1];
+    ErrorG := @ErrorsG[Width + 1];
+    ErrorB := @ErrorsB[Width + 1];
   end;
 end;
 {$IFDEF R_PLUS}
@@ -1187,7 +1189,7 @@ type
 
   TReducibleNodes = array[0..7] of TOctreeNode;
 
-  TOctreeNode = Class(TObject)
+  TOctreeNode = class(TObject)
   public
     IsLeaf: Boolean;
     PixelCount: integer;
@@ -1342,7 +1344,8 @@ begin
     inc(Node.RedSum, r);
     inc(Node.GreenSum, g);
     inc(Node.BlueSum, b);
-  end else
+  end
+  else
   begin
     // Recurse a level deeper if the node is not a leaf.
     Shift := 7 - Level;
@@ -1472,7 +1475,8 @@ begin
     Colors := 236;
     Offset := 10;
     LogicalPalette.palNumEntries := 256;
-  end else
+  end
+  else
     Offset := 0;
 
   // Normally for 24-bit images, use ColorBits of 5 or 6.  For 8-bit images
@@ -1682,7 +1686,7 @@ var
   DitherMode: TDitherMode;
 
 begin
-  Result := Nil;
+  Result := nil;
   if (Source is TBitmap) then    {should always be}
   begin
     if (TBitmap(Source).Empty) then
@@ -1692,7 +1696,8 @@ begin
     begin
       if ColorBits >= 8 then
         ColorReduction := rmMyPalette
-      else ColorReduction := rmWindows20;
+      else
+        ColorReduction := rmWindows20;
       DitherMode := dmFloydSteinberg;
       // Convert image to 8 bits/pixel or less
       FBitmap := ReduceColors(TBitmap(Source), ColorReduction, DitherMode);

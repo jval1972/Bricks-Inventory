@@ -2059,6 +2059,7 @@ var
   dllinks: TStringList;
   colorsys, colorbl: integer;
   blname: string;
+  oklevel1: boolean;
 
   function _colorsys: integer;
   var
@@ -2154,6 +2155,7 @@ begin
     if trydownload and (searchdownloadimg >= 1) then
     begin
       colorsys := _colorsys;
+      oklevel1 := False;
       pci := db.PieceColorInfo(firstword(SRCfn, '.'), colorsys);
 
       if pci <> nil then
@@ -2202,6 +2204,7 @@ begin
             if DownloadPngFileToJpg(dllinks.Strings[i], basedefault + SRC) then
             begin
               trydownload := False;
+              oklevel1 := True;
               Break;
             end;
           end;
@@ -2213,11 +2216,16 @@ begin
             if DownloadFileImg(dllinks.Strings[i], basedefault + SRC) then
             begin
               trydownload := False;
+              oklevel1 := True;
               Break;
             end;
           end;
         end;
-
+        if oklevel1 then
+        begin
+          ps.Free;
+          ps := TPakStream.Create(SRC, pm_full);
+        end;
         dllinks.Free;
       end;
     end;

@@ -96,6 +96,9 @@ const
   CATEGORYLUGBULK = 1998;
   CATEGORYCUSTOMMINIFIGS = 1999;
 
+  CATEGORY_BRICKARMS_MIN = 931;
+  CATEGORY_BRICKARMS_MAX = 942;
+
 type
   categorysum_t = array[-1..MAXCATEGORIES - 1] of integer;
   categorysum_p = ^categorysum_t;
@@ -20899,6 +20902,11 @@ begin
   begin
     if pci.sparttype <> pt then
     begin
+      if pt = 'M' then
+        if pci.pieceinfo <> nil then
+          if pci.pieceinfo is TPieceInfo then
+            if IsIntegerInRange((pci.pieceinfo as TPieceInfo).category, CATEGORY_BRICKARMS_MIN, CATEGORY_BRICKARMS_MAX) then
+              Exit; // Do not allow brickarms minifigure
       pci.sparttype := pt;
       fname := basedefault + 'db\db_parttypes.txt';
       if not fexists(fname) then

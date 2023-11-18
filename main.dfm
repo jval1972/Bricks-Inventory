@@ -957,36 +957,6 @@ object MainForm: TMainForm
     TabOrder = 2
     OnChange = TabControl1Change
     OnChanging = TabControl1Changing
-    object HTML: THTMLViewer
-      Left = 4
-      Top = 6
-      Width = 1082
-      Height = 362
-      OnHotSpotClick = HTMLHotSpotClick
-      OnImageRequest = HTMLImageRequest
-      OnProgress = HTMLProgress
-      TabOrder = 0
-      Align = alClient
-      DefBackground = clWhite
-      BorderStyle = htNone
-      HistoryMaxCount = 0
-      DefFontName = 'Tahoma'
-      DefPreFontName = 'Courier New'
-      DefFontSize = 10
-      ImageCacheCount = 20
-      NoSelect = False
-      CharSet = DEFAULT_CHARSET
-      PrintMarginLeft = 2.000000000000000000
-      PrintMarginRight = 2.000000000000000000
-      PrintMarginTop = 2.000000000000000000
-      PrintMarginBottom = 2.000000000000000000
-      PrintScale = 1.000000000000000000
-      htOptions = [htPrintTableBackground, htPrintMonochromeBlack, htShowVScroll]
-      OnMouseMove = HTMLMouseMove
-      OnMouseWheel = HTMLMouseWheel
-      OnProcessing = HTMLProcessing
-      OnRightClick = HTMLRightClick
-    end
   end
   object Timer1: TTimer
     OnTimer = Timer1Timer

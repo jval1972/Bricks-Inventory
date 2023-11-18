@@ -239,7 +239,6 @@ type
     HtmlFind1: TMenuItem;
     HtmlSelectAll1: TMenuItem;
     TabControl1: TTabControl;
-    HTML: THTMLViewer;
     PopupMenu1: TPopupMenu;
     CloseTab1: TMenuItem;
     N34: TMenuItem;
@@ -665,6 +664,7 @@ type
     thumbnailcache: array[0..127] of TStringList;
     thumbnailfilesexist: array[0..127] of TStringList;
     newtabUrl: string;
+    HTML: THTMLViewer;
     function CheckAA(const AA, fromAA, toAA: integer): boolean;
     procedure Navigate(const akey: string; const pg: integer);
     procedure DrawColorCell(const cc: integer; const width: integer);
@@ -864,6 +864,8 @@ type
     function GetSetCostDbl(const setid: string): double;
     function GetItemCostDbl(const apart: string; const acolor: integer): double;
     procedure IdleEventHandler(Sender: TObject; var Done: Boolean);
+    procedure CreateHTML;
+    procedure DisposeHTML;
   public
     { Public declarations }
     activebits: integer;
@@ -1068,6 +1070,7 @@ begin
 //  I_InitTempFiles;
   I_Init;
   MT_Init;
+  CreateHTML;
   SplashForm := TSplashForm.Create(nil);
   lastset := '';
   diskmirror := '';
@@ -2661,6 +2664,8 @@ begin
 
   optenablecrawling := CheckBox1.Checked;
   BI_SaveDefaults(basedefault + 'bi4.ini');
+
+  DisposeHTML;
 end;
 
 procedure TMainForm.FormShow(Sender: TObject);
@@ -21597,7 +21602,42 @@ end;
 
 procedure TMainForm.AddressEditChange(Sender: TObject);
 begin
-  activebits := 20000; 
+  activebits := 20000;
+end;
+
+procedure TMainForm.CreateHTML;
+begin
+  HTML := THTMLViewer.Create(nil);
+  HTML.Parent := TabControl1;
+  HTML.Align := alClient;
+  HTML.OnHotSpotClick := HTMLHotSpotClick;
+  HTML.OnImageRequest := HTMLImageRequest;
+  HTML.OnProgress := HTMLProgress;
+  HTML.TabOrder := 0;
+  HTML.DefBackground := clWhite;
+  HTML.BorderStyle := htNone;
+  HTML.HistoryMaxCount := 0;
+  HTML.DefFontName := 'Tahoma';
+  HTML.DefPreFontName := 'Courier New';
+  HTML.DefFontSize := 10;
+  HTML.ImageCacheCount := 20;
+  HTML.NoSelect := False;
+  HTML.CharSet := DEFAULT_CHARSET;
+  HTML.PrintMarginLeft := 2.000000000000000000;
+  HTML.PrintMarginRight := 2.000000000000000000;
+  HTML.PrintMarginTop := 2.000000000000000000;
+  HTML.PrintMarginBottom := 2.000000000000000000;
+  HTML.PrintScale := 1.000000000000000000;
+  HTML.htOptions := [htPrintTableBackground, htPrintMonochromeBlack, htShowVScroll];
+  HTML.OnMouseMove := HTMLMouseMove;
+  HTML.OnMouseWheel := HTMLMouseWheel;
+  HTML.OnProcessing := HTMLProcessing;
+  HTML.OnRightClick := HTMLRightClick;
+end;
+
+procedure TMainForm.DisposeHTML;
+begin
+  HTML.Free;
 end;
 
 end.

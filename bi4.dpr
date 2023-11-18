@@ -149,7 +149,12 @@ uses
   bi_quantize in 'bi_quantize.pas',
   bi_4gb in 'bi_4gb.pas',
   bi_description_compress in 'bi_description_compress.pas',
-  bi_dimensions in 'bi_dimensions.pas';
+  bi_dimensions in 'bi_dimensions.pas',
+  HTMLEd1 in 'HTMLEd1.pas' {EditHtmlForm},
+  bi_colorpickerbutton in 'bi_colorpickerbutton.pas',
+  bi_dropdownbutton in 'bi_dropdownbutton.pas',
+  bi_binary in 'bi_binary.pas',
+  bi_undo in 'bi_undo.pas';
 
 {$R *.res}
 

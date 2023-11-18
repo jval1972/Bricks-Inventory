@@ -2542,7 +2542,7 @@ const
   LastColor: TColor = 0;
 
 var
-  I, Rd, Bl: integer;
+  I, Rd, Bl, x: integer;
   S1: string;
 
   function FindRGBColor(S: string): boolean;
@@ -2635,11 +2635,17 @@ begin
       if Length(S) <= 3 then
         for I := Length(S) downto 1 do
           Insert(S[I], S, I);     {double each character}
-      Color := StrToInt('$' + S);  {but bytes are backwards!}
-      Rd := Color and $FF;
-      Bl := Color and $FF0000;
-      Color := (Color and $00FF00) + (Rd shl 16) + (Bl shr 16) or PalRelative;
-      Result := True;
+      x := StrToIntDef('$' + S, -2147483647);  {but bytes are backwards!}
+      if x <> -2147483647 then
+      begin
+        Color := x;
+        Rd := Color and $FF;
+        Bl := Color and $FF0000;
+        Color := (Color and $00FF00) + (Rd shl 16) + (Bl shr 16) or PalRelative;
+        Result := True;
+      end
+      else
+        Result := False;
     except
       Result := False;
     end;

@@ -57,6 +57,7 @@ type
     procedure SetSavePath(const value: string);
     procedure DoSaveString(const fname: string; const s: string);
     function DoLoadString(const fname: string): string;
+    procedure SizeNeeded(const sz: integer);
   public
     constructor Create(const aview: THTMLViewer);
     destructor Destroy; override;
@@ -64,6 +65,7 @@ type
     procedure write(const i: integer); overload;
     procedure write(const s: string); overload;
     procedure write(const Fmt: string; const Args: array of const); overload;
+    procedure writefromfile(const fname: string);
     procedure writecheck(const AA, fromAA, toAA: integer; const i: integer); overload;
     procedure writecheck(const AA, fromAA, toAA: integer; const s: string); overload;
     procedure writecheck(const AA, fromAA, toAA: integer; const Fmt: string; const Args: array of const); overload;
@@ -180,18 +182,11 @@ begin
   SetLength(buffer, fcapacity);
 end;
 
-procedure TDocument.write(const i: integer);
-begin
-  write(IntToStr(i));
-end;
-
-procedure TDocument.write(const s: string);
+procedure TDocument.SizeNeeded(const sz: integer);
 var
-  len: integer;
   growstep: integer;
 begin
-  len := Length(s);
-  if fcapacity < len + fsize then
+  if fcapacity < sz then
   begin
     if fcapacity > $800000 then
       growstep := $200000
@@ -205,9 +200,22 @@ begin
       growstep := 8192 * 4
     else
       growstep := 8192;
-    fcapacity := (len + fsize + growstep) and not 1023;
+    fcapacity := (sz + growstep) and not 1023;
     SetLength(buffer, fcapacity);
   end;
+end;
+
+procedure TDocument.write(const i: integer);
+begin
+  write(IntToStr(i));
+end;
+
+procedure TDocument.write(const s: string);
+var
+  len: integer;
+begin
+  len := Length(s);
+  SizeNeeded(len + fsize);
   memmove(@buffer[fsize + 1], @s[1], len);
   fsize := fsize + len;
 end;
@@ -218,6 +226,25 @@ var
 begin
   FmtStr(stmp, Fmt, Args);
   write(stmp);
+end;
+
+procedure TDocument.writefromfile(const fname: string);
+var
+  f: TFileStream;
+  len: integer;
+begin
+  if fexists(fname) then
+  begin
+    f := TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
+    try
+      len := f.Size;
+      SizeNeeded(fsize + len);
+      f.Read((@buffer[fsize + 1])^, f.Size);
+      fsize := fsize + len;
+    finally
+      f.Free;
+    end;
+  end;
 end;
 
 procedure TDocument.writecheck(const AA, fromAA, toAA: integer; const i: integer);

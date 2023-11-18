@@ -864,6 +864,8 @@ type
     function GetSetCostDbl(const setid: string): double;
     function GetItemCostDbl(const apart: string; const acolor: integer): double;
     procedure IdleEventHandler(Sender: TObject; var Done: Boolean);
+    procedure DrawPieceColorNotes(const pcs, color: string);
+    procedure DrawPieceNotes(const pcs: string);
   public
     { Public declarations }
     activebits: integer;
@@ -884,7 +886,7 @@ uses
   frm_update2, frm_update3, frm_update4, bi_cachefile, frm_editlugbulkprice,
   frm_options, bi_multithread, bi_iterators, bi_defs, bi_crawler, bi_script,
   buildinexcludes, bi_instructions, frm_pdfinstructions, bi_data,
-  bi_imagerotate, bi_readylist;
+  bi_imagerotate, bi_readylist, HTMLEd1;
 
 {$R *.dfm}
 
@@ -2746,6 +2748,8 @@ begin
     MkDir(basedefault + 'images');
   if not DirectoryExists(basedefault + 'cache') then
     MkDir(basedefault + 'cache');
+  if not DirectoryExists(basedefault + 'notes') then
+    MkDir(basedefault + 'notes');
 
   LugBulks1.Visible := DirectoryExists(basedefault + 'lugbulks');
 
@@ -4476,6 +4480,7 @@ begin
   year := db.SetYear(setid);
   ss1 := Format('Inventory for %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled<br><img width=360px src=s\' + setid + '.jpg>' +
       ' <a href=DoEditSet/' + setid + '><img src="images\edit.png"></a>' +
+      ' <a href=editpiecenotes/' + setid + '><img src="images\notes.png"></a>' +
       ' <a href=PreviewSetInventory/' + setid + '><img src="images\print.png"></a>' +
       ' <a href=diagrampiece/' + setid + '/-1><img src="images\diagram.png"></a><br>' +
 
@@ -4504,6 +4509,9 @@ begin
     end;
   end;
   DrawHeadLine(ss1);
+
+  DrawPieceNotes(setid);
+
   missing := inventory.MissingToBuildSet(setid);
   if st.num > 0 then
     DrawHeadLine('You can dismantle this set to your loose parts! <a href=dismantleset/' + Trim(setid) + '>(dismantle it!)</a>');
@@ -6439,11 +6447,17 @@ begin
   if pi.weight > 0.0 then
     DrawHeadLine(pcs + ' - ' + db.PieceDesc(pi) + ' (' + Format('%2.2f gr', [pi.weight]) + ')' +
       ' <a href=editmold/' + pcs + '><img src="images\edit.png"></a>' +
-      ' <a href=refreshpieceorgearfrombricklink/' + Trim(pcs) + '><img src="images\refreshcolors.png"></a>' + refrhtml + '<br>' + cathtml)
+      ' <a href=editpiecenotes/' + pcs + '><img src="images\notes.png"></a>' +
+      ' <a href=refreshpieceorgearfrombricklink/' + Trim(pcs) + '><img src="images\refreshcolors.png"></a>' +
+      refrhtml + '<br>' + cathtml)
   else
     DrawHeadLine(pcs + ' - ' + db.PieceDesc(pi) +
       ' <a href=editmold/' + pcs + '><img src="images\edit.png"></a>' +
-      ' <a href=refreshpieceorgearfrombricklink/' + Trim(pcs) + '><img src="images\refreshcolors.png"></a>' + refrhtml + '<br>' + cathtml);
+      ' <a href=editpiecenotes/' + pcs + '><img src="images\notes.png"></a>' +
+      ' <a href=refreshpieceorgearfrombricklink/' + Trim(pcs) + '><img src="images\refreshcolors.png"></a>' +
+      refrhtml + '<br>' + cathtml);
+
+  DrawPieceNotes(pcs);
 
   storages := db.StorageBinsForMold(pcs);
   if storages.Count > 0 then
@@ -6539,7 +6553,7 @@ begin
   else
   begin
     srelationships :=
-      '<p valign=top><table width=99% bgcolor=' + TBGCOLOR + ' border=1>' +
+      '<p><table width=99% bgcolor=' + TBGCOLOR + ' border=1>' +
       '<tr bgcolor=' + THBGCOLOR + '>' +
       '<th><b>Relationships</b></th>' + '</tr>' +
       srelationships +
@@ -6566,6 +6580,7 @@ begin
       FreeList(rlst);
     end;
   end;
+
 
   didmyinventoryheader := False;
   aa := 0;
@@ -8286,6 +8301,7 @@ var
   i, j: integer;
   idx: Integer;
   pcs: string;
+  scolor: string;
   aa: integer;
   pci: TPieceColorInfo;
   pi: TPieceInfo;
@@ -8319,8 +8335,10 @@ begin
     pcs := apcs;
   pi := db.PieceInfo(pci);
 
+  scolor := itoa(color);
+
   if domultipagedocuments then
-    document.NewMultiPageDocument('ShowColorPiece', pcs + '_' + itoa(color) + '_' + itoa(ayear) + '_' + btoa(doshowsets));
+    document.NewMultiPageDocument('ShowColorPiece', pcs + '_' + scolor + '_' + itoa(ayear) + '_' + btoa(doshowsets));
   document.write('<body background="splash.jpg">');
   document.title(db.Colors(color).name + ' ' + db.PieceDesc(pi));
   DrawNavigateBar;
@@ -8381,7 +8399,7 @@ begin
     ylist.Sort;
     ytext := 'Years<br><br>';
     if ayear >= 0 then
-      ytext := ytext + '<a href=spiecec/' + pcs + '/' + itoa(color) + '>All</a>'
+      ytext := ytext + '<a href=spiecec/' + pcs + '/' + scolor + '>All</a>'
     else
       ytext := ytext + 'All';
     for i := 0 to ylist.Count - 1 do
@@ -8390,17 +8408,20 @@ begin
       if ayear = ylist.Numbers[i] then
         ytext := ytext + decide(ylist.Numbers[i] = 0, '(Unknown)', itoa(ylist.Numbers[i]))
       else
-        ytext := ytext + '<a href=spiecec/' + pcs + '/' + itoa(color) + '/' + itoa(ylist.Numbers[i]) + '>' + decide(ylist.Numbers[i] = 0, '(Unknown)', itoa(ylist.Numbers[i])) + '</a>';
+        ytext := ytext + '<a href=spiecec/' + pcs + '/' + scolor + '/' + itoa(ylist.Numbers[i]) + '>' + decide(ylist.Numbers[i] = 0, '(Unknown)', itoa(ylist.Numbers[i])) + '</a>';
     end;
   end;
 
   ylist.Free;
 
   DrawHeadLine('<a href=spiece/' + pcs + '>' + pcs + '</a> - ' + db.Colors(color).name + ' ' + db.PieceDesc(pi) +
-    ' <a href=editpiece/' + pcs + '/' + itoa(color) + '><img src="images\edit.png"></a>' +
+    ' <a href=editpiece/' + pcs + '/' + scolor + '><img src="images\edit.png"></a>' +
+    ' <a href=editpiececolornotes/' + pcs + scolor + '><img src="images\notes.png"></a>' +
     HtmlDrawInvImgLink(pcs, color, pi) +
-    '<br><a href=diagrampiece/' + pcs + '/' + itoa(color) + '><img src="images\diagram.png"></a>' +
-    '<br><br><img width=100px src=' + IntToStr(color) + '\' + pcs + '.png>' + stmp);
+    '<br><a href=diagrampiece/' + pcs + '/' + scolor + '><img src="images\diagram.png"></a>' +
+    '<br><br><img width=100px src=' + scolor + '\' + pcs + '.png>' + stmp);
+
+  DrawPieceColorNotes(pcs, scolor);
 
   storages := db.StorageBinsForPart(pcs, color);
   if storages.Count > 0 then
@@ -8460,7 +8481,7 @@ begin
           else
             document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
               HtmlDrawSetMostLink(pci));
-              
+
           document.write('<td width=15% align=right>' + Format('%d', [numpieces]) + '</td>');
 
           if pci <> nil then
@@ -12021,6 +12042,8 @@ begin
   s1 := UpperCase(Trim(s1)) + '/';
 
   if s1 = UpperCase('editpiece/') then Exit;
+  if s1 = UpperCase('editpiececolornotes/') then Exit;
+  if s1 = UpperCase('editpiecenotes/') then Exit;
   if s1 = UpperCase('DoEditSet/') then Exit;
   if s1 = UpperCase('EditLugbulkPrice/') then Exit;
   if s1 = UpperCase('editmold/') then Exit;
@@ -12217,6 +12240,28 @@ begin
           streams.Objects[idx].Free;
           streams.Delete(idx);
         end;
+        HTMLClick('refresh', Handled);
+      end;
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos1('editpiececolornotes/', SRC) then
+    begin
+      splitstring(SRC, s1, s2, s3, '/');
+      if EditPieceColorNotes(s2, s3) then
+      begin
+        HTMLClick('refresh', Handled);
+      end;
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos1('editpiecenotes/', SRC) then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      if EditPieceNotes(s2) then
+      begin
         HTMLClick('refresh', Handled);
       end;
       Handled := True;
@@ -21597,7 +21642,41 @@ end;
 
 procedure TMainForm.AddressEditChange(Sender: TObject);
 begin
-  activebits := 20000; 
+  activebits := 20000;
+end;
+
+procedure TMainForm.DrawPieceColorNotes(const pcs, color: string);
+var
+  fname: string;
+begin
+  fname := PieceColorNotesFName(pcs, color);
+  if fexists(fname) then
+  begin
+    document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+    document.write('<tr bgcolor=' + DBGCOLOR + '>');
+    document.write('<th><b>Notes:</b></th></tr>');
+    document.write('<tr bgcolor=' + TBGCOLOR + '>');
+    document.write('<td width 100%><font color=' + DFGCOLOR + '>');
+    document.writefromfile(fname);
+    document.write('</font></td></tr></table>');
+  end;
+end;
+
+procedure TMainForm.DrawPieceNotes(const pcs: string);
+var
+  fname: string;
+begin
+  fname := PieceNotesFName(pcs);
+  if fexists(fname) then
+  begin
+    document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+    document.write('<tr bgcolor=' + DBGCOLOR + '>');
+    document.write('<th><b>Notes:</b></th></tr>');
+    document.write('<tr bgcolor=' + TBGCOLOR + '>');
+    document.write('<td width 100%><font color=' + DFGCOLOR + '>');
+    document.writefromfile(fname);
+    document.write('</font></td></tr></table>');
+  end;
 end;
 
 end.

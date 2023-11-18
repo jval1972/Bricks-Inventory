@@ -437,23 +437,28 @@ var
 procedure TEditPieceForm.SpeedButton1Click(Sender: TObject);
 var
   value: string;
+  storages: TStringList;
 begin
   value := '1';
-  if InputQuery2(Caption, 'Add pieces', 'Storage bin', value, last_pos) then
+  storages := db.StorageBins;
+  if InputQuery3(Caption, 'Add pieces', 'Storage bin', storages.Text, value, last_pos) then
   begin
     NumPiecesEdit.Text := itoa(atoi(NumPiecesEdit.Text) + atoi(value));
     if last_pos <> '' then
       Memo1.Lines.Add(last_pos + ':' + value);
   end;
+  storages.Free;
 end;
 
 procedure TEditPieceForm.SpeedButton2Click(Sender: TObject);
 var
   value: string;
   num: integer;
+  storages: TStringList;
 begin
   value := '1';
-  if InputQuery2(Caption, 'Remove pieces', 'Storage bin', value, last_pos) then
+  storages := db.StorageBins;
+  if InputQuery3(Caption, 'Remove pieces', 'Storage bin', storages.Text, value, last_pos) then
   begin
     num := atoi(NumPiecesEdit.Text) - atoi(value);
     if num < 0 then
@@ -462,6 +467,7 @@ begin
     if last_pos <> '' then
       Memo1.Lines.Add(last_pos + ':-' + value);
   end;
+  storages.Free;
 end;
 
 procedure TEditPieceForm.FormClose(Sender: TObject;

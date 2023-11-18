@@ -91,6 +91,9 @@ function GetNextAlphanumeric(const s: string): string;
 function InputQuery2(const ACaption, APrompt, APrompt2: string;
   var Value, Value2: string): Boolean;
 
+function InputQuery3(const ACaption, APrompt, APrompt2: string;
+  const AListItems: string; var Value, Value2: string): Boolean;
+
 function InputListQuery(const ACaption, APrompt: string; const AListItems: string;
   var Value: string): Boolean;
 
@@ -1075,7 +1078,7 @@ var
   Edit2: TEdit;
   DialogUnits: TPoint;
   ButtonTop, ButtonWidth, ButtonHeight: Integer;
-begin         
+begin
   Result := False;
   Form := TForm.Create(Application);
   with Form do
@@ -1158,6 +1161,107 @@ begin
       begin
         Value := Edit.Text;
         Value2 := Edit2.Text;
+        Result := True;
+      end;
+    finally
+      Form.Free;
+    end;
+end;
+
+function InputQuery3(const ACaption, APrompt, APrompt2: string;
+  const AListItems: string; var Value, Value2: string): Boolean;
+var
+  Form: TForm;
+  Prompt: TLabel;
+  Prompt2: TLabel;
+  Edit: TEdit;
+  Combo: TComboBox;
+  DialogUnits: TPoint;
+  ButtonTop, ButtonWidth, ButtonHeight: Integer;
+begin
+  Result := False;
+  Form := TForm.Create(Application);
+  with Form do
+    try
+      Canvas.Font := Font;
+      DialogUnits := GetAveCharSize(Canvas);
+      BorderStyle := bsDialog;
+      Caption := ACaption;
+      ClientWidth := MulDiv(180, DialogUnits.X, 4);
+      Position := poScreenCenter;
+
+      Prompt := TLabel.Create(Form);
+      with Prompt do
+      begin
+        Parent := Form;
+        Caption := APrompt;
+        Left := MulDiv(8, DialogUnits.X, 4);
+        Top := MulDiv(8, DialogUnits.Y, 8);
+        Constraints.MaxWidth := MulDiv(164, DialogUnits.X, 4);
+        WordWrap := True;
+      end;
+      Edit := TEdit.Create(Form);
+      with Edit do
+      begin
+        Parent := Form;
+        Left := Prompt.Left;
+        Top := Prompt.Top + Prompt.Height + 5;
+        Width := MulDiv(164, DialogUnits.X, 4);
+        MaxLength := 255;
+        Text := Value;
+        SelectAll;
+      end;
+
+      Prompt2 := TLabel.Create(Form);
+      with Prompt2 do
+      begin
+        Parent := Form;
+        Caption := APrompt2;
+        Left := MulDiv(8, DialogUnits.X, 4);
+        Top := MulDiv(8, DialogUnits.Y, 8) + Edit.Top + Edit.Height + 8;
+        Constraints.MaxWidth := MulDiv(164, DialogUnits.X, 4);
+        WordWrap := True;
+      end;
+
+      Combo := TComboBox.Create(Form);
+      with Combo do
+      begin
+        Parent := Form;
+        Left := Prompt2.Left;
+        Top := Prompt2.Top + Prompt2.Height + 5;
+        Width := MulDiv(164, DialogUnits.X, 4);
+        MaxLength := 255;
+        Items.Text := AListItems;
+        Text := Value2;
+        SelectAll;
+      end;
+
+      ButtonTop := Combo.Top + Combo.Height + 15;
+      ButtonWidth := MulDiv(50, DialogUnits.X, 4);
+      ButtonHeight := MulDiv(14, DialogUnits.Y, 8);
+      with TButton.Create(Form) do
+      begin
+        Parent := Form;
+        Caption := 'OK';
+        ModalResult := mrOk;
+        Default := True;
+        SetBounds(MulDiv(38, DialogUnits.X, 4), ButtonTop, ButtonWidth,
+          ButtonHeight);
+      end;
+      with TButton.Create(Form) do
+      begin
+        Parent := Form;
+        Caption := 'Cancel';
+        ModalResult := mrCancel;
+        Cancel := True;
+        SetBounds(MulDiv(92, DialogUnits.X, 4), Combo.Top + Combo.Height + 15,
+          ButtonWidth, ButtonHeight);
+        Form.ClientHeight := Top + Height + 13;
+      end;
+      if ShowModal = mrOk then
+      begin
+        Value := Edit.Text;
+        Value2 := Combo.Text;
         Result := True;
       end;
     finally

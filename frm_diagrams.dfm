@@ -545,6 +545,7 @@ object DiagramForm: TDiagramForm
   OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
+  OnKeyPress = FormKeyPress
   PixelsPerInch = 96
   TextHeight = 16
   object DescLabel: TLabel

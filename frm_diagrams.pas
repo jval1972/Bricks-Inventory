@@ -172,6 +172,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure CurrencyButtonClick(Sender: TObject);
+    procedure FormKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
     fcurrency: string;
@@ -1400,6 +1401,12 @@ begin
     if Chart1.Tag <> 0 then
       DoMakeChart(Chart1.Tag);
   end;
+end;
+
+procedure TDiagramForm.FormKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #27 then
+    Close;
 end;
 
 end.

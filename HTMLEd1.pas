@@ -38,6 +38,7 @@ type
     Undo1: TMenuItem;
     Redo1: TMenuItem;
     N1: TMenuItem;
+    UndoTimer: TTimer;
     procedure RichEdChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure RichEditSelectionChange(Sender: TObject);
@@ -60,6 +61,7 @@ type
     procedure PopupMenu1Popup(Sender: TObject);
     procedure Undo1Click(Sender: TObject);
     procedure Redo1Click(Sender: TObject);
+    procedure UndoTimerTimer(Sender: TObject);
   private
     { Private declarations }
     ViewerOK, RichOK: boolean;
@@ -69,6 +71,9 @@ type
     undoManager: TUndoRedoManager;
     floaded: boolean;
     fbackuptext: string;
+    fSelStart: integer;
+    fSelLength: integer;
+    P: TPoint;
     procedure CheckFileSave;
     procedure DoSave;
     procedure ColorPickerButtonChange(Sender: TObject);
@@ -78,6 +83,7 @@ type
     procedure SaveUndo;
     procedure Undo;
     procedure Redo;
+    procedure SaveUndoData;
   public
     { Public declarations }
     didsave: boolean;
@@ -200,6 +206,10 @@ begin
   CurrentFile := '';
   didsave := False;
   fbackuptext := '';
+  fSelStart := 0;
+  fSelLength := 0;
+  P.X := 0;
+  P.Y := 0;
   floaded := False;
 
 // Create ColorPickerButton
@@ -214,7 +224,6 @@ begin
   undoManager.OnLoadFromStream := DoLoadUndoFromStream;
   undoManager.OnSaveToStream := DoSaveUndoToStream;
   undoManager.StreamType := sstFile;
-  undoManager.UndoTimeOut := 2.0; // 2 seconds
   undoManager.UndoLimit := 1000;
   undoManager.CompressionLevel := zcFastest;
 end;
@@ -255,8 +264,9 @@ begin
   end;
   RichEdChange(Self);
   undoManager.Clear;
-  fbackuptext := RichEdit.Lines.Text;
+  SaveUndoData;
   floaded := True;
+  UndoTimer.Enabled := True;
 end;
 
 procedure TEditHtmlForm.RichEdChange(Sender: TObject);
@@ -266,7 +276,6 @@ var
 begin
   if RichOK then
   begin
-    SaveUndo;
     Position := Viewer.Position;
     Viewer.LoadFromBuffer(PChar(RichEdit.Text), Length(RichEdit.Text), '');
     ViewerOK := True;
@@ -509,7 +518,6 @@ const
 procedure TEditHtmlForm.DoLoadUndoFromStream(s: TStream);
 var
   SStr, SLen: Integer;
-  P: TPoint;
 begin
   s.Read(SStr, SizeOf(Integer));
   s.Read(SLen, SizeOf(Integer));
@@ -521,22 +529,12 @@ begin
 end;
 
 procedure TEditHtmlForm.DoSaveUndoToStream(s: TStream);
-var
-  str: string;
-  SStr, SLen: Integer;
-  P: TPoint;
 begin
-  SStr := RichEdit.SelStart;
-  SLen := RichEdit.SelLength;
-  RichEdit.Perform(EM_GETSCROLLPOS, 0, Integer(@P));
-  s.Write(SStr, SizeOf(Integer));
-  s.Write(SLen, SizeOf(Integer));
+  s.Write(fSelStart, SizeOf(Integer));
+  s.Write(fSelLength, SizeOf(Integer));
   s.Write(P, SizeOf(TPoint));
 
-  str := fbackuptext;
-  fbackuptext := RichEdit.Lines.Text;
-
-  s.Write(str[1], Length(str));
+  s.Write(fbackuptext[1], Length(fbackuptext));
 end;
 
 procedure TEditHtmlForm.SaveUndo;
@@ -548,11 +546,33 @@ end;
 procedure TEditHtmlForm.Undo;
 begin
   undoManager.Undo;
+  SaveUndoData;
 end;
 
 procedure TEditHtmlForm.Redo;
 begin
   undoManager.Redo;
+  SaveUndoData;
+end;
+
+procedure TEditHtmlForm.UndoTimerTimer(Sender: TObject);
+var
+  strtest: string;
+begin
+  strtest := RichEdit.Text;
+  if strtest <> fbackuptext then
+  begin
+    SaveUndo;
+    SaveUndoData;
+  end;
+end;
+
+procedure TEditHtmlForm.SaveUndoData;
+begin
+  fbackuptext := RichEdit.Text;
+  fSelStart := RichEdit.SelStart;
+  fSelLength := RichEdit.SelLength;
+  RichEdit.Perform(EM_GETSCROLLPOS, 0, Integer(@P));
 end;
 
 end.

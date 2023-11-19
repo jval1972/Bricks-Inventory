@@ -4748,7 +4748,7 @@ begin
       for I := 0 to EntityCount - 1 do
         Entities.AddObject(EntityDefinitions[I].Name,
           Pointer(EntityDefinitions[I].Value));
-      Sort;
+      Sorted := True;
     end;
   end;
 end;

@@ -9,7 +9,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   ExtCtrls, Menus, Htmlview, StdCtrls, ComCtrls, ShellAPI, Buttons,
-  bi_colorpickerbutton, bi_undo;
+  bi_colorpickerbutton, bi_dropdownbutton, bi_undo;
 
 type
   TEditHtmlForm = class(TForm)
@@ -39,6 +39,15 @@ type
     Redo1: TMenuItem;
     N1: TMenuItem;
     UndoTimer: TTimer;
+    LinkButtonImage: TImage;
+    LinkPanel1: TPanel;
+    LinkPopupMenu: TPopupMenu;
+    Piece1: TMenuItem;
+    PieceInventory1: TMenuItem;
+    SetInventory1: TMenuItem;
+    MakListButton1: TSpeedButton;
+    MakeListButton2: TSpeedButton;
+    BRSpeedButton: TSpeedButton;
     procedure RichEdChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure RichEditSelectionChange(Sender: TObject);
@@ -62,6 +71,12 @@ type
     procedure Undo1Click(Sender: TObject);
     procedure Redo1Click(Sender: TObject);
     procedure UndoTimerTimer(Sender: TObject);
+    procedure Piece1Click(Sender: TObject);
+    procedure PieceInventory1Click(Sender: TObject);
+    procedure SetInventory1Click(Sender: TObject);
+    procedure MakListButton1Click(Sender: TObject);
+    procedure MakeListButton2Click(Sender: TObject);
+    procedure BRSpeedButtonClick(Sender: TObject);
   private
     { Private declarations }
     ViewerOK, RichOK: boolean;
@@ -74,6 +89,7 @@ type
     fSelStart: integer;
     fSelLength: integer;
     P: TPoint;
+    LinkButton: TMenuButton;
     procedure CheckFileSave;
     procedure DoSave;
     procedure ColorPickerButtonChange(Sender: TObject);
@@ -84,6 +100,10 @@ type
     procedure Undo;
     procedure Redo;
     procedure SaveUndoData;
+    function MakeLink(const lnk: string; const desc: string): string;
+    function MakeSimpleLink(const lnk: string; const desc: string): string;
+    procedure LinkClick(Sender: TObject);
+    function MakeList(const intext: string; const ol, li: string): string;
   public
     { Public declarations }
     didsave: boolean;
@@ -226,11 +246,21 @@ begin
   undoManager.StreamType := sstFile;
   undoManager.UndoLimit := 1000;
   undoManager.CompressionLevel := zcFastest;
+
+  LinkButton := TMenuButton.Create(nil);
+  LinkButton.Parent := LinkPanel1;
+  LinkButton.Align := alClient;
+  LinkButton.Flat := False;
+  LinkButton.Glyph.Assign(LinkButtonImage.Picture.Bitmap);
+  LinkButton.Glyph.Transparent := True;
+  LinkButton.OnClick := LinkClick;
+  LinkButton.Menu := LinkPopupMenu;
 end;
 
 procedure TEditHtmlForm.FormDestroy(Sender: TObject);
 begin
   ColorPickerButton1.Free;
+  LinkButton.Free;
   undoManager.Free;
 end;
 
@@ -573,6 +603,92 @@ begin
   fSelStart := RichEdit.SelStart;
   fSelLength := RichEdit.SelLength;
   RichEdit.Perform(EM_GETSCROLLPOS, 0, Integer(@P));
+end;
+
+function TEditHtmlForm.MakeLink(const lnk: string; const desc: string): string;
+begin
+  Result := '<a href=' + lnk + '>' + desc + '</a>';
+end;
+
+function TEditHtmlForm.MakeSimpleLink(const lnk: string; const desc: string): string;
+begin
+  Result := '<a href=' + lnk + '/' + RichEdit.SelText + '>' + desc + '</a>';
+end;
+
+procedure TEditHtmlForm.LinkClick(Sender: TObject);
+var
+  lnk, desc: string;
+begin
+  lnk := '';
+  desc := RichEdit.SelText;
+  if InputQuery2('Link', 'URL', 'Link text', lnk, desc) then
+  begin
+    RichEdit.SelText := MakeLink(lnk, desc);
+    try RichEdit.SetFocus except end;
+  end;
+end;
+
+procedure TEditHtmlForm.Piece1Click(Sender: TObject);
+begin
+  RichEdit.SelText := MakeSimpleLink('spiece', RichEdit.SelText);
+  try RichEdit.SetFocus except end;
+end;
+
+procedure TEditHtmlForm.PieceInventory1Click(Sender: TObject);
+begin
+  RichEdit.SelText := MakeSimpleLink('spiececinv', RichEdit.SelText);
+  try RichEdit.SetFocus except end;
+end;
+
+procedure TEditHtmlForm.SetInventory1Click(Sender: TObject);
+begin
+  RichEdit.SelText := MakeSimpleLink('sinv', RichEdit.SelText);
+  try RichEdit.SetFocus except end;
+end;
+
+function TEditHtmlForm.MakeList(const intext: string; const ol, li: string): string;
+var
+  i, len: integer;
+begin
+  len := Length(intext);
+  if len = 0 then
+  begin
+    Result := '<' + ol + '>'#13#10'<' + li + '></' + li + '>'#13#10'</' + ol + '>';
+    Exit;
+  end;
+
+  Result := '<' + ol + '><' + li + '>';
+  for i := 1 to len do
+  begin
+    if intext[i] = #10 then
+    begin
+      Result := Result + '</' + li + '>';
+      if i <> len then
+        Result := Result + '<' + li + '>'
+    end;
+    Result := Result + intext[i];
+  end;
+  if intext[len] <> #10 then
+    Result := Result + '</' + li + '>';
+  Result := Result + '</' + ol + '>';
+end;
+
+procedure TEditHtmlForm.MakListButton1Click(Sender: TObject);
+begin
+  RichEdit.SelText := MakeList(RichEdit.SelText, 'ul', 'li');
+  try RichEdit.SetFocus except end;
+end;
+
+procedure TEditHtmlForm.MakeListButton2Click(Sender: TObject);
+begin
+  RichEdit.SelText := MakeList(RichEdit.SelText, 'ol', 'li');
+  try RichEdit.SetFocus except end;
+end;
+
+procedure TEditHtmlForm.BRSpeedButtonClick(Sender: TObject);
+begin
+  RichEdit.SelText := '<br>';
+  try RichEdit.SetFocus except end;
 end;
 
 end.

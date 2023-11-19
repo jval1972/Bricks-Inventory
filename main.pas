@@ -8174,6 +8174,7 @@ var
   pi: TPieceInfo;
   inv: TBrickInventory;
   i, idx: integer;
+  scolor: string;
   numpieces: integer;
   prn, pru, mycost: double;
   bp: brickpool_t;
@@ -8185,6 +8186,8 @@ begin
   pci := db.PieceColorInfo(pcs, color);
   pi := db.PieceInfo(pci);
 
+  scolor := itoa(color);
+
   document.write('<body background="splash.jpg">');
   document.title(db.Colors(color).name + ' ' + db.PieceDesc(pi));
   DrawNavigateBar;
@@ -8192,11 +8195,13 @@ begin
   document.write('<p align=center>');
 
   DrawHeadLine('Inventory for <a href=spiece/' + pcs + '>' + pcs + '</a> - ' + db.Colors(color).name + ' ' + db.PieceDesc(pi) +
-    ' <a href=editpiece/' + pcs + '/' + itoa(color) + '><img src="images\edit.png"></a>' +
-    ' <a href=spiecec/' + pcs + '/' + itoa(color) + '><img src="images\details.png"></a>' +
-    '<br><a href=diagrampiece/' + pcs + '/' + itoa(color) + '><img src="images\diagram.png"></a>' +
-    '<br><br><img width=100px src=' + IntToStr(color) + '\' + pcs + '.png>');
+    ' <a href=editpiece/' + pcs + '/' + scolor + '><img src="images\edit.png"></a>' +
+    ' <a href=editpiececolornotes/' + pcs + '/' + scolor + '><img src="images\notes.png"></a>' +
+    ' <a href=spiecec/' + pcs + '/' + scolor + '><img src="images\details.png"></a>' +
+    '<br><a href=diagrampiece/' + pcs + '/' + scolor + '><img src="images\diagram.png"></a>' +
+    '<br><br><img width=100px src=' + scolor + '\' + pcs + '.png>');
 
+  DrawPieceColorNotes(pcs, scolor);
 
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
   document.write('<tr bgcolor=' + THBGCOLOR + '>');
@@ -8226,9 +8231,9 @@ begin
           DrawColorCell(i, 25);
           // document.BlancColorCell(db.colors(i).RGB, 25);
           if pci = nil then
-            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
+            document.write(db.colors(i).name + ' (' + scolor + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
           else
-            document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
+            document.write(db.colors(i).name + ' (' + scolor + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
                   HtmlDrawSetMostLink(pci));
           document.write('<td width=15% align=right>' + Format('%d', [numpieces]) + '</td>');
 
@@ -8280,10 +8285,10 @@ begin
   DrawInventoryTableNoPages(inv);
   if not DirectoryExists(basedefault + 'cache') then
     MkDir(basedefault + 'cache\');
-  if not DirectoryExists(basedefault + 'cache\' + itoa(color)) then
-    MkDir(basedefault + 'cache\' + itoa(color));
-  inv.StoreHistoryStatsRec(basedefault + 'cache\' + itoa(color) + '\' + decide(pi.name = '', pcs, pi.name) + '.stats');
-  inv.StoreHistoryEvalRec(basedefault + 'cache\' + itoa(color) + '\' + decide(pi.name = '', pcs, pi.name) + '.ieval');
+  if not DirectoryExists(basedefault + 'cache\' + scolor) then
+    MkDir(basedefault + 'cache\' + scolor);
+  inv.StoreHistoryStatsRec(basedefault + 'cache\' + scolor + '\' + decide(pi.name = '', pcs, pi.name) + '.stats');
+  inv.StoreHistoryEvalRec(basedefault + 'cache\' + scolor + '\' + decide(pi.name = '', pcs, pi.name) + '.ieval');
 
   inv.Free;
 
@@ -8416,7 +8421,7 @@ begin
 
   DrawHeadLine('<a href=spiece/' + pcs + '>' + pcs + '</a> - ' + db.Colors(color).name + ' ' + db.PieceDesc(pi) +
     ' <a href=editpiece/' + pcs + '/' + scolor + '><img src="images\edit.png"></a>' +
-    ' <a href=editpiececolornotes/' + pcs + scolor + '><img src="images\notes.png"></a>' +
+    ' <a href=editpiececolornotes/' + pcs + '/' + scolor + '><img src="images\notes.png"></a>' +
     HtmlDrawInvImgLink(pcs, color, pi) +
     '<br><a href=diagrampiece/' + pcs + '/' + scolor + '><img src="images\diagram.png"></a>' +
     '<br><br><img width=100px src=' + scolor + '\' + pcs + '.png>' + stmp);

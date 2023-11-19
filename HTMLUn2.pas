@@ -474,12 +474,8 @@ function CharPos(const ch: Char; const s: string): integer;
 implementation
 
 uses
-  jpeg, DitherUnit,
-  bi_utils, bi_quantize, bi_defs,
-  {$ifndef NoOldPng}
-     PngImage1,
-  {$endif}
-     htmlview, htmlsubs, HtmlGif2, StylePars, ActiveX;
+  jpeg, DitherUnit, bi_utils, bi_quantize, bi_defs, {$ifndef NoOldPng}
+  PngImage1, {$endif} htmlview, htmlsubs, HtmlGif2, StylePars, ActiveX;
 
 type
   EGDIPlus = class (Exception);
@@ -605,7 +601,6 @@ end;
 {----------------FitText}
 function FitText(DC: HDC; S: PWideChar; Max, Width: Integer; var Extent: integer): Integer;
   {return count <= Max which fits in Width.  Return X, the extent of chars that fit}
-
 type
   Integers = array[1..1] of integer;
 var
@@ -644,11 +639,12 @@ begin
     begin
       GetTextExtentPoint32W(DC, S, I, ExtS);
       if ExtS.cx < Width then
-        L := I+1
-      else H := I-1;
+        L := I + 1
+      else
+        H := I - 1;
       if ExtS.cx = Width then
         Break;
-      I := (L+H) shr 1;
+      I := (L + H) shr 1;
     end;
     Result := I;
     Extent := ExtS.cx;
@@ -674,20 +670,21 @@ var
   Len, NewLen: Integer;
   Tmp: string;
 begin
-Len := Length(S);
-if not IsWin32Platform then
+  Len := Length(S);
+  if not IsWin32Platform then
   begin
-  SetString(Result, PWideChar(S), Len);
-  if Len > 0 then CharUpperBuffW(Pointer(Result), Len);
+    SetString(Result, PWideChar(S), Len);
+    if Len > 0 then
+      CharUpperBuffW(Pointer(Result), Len);
   end
-else
+  else
   begin   {win95,98,ME}
-  SetLength(Tmp, 2*Len);
-  NewLen := WideCharToMultiByte(CP_ACP, 0, PWideChar(S), Len, PChar(Tmp), 2*Len, nil, nil);
-  SetLength(Tmp, NewLen);
-  Tmp := AnsiUppercase(Tmp);
-  SetLength(Result, Len);
-  MultibyteToWideChar(CP_ACP, 0, PChar(Tmp), NewLen, PWideChar(Result), Len);
+    SetLength(Tmp, 2 * Len);
+    NewLen := WideCharToMultiByte(CP_ACP, 0, PWideChar(S), Len, PChar(Tmp), 2 * Len, nil, nil);
+    SetLength(Tmp, NewLen);
+    Tmp := AnsiUppercase(Tmp);
+    SetLength(Result, Len);
+    MultibyteToWideChar(CP_ACP, 0, PChar(Tmp), NewLen, PWideChar(Result), Len);
   end;
 end;
 
@@ -696,31 +693,32 @@ var
   Len, NewLen: Integer;
   Tmp: string;
 begin
-Len := Length(S);
-if not IsWin32Platform then
+  Len := Length(S);
+  if not IsWin32Platform then
   begin
-  SetString(Result, PWideChar(S), Len);
-  if Len > 0 then CharLowerBuffW(Pointer(Result), Len);
+    SetString(Result, PWideChar(S), Len);
+    if Len > 0 then
+      CharLowerBuffW(Pointer(Result), Len);
   end
-else
+  else
   begin   {win95,98,ME}
-  SetLength(Tmp, 2*Len);
-  NewLen := WideCharToMultiByte(CP_ACP, 0, PWideChar(S), Len, PChar(Tmp), 2*Len, nil, nil);
-  SetLength(Tmp, NewLen);
-  Tmp := AnsiLowercase(Tmp);
-  SetLength(Result, Len);
-  MultibyteToWideChar(CP_ACP, 0, PChar(Tmp), NewLen, PWideChar(Result), Len);
+    SetLength(Tmp, 2 * Len);
+    NewLen := WideCharToMultiByte(CP_ACP, 0, PWideChar(S), Len, PChar(Tmp), 2 * Len, nil, nil);
+    SetLength(Tmp, NewLen);
+    Tmp := AnsiLowercase(Tmp);
+    SetLength(Result, Len);
+    MultibyteToWideChar(CP_ACP, 0, PChar(Tmp), NewLen, PWideChar(Result), Len);
   end;
 end;
 
 function WideSameText1(const S1, S2: WideString): boolean;
 begin
-Result := WideUpperCase1(S1) = WideUpperCase1(S2);
+  Result := WideUpperCase1(S1) = WideUpperCase1(S2);
 end;
 
 function WideSameStr1(const S1, S2: WideString): boolean;
 begin
-Result := S1 = S2;
+  Result := S1 = S2;
 end;
 
 function PosX(const SubStr, S: string; Offset: integer = 1): Integer;  
@@ -729,15 +727,16 @@ var
   S1: string;
   I: integer;
 begin
-if Offset <= 1 then
-  Result := Pos(SubStr, S)
-else
+  if Offset <= 1 then
+    Result := Pos(SubStr, S)
+  else
   begin
-  S1 := Copy(S, Offset, Length(S)-Offset+1);
-  I := Pos(SubStr, S1);
-  if I > 0 then
-    Result := I+Offset-1
-  else Result := 0;
+    S1 := Copy(S, Offset, Length(S) - Offset + 1);
+    I := Pos(SubStr, S1);
+    if I > 0 then
+      Result := I + Offset - 1
+    else
+      Result := 0;
   end;
 end;
 
@@ -767,36 +766,36 @@ begin
 {find a clipregion to prevent overflow.  First check to see if there is
  already a clip region.  Return the old region, SaveRgn, (or 0) so it can be
  restroed later.}
-SaveRgn := CreateRectRgn(0, 0, 1, 1);
-Rslt := GetClipRgn(Canvas.Handle, SaveRgn);  {Rslt = 1 for existing region, 0 for none}
-if Rslt = 0 then
+  SaveRgn := CreateRectRgn(0, 0, 1, 1);
+  Rslt := GetClipRgn(Canvas.Handle, SaveRgn);  {Rslt = 1 for existing region, 0 for none}
+  if Rslt = 0 then
   begin
-  DeleteObject(SaveRgn);
-  SaveRgn := 0;
+    DeleteObject(SaveRgn);
+    SaveRgn := 0;
   end;
 {Form the region}
-GetWindowOrgEx(Canvas.Handle, Point); {when scrolling or animated Gifs, canvas may not start at X=0, Y=0}
-with ARect do
-  if not Printing then
-    Rgn := CreateRectRgn(Left-Point.X, Top-Point.Y, Right-Point.X, Bottom-Point.Y)
-  else
+  GetWindowOrgEx(Canvas.Handle, Point); {when scrolling or animated Gifs, canvas may not start at X=0, Y=0}
+  with ARect do
+    if not Printing then
+      Rgn := CreateRectRgn(Left - Point.X, Top - Point.Y, Right-Point.X, Bottom - Point.Y)
+    else
     begin
     GetViewportExtEx(Canvas.Handle, SizeV);
     GetWindowExtEx(Canvas.Handle, SizeW);
-    HF := (SizeV.cx/SizeW.cx);  {Horizontal adjustment factor}
-    VF := (SizeV.cy/SizeW.cy);  {Vertical adjustment factor}
-    Rgn := CreateRectRgn(Round(HF*(Left-Point.X)), Round(VF*(Top-Point.Y)), Round(HF*(Right-Point.X)), Round(VF*(Bottom-Point.Y)));
+    HF := (SizeV.cx / SizeW.cx);  {Horizontal adjustment factor}
+    VF := (SizeV.cy / SizeW.cy);  {Vertical adjustment factor}
+    Rgn := CreateRectRgn(Round(HF * (Left - Point.X)), Round(VF * (Top - Point.Y)), Round(HF * (Right - Point.X)), Round(VF * (Bottom - Point.Y)));
     end;
-if Rslt = 1 then {if there was a region, use the intersection with this region}
-  CombineRgn(Rgn, Rgn, SaveRgn, Rgn_And);
-SelectClipRgn(Canvas.Handle, Rgn);
+  if Rslt = 1 then {if there was a region, use the intersection with this region}
+    CombineRgn(Rgn, Rgn, SaveRgn, Rgn_And);
+  SelectClipRgn(Canvas.Handle, Rgn);
 end;
 
 function HTMLServerToDos(FName, Root: string): string;
 {Add Prefix Root only if first character is '\' but not '\\'}
 begin
-Result := Trim(HTMLToDos(FName));
-if (Result <> '') and (Root <> '') then
+  Result := Trim(HTMLToDos(FName));
+  if (Result <> '') and (Root <> '') then
   begin
   if Pos('\\', Result) = 1 then
     Exit;
@@ -812,36 +811,36 @@ function HTMLToDos(FName: string): string;
 var
   I: integer;
 
-  procedure Replace(Old, New: char);
-  var
-    I: integer;
-  begin
+procedure Replace(Old, New: char);
+var
+  I: integer;
+begin
   I := Pos(Old, FName);
   while I > 0 do
-    begin
+  begin
     FName[I] := New;
     I := Pos(Old, FName);
-    end;
   end;
+end;
 
-  procedure ReplaceEscapeChars;  
-  var
-    S: string[3];
-    I: integer;
-  begin
+procedure ReplaceEscapeChars;
+var
+  S: string[3];
+  I: integer;
+begin
   I := CharPos('%', FName);
-  while (I > 1) and (I <= Length(FName)-2) do
-    begin
-    S := '$'+FName[I+1]+FName[I+2];
+  while (I > 1) and (I <= Length(FName) - 2) do
+  begin
+    S := '$' + FName[I + 1] + FName[I + 2];
     try
       FName[I] := chr(StrToInt(S));
-      Delete(FName, I+1, 2);
+      Delete(FName, I + 1, 2);
     except   {ignore exception}
       Exit;
       end;
     I := CharPos('%', FName);
-    end;
   end;
+end;
 
 begin
   ReplaceEscapeChars;
@@ -891,54 +890,53 @@ var
   ARect: TRect;
   TAlign: integer;
 begin
-TAlign := SetTextAlign(Canvas.Handle, TA_Top or TA_Left);
-ARect := Rect(X1, Y1, X2, Y2);
-DrawTextW(Canvas.Handle, PWideChar(S), Length(S), ARect, DT_Wordbreak);
-SetTextAlign(Canvas.Handle, TAlign);
+  TAlign := SetTextAlign(Canvas.Handle, TA_Top or TA_Left);
+  ARect := Rect(X1, Y1, X2, Y2);
+  DrawTextW(Canvas.Handle, PWideChar(S), Length(S), ARect, DT_Wordbreak);
+  SetTextAlign(Canvas.Handle, TAlign);
 end;
 
 function Allocate(Size: integer): AllocRec;
 begin
-Result := AllocRec.Create;
-with Result do
+  Result := AllocRec.Create;
+  with Result do
   begin
-  ASize := Size;
-  if Size < $FF00 then
-    GetMem(Ptr, Size)
-  else
-     begin
-     AHandle := GlobalAlloc(HeapAllocFlags, Size);
-     if AHandle = 0 then
+    ASize := Size;
+    if Size < $FF00 then
+      GetMem(Ptr, Size)
+    else
+    begin
+      AHandle := GlobalAlloc(HeapAllocFlags, Size);
+      if AHandle = 0 then
          ABort;
-     Ptr := GlobalLock(AHandle);
-     end;
+      Ptr := GlobalLock(AHandle);
+    end;
   end;
 end;
 
 procedure DeAllocate(AR: AllocRec);
 begin
-with AR do
-  if ASize < $FF00 then
-    Freemem(Ptr, ASize)
-  else
+  with AR do
+    if ASize < $FF00 then
+      Freemem(Ptr, ASize)
+    else
     begin
-    GlobalUnlock(AHandle);
-    GlobalFree(AHandle);
+      GlobalUnlock(AHandle);
+      GlobalFree(AHandle);
     end;
-AR.Free;
+  AR.Free;
 end;
 
 function GetXExtent(DC: HDC; P: PWideChar; N: integer): integer;
 var
   ExtS: TSize;
   Dummy: integer;
-
 begin
-if not IsWin32Platform then
-  GetTextExtentExPointW(DC, P, N, 0, @Dummy, nil, ExtS)
-else
-  GetTextExtentPoint32W(DC, P, N, ExtS);  {win95, 98 ME}
-Result := ExtS.cx;
+  if not IsWin32Platform then
+    GetTextExtentExPointW(DC, P, N, 0, @Dummy, nil, ExtS)
+  else
+    GetTextExtentPoint32W(DC, P, N, ExtS);  {win95, 98 ME}
+  Result := ExtS.cx;
 end;
 
 procedure FillRectWhite(Canvas: TCanvas; X1, Y1, X2, Y2: integer; Color: TColor);
@@ -946,20 +944,20 @@ var
   OldBrushStyle: TBrushStyle;
   OldBrushColor: TColor;
 begin
-with Canvas do
+  with Canvas do
   begin
-  OldBrushStyle := Brush.Style;   {save style first}
-  OldBrushColor := Brush.Color;
-  Brush.Color := Color;     
-  Brush.Style := bsSolid;
-  FillRect(Rect(X1, Y1, X2, Y2));
-  Brush.Color := OldBrushColor;
-  Brush.Style := OldBrushStyle;    {style after color as color changes style}
+    OldBrushStyle := Brush.Style;   {save style first}
+    OldBrushColor := Brush.Color;
+    Brush.Color := Color;
+    Brush.Style := bsSolid;
+    FillRect(Rect(X1, Y1, X2, Y2));
+    Brush.Color := OldBrushColor;
+    Brush.Style := OldBrushStyle;    {style after color as color changes style}
   end;
 end;
 
 procedure FormControlRect(Canvas: TCanvas; X1: integer;
-           Y1: integer; X2: integer; Y2: integer; Raised, PrintMonoBlack, Disabled: boolean; Color: TColor);
+  Y1: integer; X2: integer; Y2: integer; Raised, PrintMonoBlack, Disabled: boolean; Color: TColor);
 {Draws lowered rectangles for form control printing}
 var
   OldStyle: TPenStyle;
@@ -4088,17 +4086,18 @@ end;
 
 function GetImageWidth(Image: TGpObject): integer;
 begin
-if Image is TBitmap then
-  Result := TBitmap(Image).Width
-else if Image is TGpImage then
-  Result := TGpImage(Image).Width
-else if Image is TGifImage then
-  Result := TGifImage(Image).Width
-{$ifndef NoMetafile}
-else if Image is ThtMetaFile then
-  Result := ThtMetaFile(Image).Width
-{$endif}
-else Raise(EGDIPlus.Create('Not a TBitmap, TGifImage, TMetafile, or TGpImage'));
+  if Image is TBitmap then
+    Result := TBitmap(Image).Width
+  else if Image is TGpImage then
+    Result := TGpImage(Image).Width
+  else if Image is TGifImage then
+    Result := TGifImage(Image).Width
+  {$ifndef NoMetafile}
+  else if Image is ThtMetaFile then
+    Result := ThtMetaFile(Image).Width
+  {$endif}
+  else
+    Raise(EGDIPlus.Create('Not a TBitmap, TGifImage, TMetafile, or TGpImage'));
 end;
 
 function CharPos(const ch: Char; const s: string): integer;
@@ -4115,49 +4114,49 @@ begin
 end;
 
 initialization
-DC := GetDC(0);
-try
-  ColorBits := GetDeviceCaps(DC, BitsPixel)*GetDeviceCaps(DC, Planes);
+  DC := GetDC(0);
+  try
+    ColorBits := GetDeviceCaps(DC, BitsPixel)*GetDeviceCaps(DC, Planes);
 
-  if ColorBits <= 4 then
-    ColorBits := 4
-  else if ColorBits <= 8 then
-    ColorBits := 8
-  else  ColorBits := 24;
+    if ColorBits <= 4 then
+      ColorBits := 4
+    else if ColorBits <= 8 then
+      ColorBits := 8
+    else  ColorBits := 24;
 
-  ThePalette := 0;
-  if ColorBits = 8 then
-    CalcPalette(DC);
-  if ColorBits <= 8 then     {use Palette Relative bit only when Palettes used}
-    PalRelative := $2000000
-  else PalRelative := 0;
-finally
-  ReleaseDC(0, DC);
+    ThePalette := 0;
+    if ColorBits = 8 then
+      CalcPalette(DC);
+    if ColorBits <= 8 then     {use Palette Relative bit only when Palettes used}
+      PalRelative := $2000000
+    else PalRelative := 0;
+  finally
+    ReleaseDC(0, DC);
   end;
 
-IsWin95 := (Win32Platform = VER_PLATFORM_WIN32_WINDOWS) and (Win32MinorVersion in [0..9]);
-IsWin32Platform := Win32Platform = VER_PLATFORM_WIN32_WINDOWS;
+  IsWin95 := (Win32Platform = VER_PLATFORM_WIN32_WINDOWS) and (Win32MinorVersion in [0..9]);
+  IsWin32Platform := Win32Platform = VER_PLATFORM_WIN32_WINDOWS;
 
-{$ifdef UseElPack}
-UnicodeControls := True;
-{$endif}
+  {$ifdef UseElPack}
+  UnicodeControls := True;
+  {$endif}
 
-{$ifdef UseTNT}
-UnicodeControls := not IsWin32Platform;
-{$endif}
+  {$ifdef UseTNT}
+  UnicodeControls := not IsWin32Platform;
+  {$endif}
 
-DefBitMap := TBitmap.Create;
-DefBitMap.Handle := LoadBitmap(HInstance, MakeIntResource(DefaultBitmap));
-ErrorBitMap := TBitmap.Create;
-ErrorBitMap.Handle := LoadBitmap(HInstance, MakeIntResource(ErrBitmap));
-ErrorBitMapMask := TBitmap.Create;
-ErrorBitMapMask.Handle := LoadBitmap(HInstance, MakeIntResource(ErrBitmapMask));
-Screen.Cursors[HandCursor] := LoadCursor(HInstance, MakeIntResource(Hand_Cursor));
-Screen.Cursors[UpDownCursor] := LoadCursor(HInstance, 'UPDOWNCURSOR');
-Screen.Cursors[UpOnlyCursor] := LoadCursor(HInstance, 'UPONLYCURSOR');
-Screen.Cursors[DownOnlyCursor] := LoadCursor(HInstance, 'DOWNONLYCURSOR');
+  DefBitMap := TBitmap.Create;
+  DefBitMap.Handle := LoadBitmap(HInstance, MakeIntResource(DefaultBitmap));
+  ErrorBitMap := TBitmap.Create;
+  ErrorBitMap.Handle := LoadBitmap(HInstance, MakeIntResource(ErrBitmap));
+  ErrorBitMapMask := TBitmap.Create;
+  ErrorBitMapMask.Handle := LoadBitmap(HInstance, MakeIntResource(ErrBitmapMask));
+  Screen.Cursors[HandCursor] := LoadCursor(HInstance, MakeIntResource(Hand_Cursor));
+  Screen.Cursors[UpDownCursor] := LoadCursor(HInstance, 'UPDOWNCURSOR');
+  Screen.Cursors[UpOnlyCursor] := LoadCursor(HInstance, 'UPONLYCURSOR');
+  Screen.Cursors[DownOnlyCursor] := LoadCursor(HInstance, 'DOWNONLYCURSOR');
 
-WaitStream := TMemoryStream.Create;
+  WaitStream := TMemoryStream.Create;
 
 finalization
   ThisExit;

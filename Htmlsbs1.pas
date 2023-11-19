@@ -293,249 +293,257 @@ var
   YT, YO, Y: integer;
   White, BlackBorder: boolean;
 begin
-Y := YDraw;  
-Result := inherited Draw1(Canvas, ARect, IMgr, X, XRef, YRef);
-YO := Y - ParentSectionList.YOff;
-if (YO+SectionHeight >= ARect.Top) and (YO < ARect.Bottom) and
-       (not ParentSectionList.Printing or (Y < ParentSectionList.PageBottom)) then
+  Y := YDraw;  
+  Result := inherited Draw1(Canvas, ARect, IMgr, X, XRef, YRef);
+  YO := Y - ParentSectionList.YOff;
+  if (YO+SectionHeight >= ARect.Top) and (YO < ARect.Bottom) and
+         (not ParentSectionList.Printing or (Y < ParentSectionList.PageBottom)) then
   with Canvas do
-    begin
+  begin
     YT := YO;
-    XR := X+Width-1;
+    XR := X + Width - 1;
     if Color <> clNone then
-      begin
+    begin
       Brush.Color := Color or $2000000;
       Brush.Style := bsSolid;
-      FillRect(Rect(X, YT, XR+1, YT+VSize));
-      end
+      FillRect(Rect(X, YT, XR + 1, YT + VSize));
+    end
     else
-      begin
+    begin
       with ParentSectionList do
-        begin
+      begin
         White := Printing or ((Background and $FFFFFF = clWhite) or
             ((Background = clWindow) and (GetSysColor(Color_Window) = $FFFFFF)));
         BlackBorder := NoShade or (Printing and (GetDeviceCaps(Handle, BITSPIXEL) = 1) and
             (GetDeviceCaps(Handle, PLANES) = 1));
-        end;
-      if BlackBorder then              
+      end;
+      if BlackBorder then
         Pen.Color := clBlack
       else if White then
         Pen.Color := clSilver
-      else Pen.Color := clBtnHighLight;
+      else
+        Pen.Color := clBtnHighLight;
       MoveTo(XR, YT);
-      LineTo(XR, YT+VSize-1);
-      LineTo(X, YT+VSize-1);
-      if BlackBorder then Pen.Color := clBlack
-        else Pen.Color := clBtnShadow;
+      LineTo(XR, YT + VSize - 1);
+      LineTo(X, YT + VSize - 1);
+      if BlackBorder then
+        Pen.Color := clBlack
+      else
+        Pen.Color := clBtnShadow;
       LineTo(X, YT);
       LineTo(XR, YT);
-      end;
-    ParentSectionList.FirstPageItem := False;     {items after this will not be first on page}
     end;
+    ParentSectionList.FirstPageItem := False;     {items after this will not be first on page}
+  end;
 end;
 
 procedure TPreformated.ProcessText(TagIndex: integer);
 var
-  FO: TFontObj;   
+  FO: TFontObj;
 begin
-FO := TFontObj(Fonts.Items[Fonts.Count-1]);    {keep font the same for inserted space}
-if FO.Pos = Length(BuffS) then   
-  Inc(FO.Pos);
-BuffS := BuffS+' ';
-XP^[Length(BuffS)-1] := XP^[Length(BuffS)-2]+1;
-Finish;
+  FO := TFontObj(Fonts.Items[Fonts.Count - 1]);    {keep font the same for inserted space}
+  if FO.Pos = Length(BuffS) then
+    Inc(FO.Pos);
+  BuffS := BuffS+' ';
+  XP^[Length(BuffS) - 1] := XP^[Length(BuffS) - 2] + 1;
+  Finish;
 end;
 
 procedure TPreformated.MinMaxWidth(Canvas: TCanvas; var Min, Max: integer);
 begin
-if BreakWord then  
+  if BreakWord then
   begin
-  inherited;
-  Exit;
+    inherited;
+    Exit;
   end;
-if Len = 0 then
+  if Len = 0 then
   begin
-  Max := 0;
-  Min := 0;
+    Max := 0;
+    Min := 0;
   end
-else
+  else
   begin
-  if StoredMax = 0 then  
+    if StoredMax = 0 then
     begin
-    Max := FindTextWidth(Canvas, Buff, Len-1, False);  
-    StoredMax := Max;
+      Max := FindTextWidth(Canvas, Buff, Len-1, False);
+      StoredMax := Max;
     end
-  else Max := StoredMax;  
-  Min := IntMin(MaxHScroll, Max);     
+    else
+    Max := StoredMax;
+    Min := IntMin(MaxHScroll, Max);
   end;
 end;
 
-function TPreFormated.DrawLogic(Canvas : TCanvas; X, Y, XRef, YRef, AWidth, AHeight, BlHt: integer; IMgr: IndentManager;
-             var MaxWidth: integer; var Curs: integer): integer;
+function TPreFormated.DrawLogic(Canvas : TCanvas; X, Y, XRef, YRef, AWidth, AHeight, BlHt: integer;
+  IMgr: IndentManager; var MaxWidth: integer; var Curs: integer): integer;
 var
   Dummy: integer;
   Save: integer;
 begin
-if Len = 0 then
+  if Len = 0 then
   begin
-  ContentTop := Y;
-  Result := Fonts.GetFontObjAt(0, Dummy).FontHeight;
-  SectionHeight := Result;
-  MaxWidth := 0;
-  YDraw := Y;   
-  DrawHeight := Result;   
-  ContentBot := Y+Result;  
-  DrawBot := ContentBot;    
+    ContentTop := Y;
+    Result := Fonts.GetFontObjAt(0, Dummy).FontHeight;
+    SectionHeight := Result;
+    MaxWidth := 0;
+    YDraw := Y;
+    DrawHeight := Result;
+    ContentBot := Y+Result;
+    DrawBot := ContentBot;
   end
-else if not BreakWord then   
+  else if not BreakWord then
   begin
-  {call with large width to prevent wrapping}
-  Save := IMgr.Width;
-  IMgr.Width := 32000;
-  Result := inherited DrawLogic(Canvas, X, Y, XRef, YRef, AWidth, AHeight, BlHt, IMgr, Dummy, Curs);
-  IMgr.Width := Save;
-  MinMaxWidth(Canvas, Dummy, MaxWidth);   {return MaxWidth}
+    {call with large width to prevent wrapping}
+    Save := IMgr.Width;
+    IMgr.Width := 32000;
+    Result := inherited DrawLogic(Canvas, X, Y, XRef, YRef, AWidth, AHeight, BlHt, IMgr, Dummy, Curs);
+    IMgr.Width := Save;
+    MinMaxWidth(Canvas, Dummy, MaxWidth);   {return MaxWidth}
   end
-else
+  else
   begin
-  Result := inherited DrawLogic(Canvas, X, Y, XRef, YRef, AWidth, AHeight, BlHt, IMgr, MaxWidth, Curs);    
+    Result := inherited DrawLogic(Canvas, X, Y, XRef, YRef, AWidth, AHeight, BlHt, IMgr, MaxWidth, Curs);
   end;
 end;
 
 destructor TOptionObj.Destroy;
 begin
-Attributes.Free;
-inherited;
+  Attributes.Free;
+  inherited;
 end;
 
 function ThtOptionStringList.GetValue(Index: integer): string;
 begin
-if (Index >= 0) and (Index < Count) then
-  Result := TOptionObj(Objects[Index]).Value
-else Result := '';
+  if (Index >= 0) and (Index < Count) then
+    Result := TOptionObj(Objects[Index]).Value
+  else
+    Result := '';
 end;
 
 function ThtOptionStringList.GetSelected(Index: integer): boolean;
 begin
-if (Index >= 0) and (Index < Count) then
-  Result := TOptionObj(Objects[Index]).Selected
-else Result := False;
+  if (Index >= 0) and (Index < Count) then
+    Result := TOptionObj(Objects[Index]).Selected
+  else
+    Result := False;
 end;
 
 procedure ThtOptionStringList.SetSelected(Index: integer; Value: boolean);
 begin
-if (Index >= 0) and (Index < Count) then
-  TOptionObj(Objects[Index]).Selected := Value;
+  if (Index >= 0) and (Index < Count) then
+    TOptionObj(Objects[Index]).Selected := Value;
 end;
 
 function ThtOptionStringList.GetAttribute(Index: integer; const AttrName: string): string;
 begin
-if (Index >= 0) and (Index < Count) and Assigned(TOptionObj(Objects[Index]).Attributes) then
-  Result := TOptionObj(Objects[Index]).Attributes.Values[AttrName]
-else Result := '';
+  if (Index >= 0) and (Index < Count) and Assigned(TOptionObj(Objects[Index]).Attributes) then
+    Result := TOptionObj(Objects[Index]).Attributes.Values[AttrName]
+  else
+    Result := '';
 end;
 
 destructor ThtOptionStringList.Destroy;
 var
   I: integer;
 begin
-for I := 0 to Count-1 do
-  TOptionObj(Objects[I]).Free;
-inherited;
+  for I := 0 to Count-1 do
+    TOptionObj(Objects[I]).Free;
+  inherited;
 end;
 
 {----------------TListBoxFormControlObj.Create}
 constructor TListBoxFormControlObj.Create(AMasterList: TSectionList;
-            Position: integer; L: TAttributeList; Prop: TProperties);
+  Position: integer; L: TAttributeList; Prop: TProperties);
 var
   T: TAttribute;
   Multiple: boolean;
   PntPanel: TPaintPanel;
   Tmp: TMyFont;
 begin
-inherited Create(AMasterList, Position, L);
-CodePage := Prop.CodePage;
-TheOptions := ThtOptionStringList.Create;
-Multiple := L.Find(MultipleSy, T);
-if L.Find(SizeSy, T) then
-  LBSize := T.Value
-else LBSize := -1;
-Longest := 3;   {the minimum size}
-PntPanel := TPaintPanel(AMasterList.PPanel);
-FControl := ThtListbox.Create(PntPanel);
-with ThtListbox(FControl) do
+  inherited Create(AMasterList, Position, L);
+  CodePage := Prop.CodePage;
+  TheOptions := ThtOptionStringList.Create;
+  Multiple := L.Find(MultipleSy, T);
+  if L.Find(SizeSy, T) then
+    LBSize := T.Value
+  else
+    LBSize := -1;
+  Longest := 3;   {the minimum size}
+  PntPanel := TPaintPanel(AMasterList.PPanel);
+  FControl := ThtListbox.Create(PntPanel);
+  with ThtListbox(FControl) do
   begin
-  Left := -4000  ;   {so will be invisible until placed}
-  Parent := PntPanel;  
-  if (Prop.GetBorderStyle <> bssNone) then
-    BorderStyle := bsNone;  
-  Tmp := Prop.GetFont;
-  Font.Assign(Tmp);
-  TheFont := Font;
-  Tmp.Free;
-  MultiSelect := Multiple;
-  ExtendedSelect := Multiple;
-  OnEnter := EnterEvent;    
-  OnExit := ExitEvent;
-  {$ifdef OpOnChange}
-  OnClick := OptionalOnChange;   
-  {$else}
-  OnClick := FormControlClick;
-  {$endif}
-  OnMouseMove := HandleMouseMove;
-  Enabled := not Disabled;   
+    Left := -4000  ;   {so will be invisible until placed}
+    Parent := PntPanel;
+    if (Prop.GetBorderStyle <> bssNone) then
+      BorderStyle := bsNone;
+    Tmp := Prop.GetFont;
+    Font.Assign(Tmp);
+    TheFont := Font;
+    Tmp.Free;
+    MultiSelect := Multiple;
+    ExtendedSelect := Multiple;
+    OnEnter := EnterEvent;
+    OnExit := ExitEvent;
+    {$ifdef OpOnChange}
+    OnClick := OptionalOnChange;
+    {$else}
+    OnClick := FormControlClick;
+    {$endif}
+    OnMouseMove := HandleMouseMove;
+    Enabled := not Disabled;
   end;
 end;
 
 destructor TListBoxFormControlObj.Destroy;
 begin
-TheOptions.Free;
-inherited Destroy;
+  TheOptions.Free;
+  inherited Destroy;
 end;
 
 procedure TListboxFormControlObj.ProcessProperties(Prop: TProperties);
 begin
-inherited;
-if BkColor <> clNone then
-  TListbox(FControl).Color := BkColor;
+  inherited;
+  if BkColor <> clNone then
+    TListbox(FControl).Color := BkColor;
 end;
 
 procedure TListBoxFormControlObj.Draw(Canvas: TCanvas; X1, Y1: integer);
 var
   H2, I, Addon: integer;
   LB: ThtListbox;
-  ARect: TRect;   
+  ARect: TRect;
 begin
-LB := FControl as ThtListbox;  {watch it, TListBox has a canvas too}
-if LB.BorderStyle <> bsNone then  
+  LB := FControl as ThtListbox;  {watch it, TListBox has a canvas too}
+  if LB.BorderStyle <> bsNone then
   begin
-  FormControlRect(Canvas, X1, Y1, X1+LB.Width, Y1+LB.Height, False, MasterList.PrintMonoBlack, False, TListbox(FControl).Color);  
-  Addon := 4;
+    FormControlRect(Canvas, X1, Y1, X1+LB.Width, Y1+LB.Height, False, MasterList.PrintMonoBlack, False, TListbox(FControl).Color);
+    Addon := 4;
   end
-else
+  else
   begin
-  FillRectWhite(Canvas, X1, Y1, X1+LB.Width, Y1+LB.Height, TListbox(FControl).Color);
-  Addon := 2;
+    FillRectWhite(Canvas, X1, Y1, X1+LB.Width, Y1+LB.Height, TListbox(FControl).Color);
+    Addon := 2;
   end;
 
-Canvas.Brush.Style := bsClear;
-Canvas.Font := LB.Font;
-H2 := Abs(Canvas.Font.Height);
-SetTextAlign(Canvas.handle, TA_Left+TA_Top);
-ARect := Rect(X1+Addon, Y1+Addon, X1+LB.Width-2*Addon, Y1+LB.Height-2*Addon);
-if UnicodeControls then
-  for I := LB.TopIndex to IntMin(LB.Items.Count-1, LB.TopIndex+LBSize-1) do
-    {$Warnings Off}
-    ExtTextOutW(Canvas.Handle, X1+Addon, Y1+Addon+(I-LB.TopIndex)*H2, ETO_CLIPPED, @ARect,
-       PWideChar(LB.Items[I]), Length(LB.Items[I]), nil)
-    {$Warnings On}
-else
-  for I := LB.TopIndex to IntMin(LB.Items.Count-1, LB.TopIndex+LBSize-1) do
-    Canvas.TextRect(ARect, X1+Addon, Y1+Addon+(I-LB.TopIndex)*H2, LB.Items[I]);
+  Canvas.Brush.Style := bsClear;
+  Canvas.Font := LB.Font;
+  H2 := Abs(Canvas.Font.Height);
+  SetTextAlign(Canvas.handle, TA_Left+TA_Top);
+  ARect := Rect(X1 + Addon, Y1 + Addon, X1 + LB.Width - 2 * Addon, Y1 + LB.Height - 2 * Addon);
+  if UnicodeControls then
+    for I := LB.TopIndex to IntMin(LB.Items.Count - 1, LB.TopIndex + LBSize - 1) do
+      {$Warnings Off}
+      ExtTextOutW(Canvas.Handle, X1 + Addon, Y1 + Addon + (I - LB.TopIndex) * H2, ETO_CLIPPED, @ARect,
+         PWideChar(LB.Items[I]), Length(LB.Items[I]), nil)
+      {$Warnings On}
+  else
+    for I := LB.TopIndex to IntMin(LB.Items.Count - 1, LB.TopIndex + LBSize - 1) do
+      Canvas.TextRect(ARect, X1 + Addon, Y1 + Addon + (I - LB.TopIndex) * H2, LB.Items[I]);
 end;
 
 procedure TListBoxFormControlObj.AddStr(const WS: WideString; Selected: boolean;
-               Attr: TStringList; CodePage: integer);
+  Attr: TStringList; CodePage: integer);
 var
   Opt: TOptionObj;
   DC: HDC;
@@ -543,27 +551,29 @@ var
   ExtS: TSize;
   S1, S2: string;
 begin
-S1 := WideStringToMultibyte(CodePage, WS);  
-if S1 = '' then
-  S1 := ' ';
-Opt := TOptionObj.Create;
-if Assigned(Attr) then
-  S2 := Attr.Values['Value']
-else S2 := '';
-if S2 <> '' then
-  Opt.Value := S2
-else Opt.Value := S1;
+  S1 := WideStringToMultibyte(CodePage, WS);
+  if S1 = '' then
+    S1 := ' ';
+  Opt := TOptionObj.Create;
+  if Assigned(Attr) then
+    S2 := Attr.Values['Value']
+  else
+  S2 := '';
+  if S2 <> '' then
+    Opt.Value := S2
+  else
+    Opt.Value := S1;
 
-Opt.Selected := Selected;
-Opt.Attributes := Attr;
-TheOptions.AddObject(S1, Opt);
+  Opt.Selected := Selected;
+  Opt.Attributes := Attr;
+  TheOptions.AddObject(S1, Opt);
 
-DC := GetDC(0);
-OldFont := SelectObject(DC, TheFont.Handle);
-GetTextExtentPoint32(DC, PChar(S1), Length(S1), ExtS);
-SelectObject(DC, OldFont);
-ReleaseDC(0, DC);
-Longest := IntMax(Longest, ExtS.cx);
+  DC := GetDC(0);
+  OldFont := SelectObject(DC, TheFont.Handle);
+  GetTextExtentPoint32(DC, PChar(S1), Length(S1), ExtS);
+  SelectObject(DC, OldFont);
+  ReleaseDC(0, DC);
+  Longest := IntMax(Longest, ExtS.cx);
 end;
 
 procedure TListBoxFormControlObj.ResetToValue;
@@ -571,65 +581,66 @@ var
   I: Integer;
   Tmp: boolean;
 begin
-with (FControl as ThtListbox) do
+  with (FControl as ThtListbox) do
   begin
-  Items.Clear;  
-  for I := 0 to TheOptions.Count-1 do
+    Items.Clear;
+    for I := 0 to TheOptions.Count-1 do
     begin
-    if UnicodeControls then
-      Items.Add(MultibyteToWidestring(CodePage, TheOptions[I]))   
-    else
-      Items.Add(TheOptions[I]);
-    Tmp := TheOptions.Selected[I];
-    if MultiSelect then
-      Selected[I] := Tmp
-    else if Tmp then
-      ItemIndex := I;
+      if UnicodeControls then
+        Items.Add(MultibyteToWidestring(CodePage, TheOptions[I]))
+      else
+        Items.Add(TheOptions[I]);
+      Tmp := TheOptions.Selected[I];
+      if MultiSelect then
+        Selected[I] := Tmp
+      else if Tmp then
+        ItemIndex := I;
     end;
-  if ItemIndex < 0 then
-    ItemIndex := 0;
-  TopIndex := 0;
+    if ItemIndex < 0 then
+      ItemIndex := 0;
+    TopIndex := 0;
   end;
 end;
 
 procedure TListBoxFormControlObj.SetHeightWidth(Canvas: TCanvas);
 begin
-with ThtListbox(FControl) do
+  with ThtListbox(FControl) do
   begin
-  Canvas.Font := Font;
-  if LBSize = -1 then LBSize := IntMax(1, IntMin(8, TheOptions.Count));
-  if FHeight >= 10 then
-    ClientHeight := FHeight
-  else
-    ClientHeight := Canvas.TextHeight('A')*LBSize;
-  if not PercentWidth then
-    if (FWidth >= 10) then    
-      Width := FWidth
-    else Width := Longest + GetSystemMetrics(sm_cxvscroll) + 10
-  else
+    Canvas.Font := Font;
+    if LBSize = -1 then LBSize := IntMax(1, IntMin(8, TheOptions.Count));
+    if FHeight >= 10 then
+      ClientHeight := FHeight
+    else
+      ClientHeight := Canvas.TextHeight('A')*LBSize;
+    if not PercentWidth then
+      if (FWidth >= 10) then
+        Width := FWidth
+      else
+        Width := Longest + GetSystemMetrics(sm_cxvscroll) + 10
+    else
     begin
-    Left := -4000;   {percent width set later}
-    Width := 10;
+      Left := -4000;   {percent width set later}
+      Width := 10;
     end;
   end;
 end;
 
 function TListBoxFormControlObj.GetSubmission(Index: integer;
-              var S: string): boolean;
+  var S: string): boolean;
 begin
-with (FControl as ThtListbox) do
+  with (FControl as ThtListbox) do
   if (Index < Items.Count) then
-      begin
-      Result := True;
-      S := '';
-      if MultiSelect and Selected[Index] or
-                     not MultiSelect and (ItemIndex = Index) then
-        begin
-        S := Self.FName+'=';
-        S := S + TheOptions.Value[Index];  
-        end;
-    end
-  else Result := False;
+  begin
+    Result := True;
+    S := '';
+    if MultiSelect and Selected[Index] or not MultiSelect and (ItemIndex = Index) then
+    begin
+      S := Self.FName+'=';
+      S := S + TheOptions.Value[Index];
+    end;
+  end
+  else
+    Result := False;
 end;
 
 procedure TListBoxFormControlObj.SaveContents;
@@ -637,11 +648,11 @@ procedure TListBoxFormControlObj.SaveContents;
 var
   I: integer;
 begin
-with ThtListbox(FControl) do
+  with ThtListbox(FControl) do
   begin
-  EnterItems := Items.Count;
-  for I := 0 to IntMin(Items.Count-1, 50) do
-    EnterSelected[I] := Selected[I];
+    EnterItems := Items.Count;
+    for I := 0 to IntMin(Items.Count - 1, 50) do
+      EnterSelected[I] := Selected[I];
   end;
 end;
 
@@ -650,33 +661,33 @@ var
   I: integer;
   Changed: boolean;
 begin
-Changed := False;
-with ThtListbox(FControl) do
+  Changed := False;
+  with ThtListbox(FControl) do
   begin
-  if Items.Count <> EnterItems then
-    Changed := True
-  else
-    for I := 0 to IntMin(Items.Count-1, 50) do
-      if EnterSelected[I] <> Selected[I] then
+    if Items.Count <> EnterItems then
+      Changed := True
+    else
+      for I := 0 to IntMin(Items.Count - 1, 50) do
+        if EnterSelected[I] <> Selected[I] then
         begin
-        Changed := True;
-        Break;
+          Changed := True;
+          Break;
         end;
   end;
-if Changed then
-  if Assigned(MasterList.ObjectChange) then
-    MasterList.ObjectChange(MasterList.TheOwner, Self, OnChangeMessage);
+  if Changed then
+    if Assigned(MasterList.ObjectChange) then
+      MasterList.ObjectChange(MasterList.TheOwner, Self, OnChangeMessage);
 end;
 
 {$ifdef OpOnChange}
-procedure TListBoxFormControlObj.OptionalOnChange(Sender: TObject);     
+procedure TListBoxFormControlObj.OptionalOnChange(Sender: TObject);
 var
   Pt: TPoint;
 begin
-DoOnChange;
-SaveContents;
-if GetCursorPos(Pt) and (WindowFromPoint(Pt) = TheControl.Handle) then
-  FormControlClick(Self);
+  DoOnChange;
+  SaveContents;
+  if GetCursorPos(Pt) and (WindowFromPoint(Pt) = TheControl.Handle) then
+    FormControlClick(Self);
 end;
 {$endif}
 

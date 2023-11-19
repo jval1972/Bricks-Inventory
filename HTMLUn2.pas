@@ -2007,7 +2007,7 @@ end;
 
 {----------------GetBitmapAndMaskFromStream}
 function GetBitmapAndMaskFromStream(Stream: TMemoryStream;
-        var Transparent: Transparency; var AMask: TBitmap): TBitmap;
+  var Transparent: Transparency; var AMask: TBitmap): TBitmap;
 var
   IT: ImageType;
   jpImage: TJpegMod;
@@ -2015,7 +2015,7 @@ var
   PI: TPngImage;
   Color: TColor;
   Tmp: TBitmap;
-  {$endif}             
+  {$endif}
 begin
   Result := nil;
   AMask := nil;
@@ -2031,80 +2031,80 @@ begin
   try
     if IT = Jpg then
     begin
-    Transparent := NotTransp;
-    jpImage := TJpegMod.Create;
-    try
-      jpImage.LoadFromStream(Stream);
-      if ColorBits <= 8 then
-      begin
-        jpImage.PixelFormat := jf8bit;
-        if not jpImage.GrayScale and (ColorBits = 8) then
-          jpImage.Palette := CopyPalette(ThePalette);
-      end
-      else
-        jpImage.PixelFormat := jf24bit;
-      Result.Assign(jpImage.Bitmap);
-      if quantizeimagetosavemem then
-        if Result.PixelFormat in [pf15bit, pf16bit, pf24bit, pf32bit] then
-          if GetMemoryUsed > 512 * 1024 * 1024 then
-            ReduceTo8Bit(Result);
-    finally
-      jpImage.Free;
-    end;
-  end
-  {$ifndef NoOldPng}
-  else if IT = Png then
-  begin
-    if IsTransparentPNG(Stream, Color) then  {check for transparent PNG}
-      Transparent := TPng;
-    PI := TPngImage.Create;
-    try
-     PI.LoadFromStream(Stream);
-     Result.Assign(PI);
-     if Result.Handle <> 0 then;      {force proper initiation win98/95}
-    finally
-     PI.Free;
-     end;
-    end
-  {$else}
-  else if IT = Png then
-    Result := nil
-  {$endif}
-  else
-    begin
-    Result.LoadFromStream(Stream);   {Bitmap}
-    end;
-  if Transparent = LLCorner then
-    AMask := GetImageMask(Result, False, 0)
-  {$ifdef NoOldPng}
-     ;
-  {$else}
-  else if Transparent = TPng then
-  begin
-    AMask := GetImageMask(Result, True, Color);
-    {Replace the background color with black.  This is needed if the Png is a
-     background image.}
-    Tmp := Result;
-    Result := TBitmap.Create;
-    Result.Width := Tmp.Width;
-    Result.Height := Tmp.Height;
-    Result.Palette := CopyPalette(ThePalette);
-    with Result do
-      begin
-      Canvas.Brush.Color := Color;
-      PatBlt(Canvas.Handle, 0, 0, Width, Height, PatCopy);
-      SetBkColor(Canvas.Handle, clWhite);
-      SetTextColor(Canvas.Handle, clBlack);
-      BitBlt(Canvas.Handle, 0, 0, Width, Height, AMask.Canvas.Handle, 0, 0, SrcAnd);
-      BitBlt(Canvas.Handle, 0, 0, Width, Height, Tmp.Canvas.Handle, 0, 0, SrcInvert);
+      Transparent := NotTransp;
+      jpImage := TJpegMod.Create;
+      try
+        jpImage.LoadFromStream(Stream);
+        if ColorBits <= 8 then
+        begin
+          jpImage.PixelFormat := jf8bit;
+          if not jpImage.GrayScale and (ColorBits = 8) then
+            jpImage.Palette := CopyPalette(ThePalette);
+        end
+        else
+          jpImage.PixelFormat := jf24bit;
+        Result.Assign(jpImage.Bitmap);
+        if quantizeimagetosavemem then
+          if Result.PixelFormat in [pf15bit, pf16bit, pf24bit, pf32bit] then
+            if GetMemoryUsed > 512 * 1024 * 1024 then
+              ReduceTo8Bit(Result);
+      finally
+        jpImage.Free;
       end;
-    Tmp.Free;
-  end;
-  {$endif}
-  Result := ConvertImage(Result);
+    end
+    {$ifndef NoOldPng}
+    else if IT = Png then
+    begin
+      if IsTransparentPNG(Stream, Color) then  {check for transparent PNG}
+        Transparent := TPng;
+      PI := TPngImage.Create;
+      try
+        PI.LoadFromStream(Stream);
+        Result.Assign(PI);
+        if Result.Handle <> 0 then;      {force proper initiation win98/95}
+      finally
+        PI.Free;
+      end;
+    end
+    {$else}
+    else if IT = Png then
+      Result := nil
+    {$endif}
+    else
+    begin
+      Result.LoadFromStream(Stream);   {Bitmap}
+    end;
+    if Transparent = LLCorner then
+      AMask := GetImageMask(Result, False, 0)
+    {$ifdef NoOldPng}
+     ;
+    {$else}
+    else if Transparent = TPng then
+    begin
+      AMask := GetImageMask(Result, True, Color);
+      {Replace the background color with black.  This is needed if the Png is a
+       background image.}
+      Tmp := Result;
+      Result := TBitmap.Create;
+      Result.Width := Tmp.Width;
+      Result.Height := Tmp.Height;
+      Result.Palette := CopyPalette(ThePalette);
+      with Result do
+      begin
+        Canvas.Brush.Color := Color;
+        PatBlt(Canvas.Handle, 0, 0, Width, Height, PatCopy);
+        SetBkColor(Canvas.Handle, clWhite);
+        SetTextColor(Canvas.Handle, clBlack);
+        BitBlt(Canvas.Handle, 0, 0, Width, Height, AMask.Canvas.Handle, 0, 0, SrcAnd);
+        BitBlt(Canvas.Handle, 0, 0, Width, Height, Tmp.Canvas.Handle, 0, 0, SrcInvert);
+      end;
+      Tmp.Free;
+    end;
+    {$endif}
+    Result := ConvertImage(Result);
   except
     Result.Free;
-  Result := nil;
+    Result := nil;
   end;
 end;
 
@@ -2113,7 +2113,7 @@ var
 
 {----------------GetImageAndMaskFromStream}
 function GetImageAndMaskFromStream(Stream: TMemoryStream;
-        var Transparent: Transparency; var AMask: TBitmap): TgpObject;
+  var Transparent: Transparency; var AMask: TBitmap): TgpObject;
 var
   Filename: string;
   Path: array[0..Max_Path] of char;
@@ -2127,58 +2127,58 @@ begin
   Stream.Position := 0;
   if GDIPlusActive and (KindOfImage(Stream.Memory) = png) then
   begin
-  try
-    GetTempPath(Max_Path, @Path);
-    SetLength(Filename, Max_Path+1);
-    GetTempFilename(@Path, 'png', Unique, PChar(Filename));
-    Inc(Unique);
-    I := CharPos(#0, Filename);
-    SetLength(Filename, I-1);
-    AssignFile(F, Filename);
-    ReWrite(F, 1);
-    BlockWrite(F, Stream.Memory^, Stream.Size);
-    CloseFile(F);
-    Result := TgpImage.Create(Filename, True);  {True because it's a temporary file}
-    Transparent :=  NotTransp;
-  except
+    try
+      GetTempPath(Max_Path, @Path);
+      SetLength(Filename, Max_Path+1);
+      GetTempFilename(@Path, 'png', Unique, PChar(Filename));
+      Inc(Unique);
+      I := CharPos(#0, Filename);
+      SetLength(Filename, I-1);
+      AssignFile(F, Filename);
+      ReWrite(F, 1);
+      BlockWrite(F, Stream.Memory^, Stream.Size);
+      CloseFile(F);
+      Result := TgpImage.Create(Filename, True);  {True because it's a temporary file}
+      Transparent :=  NotTransp;
+    except
     end;
-  Exit;
+    Exit;
   end;
 
-Result := GetBitmapAndMaskFromStream(Stream, Transparent, AMask);
-{$ifndef NoMetafile}
-if not Assigned(Result) then
+  Result := GetBitmapAndMaskFromStream(Stream, Transparent, AMask);
+  {$ifndef NoMetafile}
+  if not Assigned(Result) then
   begin
-  Result := ThtMetafile.Create;
-  try
-    AMask := nil;
-    Transparent := NotTransp;
-    ThtMetaFile(Result).LoadFromStream(Stream);
-  except
-    FreeAndNil(Result);
+    Result := ThtMetafile.Create;
+    try
+      AMask := nil;
+      Transparent := NotTransp;
+      ThtMetaFile(Result).LoadFromStream(Stream);
+    except
+      FreeAndNil(Result);
     end;
   end;
-{$endif}
+  {$endif}
 end;
 
 function GetImageMask(Image: TBitmap; ColorValid: boolean; AColor: TColor): TBitmap;
 begin
-try
-  if ColorValid then
-    Image.TransparentColor := AColor;  {color has already been selected}
-  {else the transparent color is the lower left pixel of the bitmap}
-
-  Image.Transparent := True;
-
-  Result := TBitmap.Create;
   try
-    Result.Handle := Image.ReleaseMaskHandle;
-    Image.Transparent := False;
-  except
-    FreeAndNil(Result);
+    if ColorValid then
+      Image.TransparentColor := AColor;  {color has already been selected}
+    {else the transparent color is the lower left pixel of the bitmap}
+
+    Image.Transparent := True;
+
+    Result := TBitmap.Create;
+    try
+      Result.Handle := Image.ReleaseMaskHandle;
+      Image.Transparent := False;
+    except
+      FreeAndNil(Result);
     end;
-except
-  Result := nil;
+  except
+    Result := nil;
   end;
 end;
 
@@ -2256,91 +2256,91 @@ var
   bmAndBack,
   bmSave,
   bmBackOld,
-  bmObjectOld : HBitmap;
+  bmObjectOld: HBitmap;
   hdcInvMask,
   hdcMask,
   hdcImage: HDC;
-  DestSize, SrcSize : TPoint;
+  DestSize, SrcSize: TPoint;
   OldBack, OldFore: TColor;
   BM: Windows.TBitmap;
   Image: TBitmap;
 
 begin
-Image := TBitmap.Create;  {protect original image} 
-try
-  Image.Assign(InImage);
+  Image := TBitmap.Create;  {protect original image}
+  try
+    Image.Assign(InImage);
 
-  hdcImage := CreateCompatibleDC (ahdc);
-  SelectObject (hdcImage, Image.Handle); { select the bitmap }
+    hdcImage := CreateCompatibleDC (ahdc);
+    SelectObject (hdcImage, Image.Handle); { select the bitmap }
 
-  { convert bitmap dimensions from device to logical points}
-  SrcSize.x := Image.Width;
-  SrcSize.y := Image.Height;
-  DPtoLP(hdcImage, SrcSize, 1);
+    { convert bitmap dimensions from device to logical points}
+    SrcSize.x := Image.Width;
+    SrcSize.y := Image.Height;
+    DPtoLP(hdcImage, SrcSize, 1);
 
-  DestSize.x := W;
-  DestSize.y := H;
-  DPtoLP (hdcImage, DestSize, 1);
+    DestSize.x := W;
+    DestSize.y := H;
+    DPtoLP (hdcImage, DestSize, 1);
 
-  { create a bitmap for each DC}
-  { monochrome DC}
-  bmAndBack := CreateBitmap (SrcSize.x, SrcSize.y, 1, 1, nil);
+    { create a bitmap for each DC}
+    { monochrome DC}
+    bmAndBack := CreateBitmap (SrcSize.x, SrcSize.y, 1, 1, nil);
 
-  bmSave := CreateCompatibleBitmap (ahdc, DestSize.x, DestSize.y);
-  GetObject(bmSave, SizeOf(BM), @BM);
-  if (BM.bmBitsPixel > 1) or (BM.bmPlanes > 1) then
+    bmSave := CreateCompatibleBitmap (ahdc, DestSize.x, DestSize.y);
+    GetObject(bmSave, SizeOf(BM), @BM);
+    if (BM.bmBitsPixel > 1) or (BM.bmPlanes > 1) then
     begin
-    { create some DCs to hold temporary data}
-    hdcInvMask   := CreateCompatibleDC(ahdc);
-    hdcMask := CreateCompatibleDC(ahdc);
+      { create some DCs to hold temporary data}
+      hdcInvMask   := CreateCompatibleDC(ahdc);
+      hdcMask := CreateCompatibleDC(ahdc);
 
-    { each DC must select a bitmap object to store pixel data}
-    bmBackOld   := SelectObject (hdcInvMask, bmAndBack);
+      { each DC must select a bitmap object to store pixel data}
+      bmBackOld   := SelectObject (hdcInvMask, bmAndBack);
 
-    { set proper mapping mode}
-    SetMapMode (hdcImage, GetMapMode (ahdc));
+      { set proper mapping mode}
+      SetMapMode (hdcImage, GetMapMode (ahdc));
 
-    bmObjectOld := SelectObject(hdcMask, Mask.Handle);
+      bmObjectOld := SelectObject(hdcMask, Mask.Handle);
 
-    { create the inverse of the object mask}
-    BitBlt (hdcInvMask, 0, 0, SrcSize.x, SrcSize.y, hdcMask, 0, 0, NOTSRCCOPY);
+      { create the inverse of the object mask}
+      BitBlt (hdcInvMask, 0, 0, SrcSize.x, SrcSize.y, hdcMask, 0, 0, NOTSRCCOPY);
 
-    {set the background color of the source DC to the color contained in the
-     parts of the bitmap that should be transparent, the foreground to the parts that
-     will show}
-    OldBack := SetBkColor(ahDC, clWhite);
-    OldFore := SetTextColor(ahDC, clBlack);
+      {set the background color of the source DC to the color contained in the
+       parts of the bitmap that should be transparent, the foreground to the parts that
+       will show}
+      OldBack := SetBkColor(ahDC, clWhite);
+      OldFore := SetTextColor(ahDC, clBlack);
 
-    { Punch out a black hole in the background where the image will go}
-    SetStretchBltMode(ahDC, WhiteOnBlack);
-    StretchBlt (ahDC, XStart, YStart, DestSize.x, DestSize.y, hdcMask, 0, 0, SrcSize.x, SrcSize.y, SRCAND);
+      { Punch out a black hole in the background where the image will go}
+      SetStretchBltMode(ahDC, WhiteOnBlack);
+      StretchBlt (ahDC, XStart, YStart, DestSize.x, DestSize.y, hdcMask, 0, 0, SrcSize.x, SrcSize.y, SRCAND);
 
-    { mask out the transparent colored pixels on the bitmap}
-    BitBlt (hdcImage, 0, 0, SrcSize.x, SrcSize.y, hdcInvMask, 0, 0, SRCAND);
+      { mask out the transparent colored pixels on the bitmap}
+      BitBlt (hdcImage, 0, 0, SrcSize.x, SrcSize.y, hdcInvMask, 0, 0, SRCAND);
 
-    { XOR the bitmap with the background on the destination DC}
-    SetStretchBltMode(ahDC, ColorOnColor);
-    StretchBlt(ahDC, XStart, YStart, W, H, hdcImage, 0, 0, Image.Width, Image.Height, SRCPAINT);
+      { XOR the bitmap with the background on the destination DC}
+      SetStretchBltMode(ahDC, ColorOnColor);
+      StretchBlt(ahDC, XStart, YStart, W, H, hdcImage, 0, 0, Image.Width, Image.Height, SRCPAINT);
 
-    SetBkColor(ahDC, OldBack);
-    SetTextColor(ahDC, OldFore);
+      SetBkColor(ahDC, OldBack);
+      SetTextColor(ahDC, OldFore);
 
-    { delete the memory bitmaps}
-    DeleteObject (SelectObject (hdcInvMask, bmBackOld));
-    SelectObject (hdcMask, bmObjectOld);
+      { delete the memory bitmaps}
+      DeleteObject (SelectObject (hdcInvMask, bmBackOld));
+      SelectObject (hdcMask, bmObjectOld);
 
-    { delete the memory DCs}
-    DeleteDC (hdcInvMask);
-    DeleteDC (hdcMask);
+      { delete the memory DCs}
+      DeleteDC (hdcInvMask);
+      DeleteDC (hdcMask);
     end
-  else
+    else
     begin
-    DeleteObject(bmAndBack);
+      DeleteObject(bmAndBack);
     end;
-  DeleteObject(bmSave);     
-  DeleteDC (hdcImage);
-finally
-  Image.Free;
+    DeleteObject(bmSave);
+    DeleteDC (hdcImage);
+  finally
+    Image.Free;
   end;
 end;
 
@@ -2350,54 +2350,54 @@ constructor TDib.CreateDIB(DC: HDC; Bitmap: TBitmap);
 var
   ImgSize: DWord;
 begin
-InitializeBitmapInfoHeader(Bitmap.Handle);
-ImgSize := Info^.biSizeImage;
-Allocate(ImgSize);
-try
-  GetDIBX(DC, Bitmap.Handle, Bitmap.Palette);
-except
-  DeAllocate;
-  Raise;
+  InitializeBitmapInfoHeader(Bitmap.Handle);
+  ImgSize := Info^.biSizeImage;
+  Allocate(ImgSize);
+  try
+    GetDIBX(DC, Bitmap.Handle, Bitmap.Palette);
+  except
+    DeAllocate;
+    Raise;
   end;
 end;
 
 destructor TDib.Destroy;
 begin
-DeAllocate;
-inherited Destroy;
+  DeAllocate;
+  inherited Destroy;
 end;
 
 procedure TDib.Allocate(Size: integer);
 begin
-ImageSize := Size;
-if Size < $FF00 then
-  GetMem(Image, Size)
-else
-   begin
-   FHandle := GlobalAlloc(HeapAllocFlags, Size);
-   if FHandle = 0 then
-       ABort;
-   Image := GlobalLock(FHandle);
-   end;
+  ImageSize := Size;
+  if Size < $FF00 then
+    GetMem(Image, Size)
+  else
+  begin
+    FHandle := GlobalAlloc(HeapAllocFlags, Size);
+    if FHandle = 0 then
+      ABort;
+    Image := GlobalLock(FHandle);
+  end;
 end;
 
 procedure TDib.DeAllocate;
 begin
-if ImageSize > 0 then
+  if ImageSize > 0 then
   begin
-  if ImageSize < $FF00 then
-    Freemem(Image, ImageSize)
-  else
+    if ImageSize < $FF00 then
+      Freemem(Image, ImageSize)
+    else
     begin
-    GlobalUnlock(FHandle);
-    GlobalFree(FHandle);
+      GlobalUnlock(FHandle);
+      GlobalFree(FHandle);
     end;
-  ImageSize := 0;
+    ImageSize := 0;
   end;
-if InfoSize > 0 then
+  if InfoSize > 0 then
   begin
-  FreeMem(Info, InfoSize);
-  InfoSize := 0;
+    FreeMem(Info, InfoSize);
+    InfoSize := 0;
   end;
 end;
 
@@ -2406,35 +2406,35 @@ var
   BM: Windows.TBitmap;
   BitCount: integer;
 
-   function WidthBytes(I: integer): integer;
-   begin
-     Result := ((I + 31) div 32) * 4;
-   end;
+function WidthBytes(I: integer): integer;
+begin
+  Result := ((I + 31) div 32) * 4;
+end;
 
 begin
-GetObject(Bitmap, SizeOf(BM), @BM);
-BitCount := BM.bmBitsPixel * BM.bmPlanes;
-if BitCount > 8 then
-  InfoSize := SizeOf(TBitmapInfoHeader)
-else
-  InfoSize := SizeOf(TBitmapInfoHeader) + SizeOf(TRGBQuad) * (1 shl BitCount);  
-GetMem(Info, InfoSize);
+  GetObject(Bitmap, SizeOf(BM), @BM);
+  BitCount := BM.bmBitsPixel * BM.bmPlanes;
+  if BitCount > 8 then
+    InfoSize := SizeOf(TBitmapInfoHeader)
+  else
+    InfoSize := SizeOf(TBitmapInfoHeader) + SizeOf(TRGBQuad) * (1 shl BitCount);
+  GetMem(Info, InfoSize);
 
-with Info^ do
+  with Info^ do
   begin
-  biSize := SizeOf(TBitmapInfoHeader);
-  biWidth := BM.bmWidth;
-  biHeight := BM.bmHeight;
-  biBitCount := BM.bmBitsPixel * BM.bmPlanes;
-  biPlanes := 1;
-  biXPelsPerMeter := 0;
-  biYPelsPerMeter := 0;
-  biClrUsed := 0;
-  biClrImportant := 0;
-  biCompression := BI_RGB;
-  if biBitCount in [16, 32] then
-    biBitCount := 24;
-  biSizeImage := WidthBytes(biWidth * biBitCount) * biHeight;
+    biSize := SizeOf(TBitmapInfoHeader);
+    biWidth := BM.bmWidth;
+    biHeight := BM.bmHeight;
+    biBitCount := BM.bmBitsPixel * BM.bmPlanes;
+    biPlanes := 1;
+    biXPelsPerMeter := 0;
+    biYPelsPerMeter := 0;
+    biClrUsed := 0;
+    biClrImportant := 0;
+    biCompression := BI_RGB;
+    if biBitCount in [16, 32] then
+      biBitCount := 24;
+    biSizeImage := WidthBytes(biWidth * biBitCount) * biHeight;
   end;
 end;
 
@@ -2446,28 +2446,27 @@ var
 begin
   OldPal := 0;
   if Palette <> 0 then
-    begin
+  begin
     OldPal := SelectPalette(DC, Palette, False);
     RealizePalette(DC);
-    end;
+  end;
   bmInfo := PBitmapInfo(Info);
   Rslt := GetDIBits(DC, Bitmap, 0, Info^.biHeight, Image, bmInfo^, DIB_RGB_COLORS);
   if OldPal <> 0 then
     SelectPalette(DC, OldPal, False);
   if Rslt = 0 then
-    begin
+  begin
     OutofMemoryError;
-    end;
+  end;
 end;
 
-procedure TDib.DrawDIB(DC: HDC; X: Integer; Y: integer; W, H: integer;
-          ROP: DWord);
+procedure TDib.DrawDIB(DC: HDC; X: Integer; Y: integer; W, H: integer; ROP: DWord);
 var
   bmInfo: PBitmapInfo;
 begin
-bmInfo := PBitmapInfo(Info);
-with Info^ do
-  StretchDIBits(DC, X, Y, W, H, 0, 0, biWidth, biHeight, Image,
+  bmInfo := PBitmapInfo(Info);
+  with Info^ do
+    StretchDIBits(DC, X, Y, W, H, 0, 0, biWidth, biHeight, Image,
       bmInfo^, DIB_RGB_COLORS, ROP);
 end;
 
@@ -2477,16 +2476,16 @@ var
   DC: HDC;
   OldPal: HPalette;
 begin
-bmInfo := PBitmapInfo(Info);
-DC := GetDC(0);
-OldPal := SelectPalette(DC, ThePalette, False);
-RealizePalette(DC);
-try
-  Result := CreateDIBitmap(DC, bmInfo^.bmiHeader, CBM_INIT, Image,
-            bmInfo^, DIB_RGB_COLORS);
-finally
-  SelectPalette(DC, OldPal, False);
-  ReleaseDC(0, DC);
+  bmInfo := PBitmapInfo(Info);
+  DC := GetDC(0);
+  OldPal := SelectPalette(DC, ThePalette, False);
+  RealizePalette(DC);
+  try
+    Result := CreateDIBitmap(DC, bmInfo^.bmiHeader, CBM_INIT, Image,
+              bmInfo^, DIB_RGB_COLORS);
+  finally
+    SelectPalette(DC, OldPal, False);
+    ReleaseDC(0, DC);
   end;
 end;
 
@@ -2528,7 +2527,7 @@ var
 begin
   IR := IndentRec.Create;
   if (Justify = Left) then
-    begin
+  begin
     with IR do
       begin
       X := -LfEdge + IW;
@@ -2536,9 +2535,9 @@ begin
       YB := Y + IH;
       L.Add(IR);
       end;
-    end
+  end
   else if (Justify = Right) then
-    begin
+  begin
     with IR do
       begin
       X := RightSide(Y) - IW;
@@ -2546,7 +2545,7 @@ begin
       YB := Y + IH;
       R.Add(IR);
       end;
-    end;
+  end;
 end;
 
 const

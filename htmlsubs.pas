@@ -1067,7 +1067,7 @@ type
     PanelCreateEvent: TPanelCreateEvent;
     PanelDestroyEvent: TPanelDestroyEvent;
     PanelPrintEvent: TPanelPrintEvent;
-    CB: SelTextCount;
+    CB: TSelTextCount;
     PageBottom: integer;
     PageShortened: boolean;
     MapList: TFreeList;    {holds list of client maps, TMapItems}
@@ -6531,7 +6531,7 @@ begin
   Result := 0;
   if SelE <= SelB then
     Exit;   {nothing to do}
-  CB := SelTextCount.Create;
+  CB := TSelTextCount.Create;
   try
     for I := 0 to Count - 1 do
       with TSectionBase(Items[I]) do
@@ -6557,7 +6557,7 @@ begin
   if SelE <= SelB then
     Exit;   {nothing to do}
   try
-    CB := ClipBuffer.Create(Leng);
+    CB := TClipBuffer.Create(Leng);
     for I := 0 to Count - 1 do
     begin
       SB := TSectionBase(Items[I]);
@@ -6591,7 +6591,7 @@ begin
     Result := 0;
   if SelE <= SelB then
     Exit;   {nothing to do}
-  CB := SelTextBuf.Create(Buffer, BufSize);
+  CB := TSelTextBuf.Create(Buffer, BufSize);
   try
     for I := 0 to Count - 1 do
       with TSectionBase(Items[I]) do

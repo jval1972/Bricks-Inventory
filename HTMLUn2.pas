@@ -167,7 +167,7 @@ type
     procedure SetCacheCount(N: integer);
   end;
 
-  SelTextCount = class(TObject)
+  TSelTextCount = class(TObject)
   private
     Buffer: PWideChar;
     BufferLeng: integer;
@@ -178,14 +178,14 @@ type
     function Terminate: integer; virtual;
     end;
 
-  SelTextBuf = class(SelTextCount)
+  TSelTextBuf = class(TSelTextCount)
   public
     constructor Create(ABuffer: PWideChar; Size: integer);
     procedure AddText(P: PWideChar; Size: integer); override;
     function Terminate: integer; override;
     end;
 
-  ClipBuffer = class(SelTextBuf)
+  TClipBuffer = class(TSelTextBuf)
   private
     procedure CopyToClipboard;
   public
@@ -331,6 +331,16 @@ type
 
     property S: WideString read GetString;
   end;
+
+//------------------------------------------------------------------------------
+// TIDObject is base class for all tag objects.
+//------------------------------------------------------------------------------
+// If they have an ID, the parser puts them into the HtmlViewer's IDNameList,
+// a TIDObjectList, where they can be obtained from by ID.
+// Their Y coordinates can be retrieved and HtmlViewer can scroll to them.
+//
+// Most descendants are objects representing an HTML tag, except TChPosObj.
+//------------------------------------------------------------------------------
 
   TIDObject = class(TObject)
   protected
@@ -765,7 +775,7 @@ var
 begin
 {find a clipregion to prevent overflow.  First check to see if there is
  already a clip region.  Return the old region, SaveRgn, (or 0) so it can be
- restroed later.}
+ restored later.}
   SaveRgn := CreateRectRgn(0, 0, 1, 1);
   Rslt := GetClipRgn(Canvas.Handle, SaveRgn);  {Rslt = 1 for existing region, 0 for none}
   if Rslt = 0 then
@@ -874,12 +884,14 @@ var
 begin
   L := Length(S);
   I := 1;
-  while (I <= L) and (S[I] <= ' ') do Inc(I);
+  while (I <= L) and (S[I] <= ' ') do
+    Inc(I);
   if I > L then
     Result := ''
   else
   begin
-    while S[L] <= ' ' do Dec(L);
+    while S[L] <= ' ' do
+     Dec(L);
     Result := Copy(S, I, L - I + 1);
   end;
 end;
@@ -968,43 +980,48 @@ var
 begin
 with Canvas do
   begin
-  MonoBlack := PrintMonoBlack and (GetDeviceCaps(Handle, BITSPIXEL) = 1) and
-          (GetDeviceCaps(Handle, PLANES) = 1);
-  Dec(X2);  Dec(Y2);
-  OldWid := Pen.Width;
-  OldStyle := Pen.Style;
-  OldBrushStyle := Brush.Style;   {save style first}
-  OldBrushColor := Brush.Color;
-  if not MonoBlack and Disabled then  
-    Brush.Color := clBtnFace
-  else Brush.Color := color;    
-  Brush.Style := bsSolid;
-  FillRect(Rect(X1, Y1, X2, Y2));
-  Brush.Color := OldBrushColor;
-  Brush.Style := OldBrushStyle;    {style after color as color changes style}
+    MonoBlack := PrintMonoBlack and (GetDeviceCaps(Handle, BITSPIXEL) = 1) and
+      (GetDeviceCaps(Handle, PLANES) = 1);
+    Dec(X2);  Dec(Y2);
+    OldWid := Pen.Width;
+    OldStyle := Pen.Style;
+    OldBrushStyle := Brush.Style;   {save style first}
+    OldBrushColor := Brush.Color;
+    if not MonoBlack and Disabled then  
+      Brush.Color := clBtnFace
+    else
+      Brush.Color := color;    
+    Brush.Style := bsSolid;
+    FillRect(Rect(X1, Y1, X2, Y2));
+    Brush.Color := OldBrushColor;
+    Brush.Style := OldBrushStyle;    {style after color as color changes style}
 
-  Pen.Style := psInsideFrame;
-  if MonoBlack then
+    Pen.Style := psInsideFrame;
+    if MonoBlack then
     begin
-    Pen.Width := 1;
-    Pen.Color := clBlack;
+      Pen.Width := 1;
+      Pen.Color := clBlack;
     end
-  else
+    else
     begin
-    Pen.Width := 2;
-    if Raised then Pen.Color := clSilver
-      else Pen.Color := clBtnShadow;
+      Pen.Width := 2;
+      if Raised then
+        Pen.Color := clSilver
+      else
+		    Pen.Color := clBtnShadow;
     end;
-  MoveTo(X1, Y2);
-  LineTo(X1, Y1);
-  LineTo(X2, Y1);
-  if not MonoBlack then
-    if Raised then Pen.Color := clBtnShadow
-      else Pen.Color := clSilver;
-  LineTo(X2, Y2);
-  LineTo(X1, Y2);
-  Pen.Style := OldStyle;
-  Pen.Width := OldWid;
+    MoveTo(X1, Y2);
+    LineTo(X1, Y1);
+    LineTo(X2, Y1);
+    if not MonoBlack then
+      if Raised then
+        Pen.Color := clBtnShadow
+      else
+        Pen.Color := clSilver;
+    LineTo(X2, Y2);
+    LineTo(X1, Y2);
+    Pen.Style := OldStyle;
+    Pen.Width := OldWid;
   end;
 end;
 
@@ -1439,8 +1456,8 @@ begin
         Break;
 end;
 
-{----------------SelTextCount}
-procedure SelTextCount.AddText(P: PWideChar; Size: integer);
+{----------------TSelTextCount}
+procedure TSelTextCount.AddText(P: PWideChar; Size: integer);
 var
   I: integer;
 begin
@@ -1449,26 +1466,26 @@ begin
       Inc(Leng);
 end;
 
-procedure SelTextCount.AddTextCR(P: PWideChar; Size: integer);
+procedure TSelTextCount.AddTextCR(P: PWideChar; Size: integer);
 begin
   AddText(P, Size);
   AddText(#13#10, 2);
 end;
 
-function SelTextCount.Terminate: integer;
+function TSelTextCount.Terminate: integer;
 begin
   Result := Leng;
 end;
 
-{----------------SelTextBuf.Create}
-constructor SelTextBuf.Create(ABuffer: PWideChar; Size: integer);
+{----------------TSelTextBuf.Create}
+constructor TSelTextBuf.Create(ABuffer: PWideChar; Size: integer);
 begin
   inherited Create;
   Buffer := ABuffer;
   BufferLeng := Size;
 end;
 
-procedure SelTextBuf.AddText(P: PWideChar; Size: integer);
+procedure TSelTextBuf.AddText(P: PWideChar; Size: integer);
 var
   SizeM1 : integer;
   I: integer;
@@ -1483,27 +1500,27 @@ begin
       end;
 end;
 
-function SelTextBuf.Terminate: integer;
+function TSelTextBuf.Terminate: integer;
 begin
   Buffer[Leng] := #0;
   Result := Leng + 1;
 end;
 
-{----------------ClipBuffer.Create}
-constructor ClipBuffer.Create(Leng: integer);
+{----------------TClipBuffer.Create}
+constructor TClipBuffer.Create(Leng: integer);
 begin
   inherited Create(nil, 0);
   BufferLeng := Leng;
   Getmem(Buffer, BufferLeng * 2);
 end;
 
-destructor ClipBuffer.Destroy;
+destructor TClipBuffer.Destroy;
 begin
   if Assigned(Buffer) then FreeMem(Buffer);
   inherited Destroy;
 end;
 
-procedure ClipBuffer.CopyToClipboard;
+procedure TClipBuffer.CopyToClipboard;
 {Unicode clipboard routine courtesy Mike Lischke}
 var
   Data: THandle;
@@ -1524,7 +1541,7 @@ begin
   end;
 end;
 
-function ClipBuffer.Terminate: integer;
+function TClipBuffer.Terminate: integer;
 begin
   Buffer[Leng] := #0;
   Result := Leng + 1;
@@ -1745,7 +1762,7 @@ type
     Field: Byte;
     BackGroundColorIndex: byte;
     AspectRatio: byte;
-    end;
+  end;
   ColorArray = array[0..255] of RGB;
 
 var
@@ -1834,24 +1851,24 @@ var
   end;
 
 begin
-result := false;
-OldPosition := Stream.Position;
+  result := false;
+  OldPosition := Stream.Position;
 
-try
-   Stream.Position := 0;
-   Stream.Read(Ar, 8);
+  try
+    Stream.Position := 0;
+    Stream.Read(Ar, 8);
 
-   if KindOfImage(@Ar) <> Png then
-     begin
-     Stream.Position := OldPosition;
-     Exit;
-     end;
+    if KindOfImage(@Ar) <> Png then
+    begin
+      Stream.Position := OldPosition;
+      Exit;
+    end;
 
-   Stream.Position := 8; {past the PNG Signature}
-   done := False;
+    Stream.Position := 8; {past the PNG Signature}
+    done := False;
 
-{Read Chunks}
-   repeat
+   {Read Chunks}
+    repeat
       Stream.Read(dataSize, 4);
       dataSize := IntSwap(dataSize);
       Stream.Read(chunkType, 4);
@@ -1872,37 +1889,37 @@ try
          Stream.Read(CRC, 4); {read it in case we need to read more}
       end
       else if chunkTypeStr =  'tRNS' then
-        begin
+      begin
         if Header.colorType = 3 then
-          begin
+        begin
           {there can be DataSize transparent or partial transparent colors.  We only accept one fully transparent color}
-          Stream.Read(Alpha, DataSize);   
+          Stream.Read(Alpha, DataSize);
           for I := 0 to DataSize -1 do
-            if Alpha[I] = 0 then  {0 means full transparency}   
-              begin
+            if Alpha[I] = 0 then  {0 means full transparency}
+            begin
               with pngPalette[I] do
                 Color := integer(Blue) shl 16 or integer(Green) shl 8 or integer(Red);
               Result := True;
               break;
-              end;
-          end
-        else  {has to have been 2}
-          begin
-            {for now I am ignoring this since I can't make one}
-          end;
-        done := true; {got everything we need at this point}
+            end;
         end
+        else  {has to have been 2}
+        begin
+          {for now I am ignoring this since I can't make one}
+        end;
+        done := true; {got everything we need at this point}
+      end
       else if chunkTypeStr = 'IDAT' then
          done := True {if this chunk is hit there is no tRNS}
       else
          Stream.Position := Stream.Position + dataSize + 4; {additional 4 for the CRC}
-      if Stream.Position >= Stream.Size then  
-         Done := True;
-   until done = True;
-except
-   end;
+      if Stream.Position >= Stream.Size then
+         done := True;
+    until done
+  except
+  end;
 
-Stream.Position := OldPosition;
+  Stream.Position := OldPosition;
 end;
 
 {$A+}

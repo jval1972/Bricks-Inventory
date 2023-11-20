@@ -21573,7 +21573,6 @@ end;
 
 procedure TMainForm.ShowBricklinkandRebrickablenameconflicts;
 var
-  i: integer;
   cmolds: TStringList;
   cmolds2: TStringList;
   cmolds3: TStringList;

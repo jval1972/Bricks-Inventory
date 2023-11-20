@@ -252,7 +252,7 @@ begin
     PieceToImage(f.Image1, part, color);
     if pci <> nil then
     begin
-      oldpreflocation := pci.prefferedlocation;
+      oldpreflocation := pci.preferedlocation;
       f.PrefLocationEdit.Text := oldpreflocation;
 
       oldtags := TStringList.Create;
@@ -343,7 +343,7 @@ begin
           if strupper(strtrim(f.NewNameEdit.Text)) <> strupper(strtrim(initnewname)) then
             db.SetNewPieceName(part, strtrim(f.NewNameEdit.Text));
           if strupper(strtrim(f.PrefLocationEdit.Text)) <> strupper(strtrim(oldpreflocation)) then
-            db.SetPrefferedLocation(part, color, strtrim(f.PrefLocationEdit.Text));
+            db.SetPreferedLocation(part, color, strtrim(f.PrefLocationEdit.Text));
 
           newnum := atoi(f.NumPiecesEdit.Text);
           if editingset then

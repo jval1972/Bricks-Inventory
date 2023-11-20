@@ -727,7 +727,7 @@ type
     property mustfreeparecav: boolean read GetMustFreeParecAV write SetMustFreeParecAV;
   public
     {$IFNDEF CRAWLER}
-    prefferedlocation: string;
+    preferedlocation: string;
     {$ENDIF}
     constructor Create(const apiece: string; const acolor: integer); virtual;
     destructor Destroy; override;
@@ -979,7 +979,7 @@ type
     procedure InitTags;
     procedure InitRelationShips;
     procedure InitLugBulksPieces;
-    procedure InitPrefferedLocations;
+    procedure InitPreferedLocations;
     {$ENDIF}
     procedure InitPieces;
     procedure InitPiecesAlias;
@@ -1098,7 +1098,7 @@ type
     function InventoryForAllStorageBins: TBrickInventory;
     function InventoriesForAllStorageBins: TStringList;
     procedure SetPieceStorage(const piece: string; const color: integer; const st: TStringList);
-    function SetPrefferedLocation(const part: string; const color: Integer; const location: string): boolean;
+    function SetPreferedLocation(const part: string; const color: Integer; const location: string): boolean;
     {$ENDIF}
     {$IFNDEF CRAWLER}
     function BaseMold(const pcs: string): string;
@@ -9177,9 +9177,9 @@ begin
 end;
 
 const
-  S_PREFFEREDLOC_TITLE = 'Part,Color,Location';
+  S_PREFEREDLOC_TITLE = 'Part,Color,Location';
 
-procedure TSetsDatabase.InitPrefferedLocations;
+procedure TSetsDatabase.InitPreferedLocations;
 var
   fname: string;
   i: integer;
@@ -9189,22 +9189,22 @@ var
   color: integer;
   progressstring: string;
 begin
-  fname := basedefault + 'db\db_prefferedlocations.txt';
+  fname := basedefault + 'db\db_preferedlocations.txt';
   if not fexists(fname) then
     Exit;
 
-  progressstring := 'Initializing preffered locations...';
+  progressstring := 'Initializing prefered locations...';
   if Assigned(progressfunc) then
     progressfunc(progressstring, 0.0);
 
   sL := TStringList.Create;
   sL2 := TStringList.Create;
-  sL2.Add(S_PREFFEREDLOC_TITLE);
+  sL2.Add(S_PREFEREDLOC_TITLE);
 
   try
     sL.LoadFromFile(fname);
     if sL.Count > 1 then
-      if sL.Strings[0] = S_PREFFEREDLOC_TITLE then
+      if sL.Strings[0] = S_PREFEREDLOC_TITLE then
         for i := 1 to sL.Count - 1 do
         begin
           splitstring(sL.Strings[i], part, scolor, location, ',');
@@ -9228,7 +9228,7 @@ begin
           pci := PieceColorInfo(part, color);
           if pci <> nil then
           begin
-            pci.prefferedlocation := location;
+            pci.preferedlocation := location;
             if location <> '' then
               sL2.Add(part + ',' + itoa(color) + ',' + location);
           end;
@@ -9251,7 +9251,7 @@ begin
     progressfunc(progressstring, 1.0);
 end;
 
-function TSetsDatabase.SetPrefferedLocation(const part: string; const color: Integer; const location: string): boolean;
+function TSetsDatabase.SetPreferedLocation(const part: string; const color: Integer; const location: string): boolean;
 var
   fname: string;
   i: integer;
@@ -9267,19 +9267,19 @@ begin
 
   Result := True;
 
-  if pci.prefferedlocation = location then
+  if pci.preferedlocation = location then
     Exit;
 
-  pci.prefferedlocation := location;
+  pci.preferedlocation := location;
 
   sL := TStringList.Create;
 
-  fname := basedefault + 'db\db_prefferedlocations.txt';
+  fname := basedefault + 'db\db_preferedlocations.txt';
   if not fexists(fname) then
   begin
     if location <> '' then
     begin
-      sL.Add(S_PREFFEREDLOC_TITLE);
+      sL.Add(S_PREFEREDLOC_TITLE);
       sL.Add(part + ',' + itoa(color) + ',' + location);
       sL.SaveToFile(fname);
     end;
@@ -18770,7 +18770,7 @@ begin
   flastinternetupdate := Now - 1.0;
   fflags := 0;
   {$IFNDEF CRAWLER}
-  prefferedlocation := '';
+  preferedlocation := '';
   {$ENDIF}
   fsparttype := ' ';
   {$IFNDEF CRAWLER}
@@ -20363,7 +20363,7 @@ begin
   InitRelationShips;
   InitTags;
   InitLugBulksPieces;
-  InitPrefferedLocations;
+  InitPreferedLocations;
   {$ENDIF}
 
   Result := True;

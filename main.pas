@@ -4992,11 +4992,11 @@ var
   begin
     if pass = 0 then
     begin
-      if Apci.prefferedlocation <> '' then
+      if Apci.preferedlocation <> '' then
       begin
-        if Pos1('LUGBULK ', Apci.prefferedlocation) then
+        if Pos1('LUGBULK ', Apci.preferedlocation) then
         begin
-          splitstring(Apci.prefferedlocation, s1, s2, ' ');
+          splitstring(Apci.preferedlocation, s1, s2, ' ');
           s2 := strtrim(s2);
           Asid := 'LUGBULK-' + s2;
           Ainv := db.GetSetInventory(Asid);
@@ -5010,9 +5010,9 @@ var
             end;
           end;
         end
-        else if Pos1('ORDER ', Apci.prefferedlocation) then
+        else if Pos1('ORDER ', Apci.preferedlocation) then
         begin
-          splitstring(Apci.prefferedlocation, s1, s2, ' ');
+          splitstring(Apci.preferedlocation, s1, s2, ' ');
           s2 := strtrim(s2);
           oid := atoi(s2);
           Aoinf := orders.ItemInfo(Apci.piece, Apci.color);
@@ -5227,7 +5227,7 @@ begin
   dbstorageinvs := db.InventoriesForAllStorageBins;
   dbstorageinvs.Sorted := True;
 
-  // Pass 0 - Preffered locations
+  // Pass 0 - Prefered locations
   for i := 0 to inv.numlooseparts - 1 do
   begin
     pci := db.PieceColorInfo(@inv.looseparts[i]);

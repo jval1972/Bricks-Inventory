@@ -685,7 +685,7 @@ type
     {$ENDIF}
     fcode: string;
     {$IFNDEF CRAWLER}
-    ffirstsetyear, flastsetyear, fyear: integer;
+    fyearinfo: packed array[0..2] of byte;
     flugbulkflags: integer;
     {$ENDIF}
     fparttype: integer;
@@ -695,7 +695,14 @@ type
     function CheckPGAV: boolean;
   protected
     {$IFNDEF CRAWLER}
+    function LegoYearToInternalYear(const y: integer): byte;
+    function InternalYearToLegoYear(const b: byte): integer;
     procedure SetYear(const y: integer);
+    function GetYear: Integer;
+    procedure SetFirstYear(const y: integer);
+    function GetFirstYear: Integer;
+    procedure SetLastYear(const y: integer);
+    function GetLastYear: Integer;
     {$ENDIF}
     procedure SetSPartType(const t: char);
     function GetNeedsSave: Boolean;
@@ -811,9 +818,9 @@ type
     {$ENDIF}
     property cacheread: boolean read GetCacheRead write SetCacheRead;
     {$IFNDEF CRAWLER}
-    property firstsetyear: integer read ffirstsetyear;
-    property lastsetyear: integer read flastsetyear;
-    property year: integer read fyear write SetYear;
+    property firstsetyear: integer read GetFirstYear write SetFirstYear;
+    property lastsetyear: integer read GetLastYear write SetLastYear;
+    property year: integer read GetYear write SetYear;
     property canedityear: boolean read GetCanEditYear write SetCanEditYear;
     {$ENDIF}
     function invalid: boolean;
@@ -18810,9 +18817,9 @@ begin
   fdate := Now;
   {$IFNDEF CRAWLER}
   canedityear := False;
-  ffirstsetyear := 9999;
-  flastsetyear := 0;
-  fyear := 0;
+  firstsetyear := MAX_ACCEPTABLE_YEAR;
+  lastsetyear := 0;
+  year := 0;
   {$ENDIF}
   inherited Create;
 end;
@@ -19228,23 +19235,23 @@ begin
 {  if db.IsMoc(setid) then
     Exit;}
   if y = -1 then
-    yyyy := fyear
+    yyyy := year
   else
     yyyy := y;
   if (yyyy < MIN_ACCEPRABLE_YEAR) or (yyyy > MAX_ACCEPTABLE_YEAR) then
     Exit;
 
-  if yyyy < ffirstsetyear then
+  if yyyy < firstsetyear then
   begin
-    ffirstsetyear := yyyy;
-    if (ffirstsetyear < fyear) or (fyear = 0) then
-      fyear := yyyy;
+    firstsetyear := yyyy;
+    if (yyyy < year) or (year = 0) then
+      year := yyyy;
   end;
-  if yyyy > flastsetyear then
+  if yyyy > lastsetyear then
   begin
-    flastsetyear := yyyy;
-    if fyear = 0 then
-      fyear := flastsetyear;
+    lastsetyear := yyyy;
+    if year = 0 then
+      year := lastsetyear;
   end;
 end;
 {$ENDIF}
@@ -19262,17 +19269,17 @@ begin
     yyyy := y;
   if (yyyy < MIN_ACCEPRABLE_YEAR) or (yyyy > MAX_ACCEPTABLE_YEAR) then
     Exit;
-  if yyyy < ffirstsetyear then
+  if yyyy < firstsetyear then
   begin
-    ffirstsetyear := yyyy;
-    if (ffirstsetyear < fyear) or (fyear = 0) then
-      fyear := yyyy;
+    firstsetyear := yyyy;
+    if (yyyy < year) or (year = 0) then
+      year := yyyy;
   end;
-  if yyyy > flastsetyear then
+  if yyyy > lastsetyear then
   begin
-    flastsetyear := yyyy;
-    if fyear = 0 then
-      fyear := flastsetyear;
+    lastsetyear := yyyy;
+    if year = 0 then
+      year := lastsetyear;
   end;
 end;
 {$ENDIF}
@@ -19427,15 +19434,68 @@ end;
 {$ENDIF}
 
 {$IFNDEF CRAWLER}
+function TPieceColorInfo.LegoYearToInternalYear(const y: integer): byte;
+begin
+  if (y < MIN_ACCEPRABLE_YEAR) or (y > MAX_ACCEPTABLE_YEAR) then
+    Result := 0
+  else
+    Result := y - MIN_ACCEPRABLE_YEAR + 1;
+end;
+
+function TPieceColorInfo.InternalYearToLegoYear(const b: byte): integer;
+begin
+  if b = 0 then
+    Result := 0
+  else
+  begin
+    Result := MIN_ACCEPRABLE_YEAR + b - 1;
+    if Result > MAX_ACCEPTABLE_YEAR then
+      Result := 0;
+  end;
+end;
+
 procedure TPieceColorInfo.SetYear(const y: integer);
+var
+  ffirstsetyear: integer;
 begin
   if (y < MIN_ACCEPRABLE_YEAR) or (y > MAX_ACCEPTABLE_YEAR) then
     Exit;
+  ffirstsetyear := firstsetyear;
   if (y > ffirstsetyear) and (ffirstsetyear >= MIN_ACCEPRABLE_YEAR) and (ffirstsetyear <= MAX_ACCEPTABLE_YEAR) then
-    fyear := ffirstsetyear
+    fyearinfo[0] := LegoYearToInternalYear(ffirstsetyear)
   else
-    fyear := y;
+    fyearinfo[0] := LegoYearToInternalYear(y);
 end;
+
+function TPieceColorInfo.GetYear: Integer;
+begin
+  Result := InternalYearToLegoYear(fyearinfo[0]);
+end;
+
+procedure TPieceColorInfo.SetFirstYear(const y: integer);
+begin
+  if (y < MIN_ACCEPRABLE_YEAR) or (y > MAX_ACCEPTABLE_YEAR) then
+    Exit;
+  fyearinfo[1] := LegoYearToInternalYear(y);
+end;
+
+function TPieceColorInfo.GetFirstYear: Integer;
+begin
+  Result := InternalYearToLegoYear(fyearinfo[1]);
+end;
+
+procedure TPieceColorInfo.SetLastYear(const y: integer);
+begin
+  if (y < MIN_ACCEPRABLE_YEAR) or (y > MAX_ACCEPTABLE_YEAR) then
+    Exit;
+  fyearinfo[2] := LegoYearToInternalYear(y);
+end;
+
+function TPieceColorInfo.GetLastYear: Integer;
+begin
+  Result := InternalYearToLegoYear(fyearinfo[2]);
+end;
+
 {$ENDIF}
 
 procedure TPieceColorInfo.UpdateSetReference(const aset: string; const numpieces: integer);
@@ -19812,7 +19872,7 @@ begin
     else
     begin
       desc := db.PieceDesc(fpiece);
-      ayear := fyear;
+      ayear := year;
       if pi.category = CATEGORYCUSTOMMINIFIGS then
         customstr := '1';
     end;

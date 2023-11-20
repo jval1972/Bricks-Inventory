@@ -20671,7 +20671,7 @@ procedure TSetsDatabase.IdleEventHandler(Sender: TObject; var Done: Boolean);
     if compressnamerover > fpieces.Count then
       compressnamerover := fpieces.Count;
     for i := start to compressnamerover - 1 do
-      (fpieces.Objects[i] as TPIeceInfo).DescCompressEx;
+      (fpieces.Objects[i] as TPieceInfo).DescCompressEx;
     Result := True;
   end;
 

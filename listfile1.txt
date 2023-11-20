@@ -20,8 +20,12 @@ E:\BrickInventory\bin\db\db_pieces_bl.txt
 E:\BrickInventory\bin\db\db_pieces_categories.txt
 E:\BrickInventory\bin\db\db_pieces_inventories.txt
 E:\BrickInventory\bin\db\db_pieces_weight.txt
+E:\BrickInventory\bin\db\db_pieces_years.txt
+E:\BrickInventory\bin\db\db_relationships.txt
 E:\BrickInventory\bin\db\db_sets.txt
 E:\BrickInventory\bin\db\db_set_assets.txt
 E:\BrickInventory\bin\db\db_set_pieces.txt
 E:\BrickInventory\bin\db\parts.db
-E:\BrickInventory\bin\db\sets.db
+E:\BrickInventory\bin\db\sets1.db
+E:\BrickInventory\bin\db\sets2.db
+E:\BrickInventory\bin\db\sets3.db

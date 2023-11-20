@@ -19311,7 +19311,7 @@ procedure TMainForm.IdleEventHandler(Sender: TObject; var Done: Boolean);
 begin
   if activebits > 0 then
     activebits := activebits - 1000;
-  Done := False;
+  Done := True;
 end;
 
 function TMainForm.MakeThumbnailImageEx(const pcs1: string; const typof: char; const ncolor: integer = -1000): string;

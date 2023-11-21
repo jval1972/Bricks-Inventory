@@ -64,7 +64,7 @@ interface
 
 uses
   SysUtils, WinTypes, Windows, WinProcs, Messages, Classes, Graphics, Controls,
-  Forms, Dialogs, StdCtrls, ExtCtrls, HTMLUn2, HTMLGif2, mmSystem,
+  Forms, Dialogs, StdCtrls, ExtCtrls, HTMLUn2, HTMLGif2, mmSystem, bi_delphi,
   {$ifdef UseTNT}
   TntStdCtrls,
   {$endif}
@@ -1763,7 +1763,8 @@ begin
         UseMapSy:
         begin
           UseMap := True;
-          S := Trim(Uppercase(Name));
+          S := Name;
+          trimprocU(S);
           if (Length(S) > 1) and (S[1] = '#') then
             System.Delete(S, 1, 1);
           MapName := S;
@@ -1786,7 +1787,8 @@ begin
           BorderSize := IntMin(IntMax(0, Value), 10);
         end;
         TranspSy: Transparent := LLCorner;
-        HeightSy: if System.Pos('%', Name) > 0 then
+        HeightSy:
+          if CharPos('%', Name) > 0 then
           begin
             if (Value >= 0) and (Value <= 100) then
             begin
@@ -1796,7 +1798,8 @@ begin
           end
           else
             SpecHeight := Value;
-        WidthSy: if System.Pos('%', Name) > 0 then
+        WidthSy:
+          if CharPos('%', Name) > 0 then
           begin
             if (Value >= 0) and (Value <= 100) then
             begin
@@ -1888,7 +1891,7 @@ begin
     if MargArray[Width] = Auto then
       SpecWidth := -1
     else if (VarType(MargArrayO[Width]) = varString) and
-      (System.Pos('%', MargArrayO[Width]) > 0) then
+      (CharPos('%', MargArrayO[Width]) > 0) then
     begin
       PercentWidth := True;
       SpecWidth := MulDiv(MargArray[Width], 100, DummyHtWd);
@@ -1902,7 +1905,7 @@ begin
     if MargArray[Height] = Auto then
       SpecHeight := -1
     else if (VarType(MargArrayO[Height]) = varString) and
-      (System.Pos('%', MargArrayO[Height]) > 0) then
+      (CharPos('%', MargArrayO[Height]) > 0) then
     begin
       PercentHeight := True;
       SpecHeight := MulDiv(MargArray[Height], 100, DummyHtWd);
@@ -2001,11 +2004,9 @@ begin
               CurrentFrame := 3
             else
               CurrentFrame := 2;
-          else
-          begin
-            Animate := True;
-            ParentSectionList.AGifList.Add(Image);
-          end;
+        else
+          Animate := True;
+          ParentSectionList.AGifList.Add(Image);
         end
       else
       begin
@@ -3051,7 +3052,7 @@ begin
   EmSize := Prop.EmSize;
   ExSize := Prop.ExSize;
   PercentWidth := (VarType(MargArrayO[Width]) = VarString) and
-    (System.Pos('%', MargArrayO[Width]) > 0);
+    (CharPos('%', MargArrayO[Width]) > 0);
   ConvInlineMargArray(MargArrayO, 100, 200, EmSize, ExSize, MargArray);
 
   VSpaceT := 1;
@@ -3275,7 +3276,7 @@ begin
       EditSize := T.Value
     else
     begin    {see if it's comma delimited list}
-      I := IntMin(System.Pos(',', T.Name), System.Pos(' ', T.Name));
+      I := IntMin(CharPos(',', T.Name), CharPos(' ', T.Name));
       if I > 1 then
         EditSize := StrToIntDef(copy(T.Name, 1, I - 1), 20);
     end;
@@ -4365,7 +4366,7 @@ begin
           end;
         end
         else if (Tag = 'li') and TopAuto and
-          ((Pos('ul.', TagClass) = 1) or (Pos('ol.', TagClass) = 1)) then
+          (Pos1('ul.', TagClass) or Pos1('ol.', TagClass)) then
           MargArray[MarginTop] := 0;  {removes space from nested lists}
       end;
     end;
@@ -4574,8 +4575,7 @@ begin
   if not DisplayNone then
   begin
     MyCell.CopyToClipboard;
-    if (Pos('p.', TagClass) = 1) and (ParentSectionList.SelE >
-      MyCell.StartCurs + MyCell.Len) then
+    if Pos1('p.', TagClass) and (ParentSectionList.SelE > MyCell.StartCurs + MyCell.Len) then
       ParentSectionList.CB.AddTextCR('', 0);
   end;
 end;
@@ -5714,7 +5714,7 @@ begin
 
   {need to see if width is defined in style}
   Percent := (VarType(MargArrayO[Width]) = VarString) and
-    (Pos('%', MargArrayO[Width]) > 0);
+    (CharPos('%', MargArrayO[Width]) > 0);
   ConvMargArray(MargArrayO, 100, 0, EmSize, ExSize, BorderStyle, AutoCount, MargArray);
   if MargArray[Width] > 0 then
   begin
@@ -6837,7 +6837,8 @@ begin
   AMask := nil;
   Error := False;
   Reformat := False;
-  UName := Trim(Uppercase(Src));
+  UName := Src;
+  trimprocU(UName);
   I := BitmapList.IndexOf(UName);  {first see if the bitmap is already loaded}
   J := MissingImages.IndexOf(UName); {see if it's in missing image list}
   if (I = -1) and (J >= 0) then
@@ -6971,7 +6972,8 @@ begin
   FromCache := False;
   if BMName <> '' then
   begin
-    UName := Trim(Uppercase(BMName));
+    UName := BMName;
+    trimprocU(UName);
     I := BitmapList.IndexOf(UName);  {first see if the bitmap is already loaded}
     if I > -1 then
     begin         {yes, handle the case where the image is already loaded}
@@ -7344,7 +7346,7 @@ begin
     EmSize := Prop.EmSize;
     ExSize := Prop.ExSize;
     Percent := (VarType(MargArrayO[Width]) = VarString) and
-      (Pos('%', MargArrayO[Width]) > 0);
+      (CharPos('%', MargArrayO[Width]) > 0);
     ConvMargArray(MargArrayO, 100, 0, EmSize, ExSize, bssNone, AutoCount, MargArray);
     if MargArray[Width] > 0 then
       if Percent then
@@ -12411,7 +12413,7 @@ begin
       with TAttribute(L[I]) do
         case Which of
           HeightSy:
-            if System.Pos('%', Name) = 0 then
+            if CharPos('%', Name) = 0 then
             begin
               SpecHeight := Intmax(1, Value); {spec ht of 0 becomes 1}
               Height := SpecHeight;   {so panels ht will be set for OnPanelCreate}
@@ -12422,7 +12424,7 @@ begin
               PercentHeight := True;
             end;
           WidthSy:
-            if System.Pos('%', Name) = 0 then
+            if CharPos('%', Name) = 0 then
             begin
               SpecWidth := Value;
               Width := Value;

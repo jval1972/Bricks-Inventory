@@ -130,7 +130,7 @@ begin
   if (Pos(UpperCase('catalogPriceGuide.asp'), UpperCase(src)) > 0) or (Pos(UpperCase('catalogPG.asp'), UpperCase(src)) > 0) then
   begin
     splitstring(src, src1, src2, '?');
-    src2 := Trim(src2);
+    trimproc(src2);
     if Length(src2) > 10 then
       if Pos(src2[1], 'PSMBGCIO') > 0 then
         if src2[2] = '=' then

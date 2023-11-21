@@ -263,7 +263,7 @@ uses
   {$ifdef Delphi6_Plus}
   Variants,
   {$endif}
-  htmlsubs, htmlun2, readhtml;
+  htmlsubs, htmlun2, readhtml, bi_delphi;
 
 var
   DefPointSize: double;
@@ -336,7 +336,7 @@ begin
     if I > 0 then
     begin
       S := System.Copy(S, 5, Length(S));
-      I := Pos(')', S);
+      I := CharPos(')', S);
       if I > 0 then
         S := System.Copy(S, 1, I - 1);
       if Length(S) > 2 then
@@ -630,7 +630,7 @@ begin
   else
   begin
     Tmp := Trim(Props[BackgroundPosition]);
-    N := Pos(' ', Tmp);
+    N := CharPos(' ', Tmp);
     if N > 0 then
     begin
       S[1] := System.Copy(Tmp, 1, N - 1);
@@ -649,7 +649,7 @@ begin
       P[XY].PosType := pDim;
       if S[I] = 'center' then
         P[XY].PosType := pCenter
-      else if Pos('%', S[I]) > 0 then
+      else if CharPos('%', S[I]) > 0 then
         P[XY].PosType := pPercent
       else if S[I] = 'left' then
       begin
@@ -877,7 +877,7 @@ begin
   PC := False;
   if VarType(Props[TextIndent]) = varString then
   begin
-    I := Pos('%', Props[TextIndent]);
+    I := CharPos('%', Props[TextIndent]);
     if I > 0 then
     begin
       PC := True;  {return value in percent}
@@ -1069,7 +1069,7 @@ begin
         if VarType(VM[I]) = VarString then
         begin
           M[I] := LengthConv(VM[I], False, Base, EmSize, ExSize, 0); {Auto will be 0}
-          if (I = Height) and (Pos('%', VM[I]) > 0) then
+          if (I = Height) and (CharPos('%', VM[I]) > 0) then
             {include border in % heights}
             M[I] := M[I] - M[BorderTopWidth] - M[BorderBottomWidth] -
               M[PaddingTop] - M[PaddingBottom];
@@ -1258,7 +1258,7 @@ var
   I: integer;
 begin
   BClass := Trim(AClass);
-  I := Pos('.', BClass);
+  I := CharPos('.', BClass);
   if I <= 0 then
     CombineX(Styles, Tag, BClass, AnID, PSeudo, '', AProp)  {0 or 1 Class}
   else
@@ -1267,8 +1267,8 @@ begin
       S := System.Copy(BClass, 1, I - 1);
       CombineX(Styles, Tag, S, AnID, PSeudo, '', nil);
       Delete(BClass, 1, I);
-      BClass := Trim(BClass);
-      I := Pos('.', BClass);
+      trimproc(BClass);
+      I := CharPos('.', BClass);
     until I <= 0;
     CombineX(Styles, Tag, BClass, AnID, PSeudo, '', AProp);
     CombineX(Styles, Tag, AClass, AnID, PSeudo, '', AProp);
@@ -1392,14 +1392,14 @@ var
       I, J: integer;
     begin
       N := 1;   {N is number of selectors in contextual string}
-      I := Pos(' ', S);
+      I := CharPos(' ', S);
       while (I > 0) and (N < 10) do
       begin
         A[N].Tg := System.Copy(S, 1, I - 1);
         Delete(S, 1, I);
-        S := Trim(S);
+        trimproc(S);
         Inc(N);
-        I := Pos(' ', S);
+        I := CharPos(' ', S);
       end;
       A[N].Tg := S;
       if (N >= 2) and (Length(A[2].Tg) > 0) then
@@ -1408,12 +1408,12 @@ var
         until (length(A[2].Tg) = 0) or not (A[2].Tg[1] in ['0'..'9']);
       for I := 1 to N do
       begin
-        J := Pos('>', A[I].Tg);
+        J := CharPos('>', A[I].Tg);
         if I > 1 then
           A[I - 1].gt := J > 0;
         if J > 0 then
           Delete(A[I].Tg, J, 1);
-        J := Pos(':', A[I].Tg);
+        J := CharPos(':', A[I].Tg);
         if J > 0 then
         begin
           A[I].PS := System.Copy(A[I].Tg, J + 1, Length(A[I].Tg));
@@ -1421,7 +1421,7 @@ var
         end
         else
           A[I].PS := '';
-        J := Pos('#', A[I].Tg);
+        J := CharPos('#', A[I].Tg);
         if J > 0 then
         begin
           A[I].ID := System.Copy(A[I].Tg, J + 1, Length(A[I].Tg));
@@ -1429,7 +1429,7 @@ var
         end
         else
           A[I].ID := '';
-        J := Pos('.', A[I].Tg);
+        J := CharPos('.', A[I].Tg);
         if J > 0 then
         begin
           A[I].Cl := System.Copy(A[I].Tg, J + 1, Length(A[I].Tg));
@@ -1453,12 +1453,12 @@ var
       begin
         Result := TStringList.Create;
         Result.Sorted := True;
-        I := Pos('.', S);
+        I := CharPos('.', S);
         while I >= 1 do
         begin
           Result.Add(System.Copy(S, 1, I - 1));
           Delete(S, 1, I);
-          I := Pos('.', S);
+          I := CharPos('.', S);
         end;
         Result.Add(S);
       end;
@@ -1603,12 +1603,12 @@ begin
     Inc(IX);
 
   Styles.Find('.' + AClass, IX);    //place to start
-  while (IX < Styles.Count) and (Pos('.' + AClass, Styles[IX]) = 1) and
+  while (IX < Styles.Count) and Pos1('.' + AClass, Styles[IX]) and
     CheckForContextual(IX) do
     Inc(IX);
 
   Styles.Find(':' + PSeudo, IX);    //place to start
-  while (IX < Styles.Count) and (Pos(':' + PSeudo, Styles[IX]) = 1) and
+  while (IX < Styles.Count) and Pos1(':' + PSeudo, Styles[IX]) and
     CheckForContextual(IX) do
     Inc(IX);
 
@@ -1718,7 +1718,7 @@ var
   var
     I: integer;
   begin
-    I := Pos(',', S);        {read up to the comma}
+    I := CharPos(',', S);        {read up to the comma}
     if I > 0 then
     begin
       Result := Trim(System.Copy(S, 1, I - 1));
@@ -1773,7 +1773,7 @@ var
   var
     I: integer;
   begin
-    I := Pos(',', S);        {read up to the comma}
+    I := CharPos(',', S);        {read up to the comma}
     if I > 0 then
     begin
       Result := Trim(System.Copy(S, 1, I - 1));
@@ -2554,22 +2554,22 @@ var
     I, J: integer;
     K: Colors;
   begin
-    I := Pos('(', S);
-    J := Pos(')', S);
+    I := CharPos('(', S);
+    J := CharPos(')', S);
     if (I > 0) and (J > 0) then
     begin
       S := copy(S, 1, J - 1);
       S := Trim(Copy(S, I + 1, 255));
       for K := Red to Green do
       begin
-        I := Pos(',', S);
+        I := CharPos(',', S);
         A[K] := Trim(copy(S, 1, I - 1));
         S := Trim(Copy(S, I + 1, 255));
       end;
       A[Blue] := S;
       for K := Red to Blue do
       begin
-        I := Pos('%', A[K]);
+        I := CharPos('%', A[K]);
         if I > 0 then
         begin
           Delete(A[K], I, 1);
@@ -2596,7 +2596,7 @@ begin
     Result := False;
     Exit;
   end;
-  S := Lowercase(Trim(S));
+  trimprocL(S);
   if S = LastS then
   begin {inquiries often come in pairs, this saves some recomputing}
     Color := LastColor;
@@ -2619,19 +2619,19 @@ begin
   else
   begin
     try
-      I := Pos('#', S);
+      I := CharPos('#', S);
       if I > 0 then
         while I > 0 do  {sometimes multiple ##}
         begin
           Delete(S, 1, I);
-          I := Pos('#', S);
+          I := CharPos('#', S);
         end
       else if NeedPound then
       begin
         Result := False;
         Exit;
       end;
-      S := Trim(S);
+      trimproc(S);
       if Length(S) <= 3 then
         for I := Length(S) downto 1 do
           Insert(S[I], S, I);     {double each character}
@@ -2704,7 +2704,7 @@ var
 begin
   PPI := Screen.PixelsPerInch;
   Val(Str, V, I);
-  J := Pos('e', Str);   {'e' would be legal for Val but not for us}
+  J := CharPos('e', Str);   {'e' would be legal for Val but not for us}
   if (J <> 0) and (I > J) then
     I := J;
   if I > 0 then
@@ -2775,7 +2775,7 @@ var
 begin
   PPI := Screen.PixelsPerInch;
   Val(Str, V, I);
-  J := Pos('e', Str);   {'e' would be legal for Val but not for us}
+  J := CharPos('e', Str);   {'e' would be legal for Val but not for us}
   if (J <> 0) and (I > J) then
     I := J;
   if I > 0 then

@@ -128,8 +128,8 @@ function PieceColorNotesFName(piece, color: string): string;
 var
   cpath: string;
 begin
-  piece := Trim(piece);
-  color := Trim(color);
+  trimproc(piece);
+  trimproc(color);
 
   Result := basedefault + 'notes\' + piece;
 
@@ -143,7 +143,7 @@ end;
 
 function PieceNotesFName(piece: string): string;
 begin
-  piece := Trim(piece);
+  trimproc(piece);
 
   Result := basedefault + 'notes\' + piece;
 
@@ -159,7 +159,7 @@ begin
 
   Screen.Cursor := crHourglass;
 
-  piece := Trim(piece);
+  trimproc(piece);
 
   sdir := basedefault + 'notes';
   if not DirectoryExists(sdir) then
@@ -191,7 +191,7 @@ begin
 
   Screen.Cursor := crHourglass;
 
-  piece := Trim(piece);
+  trimproc(piece);
 
   sdir := basedefault + 'notes';
   if not DirectoryExists(sdir) then
@@ -451,11 +451,9 @@ procedure TEditHtmlForm.ViewerHotSpotClick(Sender: TObject; const SRC: string;
   var Handled: boolean);
 {HotspotClick handler}
 var
-  I: integer;
   ID: string;
 begin
-  I := Pos('IDEXPAND_', Uppercase(SRC));
-  if I = 1 then
+  if Pos1('IDEXPAND_', Uppercase(SRC)) then
   begin
     ID := Copy(SRC, 10, Length(SRC) - 9);
     Viewer.IDDisplay[ID + 'Plus'] := not Viewer.IDDisplay[ID + 'Plus'];

@@ -622,6 +622,9 @@ type
 
 implementation
 
+uses
+  bi_delphi;
+
 const
   Sequence: integer = 10;
 
@@ -671,7 +674,7 @@ procedure SplitURL(const Src: string; var FName, Dest: string);
 var
   I: integer;
 begin
-  I := Pos('#', Src);
+  I := CharPos('#', Src);
   if I >= 1 then
   begin
     Dest := System.Copy(Src, I, Length(Src) - I + 1);  {local destination}
@@ -720,7 +723,7 @@ begin
             if not Master.RequestEvent then
             begin
               S := HTMLServerToDos(S, Master.FrameViewer.ServerRoot);
-              if Pos(':', S) = 0 then
+              if CharPos(':', S) = 0 then
               begin
                 if ReadHTML.Base <> '' then   {a Base was found}
                   if CompareText(ReadHTML.Base, 'DosPath') = 0 then
@@ -2164,7 +2167,7 @@ begin
 
   if CompareText(Lowercase(HttpEq), 'refresh') = 0 then
   begin
-    I := Pos(';', Content);
+    I := CharPos(';', Content);
     if I > 0 then
       DelTime := StrToIntDef(copy(Content, 1, I - 1), -1)
     else
@@ -2973,7 +2976,7 @@ begin
     Handled := True;
 
     S := AnURL;
-    I := Pos('#', S);
+    I := CharPos('#', S);
     if I >= 1 then
     begin
       Dest := System.Copy(S, I, Length(S) - I + 1);  {local destination}
@@ -2982,7 +2985,7 @@ begin
     else
       Dest := '';    {no local destination}
 
-    I := Pos('?', S);      {remove any query string}
+    I := CharPos('?', S);      {remove any query string}
     if I >= 1 then
     begin
       Query := System.Copy(S, I, Length(S) - I + 1);
@@ -3128,7 +3131,7 @@ var
   Viewer: ThtmlViewer;
 begin
   Result := HTMLServerToDos(Trim(Filename), FServerRoot);
-  if (Pos(':', Result) <> 2) and (Pos('\\', Result) <> 1) then
+  if (CharPos(':', Result) <> 2) and (Pos('\\', Result) <> 1) then
   begin
     BasePath := GetActiveBase;
     if CompareText(BasePath, 'DosPath') = 0 then  {let Dos find the path}
@@ -3909,7 +3912,7 @@ end;
 
 procedure TFVBase.SetServerRoot(Value: string);
 begin
-  Value := Trim(Value);
+  trimproc(Value);
   if (Length(Value) >= 1) and (Value[Length(Value)] = '\') then
     SetLength(Value, Length(Value) - 1);
   FServerRoot := Value;

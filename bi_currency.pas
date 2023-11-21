@@ -293,7 +293,7 @@ begin
           begin
             s := StringReplace(s, '<Value>', '', [rfReplaceAll, rfIgnoreCase]);
             s := StringReplace(s, '</Value>', '', [rfReplaceAll, rfIgnoreCase]);
-            s := Trim(s);
+            trimproc(s);
             eur_value := atof(s);
           end;
         if eur_nominal < 0 then
@@ -301,7 +301,7 @@ begin
           begin
             s := StringReplace(s, '<Nominal>', '', [rfReplaceAll, rfIgnoreCase]);
             s := StringReplace(s, '</Nominal>', '', [rfReplaceAll, rfIgnoreCase]);
-            s := Trim(s);
+            trimproc(s);
             eur_nominal := atoi(s);
           end;
       end;
@@ -323,7 +323,7 @@ begin
             begin
               s := StringReplace(s, '<Value>', '', [rfReplaceAll, rfIgnoreCase]);
               s := StringReplace(s, '</Value>', '', [rfReplaceAll, rfIgnoreCase]);
-              s := Trim(s);
+              trimproc(s);
               cur_value := atof(s);
             end;
           if cur_nominal < 0 then
@@ -331,7 +331,7 @@ begin
             begin
               s := StringReplace(s, '<Nominal>', '', [rfReplaceAll, rfIgnoreCase]);
               s := StringReplace(s, '</Nominal>', '', [rfReplaceAll, rfIgnoreCase]);
-              s := Trim(s);
+              trimproc(s);
               cur_nominal := atoi(s);
             end;
         end;

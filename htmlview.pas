@@ -585,7 +585,7 @@ type
 implementation
 
 uses
-  Clipbrd, htmlgif2;
+  Clipbrd, htmlgif2, bi_delphi;
 
 const
   ScrollGap = 20;
@@ -4829,7 +4829,7 @@ end;
 
 procedure THTMLViewer.SetServerRoot(Value: string);
 begin
-  Value := Trim(Value);
+  trimproc(Value);
   if (Length(Value) >= 1) and (Value[Length(Value)] = '\') then
     SetLength(Value, Length(Value) - 1);
   FServerRoot := Value;

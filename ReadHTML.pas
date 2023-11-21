@@ -671,7 +671,7 @@ begin
   if Ch = Term then
     GetCh;  {pass termination char}
   S1 := Trim(S);
-  if Pos('%', S1) = Length(S1) then
+  if CharPos('%', S1) = Length(S1) then
     SetLength(S1, Length(S1) - 1);
 {see if S1 evaluates to a numerical value.  Note that something like
  S1 = 'e8196' can give exception because of the 'e'}
@@ -1242,7 +1242,7 @@ function TCellManager.FindColNum(Row: integer): integer;
 begin
   if Row = Count then
     Add(StringOfChar('o', Table.ColInfo.Count));
-  Result := Pos('o', Strings[Row]) - 1;
+  Result := CharPos('o', Strings[Row]) - 1;
 end;
 
 procedure TCellManager.AddCell(Row: integer; CellObj: TCellObj);
@@ -1254,7 +1254,7 @@ begin
   {make sure there's enough rows to handle any RowSpan for this cell}
   while Count < Row + CellObj.RowSpan do
     Add(StringOfChar('o', Table.ColInfo.Count));
-  I := Pos('o', Strings[Row]);    {where we want to enter this cell}
+  I := CharPos('o', Strings[Row]);    {where we want to enter this cell}
   K := I;
   if I > 0 then     {else it's beyond the ColInfo and we're not interested}
     for J := Row to Row + CellObj.RowSpan - 1 do   {do for all rows effected}
@@ -1299,7 +1299,7 @@ var
       with TAttribute(Attributes[I]) do
         case Which of
           WidthSy:
-            if Pos('%', Name) > 0 then
+            if CharPos('%', Name) > 0 then
             begin
               if (Value > 0) and (Value <= 100) then
                 Width := Value * 10;

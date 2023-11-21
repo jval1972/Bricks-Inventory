@@ -235,7 +235,7 @@ begin
     begin
       splitstring(str.Strings[i], spart, scolor, snum, ',');
       spart := fixpartname(spart);
-      scolor := Trim(scolor);
+      trimproc(scolor);
       if spart <> '' then
       begin
         if Pos1('BL ', spart) then
@@ -308,7 +308,7 @@ begin
     begin
       splitstring(str.Strings[i], spart, scolor, snum, sspare, ',');
       spart := fixpartname(spart);
-      scolor := Trim(scolor);
+      trimproc(scolor);
       if spart <> '' then
       begin
         if Pos1('BL ', spart) then
@@ -355,7 +355,7 @@ begin
     begin
       splitstring(str.Strings[i], spart, scolor, snum, scost, ',');
       spart := fixpartname(spart);
-      scolor := Trim(scolor);
+      trimproc(scolor);
       if spart <> '' then
       begin
         if Pos1('BL ', spart) then

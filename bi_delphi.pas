@@ -479,6 +479,12 @@ function strtrim(const S: string): string;
 
 function capitalizedstring(const S: string; const splitter: char = ' '): string;
 
+procedure trimproc(var s: string);
+
+procedure trimprocU(var s: string);
+
+procedure trimprocL(var s: string);
+
 procedure splitstring(const inp: string; var out1, out2: string; const splitter: char); overload;
 
 procedure splitstring2nd(const inp: string; var out1, out2: string; const splitter: char); overload;
@@ -2337,6 +2343,13 @@ var
   I, L: Integer;
 begin
   L := Length(S);
+  if L > 0 then
+    if S[1] <> ' ' then
+      if S[L] <> ' ' then
+      begin
+        Result := S;
+        Exit;
+      end;
   I := 1;
   while (I <= L) and (S[I] <= ' ') do Inc(I);
   if I > L then Result := '' else
@@ -2367,21 +2380,147 @@ begin
   end;
 end;
 
-procedure splitstring(const inp: string; var out1, out2: string; const splitter: char);
+procedure trimproc(var s: string);
 var
-  p: integer;
+  I, L: Integer;
+  len: integer;
+  j: integer;
 begin
-  p := Pos(splitter, inp);
-  if p = 0 then
-  begin
-    out1 := inp;
-    out2 := '';
-  end
+  len := Length(S);
+  L := len;
+  I := 1;
+  while (I <= L) and (S[I] <= ' ') do inc(I);
+  if I > L then
+    S := ''
   else
   begin
-    out1 := strtrim(Copy(inp, 1, p - 1));
-    out2 := strtrim(Copy(inp, p + 1, Length(inp) - p));
+    while S[L] <= ' ' do dec(L);
+    if (I = 1) and (L = len) then
+    else
+    begin
+      len := L - I + 1;
+      if i <> 1 then
+        for j := 1 to L do
+        begin
+          s[j] := s[i];
+          Inc(i);
+        end;
+      SetLength(s, len);
+    end;
   end;
+end;
+
+procedure trimprocU(var s: string);
+var
+  I, L: Integer;
+  len: integer;
+  j: integer;
+  Ch: char;
+begin
+  len := Length(S);
+  L := len;
+  I := 1;
+  while (I <= L) and (S[I] <= ' ') do inc(I);
+  if I > L then
+    S := ''
+  else
+  begin
+    while S[L] <= ' ' do dec(L);
+    if I = 1 then
+    begin
+      for j := 1 to L do
+      begin
+        Ch := s[j];
+        if (Ch >= 'a') and (Ch <= 'z') then
+          Dec(s[j], 32);
+      end;
+      SetLength(s, L);
+    end
+    else
+    begin
+      len := L - I + 1;
+      if i <> 1 then
+        for j := 1 to L do
+        begin
+          Ch := s[i];
+          if (Ch >= 'a') and (Ch <= 'z') then
+            Dec(Ch, 32);
+          s[j] := Ch;
+          Inc(i);
+        end;
+      SetLength(s, len);
+    end;
+  end;
+end;
+
+procedure trimprocL(var s: string);
+var
+  I, L: Integer;
+  len: integer;
+  j: integer;
+  Ch: char;
+begin
+  len := Length(S);
+  L := len;
+  I := 1;
+  while (I <= L) and (S[I] <= ' ') do inc(I);
+  if I > L then
+    S := ''
+  else
+  begin
+    while S[L] <= ' ' do dec(L);
+    if I = 1 then
+    begin
+      for j := 1 to L do
+      begin
+        Ch := s[j];
+        if (Ch >= 'A') and (Ch <= 'Z') then
+          Inc(s[j], 32);
+      end;
+      SetLength(s, L);
+    end
+    else
+    begin
+      len := L - I + 1;
+      if i <> 1 then
+        for j := 1 to L do
+        begin
+          Ch := s[i];
+          if (Ch >= 'A') and (Ch <= 'Z') then
+            Inc(Ch, 32);
+          s[j] := Ch;
+          Inc(i);
+        end;
+      SetLength(s, len);
+    end;
+  end;
+end;
+
+procedure splitstring(const inp: string; var out1, out2: string; const splitter: char);
+var
+  p, len: integer;
+begin
+  out1 := '';
+  out2 := '';
+  len := Length(inp);
+
+  p := 0;
+  while p < len do
+  begin
+    inc(p);
+    if inp[p] = splitter then
+      break;
+    out1 := out1 + inp[p];
+  end;
+
+  while p < len do
+  begin
+    inc(p);
+    out2 := out2 + inp[p];
+  end;
+
+  trimproc(out1);
+  trimproc(out2);
 end;
 
 procedure splitstring2nd(const inp: string; var out1, out2: string; const splitter: char); overload;
@@ -2409,48 +2548,76 @@ end;
 
 procedure splitstring(const inp: string; var out1, out2, out3: string; const splitter: char); overload;
 var
-  i: integer;
-  aa: integer;
+  p, len: integer;
 begin
   out1 := '';
   out2 := '';
   out3 := '';
-  aa := 1;
-  for i := 1 to length(inp) do
+  len := Length(inp);
+
+  p := 0;
+  while p < len do
   begin
-    if (aa < 3) and (inp[i] = splitter) then
-      inc(aa)
-    else if aa = 1 then
-      out1 := out1 + inp[i]
-    else if aa = 2 then
-      out2 := out2 + inp[i]
-    else
-      out3 := out3 + inp[i]
+    inc(p);
+    if inp[p] = splitter then
+      break;
+    out1 := out1 + inp[p];
+  end;
+
+  while p < len do
+  begin
+    inc(p);
+    if inp[p] = splitter then
+      break;
+    out2 := out2 + inp[p];
+  end;
+
+  while p < len do
+  begin
+    inc(p);
+    out3 := out3 + inp[p];
   end;
 end;
 
 procedure splitstring(const inp: string; var out1, out2, out3, out4: string; const splitter: char); overload;
 var
-  i: integer;
-  aa: integer;
+  p, len: integer;
 begin
   out1 := '';
   out2 := '';
   out3 := '';
   out4 := '';
-  aa := 1;
-  for i := 1 to length(inp) do
+  len := Length(inp);
+
+  p := 0;
+  while p < len do
   begin
-    if (aa < 4) and (inp[i] = splitter) then
-      inc(aa)
-    else if aa = 1 then
-      out1 := out1 + inp[i]
-    else if aa = 2 then
-      out2 := out2 + inp[i]
-    else if aa = 3 then
-      out3 := out3 + inp[i]
-    else
-      out4 := out4 + inp[i]
+    inc(p);
+    if inp[p] = splitter then
+      break;
+    out1 := out1 + inp[p];
+  end;
+
+  while p < len do
+  begin
+    inc(p);
+    if inp[p] = splitter then
+      break;
+    out2 := out2 + inp[p];
+  end;
+
+  while p < len do
+  begin
+    inc(p);
+    if inp[p] = splitter then
+      break;
+    out3 := out3 + inp[p];
+  end;
+
+  while p < len do
+  begin
+    inc(p);
+    out4 := out4 + inp[p];
   end;
 end;
 

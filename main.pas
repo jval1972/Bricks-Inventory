@@ -2126,7 +2126,7 @@ begin
 
   if fexists(basedefault + SRC) then
   begin
-    if (RightStr(SRC, 4) = '.jpg') and (Pos('s\', scheck) = 1) then // set
+    if (RightStr(SRC, 4) = '.jpg') and Pos1('s\', scheck) then // set
     begin
       trydownload := not CheckValidImageDonwload(basedefault + 's\' + SRCfn);
       if not trydownload then
@@ -2148,7 +2148,7 @@ begin
     begin
       trydownload := (ps.IOResult <> 0) and (idx2 = -1);
       if not trydownload then
-        if (RightStr(SRC, 4) = '.jpg') and (Pos('s\', scheck) = 1) then // set
+        if (RightStr(SRC, 4) = '.jpg') and Pos1('s\', scheck) then // set
           if fexists(basedefault + 's\' + SRCfn) then
             trydownload := not CheckValidImageDonwload(basedefault + 's\' + SRCfn);
     end
@@ -2235,7 +2235,7 @@ begin
     begin
       Screen.Cursor := crHourglass;
       ps.Free;
-      if (RightStr(SRC, 4) = '.jpg') and (Pos('s\', scheck) = 1) then // set
+      if (RightStr(SRC, 4) = '.jpg') and Pos1('s\', scheck) then // set
       begin
         ForceDirectories(basedefault + 's\');
         jpgfilename := SRCfn;
@@ -4997,7 +4997,7 @@ var
         if Pos1('LUGBULK ', Apci.preferedlocation) then
         begin
           splitstring(Apci.preferedlocation, s1, s2, ' ');
-          s2 := strtrim(s2);
+          trimproc(s2);
           Asid := 'LUGBULK-' + s2;
           Ainv := db.GetSetInventory(Asid);
           if Ainv <> nil then
@@ -5013,7 +5013,7 @@ var
         else if Pos1('ORDER ', Apci.preferedlocation) then
         begin
           splitstring(Apci.preferedlocation, s1, s2, ' ');
-          s2 := strtrim(s2);
+          trimproc(s2);
           oid := atoi(s2);
           Aoinf := orders.ItemInfo(Apci.piece, Apci.color);
           if Aoinf <> nil then
@@ -17444,7 +17444,7 @@ begin
   for i := 1 to Length(pcs2) do
     if pcs2[i] = ',' then
       pcs2[i] := ' ';
-  pcs2 := Trim(pcs2);
+  trimproc(pcs2);
 
   db.SetMoldName(pcs2, desc2);
   db.AddMoldColor(pcs2, -1);
@@ -17463,7 +17463,7 @@ begin
     for i := 1 to Length(pcs2) do
       if pcs2[i] = ',' then
         pcs2[i] := ' ';
-    pcs2 := Trim(pcs2);
+    trimproc(pcs2);
 
     if pcs2 <> '' then
     begin
@@ -19493,7 +19493,7 @@ begin
     if check[i] = '/' then
       check[i] := '\';
   splitstring(check, typ, c, pcs, '\');
-  c := Trim(c);
+  trimproc(c);
   if c = '' then
     Exit;
 
@@ -19596,8 +19596,8 @@ begin
 
   splitstring(SRC, scolor, stmp, '\');
   splitstring(stmp, spart, sext, '.');
-  spart := Trim(spart);
-  if Pos('\', spart) > 0 then
+  trimproc(spart);
+  if CharPos('\', spart) > 0 then
   begin
     Result := '';
     Exit;
@@ -20966,7 +20966,7 @@ begin
                       Break;
                   end;
 
-                  if Pos('-', sset) = 0 then
+                  if CharPos('-', sset) = 0 then
                     sset := sset + '-1';
 
                   y := db.SetYear(sset);
@@ -21004,7 +21004,7 @@ begin
                   Break;
               end;
 
-              if Pos('-', sset) = 0 then
+              if CharPos('-', sset) = 0 then
                 sset := sset + '-1';
 
               y := db.SetYear(sset);

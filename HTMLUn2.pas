@@ -485,7 +485,7 @@ implementation
 
 uses
   jpeg, DitherUnit, bi_utils, bi_quantize, bi_defs, {$ifndef NoOldPng}
-  PngImage1, {$endif} htmlview, htmlsubs, HtmlGif2, StylePars, ActiveX;
+  PngImage1, {$endif} htmlview, htmlsubs, HtmlGif2, StylePars, ActiveX, bi_delphi;
 
 type
   EGDIPlus = class (Exception);
@@ -807,7 +807,7 @@ begin
   Result := Trim(HTMLToDos(FName));
   if (Result <> '') and (Root <> '') then
   begin
-  if Pos('\\', Result) = 1 then
+  if Pos1('\\', Result) then
     Exit;
   if CharPos(':', Result) = 2 then
     Exit;
@@ -1317,24 +1317,25 @@ var
   S: string;
   I: integer;
 begin
-Result := '';
-if Find(ClassSy, T) then
+  Result := '';
+  if Find(ClassSy, T) then
   begin
-  S := Lowercase(Trim(T.Name));
-  I := CharPos(' ', S);
-  if I <= 0 then   {a single class name}
-    Result := S
-  else
+    S := T.Name;
+    trimprocL(S);
+    I := CharPos(' ', S);
+    if I <= 0 then   {a single class name}
+      Result := S
+    else
     begin  {multiple class names.  Format as "class1.class2.class3"}
-    repeat
-      Result := Result + '.' + System.Copy(S, 1, I-1);
-      System.Delete(S, 1, I);
-      S := Trim(S);
-      I := CharPos(' ', S);
-    until I <= 0;
-    Result := Result+'.'+S;
-    Result := SortContextualItems(Result);   {put in standard multiple order}
-    System.Delete(Result, 1, 1);   {remove initial '.'}
+      repeat
+        Result := Result + '.' + System.Copy(S, 1, I - 1);
+        System.Delete(S, 1, I);
+        trimproc(S);
+        I := CharPos(' ', S);
+      until I <= 0;
+      Result := Result + '.' + S;
+      Result := SortContextualItems(Result);   {put in standard multiple order}
+      System.Delete(Result, 1, 1);   {remove initial '.'}
     end;
   end;
 end;
@@ -1343,15 +1344,15 @@ function TAttributeList.GetID: string;
 var
   T: TAttribute;
 begin
-Result := SaveID;
-if (Result = '') and Find(IDSy, T) then
+  Result := SaveID;
+  if (Result = '') and Find(IDSy, T) then
   begin
-  Result := Lowercase(T.Name);
-  SaveID := Result;
+    Result := Lowercase(T.Name);
+    SaveID := Result;
   end;
 end;
 
-function TAttributeList.GetTitle: string;    
+function TAttributeList.GetTitle: string;
 var
   T: TAttribute;
 begin
@@ -1578,7 +1579,7 @@ var
 begin
   Result := False;
   with Areas do
-    for I := 0 to Count-1 do
+    for I := 0 to Count - 1 do
       if PtInRegion(THandle(Objects[I]), X, Y) then
       begin
         if Strings[I] <> '' then  {could be NoHRef}
@@ -1605,95 +1606,104 @@ var
   Handle: THandle;
   Shape: (Rec, Circle, Poly);
 
-  procedure GetSubStr;    
-  var
-    J,K: integer;
-  begin
+procedure GetSubStr;
+var
+  J, K: integer;
+begin
   J := CharPos(',', S);
   K := CharPos(' ', S);   {for non comma situations (bad syntax)}
   if (J > 0) and ((K = 0) or (K > J)) then
-    begin
-    S1 := Copy(S, 1, J-1);
+  begin
+    S1 := Copy(S, 1, J - 1);
     Delete(S, 1, J);
-    end
+  end
   else if K > 0 then
-    begin
-    S1 := Copy(S, 1, K-1);
+  begin
+    S1 := Copy(S, 1, K - 1);
     Delete(S, 1, K);
-    end
+  end
   else
-    begin
+  begin
     S1 := Trim(S);
     S := '';
-    end;
-  while (Length(S) > 0) and ((S[1]=',') or (S[1]=' ')) do
-    Delete(S, 1, 1);
   end;
+  while (Length(S) > 0) and ((S[1] = ',') or (S[1] = ' ')) do
+    Delete(S, 1, 1);
+end;
 
 begin
-if Areas.Count >= 1000 then  
-  Exit;
-HRef := '';
-Target := '';
-Title := '';
-Shape := Rec;
-Cnt := 0;
-Handle := 0;
-for I := 0 to Attrib.Count-1 do
-  with TAttribute(Attrib[I]) do
-    case Which of
-      HRefSy:  HRef := Name;
-      TargetSy:  Target := Name;
-      TitleSy:  Title := Name;    
-      NoHrefSy: HRef := '';
-      CoordsSy:
-        begin
-        S := Trim(Name);
-        Cnt := 0;
-        GetSubStr;
-        while (S1 <> '') and (Cnt <= MAXCNT) do
+  if Areas.Count >= 1000 then
+    Exit;
+  HRef := '';
+  Target := '';
+  Title := '';
+  Shape := Rec;
+  Cnt := 0;
+  Handle := 0;
+  for I := 0 to Attrib.Count - 1 do
+    with TAttribute(Attrib[I]) do
+      case Which of
+        HRefSy:
+          HRef := Name;
+        TargetSy:
+          Target := Name;
+        TitleSy:
+          Title := Name;
+        NoHrefSy:
+          HRef := '';
+        CoordsSy:
           begin
-          Coords[Cnt] := StrToIntDef(S1, 0);
-          GetSubStr;
-          Inc(Cnt);
+            S := Trim(Name);
+            Cnt := 0;
+            GetSubStr;
+            while (S1 <> '') and (Cnt <= MAXCNT) do
+            begin
+              Coords[Cnt] := StrToIntDef(S1, 0);
+              GetSubStr;
+              Inc(Cnt);
+            end;
           end;
-        end;
-      ShapeSy:
-        begin
-        Nm := copy(Lowercase(Name),1, 4);
-        if Nm = 'circ' then Shape := Circle
-        else if (Nm = 'poly') then Shape := Poly;
-        end;
+        ShapeSy:
+          begin
+            Nm := copy(Lowercase(Name), 1, 4);
+            if Nm = 'circ' then
+              Shape := Circle
+            else if (Nm = 'poly') then
+              Shape := Poly;
+          end;
       end;
-case Shape of
-  Rec:
-    begin
-    if Cnt < 4 then Exit;
-    Inc(Coords[2]);
-    Inc(Coords[3]);
-    Handle := CreateRectRgnIndirect(Rect);
-    end;
-  Circle:
-    begin
-    if Cnt < 3 then Exit;
-    Rad := Coords[2];
-    Dec(Coords[0],Rad);
-    Dec(Coords[1],Rad);
-    Coords[2] := Coords[0] + 2*Rad +1;
-    Coords[3] := Coords[1] + 2*Rad +1;
-    Handle := CreateEllipticRgnIndirect(Rect);
-    end;
-  Poly:
-    begin
-    if Cnt < 6 then Exit;
-    Handle := CreatePolygonRgn(Coords, Cnt div 2, Winding);
-    end;
+  case Shape of
+    Rec:
+      begin
+        if Cnt < 4 then
+          Exit;
+        Inc(Coords[2]);
+        Inc(Coords[3]);
+        Handle := CreateRectRgnIndirect(Rect);
+      end;
+    Circle:
+      begin
+        if Cnt < 3 then
+          Exit;
+        Rad := Coords[2];
+        Dec(Coords[0],Rad);
+        Dec(Coords[1],Rad);
+        Coords[2] := Coords[0] + 2 * Rad + 1;
+        Coords[3] := Coords[1] + 2 * Rad + 1;
+        Handle := CreateEllipticRgnIndirect(Rect);
+      end;
+    Poly:
+      begin
+        if Cnt < 6 then
+          Exit;
+        Handle := CreatePolygonRgn(Coords, Cnt div 2, Winding);
+      end;
   end;
-if Handle <> 0 then
+  if Handle <> 0 then
   begin
-  Areas.AddObject(HRef, TObject(Handle));
-  AreaTargets.Add(Target);
-  AreaTitles.Add(Title);    
+    Areas.AddObject(HRef, TObject(Handle));
+    AreaTargets.Add(Target);
+    AreaTitles.Add(Title);
   end;
 end;
 

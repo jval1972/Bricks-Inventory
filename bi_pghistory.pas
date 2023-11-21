@@ -550,8 +550,8 @@ begin
         for i := 0 to s.Count - 1 do
         begin
           splitstring(s.Strings[i], s1, s2, ',');
-          s1 := Trim(s1);
-          s2 := Trim(s2);
+          trimproc(s1);
+          trimproc(s2);
           if s2 = '' then
           begin
             len := Length(s1);

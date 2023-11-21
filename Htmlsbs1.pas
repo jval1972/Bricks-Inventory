@@ -220,24 +220,27 @@ for I := 0 to L.Count-1 do
     case Which of
       SizeSy: if (Value > 0) and (Value <= 20) then
         begin
-        VSize := Value;
+          VSize := Value;
         end;
       WidthSy:
         if Value > 0 then
-          if Pos('%', Name) > 0 then
-            begin
+          if CharPos('%', Name) > 0 then
+          begin
             if (Value <= 100) then
               Prop.Assign(IntToStr(Value)+'%', StyleUn.Width);
-            end
+          end
           else
             Prop.Assign(Value, StyleUn.Width);
-      ColorSy: if ColorFromString(Name, False, Color) then
-                 Prop.Assign(Color, StyleUn.Color);
+      ColorSy:
+        if ColorFromString(Name, False, Color) then
+          Prop.Assign(Color, StyleUn.Color);
       AlignSy:
         begin
         LwName := Lowercase(Name);
-        if LwName = 'left' then Align := Left
-        else if LwName = 'right' then Align := Right;
+        if LwName = 'left' then
+          Align := Left
+        else if LwName = 'right' then
+          Align := Right;
         end;
       NoShadeSy: NoShade := True;
       end;

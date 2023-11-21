@@ -40,6 +40,9 @@ procedure ParseURL(const url: string; var Proto, User, Pass, Host, Port, Path: s
 
 implementation
 
+uses
+  bi_delphi;
+
 {----------------GetBase}
 function GetBase(const URL: string): string;
   {Given an URL, get the base directory}
@@ -48,7 +51,7 @@ var
   S: string;
 begin
   S := Trim(URL);
-  J := Pos('?', S);
+  J := CharPos('?', S);
   if J > 0 then
     S := Copy(S, 1, J - 1);  {remove Query}
   J := Pos('//', S);
@@ -70,16 +73,16 @@ var
   I, J, K: integer;
   Proto: string;
 begin
-  Base := Trim(Base);
+  trimproc(Base);
   Proto := GetProtocol(Base);
   J := Pos('file:///', Base);
   if J = 1 then
-    J := Pos('/', Copy(Base, 9, Length(Base) - 8)) + 8  {fourth slash for file:///c|/ }
+    J := CharPos('/', Copy(Base, 9, Length(Base) - 8)) + 8  {fourth slash for file:///c|/ }
   else
   begin
     J := Pos('://', Base);
     if J > 0 then
-      J := Pos('/', Copy(Base, J + 3, Length(Base) - (J + 2))) + J + 2
+      J := CharPos('/', Copy(Base, J + 3, Length(Base) - (J + 2))) + J + 2
     {third slash for http://www.xxx.com/ }
     else
       J := Pos('/', Base);
@@ -93,7 +96,7 @@ begin
   else if Base[Length(Base)] <> '/' then
     Base := Base + '/';
 
-  APath := Trim(APath);
+  trimproc(APath);
 
   if (APath <> '') and (APath[1] = '/') then
   begin    {remove path from base and use host only}
@@ -142,7 +145,7 @@ var
   Query: string;
 begin
   Result := Trim(URL);
-  J := Pos('?', Result);
+  J := CharPos('?', Result);
   if J > 0 then
   begin
     Query := Copy(Result, J, Length(Result) - J + 1);
@@ -175,7 +178,7 @@ var
   N: integer;
   S: string;
 begin
-  N := Pos('?', Url);
+  N := CharPos('?', Url);
   if N > 0 then
     S := Copy(Url, 1, N - 1)
   else
@@ -190,7 +193,7 @@ var
   S: string;
   I: integer;
 begin
-  I := Pos('?', URL);
+  I := CharPos('?', URL);
   if I > 0 then
     S := Copy(URL, 1, I - 1)
   else
@@ -204,12 +207,12 @@ var
   I, N: integer;
 begin
   Result := '';
-  I := Pos('?', URL);
+  I := CharPos('?', URL);
   if I > 0 then
     N := I - 1
   else
     N := Length(URL);
-  I := Pos('#', URL);
+  I := CharPos('#', URL);
   if (I > 0) and (I < N) then
     N := I - 1;
   for I := N downto IntMax(1, N - 5) do
@@ -300,7 +303,7 @@ begin
   if Length(url) < 1 then
     Exit;
 
-  p := pos('://', url);
+  p := Pos('://', url);
   if p = 0 then
   begin
     if (url[1] = '/') then
@@ -329,7 +332,7 @@ begin
     else if lowercase(Copy(url, 1, 7)) = 'mailto:' then
     begin
       proto := 'mailto';
-      p := pos(':', url);
+      p := Pos(':', url);
     end;
   end
   else
@@ -339,7 +342,7 @@ begin
   end;
   s := Copy(url, p + 1, Length(url));
 
-  p := pos('/', s);
+  p := CharPos('/', s);
   if p = 0 then
     p := Length(s) + 1;
   Path := Copy(s, p, Length(s));
@@ -369,7 +372,7 @@ begin
     Host := Copy(s, q + 1, Length(s));
     s := Copy(s, 1, q - 1);
   end;
-  p := pos(':', s);
+  p := CharPos(':', s);
   if p = 0 then
     User := s
   else
@@ -411,12 +414,12 @@ function DosToHtmlNoSharp(FName: string): string;
 var
   I: integer;
 begin
-  I := Pos('#', FName);
+  I := CharPos('#', FName);
   while I > 0 do
   begin
     Delete(FName, I, 1);
     Insert('%23', FName, I);
-    I := Pos('#', FName);
+    I := CharPos('#', FName);
   end;
   Result := FName;
 end;

@@ -123,7 +123,7 @@ begin
       sL.Free;
       Exit;
     end;
-    if Pos(',', sL.Text) > 0 then
+    if CharPos(',', sL.Text) > 0 then
     begin
       for i := 0 to sL.Count - 1 do
       begin

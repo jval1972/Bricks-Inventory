@@ -376,7 +376,7 @@ procedure SplitURL(const Src: string; var FName, Dest: string);
 var
   I: integer;
 begin
-  I := Pos('#', Src);
+  I := CharPos('#', Src);
   if I >= 1 then
   begin
     Dest := System.Copy(Src, I, Length(Src) - I + 1);  {local destination}
@@ -1092,10 +1092,10 @@ function ConvDosToHTML(const Name: string): string;
  a full pathe filename}
 begin
   Result := Name;
-  if Pos('\', Result) > 0 then
+  if CharPos('\', Result) > 0 then
   begin
     Result := DosToHTML(Result);
-    if (Pos('|', Result) > 0) then  {was something like c:\....}
+    if (CharPos('|', Result) > 0) then  {was something like c:\....}
       Result := 'file:///' + Result;
   end;
 end;
@@ -1844,7 +1844,7 @@ begin
 
   if CompareText(Lowercase(HttpEq), 'refresh') = 0 then
   begin
-    I := Pos(';', Content);
+    I := CharPos(';', Content);
     if I > 0 then
       DelTime := StrToIntDef(copy(Content, 1, I - 1), -1)
     else
@@ -2294,7 +2294,7 @@ begin
         if S1 <> '' then
           S := S1;
 
-        if Pos(':', S) <> 0 then
+        if CharPos(':', S) <> 0 then
           CurbrFrameSet.URLBase := URLSubs.GetBase(S)
         else
         begin
@@ -2354,7 +2354,7 @@ begin
       if S1 <> '' then
       begin
         S := S1;
-        if Pos(':', S) <> 0 then
+        if CharPos(':', S) <> 0 then
           CurbrFrameSet.URLBase := URLSubs.GetBase(S);
       end;
 
@@ -3143,11 +3143,11 @@ var
       if FEncodePostArgs then
       begin {form a string from the TStringList using '+' for spaces and '&' for separaters}
         S1 := Encode(Results[I]);
-        J := Pos(' ', S1);
+        J := CharPos(' ', S1);
         while J > 0 do
         begin
           S1[J] := '+';
-          J := Pos(' ', S1);
+          J := CharPos(' ', S1);
         end;
       end
       else
@@ -3195,7 +3195,7 @@ begin
       end;
 
       S := Action;
-      I := Pos('#', S);
+      I := CharPos('#', S);
       if I >= 1 then
       begin
         Dest := System.Copy(S, I, Length(S) - I + 1);  {local destination}

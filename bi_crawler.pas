@@ -436,7 +436,7 @@ begin
     begin
       link2[1] := ' ';
       link2[2] := ' ';
-      link2 := Trim(link2);
+      trimproc(link2);
       if Length(link2) > 127 then
       begin
         if Pos1('www.', link2) then
@@ -445,7 +445,7 @@ begin
           link2[2] := ' ';
           link2[3] := ' ';
           link2[4] := ' ';
-          link2 := Trim(link2);
+          trimproc(link2);
           if Length(link2) > 127 then
             parec3.url := RightStr(link2, 127)
           else
@@ -540,7 +540,7 @@ var
     tmp: string;
     ii: integer;
   begin
-    ss := Trim(ss);
+    trimproc(ss);
     if ss = '' then
     begin
       Result := 0.0;
@@ -552,7 +552,7 @@ var
       Exit;
     end;
     ss[1] := ' ';
-    ss := Trim(ss);
+    trimproc(ss);
     if ss = '' then
     begin
       Result := 0.0;
@@ -597,7 +597,7 @@ var
     tmp: string;
     ii: integer;
   begin
-    ss := Trim(ss);
+    trimproc(ss);
     if ss = '' then
     begin
       Result := 0.0;
@@ -611,7 +611,7 @@ var
     ss[1] := ' ';
     ss[2] := ' ';
     ss[3] := ' ';
-    ss := Trim(ss);
+    trimproc(ss);
     if ss = '' then
     begin
       Result := 0.0;
@@ -1389,7 +1389,7 @@ begin
   p := Pos('Last 6 Months Sales', htm);
   if p <= 0 then
   begin
-    if (Pos('3068bpb', id) = 1) and (length(id) = 10) then
+    if Pos1('3068bpb', id) and (length(id) = 10) then
     begin
       id := '3068bpb0' + id[8] + id[9] + id[10];
       cc := StrToIntDef(color, -2);
@@ -1829,14 +1829,14 @@ begin
         break;
       sweight := sweight + s[i];
     end;
-    sweight := Trim(sweight);
+    trimproc(sweight);
     if sweight <> '' then
       if dotcnt <= 1 then
         if gcnt = 1 then
           if sweight[length(sweight)] = 'g' then
           begin
             SetLength(sweight, length(sweight) - 1);
-            sweight := Trim(sweight);
+            trimproc(sweight);
             if sweight <> '' then
             begin
               if sweight[1] = '.' then
@@ -1917,14 +1917,14 @@ begin
         break;
       sweight := sweight + s[i];
     end;
-    sweight := Trim(sweight);
+    trimproc(sweight);
     if sweight <> '' then
       if dotcnt <= 1 then
         if gcnt = 1 then
           if sweight[length(sweight)] = 'g' then
           begin
             SetLength(sweight, length(sweight) - 1);
-            sweight := Trim(sweight);
+            trimproc(sweight);
             if sweight <> '' then
             begin
               if sweight[1] = '.' then
@@ -2059,14 +2059,14 @@ begin
         break;
       sweight := sweight + s[i];
     end;
-    sweight := Trim(sweight);
+    trimproc(sweight);
     if sweight <> '' then
       if dotcnt <= 1 then
         if gcnt = 1 then
           if sweight[length(sweight)] = 'g' then
           begin
             SetLength(sweight, length(sweight) - 1);
-            sweight := Trim(sweight);
+            trimproc(sweight);
             if sweight <> '' then
             begin
               if sweight[1] = '.' then
@@ -2153,14 +2153,14 @@ begin
         break;
       sweight := sweight + s[i];
     end;
-    sweight := Trim(sweight);
+    trimproc(sweight);
     if sweight <> '' then
       if dotcnt <= 1 then
         if gcnt = 1 then
           if sweight[length(sweight)] = 'g' then
           begin
             SetLength(sweight, length(sweight) - 1);
-            sweight := Trim(sweight);
+            trimproc(sweight);
             if sweight <> '' then
             begin
               if sweight[1] = '.' then

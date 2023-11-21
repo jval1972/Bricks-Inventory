@@ -7817,9 +7817,9 @@ begin
           spiece := fixpartname(spiece);
           {$IFNDEF CRAWLER}
           splitstring(sdim, sdimx, sdimy, sdimz, 'x');
-          sdimx := Trim(sdimx);
-          sdimy := Trim(sdimy);
-          sdimz := Trim(sdimz);
+          trimproc(sdimx);
+          trimproc(sdimy);
+          trimproc(sdimz);
           {$ENDIF}
           spiece := RebrickablePart(spiece);
           idx := IndexOfString(fpieceshash, spiece);
@@ -8680,7 +8680,7 @@ var
           stmp := s.Strings[i];
           splitstring(stmp, sCategory, sNumber, sName, sYear, sWeight, sDimentions, ',');
 
-          sNumber := Trim(sNumber);
+          trimproc(sNumber);
           idx := fsets.IndexOf(sNumber);
           if idx >= 0 then
           begin
@@ -8795,7 +8795,7 @@ var
           stmp := s.Strings[i];
           splitstring(stmp, sNumber, sAsset, sWeight, ',');
 
-          sNumber := Trim(sNumber);
+          trimproc(sNumber);
           idx := fsets.IndexOf(sNumber);
           if idx >= 0 then
           begin
@@ -8804,7 +8804,7 @@ var
               ss := fsets.Objects[idx] as TSetExtraInfo;
               ss.hasinstructions := True;
               {$IFNDEF CRAWLER}
-              sWeight := Trim(sWeight);
+              trimproc(sWeight);
               if sWeight <> '' then
                 ss.instructionsweight := atof(sWeight);
               {$ENDIF}
@@ -8814,7 +8814,7 @@ var
               ss := fsets.Objects[idx] as TSetExtraInfo;
               ss.hasoriginalbox := True;
               {$IFNDEF CRAWLER}
-              sWeight := Trim(sWeight);
+              trimproc(sWeight);
               if sWeight <> '' then
                 ss.originalboxweight := atof(sWeight);
               {$ENDIF}
@@ -9569,8 +9569,9 @@ begin
           for i := 1 to sBooks.Count - 1 do
           begin
             splitstring(sBooks.Strings[i], s1, s2, s3, ',');
-            s1 := Trim(s1);
-            s.Add(s1 + ',' + Trim(s2));
+            trimproc(s1);
+            trimproc(s2);
+            s.Add(s1 + ',' + s2);
           end;
         end;
       end;
@@ -9598,8 +9599,9 @@ begin
           for i := 1 to sCatalogs.Count - 1 do
           begin
             splitstring(sCatalogs.Strings[i], s1, s2, s3, s4, ',');
-            s2 := Trim(s2);
-            s.Add(s2 + ',' + Trim(s3));
+            trimproc(s2);
+            trimproc(s3);
+            s.Add(s2 + ',' + s3);
           end;
         end;
       end;
@@ -10750,7 +10752,7 @@ begin
   for i := 1 to s.Count - 1 do
   begin
     splitstring(s.strings[i], spart, scolor, sstorage, ',');
-    spart := Trim(spart);
+    Trim(spart);
     if spart <> '' then
     begin
       spart := RebrickablePart(spart);
@@ -11387,7 +11389,7 @@ begin
     if strupper(bl) = strupper(slist.Strings[i]) then
     begin
       blNew := NET_GetBricklinkAliasRB(slist.Strings[i]);
-      if (Pos('3068bpb', blnew) = 1) and (length(blnew) = 10) then
+      if Pos1('3068bpb', blnew) and (length(blnew) = 10) then
         blnew := '3068bpb0' + blnew[8] + blnew[9] + blnew[10];
       if (blnew <> '') and (strupper(bl) <> strupper(blnew)) then
       begin
@@ -11850,7 +11852,7 @@ begin
     else
       pname := pname + data[i];
   end;
-  pname := Trim(pname);
+  trimproc(pname);
   Result := stringreplace(pname, ',', '', [rfReplaceAll, rfIgnoreCase])
 end;
 
@@ -13808,9 +13810,9 @@ begin
                 end;
               end;
             end;
-            bl_scolor := Trim(bl_scolor);
+            trimproc(bl_scolor);
             bl_color := atoi(bl_scolor, -2);
-            bl_part := Trim(bl_part);
+            trimproc(bl_part);
 
             if (bl_color > -2) and (bl_part <> '') then
             begin
@@ -16876,7 +16878,7 @@ begin
       end;
 
   splitstring(cs, check, foo, '(');
-  check := UpperCase(Trim(check));
+  trimprocU(check);
   for i := -1 to MAXINFOCOLOR do
     if fcolors[i].id = i then
       if UpperCase(Trim(fcolors[i].name)) = check then
@@ -17667,8 +17669,8 @@ begin
     splitstring(s, scolor, spart, ',');
   fcrawlerpriority.Delete(idx);
 
-  scolor := Trim(scolor);
-  spart := Trim(spart);
+  trimproc(scolor);
+  trimproc(spart);
 
   idx := fcrawlerpriority.IndexOf(s);
   if idx > -1 then
@@ -17712,7 +17714,7 @@ begin
       inventory.StorePieceInventoryStatsRec(basedefault + 'out\' + spart + '\' + spart + '.history', Trim(spart), -1);
   {$ENDIF}
 
-  if (scolor = '89') or (scolor = '') or ((scolor = '-1') and (Pos('-', spart) > 0)) then // set
+  if (scolor = '89') or (scolor = '') or ((scolor = '-1') and (CharPos('-', spart) > 0)) then // set
   begin
     inv := GetSetInventory(spart);
     if inv <> nil then
@@ -18286,9 +18288,9 @@ begin
         for i := 0 to slist2.Count - 1 do
         begin
           splitstring(slist2.Strings[i], s_part, s_color, s_num, ',');
-          s_part := Trim(s_part);
-          s_color := Trim(s_color);
-          s_num := Trim(s_num);
+          trimproc(s_part);
+          trimproc(s_color);
+          trimproc(s_num);
           if (s_color = '') or (s_color = '-2') or (s_color = 'BL 0') or (s_color = 'BL0') then
             slist.Add(s_part + ',' + s_defcolor + ',' + s_num)
           else
@@ -18358,9 +18360,9 @@ begin
           for i := 0 to slist2.Count - 1 do
           begin
             splitstring(slist2.Strings[i], s_part, s_color, s_num, ',');
-            s_part := Trim(s_part);
-            s_color := Trim(s_color);
-            s_num := Trim(s_num);
+            trimproc(s_part);
+            trimproc(s_color);
+            trimproc(s_num);
             if (s_color = '') or (s_color = '-2') or (s_color = 'BL 0') or (s_color = 'BL0') then
               slist.Add(s_part + ',' + s_defcolor + ',' + s_num)
             else

@@ -46,7 +46,7 @@ function SortContextualItems(S: string): string;
 
 implementation
 
-uses Graphics, ReadHTML, UrlSubs, htmlun2;
+uses Graphics, ReadHTML, UrlSubs, htmlun2, bi_delphi;
 
 const
   NeedPound = True;
@@ -127,7 +127,7 @@ begin
   else
   begin
     S := HTMLToDos(S);
-    if (Pos(':', S) <> 2) and (Pos('\\', Result) <> 1) then
+    if (CharPos(':', S) <> 2) and (Pos('\\', Result) <> 1) then
       Result := LinkPath + S
     else
       Result := S;
@@ -181,7 +181,7 @@ var
   Done: boolean;
   Match: char;
 begin
-  Src := Trim(Src);
+  trimproc(Src);
   I := Pos('  ', Src);
   while I > 0 do   {simplify operation by removing extra white space}
   begin
@@ -201,9 +201,9 @@ begin
     Z := '';
     repeat
       Done := True;
-      I := Pos(' ', Src);
-      Q := Pos('"', Src);
-      Q1 := Pos('''', Src);
+      I := CharPos(' ', Src);
+      Q := CharPos('"', Src);
+      Q1 := CharPos('''', Src);
       if (Q1 > 0) and ((Q > 0) and (Q1 < Q) or (Q = 0)) then
       begin
         Q := Q1;
@@ -239,7 +239,7 @@ begin
         end;
       end;
     until Done;
-    I := Pos('/', Z);    {look for splitter for Line-height}
+    I := CharPos('/', Z);    {look for splitter for Line-height}
     if I >= 2 then
     begin         {this part is font size}
       Dest[N] := Copy(Z, 1, I - 1);
@@ -268,7 +268,7 @@ begin
       I := Pos('rgb(', Src);
     if I = 0 then
       Exit;
-    J := Pos(')', Src);
+    J := CharPos(')', Src);
     if (J = 0) or (J < I) then
       Exit;
     Dest[Count] := Copy(Src, I, J - I + 1);
@@ -667,7 +667,7 @@ var
       Inc(I);
     end;
 
-    I := Pos(' ', S);
+    I := CharPos(' ', S);
     if (I > 0) and (Cnt <= 8) then
     begin
       while I > 0 do
@@ -675,11 +675,11 @@ var
         Inc(Cnt);
         Insert(DoSort(Copy(S, 1, I - 1)) + ' ', Result, 1);
         S := Trim(Copy(S, I + 1, Length(S)));
-        I := Pos(' ', S);
+        I := CharPos(' ', S);
       end;
       if S <> '' then
         Result := DoSort(S) + ' ' + Result;
-      I := Pos(' ', Result);
+      I := CharPos(' ', Result);
       Str(Cnt, Tmp);
       Insert(Tmp + Styles.GetSeqNo, Result, I + 1);
     end
@@ -711,7 +711,7 @@ begin
       S := S + LCh;
       GetCh;
     end;
-    S := Trim(Lowercase(S));
+    trimprocL(S);
     S := FormatContextualSelector(S, Sort);
     Selectors.Add(S);
   until LCh <> ',';
@@ -738,7 +738,7 @@ begin
       Prop := Prop + LCh;
       GetCh;
     end;
-    Prop := Trim(LowerCase(Prop));
+    trimprocL(Prop);
     SkipWhiteSpace;
     if LCh in [':', '='] then
     begin
@@ -749,7 +749,8 @@ begin
         Value := Value + LCh;
         GetCh;
       end;
-      Value1 := Trim(Lowercase(Value));  {leave quotes on for font:}
+      Value1 := Value;
+      trimprocL(Value1); {leave quotes on for font:}
       Value := RemoveQuotes(Value1);
       if FindShortHand(Prop, Index) then
         case Index of

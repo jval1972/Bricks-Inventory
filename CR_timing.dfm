@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 165
   Top = 115
   Width = 484
-  Height = 458
+  Height = 506
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Bricklink Crawler'
   Color = clBtnFace
@@ -192,7 +192,7 @@ object Form1: TForm1
     Left = 0
     Top = 0
     Width = 468
-    Height = 209
+    Height = 249
     Align = alTop
     BevelOuter = bvNone
     Caption = ' '
@@ -212,7 +212,7 @@ object Form1: TForm1
     end
     object Label2: TLabel
       Left = 32
-      Top = 184
+      Top = 224
       Width = 18
       Height = 16
       Caption = '      '
@@ -342,12 +342,27 @@ object Form1: TForm1
       TabOrder = 6
       OnChange = TrackBar1Change
     end
+    object RetryOnFailCheckBox: TCheckBox
+      Left = 32
+      Top = 192
+      Width = 121
+      Height = 17
+      Caption = 'Retry on fail'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 7
+      OnClick = RetryOnFailCheckBoxClick
+    end
   end
   object Panel2: TPanel
     Left = 0
-    Top = 209
+    Top = 249
     Width = 468
-    Height = 210
+    Height = 218
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 8
@@ -357,7 +372,7 @@ object Form1: TForm1
       Left = 8
       Top = 8
       Width = 452
-      Height = 194
+      Height = 202
       ActivePage = TabSheet3
       Align = alClient
       TabOrder = 0
@@ -367,7 +382,7 @@ object Form1: TForm1
           Left = 0
           Top = 0
           Width = 444
-          Height = 166
+          Height = 174
           Align = alClient
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clMaroon
@@ -393,7 +408,7 @@ object Form1: TForm1
           Left = 0
           Top = 0
           Width = 444
-          Height = 166
+          Height = 174
           Align = alClient
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack
@@ -433,14 +448,14 @@ object Form1: TForm1
         end
         object StatisticsLabel: TLabel
           Left = 24
-          Top = 104
+          Top = 144
           Width = 153
           Height = 13
           Caption = '                                                   '
         end
         object SuccessLabel: TLabel
           Left = 24
-          Top = 120
+          Top = 160
           Width = 153
           Height = 13
           Caption = '                                                   '
@@ -453,11 +468,19 @@ object Form1: TForm1
         end
         object Label7: TLabel
           Left = 16
-          Top = 80
+          Top = 112
           Width = 49
           Height = 13
           Caption = 'Links left: '
           FocusControl = Edit3
+        end
+        object Label8: TLabel
+          Left = 16
+          Top = 80
+          Width = 75
+          Height = 13
+          Caption = 'Retry Success: '
+          FocusControl = Edit4
         end
         object Edit1: TEdit
           Left = 108
@@ -478,6 +501,15 @@ object Form1: TForm1
           Text = '0'
         end
         object Edit3: TEdit
+          Left = 108
+          Top = 112
+          Width = 121
+          Height = 21
+          ReadOnly = True
+          TabOrder = 3
+          Text = '0'
+        end
+        object Edit4: TEdit
           Left = 108
           Top = 80
           Width = 121

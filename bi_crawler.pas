@@ -36,8 +36,10 @@ uses
 var
   type1_pg_hits: integer = 0;
   type2_pg_hits: integer = 0;
+  retry_success: integer = 0;
   last_pg_hit: integer = 0;
   allowtype1_hits: boolean = False;
+  allow_crawler_retry: boolean = False;
 
 var
   useUSDvalues: boolean = False;
@@ -1218,49 +1220,55 @@ begin
 
   if not allowtype1_hits then
   begin
-    typ := pci.ItemType;
-    sRETRY := '';
-    if (typ = 'P') and (color = '9999') then
-      sRETRY := 'MGBS'
-    else if (typ = 'M') and ((color = '-1') or (color = '9999')) then
-      sRETRY := 'GBSP'
-    else if (typ = 'S') and ((color = '-1') or (color = '9999')) then
-      sRETRY := 'GBMP'
-    else if (typ = 'G') and ((color = '-1') or (color = '9999')) then
-      sRETRY := 'BSMP'
-    else if (typ = 'B') and ((color = '-1') or (color = '9999')) then
-      sRETRY := 'SGMP';
-    for i := 1 to Length(sRETRY) do
+    if allow_crawler_retry then
     begin
-      forcelink := NET_MakePriceGuideLink2(sRETRY[i], db.GetBLNetPieceName(id), 0, 6);
-      if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+      typ := pci.ItemType;
+      sRETRY := '';
+      if (typ = 'P') and (color = '9999') then
+        sRETRY := 'MGBS'
+      else if (typ = 'M') and ((color = '-1') or (color = '9999')) then
+        sRETRY := 'GBSP'
+      else if (typ = 'S') and ((color = '-1') or (color = '9999')) then
+        sRETRY := 'GBMP'
+      else if (typ = 'G') and ((color = '-1') or (color = '9999')) then
+        sRETRY := 'BSMP'
+      else if (typ = 'B') and ((color = '-1') or (color = '9999')) then
+        sRETRY := 'SGMP';
+      for i := 1 to Length(sRETRY) do
       begin
-        Result := True;
-        inc(type2_pg_hits);
-        last_pg_hit := 2;
-        db.AddCrawlerLink(id, atoi(color), forcelink);
-        db.SetPartType(pci, sRETRY[i]);
-        Exit;
-      end;
-    end;
-
-    // Retry part as gear
-    if (typ = 'P') and (color <> '-1') and (color <> '9999') and (pci.sparttype <> 'P') then
-    begin
-      if do_not_treat_as_gear.IndexOf(pci.piece) < 0 then
-      begin
-        cc := StrToIntDef(color, -2);
-        if (cc > -1) and (cc <= LASTNORMALCOLORINDEX) then
+        forcelink := NET_MakePriceGuideLink2(sRETRY[i], db.GetBLNetPieceName(id), 0, 6);
+        if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
         begin
-          forcelink := NET_MakePriceGuideLink2('G', db.GetBLNetPieceName(id), db.colors(cc).BrickLinkColor, 6);
-          if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+          Result := True;
+          inc(type2_pg_hits);
+          last_pg_hit := 2;
+          db.AddCrawlerLink(id, atoi(color), forcelink);
+          db.SetPartType(pci, sRETRY[i]);
+          inc(retry_success);
+          Exit;
+        end;
+      end;
+
+      // Retry part as gear
+      if (typ = 'P') and (color <> '-1') and (color <> '9999') and (pci.sparttype <> 'P') then
+      begin
+        if do_not_treat_as_gear.IndexOf(pci.piece) < 0 then
+        begin
+          cc := StrToIntDef(color, -2);
+          if (cc > -1) and (cc <= LASTNORMALCOLORINDEX) then
           begin
-            Result := True;
-            inc(type2_pg_hits);
-            last_pg_hit := 2;
-            db.AddCrawlerLink(id, atoi(color), forcelink);
-            db.SetPartType(pci, 'G');
-            Exit;
+            forcelink := NET_MakePriceGuideLink2('G', db.GetBLNetPieceName(id), db.colors(cc).BrickLinkColor, 6);
+            if NET_GetPriceGuideForElement2(pci, id, color, ret1, ret2, cachefile, clink, forcelink) then
+            begin
+              Result := True;
+              inc(type2_pg_hits);
+              last_pg_hit := 2;
+              db.AddCrawlerLink(id, atoi(color), forcelink);
+              if pci.sparttype <> 'G' then
+                db.SetPartType(pci, 'G');
+              inc(retry_success);
+              Exit;
+            end;
           end;
         end;
       end;

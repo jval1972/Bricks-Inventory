@@ -36,6 +36,9 @@ type
     Edit3: TEdit;
     CheckBoxRandom: TCheckBox;
     TrackBarRandom: TTrackBar;
+    RetryOnFailCheckBox: TCheckBox;
+    Label8: TLabel;
+    Edit4: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure CrawlerTimerTimer(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -43,6 +46,7 @@ type
     procedure TrackBar1Change(Sender: TObject);
     procedure FormHide(Sender: TObject);
     procedure CheckBoxRandomClick(Sender: TObject);
+    procedure RetryOnFailCheckBoxClick(Sender: TObject);
   private
     { Private declarations }
  //   tr: TThreadComponent;
@@ -211,6 +215,9 @@ begin
     Edit2.Update;
     Edit3.Text := IntToStr(db.crawlerpriority.Count);
     Edit3.Update;
+    Edit4.Text := IntToStr(retry_success);
+    Edit4.Update;
+
     if cnt_total > 0 then
     begin
       StatisticsLabel.Caption := 'Success hits = ' + IntToStr(cnt_success) + '/' + IntToStr(cnt_total) + Format(' (%2.3f%s)', [cnt_success / cnt_total * 100, '%']);
@@ -252,7 +259,13 @@ begin
       begin
         CrawlerStep;
         if (last_pg_hit = 2) {and (not FAILWarning)} then
+        begin
           CrawlerStep;
+          if (last_pg_hit = 2) {and (not FAILWarning)} then
+          begin
+            CrawlerStep;
+          end;
+        end;
       end;
     end;
   end;
@@ -298,10 +311,16 @@ begin
       db.crawlerrandom := TrackBarRandom.Position
     else
       db.crawlerrandom := 0;
+    allow_crawler_retry := RetryOnFailCheckBox.Checked;
   end;
 end;
 
 procedure TForm1.CheckBoxRandomClick(Sender: TObject);
+begin
+  UpdateControls;
+end;
+
+procedure TForm1.RetryOnFailCheckBoxClick(Sender: TObject);
 begin
   UpdateControls;
 end;

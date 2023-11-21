@@ -39,6 +39,8 @@ function S_SaveToFileUTF8(const s: TStringList; const fname: string; const maxre
 
 function S_LoadFromFile(const s: TStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
 
+function S_GetStringList(const fname: string; const fsorted: boolean; const maxretry: integer = 10; const msecs: integer = 100): TStringList;
+
 function SH_SaveToFile(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
 
 function SH_LoadFromFile(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;
@@ -437,6 +439,22 @@ begin
   end;
   s.Text := f.list.Text;
   Result := True;
+end;
+
+function S_GetStringList(const fname: string; const fsorted: boolean; const maxretry: integer = 10; const msecs: integer = 100): TStringList;
+var
+  f: TFSList;
+  ret: boolean;
+begin
+  f := S_GetFSList(fname);
+  if f = nil then
+    Result := nil
+  else
+  begin
+    Result := f.list;
+    if fsorted then
+      Result.Sorted := True;
+  end;
 end;
 
 function SH_SaveToFile(const s: THashStringList; const fname: string; const maxretry: integer = 10; const msecs: integer = 100): boolean;

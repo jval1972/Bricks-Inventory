@@ -918,7 +918,6 @@ type
   private
     floaded: boolean;
     fallsets: THashStringList;
-    fallsetswithoutextra: THashStringList;
     fallbooks: THashStringList;
     fcolors: colorinfoarray_t;
     fpartsinventories: TStringList;
@@ -1022,7 +1021,6 @@ type
     procedure AddCrawlerLink(const part: string; const color: integer; const link: string);
     function CrawlerLink(const part: string; const color: integer): string;
     function GetSetInventory(const setid: string): TBrickInventory;
-    function GetSetInventoryWithOutExtra(const setid: string): TBrickInventory;
     procedure ReloadCache;
     function GetBLNetPieceName(const pcs: string): string;
     function GetNewPieceName(const pcs: string): string;
@@ -1244,7 +1242,6 @@ type
     property categories: categoryinfoarray_t read fcategories;
     property Sets: TStringList read fsets;
     property AllSets: THashStringList read fallsets;
-    property AllSetsWithOutExtra: THashStringList read fallsetswithoutextra;
     property AllPieces: TStringList read fpieces;
     property AllPiecesHash: THashTable read fpieceshash;
     property crawlerfilename: string read fcrawlerfilename write fcrawlerfilename;
@@ -7403,7 +7400,6 @@ begin
   {$ENDIF}
   floaded := False;
   fallsets := THashStringList.Create;
-  fallsetswithoutextra := THashStringList.Create;
   fallbooks := THashStringList.Create;
   fcolorpieces := TStringList.Create;
   fcrawlerpriority := TStringList.Create;
@@ -9376,119 +9372,110 @@ begin
 
     sset := fsets.strings[i];
     if fallsets.IndexOf(sset) < 0 then
-      if fallsetswithoutextra.IndexOf(sset) < 0 then
+    begin
+      binset := fbinarysets.GetSet(sset);
+      if binset <> nil then
       begin
-        binset := fbinarysets.GetSet(sset);
-        if binset <> nil then
+        numrecs := binset.numitems;
+        for j := 0 to numrecs - 1 do
         begin
-          numrecs := binset.numitems;
-          for j := 0 to numrecs - 1 do
+          spiece := binset.data[j].piece;
+          cc := binset.data[j].color;
+          num := binset.data[j].num;
+
+          if spiece <> '' then
           begin
-            spiece := binset.data[j].piece;
-            cc := binset.data[j].color;
-            num := binset.data[j].num;
-
-            if spiece <> '' then
+            if (cc >= -1) and (cc <= MAXINFOCOLOR) then
             begin
-              if (cc >= -1) and (cc <= MAXINFOCOLOR) then
+              if fcolors[cc].knownpieces = nil then
               begin
-                if fcolors[cc].knownpieces = nil then
-                begin
-                  fcolors[cc].knownpieces := THashStringList.Create;
-                  idx := -1;
-                end
-                else
-                  idx := fcolors[cc].knownpieces.Indexof(spiece);
-                if idx < 0 then
-                begin
-                  pci := TPieceColorInfo.Create(spiece, cc);
-                  fcolors[cc].knownpieces.AddObject(spiece, pci);
-                end
-                else
-                  pci := fcolors[cc].knownpieces.Objects[idx] as TPieceColorInfo;
-                AddSetPiece(sset, spiece, '1', cc, num, pci, numrecs);
-                {$IFNDEF CRAWLER}
-                if PieceInfo(sset).category = CATEGORYLUGBULK then
-                  lyear := PieceColorInfo(sset, -1).year
-                else
-                  lyear := 0;
-                {$ENDIF}
-                pci.AddSetReference(sset, num{$IFNDEF CRAWLER}, lyear{$ENDIF});
-              end;
-            end;
-          end;
-        end
-        else if fexists(basedefault + 'db\sets\' + sset + '.txt') then
-        begin
-         // numrecs := 0;
-          S_LoadFromFile(s, basedefault + 'db\sets\' + sset + '.txt');
-          numrecs := s.Count - 1;
-          for j := 1 to s.Count - 1 do
-          begin
-            splitstring(s.strings[j], spiece, scolor, snum, scost, ',');
-
-            if Pos1('BL ', spiece) then
-              spiece := RebrickablePart(Copy(spiece, 4, Length(spiece) - 3))
-            else
-              spiece := RebrickablePart(spiece);
-
-            if spiece <> '' then
-            begin
-              if Pos1('BL', scolor) then
-              begin
-                scolor := Copy(scolor, 3, Length(scolor) - 2);
-                cc := BrickLinkColorToSystemColor(StrToIntDef(scolor, 0));
-              end
-              else if Pos1('RB', scolor) then
-              begin
-                scolor := Copy(scolor, 3, Length(scolor) - 2);
-                cc := RebrickableColorToSystemColor(StrToIntDef(scolor, 0));
+                fcolors[cc].knownpieces := THashStringList.Create;
+                idx := -1;
               end
               else
-                cc := atoi(scolor);
-
-            {  binset[numrecs].piece := spiece;
-              binset[numrecs].color := cc;
-              binset[numrecs].num := num;
-              binset[numrecs].cost := atof(scost);
-              inc(numrecs);       }
-              num := atoi(snum);
-
-              if (cc >= -1) and (cc <= MAXINFOCOLOR) then
+                idx := fcolors[cc].knownpieces.Indexof(spiece);
+              if idx < 0 then
               begin
-                if fcolors[cc].knownpieces = nil then
-                begin
-                  fcolors[cc].knownpieces := THashStringList.Create;
-                  idx := -1;
-                end
-                else
-                  idx := fcolors[cc].knownpieces.Indexof(spiece);
-                if idx < 0 then
-                begin
-                  pci := TPieceColorInfo.Create(spiece, cc);
-                  fcolors[cc].knownpieces.AddObject(spiece, pci);
-                end
-                else
-                  pci := fcolors[cc].knownpieces.Objects[idx] as TPieceColorInfo;
-                AddSetPiece(sset, spiece, '1', cc, num, pci, numrecs);
-                {$IFNDEF CRAWLER}
-                if PieceInfo(sset).category = CATEGORYLUGBULK then
-                  lyear := PieceColorInfo(sset, -1).year
-                else
-                  lyear := 0;
-                {$ENDIF}
-                pci.AddSetReference(sset, num{$IFNDEF CRAWLER}, lyear{$ENDIF});
-              end;
+                pci := TPieceColorInfo.Create(spiece, cc);
+                fcolors[cc].knownpieces.AddObject(spiece, pci);
+              end
+              else
+                pci := fcolors[cc].knownpieces.Objects[idx] as TPieceColorInfo;
+              AddSetPiece(sset, spiece, '1', cc, num, pci, numrecs);
+              {$IFNDEF CRAWLER}
+              if PieceInfo(sset).category = CATEGORYLUGBULK then
+                lyear := PieceColorInfo(sset, -1).year
+              else
+                lyear := 0;
+              {$ENDIF}
+              pci.AddSetReference(sset, num{$IFNDEF CRAWLER}, lyear{$ENDIF});
             end;
-
-           { fs := TFileStream.Create(basedefault + 'db\sets\' + sset + '.dat', fmCreate or fmShareExclusive);
-            fs.Write(binset, numrecs * SizeOf(TBinarySetItem));
-            fs.Free;  }
           end;
-          fbinarysets.UpdateSetFromText(sset, s);
+        end;
+      end
+      else if fexists(basedefault + 'db\sets\' + sset + '.txt') then
+      begin
+       // numrecs := 0;
+        S_LoadFromFile(s, basedefault + 'db\sets\' + sset + '.txt');
+        numrecs := s.Count - 1;
+        for j := 1 to s.Count - 1 do
+        begin
+          splitstring(s.strings[j], spiece, scolor, snum, scost, ',');
+
+          if Pos1('BL ', spiece) then
+            spiece := RebrickablePart(Copy(spiece, 4, Length(spiece) - 3))
+          else
+            spiece := RebrickablePart(spiece);
+
+          if spiece <> '' then
+          begin
+            if Pos1('BL', scolor) then
+            begin
+              scolor := Copy(scolor, 3, Length(scolor) - 2);
+              cc := BrickLinkColorToSystemColor(StrToIntDef(scolor, 0));
+            end
+            else if Pos1('RB', scolor) then
+            begin
+              scolor := Copy(scolor, 3, Length(scolor) - 2);
+              cc := RebrickableColorToSystemColor(StrToIntDef(scolor, 0));
+            end
+            else
+              cc := atoi(scolor);
+
+            num := atoi(snum);
+
+            if (cc >= -1) and (cc <= MAXINFOCOLOR) then
+            begin
+              if fcolors[cc].knownpieces = nil then
+              begin
+                fcolors[cc].knownpieces := THashStringList.Create;
+                idx := -1;
+              end
+              else
+                idx := fcolors[cc].knownpieces.Indexof(spiece);
+              if idx < 0 then
+              begin
+                pci := TPieceColorInfo.Create(spiece, cc);
+                fcolors[cc].knownpieces.AddObject(spiece, pci);
+              end
+              else
+                pci := fcolors[cc].knownpieces.Objects[idx] as TPieceColorInfo;
+              AddSetPiece(sset, spiece, '1', cc, num, pci, numrecs);
+              {$IFNDEF CRAWLER}
+              if PieceInfo(sset).category = CATEGORYLUGBULK then
+                lyear := PieceColorInfo(sset, -1).year
+              else
+                lyear := 0;
+              {$ENDIF}
+              pci.AddSetReference(sset, num{$IFNDEF CRAWLER}, lyear{$ENDIF});
+            end;
+          end;
 
         end;
+        fbinarysets.UpdateSetFromText(sset, s);
+
       end;
+    end;
   end;
   s.Free;
   if Assigned(progressfunc) then
@@ -10603,7 +10590,6 @@ begin
   FreeHashList(fpiecesaliasRB);
   FreeList(fCrawlerLinks);
   FreeHashList(fallsets);
-  FreeHashList(fallsetswithoutextra);
   FreeHashList(fallbooks);
   FreeList(fpieces);
   FreeList(fpiececodes);
@@ -11462,12 +11448,6 @@ begin
   begin
     inv.Clear;
     inv.LoadLooseParts(fn);
-    idx := fallsetswithoutextra.IndexOf(s);
-    if idx > -1 then
-    begin
-      (fallsetswithoutextra.Objects[idx] as TBrickInventory).Clear;
-      (fallsetswithoutextra.Objects[idx] as TBrickInventory).MergeWith(inv);
-    end;
     Result := True;
     if not lite then
       RefreshInv(inv);
@@ -15080,15 +15060,14 @@ end;
 
 function TSetsDatabase.IsGear(const sid: string): boolean;
 var
-  s: THashStringList;
+  s: TStringList;
   fname: string;
 begin
-  s := THashStringList.Create;
-  fname := basedefault + 'db\db_gears.txt';
-  if fexists(fname) then
-    SH_LoadFromFile(s, fname);
-  Result := s.IndexOfUCS(sid) >= 0;
-  s.Free;
+  s := S_GetStringList(fname, True);
+  if s <> nil then
+    Result := s.IndexOf(sid) >= 0
+  else
+    Result := False;
 end;
 
 function TSetsDatabase.IsMinifigure(const mid: string): boolean;
@@ -20041,9 +20020,6 @@ begin
   fcurrencies := TCurrency.Create(basedefault + 'db\db_currency.txt');
   fcurrencyconvert := TCurrencyConvert.Create('eur', basedefault + 'db\db_currencyconvert.txt');
 
-{  fallsets.Sorted := True;
-  fallsetswithoutextra.Sorted := True;}
-
   InitSetReferences;
   LoadKnownPieces;
 
@@ -20404,23 +20380,6 @@ begin
 
   if typ <> '1' then
     Exit;
-
-  if (cacheidx2 >= 0) and (cacheidx2 < fallsetswithoutextra.Count) and (fallsetswithoutextra.Strings[cacheidx2] = setid) then
-    inv := fallsetswithoutextra.Objects[cacheidx2] as TBrickInventory
-  else
-  begin
-    idx := fallsetswithoutextra.IndexOf(setid);
-    if idx < 0 then
-    begin
-      inv := TBrickInventory.Create;
-      inv.SetPartCapacity(invsize);
-      idx := fallsetswithoutextra.AddObject(setid, inv);
-    end
-    else
-      inv := fallsetswithoutextra.Objects[idx] as TBrickInventory;
-    cacheidx2 := idx;
-  end;
-  inv.AddLoosePartFast(part, color, num, pci);
 end;
 
 function TSetsDatabase.GetSetInventory(const setid: string): TBrickInventory;
@@ -20470,27 +20429,6 @@ begin
     Result := fallsets.Objects[idx] as TBrickInventory
   else
     Result := nil;
-end;
-
-function TSetsDatabase.GetSetInventoryWithOutExtra(const setid: string): TBrickInventory;
-var
-  idx: integer;
-begin
-  idx := fallsetswithoutextra.IndexOf(setid);
-  if idx < 0 then
-  begin
-    if fexists(basedefault + 'db\sets\' + setid + '.txt') then
-    begin
-      idx := fallsetswithoutextra.Add(setid);
-      fallsetswithoutextra.Objects[idx] := TBrickInventory.Create;
-      (fallsetswithoutextra.Objects[idx] as TBrickInventory).LoadLooseParts(basedefault + 'db\sets\' + setid + '.txt');
-      Result := (fallsetswithoutextra.Objects[idx] as TBrickInventory);
-    end
-    else
-      Result := nil;
-    Exit;
-  end;
-  Result := fallsetswithoutextra.Objects[idx] as TBrickInventory;
 end;
 
 procedure TSetsDatabase.ReloadCache;

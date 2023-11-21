@@ -7821,7 +7821,7 @@ begin
     document.write(' <a href=sinv/' + cursetid +'>' + cursetid + ' - ' + db.SetDesc(cursetid) + '</a>');
 
     numpcsinset := 0;
-    sinv := db.GetSetInventoryWithOutExtra(cursetid);
+    sinv := db.GetSetInventory(cursetid);
     if sinv <> nil then
       numpcsinset := sinv.LoosePartCount(pcs, cl);
     if numpcsinset > 0 then
@@ -11636,8 +11636,8 @@ begin
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
-  inv1 := db.GetSetInventoryWithOutExtra(set1);
-  inv2 := db.GetSetInventoryWithOutExtra(set2);
+  inv1 := db.GetSetInventory(set1);
+  inv2 := db.GetSetInventory(set2);
 
   if (inv1 = nil) or (inv2 = nil) then
   begin
@@ -11725,8 +11725,8 @@ begin
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
-  inv1 := db.GetSetInventoryWithOutExtra(set1);
-  inv2 := db.GetSetInventoryWithOutExtra(set2);
+  inv1 := db.GetSetInventory(set1);
+  inv2 := db.GetSetInventory(set2);
 
   if (inv1 = nil) or (inv2 = nil) then
   begin

@@ -20354,7 +20354,6 @@ end;
 
 var
   cacheidx: Integer = -1;
-  cacheidx2: Integer = -1;
 
 procedure TSetsDatabase.AddSetPiece(const setid: string; const part: string;
   const typ: string; const color: integer; const num: integer; const pci: TObject = nil;

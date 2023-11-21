@@ -19631,7 +19631,9 @@ procedure TPieceColorInfo.AssignPGAV(const pg: priceguide_p; const av: availabil
 begin
   if src = pci_src_internal then
   begin
+    GetPriceGuide;
     fpriceguide^ := pg^;
+    GetAvailability;
     favailability^ := av^;
   end
   else

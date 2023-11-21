@@ -29,16 +29,16 @@ implementation
 
 procedure TGoPageForm.PageNumEnter(Sender: TObject);
 begin
-PageNum.SelectAll;
+  PageNum.SelectAll;
 end;
 
 procedure TGoPageForm.PageNumKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-if Key = 13 then
-  Begin
-  Key := 0;
-  OKBtn.Click;
+  if Key = 13 then
+  begin
+    Key := 0;
+    OKBtn.Click;
   end;
 end;
 

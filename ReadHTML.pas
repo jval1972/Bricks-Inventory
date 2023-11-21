@@ -4725,10 +4725,10 @@ begin
     Entities := TCaseSensitiveStringList.Create;
     with Entities do
     begin
-      Sorted := True;
       for I := 0 to EntityCount - 1 do
         Entities.AddObject(EntityDefinitions[I].Name,
           Pointer(EntityDefinitions[I].Value));
+      Sorted := True;
     end;
   end;
 end;

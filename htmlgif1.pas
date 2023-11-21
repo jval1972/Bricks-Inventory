@@ -1970,7 +1970,7 @@ try
     {Now copy this frame to the next (unless it the last one).  This serves as a
      background for the next image.  This is all that's needed for the dtDoNothing
      disposal method but will be fixed up for dtBackground below}
-    if (i < fImageDescriptorList.Count-1) then
+    if (i < fImageDescriptorList.Count - 1) then
       begin
       for Y := Height-1 downto 0 do
         begin  {copy line by line}

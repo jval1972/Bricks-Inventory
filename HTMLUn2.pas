@@ -847,7 +847,7 @@ begin
       Delete(FName, I + 1, 2);
     except   {ignore exception}
       Exit;
-      end;
+    end;
     I := CharPos('%', FName);
   end;
 end;
@@ -857,25 +857,25 @@ begin
   I := CharPos('/', FName);
   if I <> 0 then
   begin
-  I := Pos('file:///', Lowercase(FName));
-  if I > 0 then
-    System.Delete(FName, I, 8)
-  else
-    begin
-    I := Pos('file://', Lowercase(FName));
+    I := Pos('file:///', Lowercase(FName));
     if I > 0 then
-      System.Delete(FName, I, 7)
+      System.Delete(FName, I, 8)
     else
-      begin
-      I := Pos('file:/', Lowercase(FName));
+    begin
+      I := Pos('file://', Lowercase(FName));
       if I > 0 then
-        System.Delete(FName, I, 6);
-      end;
+        System.Delete(FName, I, 7)
+      else
+        begin
+        I := Pos('file:/', Lowercase(FName));
+        if I > 0 then
+          System.Delete(FName, I, 6);
+        end;
     end;
-  Replace('|', ':');
-  Replace('/', '\');
+    Replace('|', ':');
+    Replace('/', '\');
   end;
-Result := FName;
+  Result := FName;
 end;
 
 function WideTrim(const S: WideString): WideString;
@@ -896,7 +896,7 @@ begin
   end;
 end;
 
-procedure WrapTextW(Canvas: TCanvas; X1, Y1, X2, Y2: integer; S: WideString);  
+procedure WrapTextW(Canvas: TCanvas; X1, Y1, X2, Y2: integer; S: WideString);
 {Wraps text in a clipping rectangle. Font must be set on entry}
 var
   ARect: TRect;
@@ -987,10 +987,10 @@ with Canvas do
     OldStyle := Pen.Style;
     OldBrushStyle := Brush.Style;   {save style first}
     OldBrushColor := Brush.Color;
-    if not MonoBlack and Disabled then  
+    if not MonoBlack and Disabled then
       Brush.Color := clBtnFace
     else
-      Brush.Color := color;    
+      Brush.Color := color;
     Brush.Style := bsSolid;
     FillRect(Rect(X1, Y1, X2, Y2));
     Brush.Color := OldBrushColor;
@@ -1084,15 +1084,16 @@ procedure RaisedRectColor(SectionList: TFreeList; Canvas: TCanvas; X1: integer;
 var
   Colors: htColorArray;
 begin
-if W = 1 then  {this looks better in Print Preview}
-  RaisedRectColor1(Canvas, X1, Y1, X2, Y2, Light, Dark, Raised)
-else
+  if W = 1 then  {this looks better in Print Preview}
+    RaisedRectColor1(Canvas, X1, Y1, X2, Y2, Light, Dark, Raised)
+  else
   begin
-  if Raised then
-    Colors := htColors(Light, Light, Dark, Dark)
-  else Colors := htColors(Dark, Dark, Light, Light);
-  DrawBorder(Canvas, Rect(X1-W+1, Y1-W+1, X2+W, Y2+W), Rect(X1+1, Y1+1, X2, Y2), Colors,
-              htStyles(bssSolid, bssSolid, bssSolid, bssSolid), clNone, False);
+    if Raised then
+      Colors := htColors(Light, Light, Dark, Dark)
+    else
+      Colors := htColors(Dark, Dark, Light, Light);
+      DrawBorder(Canvas, Rect(X1 - W + 1, Y1 - W + 1, X2 + W, Y2 + W), Rect(X1 + 1, Y1 + 1, X2, Y2),
+        Colors, htStyles(bssSolid, bssSolid, bssSolid, bssSolid), clNone, False);
   end;
 end;
 
@@ -1106,18 +1107,18 @@ destructor TFreeList.Destroy;
 var
   I: integer;
 begin
-for I := 0 to Count-1 do
-  TObject(Items[I]).Free;
-inherited Destroy;
+  for I := 0 to Count - 1 do
+    TObject(Items[I]).Free;
+  inherited Destroy;
 end;
 
 procedure TFreeList.Clear;
 var
   I: integer;
 begin
-for I := 0 to Count-1 do
-  TObject(Items[I]).Free;
-inherited Clear;
+  for I := 0 to Count - 1 do
+    TObject(Items[I]).Free;
+  inherited Clear;
 end;
 
 constructor TBitmapItem.Create(AImage:TgpObject; AMask: TBitmap; Tr: Transparency);
@@ -1148,7 +1149,7 @@ destructor TStringBitmapList.Destroy;
 var
   I: integer;
 begin
-  for I := 0 to Count-1 do
+  for I := 0 to Count - 1 do
     (Objects[I] as TBitmapItem).Free;
   CheckExitGDIPlus;
   inherited Destroy;
@@ -1240,7 +1241,7 @@ begin
     Tmp := (Objects[I] as TBitmapItem);
     with Tmp do
     begin
-      if (UsageCount <= 0) then
+      if UsageCount <= 0 then
       begin
         Delete(I);
         Free;          {the TBitmapItem}
@@ -1253,7 +1254,7 @@ procedure TStringBitmapList.Clear;
 var
   I: integer;
 begin
-  for I := 0 to Count-1 do
+  for I := 0 to Count - 1 do
     (Objects[I] as TBitmapItem).Free;
   inherited Clear;
 end;
@@ -2581,7 +2582,7 @@ var
   I: integer;
 begin
   Result := -99999;
-  for I := 0 to L.Count-1 do
+  for I := 0 to L.Count - 1 do
     with IndentRec(L.Items[I]) do
     begin
       if (Y >= YT) and (Y < YB) and (Result < X) then
@@ -2601,7 +2602,7 @@ var
   IR: IndentRec;
 begin
   Result := 99999;
-  for I := 0 to R.Count-1 do
+  for I := 0 to R.Count - 1 do
   begin
     IR := IndentRec(R.Items[I]);
     with IR do
@@ -3765,7 +3766,8 @@ Side: integer; Printing: boolean);
 {Here we draw a 4 sided polygon (by filling a region).  This represents one
  side (or part of a side) of a border.
  For single pixel thickness, drawing is done by lines for better printing}
-type SideArray = array[0..3, 1..4] of integer;
+type
+  SideArray = array[0..3, 1..4] of integer;
 
 const
   AD: SideArray = ((0, 1, 0, 3),
@@ -3897,8 +3899,8 @@ begin
    ridge, groove, dashed, dotted styles}
   if [bssRidge, bssGroove, bssDotted, bssDashed] * StyleSet <> [] then
   begin
-    MRect := Rect((ORect.Left+IRect.Left) div 2, (ORect.Top+IRect.Top) div 2,
-                  (ORect.Right+IRect.Right) div 2, (ORect.Bottom+IRect.Bottom) div 2);
+    MRect := Rect((ORect.Left + IRect.Left) div 2, (ORect.Top + IRect.Top) div 2,
+                  (ORect.Right + IRect.Right) div 2, (ORect.Bottom + IRect.Bottom) div 2);
     with MRect do
     begin
       PM[0] := Point(Left, Bottom);
@@ -3987,15 +3989,15 @@ begin
             DrawOnePolygon(Canvas, Bnd, Color, I, Print);
           bssInset:
             begin
-            if I in [0,1] then
-              Color := Darker(C[I]) or PalRelative;
-            DrawOnePolygon(Canvas, Bnd, Color, I, Print);
+              if I in [0, 1] then
+                Color := Darker(C[I]) or PalRelative;
+              DrawOnePolygon(Canvas, Bnd, Color, I, Print);
             end;
           bssOutset:
             begin
-            if (I in [2,3]) then
-              Color := Darker(C[I]) or PalRelative;
-            DrawOnePolygon(Canvas, Bnd, Color, I, Print);
+              if (I in [2, 3]) then
+                Color := Darker(C[I]) or PalRelative;
+              DrawOnePolygon(Canvas, Bnd, Color, I, Print);
             end;
         end;
       end
@@ -4003,40 +4005,40 @@ begin
       begin    {ridge or groove}
         Color := C[I] or PalRelative;
         Bnd[0] := PO[I];
-        Bnd[1] := PO[(I+1) mod 4];
-        Bnd[2] := PM[(I+1) mod 4];
+        Bnd[1] := PO[(I + 1) mod 4];
+        Bnd[2] := PM[(I + 1) mod 4];
         Bnd[3] := PM[I];
         case S[I] of
           bssGroove:
             begin
-            if I in [0,1] then
-              Color := Darker(C[I]) or PalRelative;
-            DrawOnePolygon(Canvas, Bnd, Color, I, Print);
+              if I in [0, 1] then
+                Color := Darker(C[I]) or PalRelative;
+              DrawOnePolygon(Canvas, Bnd, Color, I, Print);
             end;
           bssRidge:
             begin
-            if (I in [2,3]) then
-              Color := Darker(C[I]) or PalRelative;
-            DrawOnePolygon(Canvas, Bnd, Color, I, Print);
+              if (I in [2, 3]) then
+                Color := Darker(C[I]) or PalRelative;
+              DrawOnePolygon(Canvas, Bnd, Color, I, Print);
             end;
         end;
         Color := C[I] or PalRelative;
         Bnd[0] := PM[I];
-        Bnd[1] := PM[(I+1) mod 4];
-        Bnd[2] := PI[(I+1) mod 4];
+        Bnd[1] := PM[(I + 1) mod 4];
+        Bnd[2] := PI[(I + 1) mod 4];
         Bnd[3] := PI[I];
         case S[I] of
           bssRidge:
             begin
-            if I in [0,1] then
-              Color := Darker(C[I]) or PalRelative;
-            DrawOnePolygon(Canvas, Bnd, Color, I, Print);
+              if I in [0, 1] then
+                Color := Darker(C[I]) or PalRelative;
+              DrawOnePolygon(Canvas, Bnd, Color, I, Print);
             end;
           bssGroove:
             begin
-            if (I in [2,3]) then
-              Color := Darker(C[I]) or PalRelative;
-            DrawOnePolygon(Canvas, Bnd, Color, I, Print);
+              if (I in [2, 3]) then
+                Color := Darker(C[I]) or PalRelative;
+              DrawOnePolygon(Canvas, Bnd, Color, I, Print);
             end;
           end;
       end
@@ -4056,34 +4058,34 @@ begin
       end
       else if S[I] in [bssDashed, bssDotted] then
       begin
-      if not InPath then
-      begin
-        lb.lbStyle := BS_SOLID;
-        lb.lbColor := C[I] or PalRelative;
-        lb.lbHatch := 0;
-        if S[I] = bssDotted then
-          PenType := PS_Dot or ps_EndCap_Round
-        else PenType := PS_Dash or ps_EndCap_Square;
-        Pn := ExtCreatePen(PS_GEOMETRIC or PenType or ps_Join_Miter, W[I], lb, 0, nil);
-        OldPn := SelectObject(Canvas.Handle, Pn);
-        BeginPath(Canvas.Handle);
-        Windows.movetoEx(Canvas.Handle, PM[I].x, PM[I].y, nil);
-        Start := I;
-        InPath := True;
+        if not InPath then
+        begin
+          lb.lbStyle := BS_SOLID;
+          lb.lbColor := C[I] or PalRelative;
+          lb.lbHatch := 0;
+          if S[I] = bssDotted then
+            PenType := PS_Dot or ps_EndCap_Round
+          else PenType := PS_Dash or ps_EndCap_Square;
+          Pn := ExtCreatePen(PS_GEOMETRIC or PenType or ps_Join_Miter, W[I], lb, 0, nil);
+          OldPn := SelectObject(Canvas.Handle, Pn);
+          BeginPath(Canvas.Handle);
+          Windows.movetoEx(Canvas.Handle, PM[I].x, PM[I].y, nil);
+          Start := I;
+          InPath := True;
+        end;
+        Windows.LineTo(Canvas.Handle, PM[(I + 1) mod 4].x, PM[(I + 1) mod 4].y);
+        if (I = 3) or (S[I + 1] <> S[I]) or (C[I + 1] <> C[I]) or (W[I + 1] <> W[I]) then
+        begin
+          if (I = 3) and (Start = 0) then
+            CloseFigure(Canvas.Handle);   {it's a closed path}
+          EndPath(Canvas.Handle);
+          StrokePath(Canvas.Handle);
+          SelectObject(Canvas.Handle, OldPn);
+          DeleteObject(Pn);
+          Pn := 0;
+          InPath := False;
+        end;
       end;
-      Windows.LineTo(Canvas.Handle, PM[(I + 1) mod 4].x, PM[(I + 1) mod 4].y);
-      if (I = 3) or (S[I + 1] <> S[I]) or (C[I + 1] <> C[I]) or (W[I + 1] <> W[I]) then
-      begin
-        if (I = 3) and (Start = 0) then
-          CloseFigure(Canvas.Handle);   {it's a closed path}
-        EndPath(Canvas.Handle);
-        StrokePath(Canvas.Handle);
-        SelectObject(Canvas.Handle, OldPn);
-        DeleteObject(Pn);
-        Pn := 0;
-        InPath := False;
-      end;
-    end;
   finally
     if Pn <> 0 then
     begin
@@ -4097,17 +4099,18 @@ end;
 
 function GetImageHeight(Image: TGpObject): integer;
 begin
-if Image is TBitmap then
-  Result := TBitmap(Image).Height
-else if Image is TGpImage then
-  Result := TGpImage(Image).Height
-else if Image is TGifImage then
-  Result := TGifImage(Image).Height
-{$ifndef NoMetafile}
-else if Image is ThtMetaFile then
-  Result := ThtMetaFile(Image).Height
-{$endif}
-else Raise(EGDIPlus.Create('Not a TBitmap, TGifImage, TMetafile, or TGpImage'));
+  if Image is TBitmap then
+    Result := TBitmap(Image).Height
+  else if Image is TGpImage then
+    Result := TGpImage(Image).Height
+  else if Image is TGifImage then
+    Result := TGifImage(Image).Height
+  {$ifndef NoMetafile}
+  else if Image is ThtMetaFile then
+    Result := ThtMetaFile(Image).Height
+  {$endif}
+  else
+    Raise(EGDIPlus.Create('Not a TBitmap, TGifImage, TMetafile, or TGpImage'));
 end;
 
 function GetImageWidth(Image: TGpObject): integer;

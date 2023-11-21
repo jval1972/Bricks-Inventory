@@ -10,12 +10,12 @@
 {***************************************************************}
 
 {*******************************************************}
-{                                                       }
+
 {       Portable Network Graphics decoder               }
 {       * decode & encode png files in delphi *         }
-{                                                       }
+
 {       EMAIL: gustavodaud@uol.com.br                   }
-{                                                       }
+
 {*******************************************************}
 
 { Delphi 3 compatibility and french translation by Paul TOTH <tothpaul@free.fr>}
@@ -41,9 +41,9 @@ uses
 {$IFDEF VER80}  {$DEFINE PRIORDELPHI5} {$DEFINE PRIORDELPHI3} {$ENDIF}
 
 resourcestring
-  {.$INCLUDE Portuguese.TXT}
+{.$INCLUDE Portuguese.TXT}
   {$INCLUDE English.TXT}
-  {. $INCLUDE French.TXT}
+{. $INCLUDE French.TXT}
 
 {Portable Network Graphics implementation}
 type
@@ -53,7 +53,7 @@ type
   TEncodeFilterSet = set of TEncodeFilter;
 
   {:Chunk type}
-  TChunkType = Array[0..3] of char;
+  TChunkType = array[0..3] of char;
 
   {Forward declarations}
   TPNGImage = class;
@@ -66,33 +66,33 @@ type
     constructor Create(AOwner: TChunkList); virtual;
     destructor Destroy; override;
   private
-    fList  : TChunkList;
+    fList: TChunkList;
     fStream: TMemoryStream;
 
-    function GetSize: Integer;
+    function GetSize: integer;
 
     {Returns pointer to the most common chunk types}
-    function GetIHDR   : TChunkIHDR;
-    function GetGAMA   : TChunkGAMA;
+    function GetIHDR: TChunkIHDR;
+    function GetGAMA: TChunkGAMA;
     {Return a pointer to the TPNGImage owner}
-    function GetBitmap : TPNGImage;
+    function GetBitmap: TPNGImage;
 
   protected
-    fType  : TChunkType;
-    function GetIndex: Integer;
+    fType: TChunkType;
+    function GetIndex: integer;
     procedure DoAction; virtual;
 
-    property IHDR  : TChunkIHDR read GetIHDR;
-    property GAMA  : TChunkGAMA read GetGama;
-    property Bitmap: TPNGImage  read GetBitmap;
+    property IHDR: TChunkIHDR read GetIHDR;
+    property GAMA: TChunkGAMA read GetGama;
+    property Bitmap: TPNGImage read GetBitmap;
     property Stream: TMemoryStream read fStream;
   public
     procedure Assign(Source: TChunk); virtual;
     procedure SaveToStream(Stream: TStream); virtual;
-    property Index: Integer read GetIndex;
+    property Index: integer read GetIndex;
     property Owner: TChunkList read fList;
-    property Size: Integer read GetSize;
-    (*property ChunkType: TChunkType read fType;*) //LDB will not compile in C++Builder
+    property Size: integer read GetSize;
+    (*property ChunkType: TChunkType read fType;*)//LDB will not compile in C++Builder
   end;
 
 
@@ -100,24 +100,24 @@ type
   TChunkIEND = class(TChunk);
 
   {:tEXt Chunk, dynamic size, minimum 2 bytes (null separators)}
-  TChunkTEXT = Class(TChunk)
+  TChunkTEXT = class(TChunk)
     constructor Create(AOwner: TChunkList); override;
   private
-    function GetValue(Index: Integer): String;
-    procedure SetValue(Index: Integer; Value: String);
+    function GetValue(Index: integer): string;
+    procedure SetValue(Index: integer; Value: string);
   public
-    property Keyword: String index 0 read GetValue write SetValue;
-    property Text: String index 1 read GetValue write SetValue;
+    property Keyword: string index 0 read GetValue write SetValue;
+    property Text: string index 1 read GetValue write SetValue;
   end;
 
   {:zTXt Chunk, dynamic size}
-  TChunkZTXT = Class(TChunk)
+  TChunkZTXT = class(TChunk)
   private
-    function GetValue(Index: Integer): String;
-    procedure SetValue(Index: Integer; Value: String);
+    function GetValue(Index: integer): string;
+    procedure SetValue(Index: integer; Value: string);
   public
-    property Keyword: String index 0 read GetValue write SetValue;
-    property Text: String index 1 read GetValue write SetValue;
+    property Keyword: string index 0 read GetValue write SetValue;
+    property Text: string index 1 read GetValue write SetValue;
   end;
 
   {:gAMA Chunk, 4 bytes length}
@@ -125,19 +125,18 @@ type
     constructor Create(AOwner: TChunkList); override;
     procedure Assign(Source: TChunk); override;
   protected
-    GammaTable,
-    InverseTable: Array[Byte] of Byte;
+    GammaTable, InverseTable: array[byte] of byte;
     procedure DoAction; override;
   private
-    function GetValue: Cardinal;
-    procedure SetValue(Value: Cardinal);
+    function GetValue: cardinal;
+    procedure SetValue(Value: cardinal);
   public
-    property Value: Cardinal read GetValue write SetValue;
+    property Value: cardinal read GetValue write SetValue;
   end;
 
   {:PLTE Chunk, dynamic length}
   TChunkPLTE = class(TChunk)
-    destructor Destroy; Override;
+    destructor Destroy; override;
   private
     fPalette: HPalette;
     function GetPalette: HPalette;
@@ -151,20 +150,20 @@ type
     procedure SaveToStream(Stream: TStream); override;
     constructor Create(AOwner: TChunkList); override;
   private
-    function GetWidth: Cardinal;
-    function GetHeight: Cardinal;
-    procedure SetWidth(Value: Cardinal);
-    procedure SetHeight(Value: Cardinal);
-    function GetValue(Index: Integer): Byte;
-    procedure SetValue(Index: Integer; Value: Byte);
+    function GetWidth: cardinal;
+    function GetHeight: cardinal;
+    procedure SetWidth(Value: cardinal);
+    procedure SetHeight(Value: cardinal);
+    function GetValue(Index: integer): byte;
+    procedure SetValue(Index: integer; Value: byte);
   public
-    property Width: Cardinal read GetWidth write SetWidth;
-    property Height: Cardinal read GetHeight write SetHeight;
-    property BitDepth: Byte index 0 read GetValue write SetValue;
-    property ColorType: Byte index 1 read GetValue write SetValue;
-    property Compression: Byte index 2 read GetValue write SetValue;
-    property Filter: Byte index 3 read GetValue write SetValue;
-    property Interlaced: Byte index 4 read GetValue write SetValue;
+    property Width: cardinal read GetWidth write SetWidth;
+    property Height: cardinal read GetHeight write SetHeight;
+    property BitDepth: byte index 0 read GetValue write SetValue;
+    property ColorType: byte index 1 read GetValue write SetValue;
+    property Compression: byte index 2 read GetValue write SetValue;
+    property Filter: byte index 3 read GetValue write SetValue;
+    property Interlaced: byte index 4 read GetValue write SetValue;
   end;
 
   {:IDAT Chunk, dynamic size}
@@ -172,19 +171,19 @@ type
   public
     procedure SaveToStream(Stream: TStream); override;
   protected
-    function GetBufferWidth: Integer;
-    procedure FilterRow(Filter: Byte; CurrentRow, LastRow: pbytearray;
-     offset, row_buffer_width: Integer);
-    function EncodeFilterRow(row_buffer: pbytearray;
-      Filter_buffers: TFilterRow; row_width, filter_width: Cardinal): Integer;
+    function GetBufferWidth: integer;
+    procedure FilterRow(Filter: byte; CurrentRow, LastRow: pbytearray;
+      offset, row_buffer_width: integer);
+    function EncodeFilterRow(row_buffer: pbytearray; Filter_buffers: TFilterRow;
+      row_width, filter_width: cardinal): integer;
     procedure DoAction; override;
-    function GetOffset: Integer;
+    function GetOffset: integer;
     procedure EncodeImage;
     procedure SetupPixelFormat;
     procedure DecodeNonInterlacedRow(ImageData: Pointer; Data: pByteArray;
-      RowBytes: Integer; GamaChunk: TChunkGama);
+      RowBytes: integer; GamaChunk: TChunkGama);
     procedure DecodeInterlacedRow(ImageData: Pointer; Data: pByteArray;
-      ColStart, ColIncrement, RowBytes, Pass: Integer; GamaChunk: TChunkGama);
+      ColStart, ColIncrement, RowBytes, Pass: integer; GamaChunk: TChunkGama);
   end;
 
   {:tIME Chunk, 7 bytes}
@@ -208,28 +207,29 @@ type
 
 
   {:Chunk class handler}
-  TChunkClass = Class of TChunk;
+  TChunkClass = class of TChunk;
 
   {:Record containg a chunk class info}
   pChunkClassInfo = ^TChunkClassInfo;
+
   TChunkClassInfo = record
-    ChunkType:  TChunkType;
+    ChunkType: TChunkType;
     ChunkClass: TChunkClass;
   end;
 
   {:This class contains the avaliable kinds of TChunk class}
   TChunkClasses = class
-    destructor Destroy; Override;
+    destructor Destroy; override;
   private
     fList: TList;
-    function GetCount: Integer;
-    function GetItem(Index: Integer): TChunkClassInfo;
+    function GetCount: integer;
+    function GetItem(Index: integer): TChunkClassInfo;
   public
-    property Count: Integer read GetCount;
-    function IndexOfType(Item: TChunkType): Integer; { Paul - overload; }
-    function IndexOfClass(Item: TChunkClass): Integer; { Paul - overload; }
+    property Count: integer read GetCount;
+    function IndexOfType(Item: TChunkType): integer; { Paul - overload; }
+    function IndexOfClass(Item: TChunkClass): integer; { Paul - overload; }
     procedure Add(ChunkType: TChunkType; ChunkClass: TChunkClass);
-    property Item[Index: Integer]: TChunkClassInfo read GetItem; default;
+    property Item[Index: integer]: TChunkClassInfo read GetItem; default;
   end;
 
   {:This class contains the list of avaliable chunks for a TPNGImage }
@@ -239,20 +239,20 @@ type
     destructor Destroy; override;
   private
     fImage: TPNGImage;
-    fList : TList;
-    function GetCount: Integer;
-    function GetItem(Index: Integer): TChunk;
+    fList: TList;
+    function GetCount: integer;
+    function GetItem(Index: integer): TChunk;
   public
     property Owner: TPNGImage read fImage;
-    property Count: Integer read GetCount;
-    property Item[Index: Integer]: TChunk read GetItem; default;
-    procedure Move(Index1, Index2: Integer);
+    property Count: integer read GetCount;
+    property Item[Index: integer]: TChunk read GetItem; default;
+    procedure Move(Index1, Index2: integer);
     function AddItem(Item: TChunk): TChunk; { Paul - overload; }
     function AddClass(ChunkClass: TChunkClass): TChunk; { Paul - overload; }
     function AddStream(Stream: TStream): TChunk; { Paul - overload; }
     procedure Remove(Item: TChunk);
-    function IndexOfChunk(Chunk: TChunk): Integer; { Paul - overload; }
-    function IndexOfClass(ChunkClass: TChunkClass): Integer; { Paul - overload; }
+    function IndexOfChunk(Chunk: TChunk): integer; { Paul - overload; }
+    function IndexOfClass(ChunkClass: TChunkClass): integer; { Paul - overload; }
     procedure Clear;
   end;
 
@@ -267,13 +267,13 @@ type
   private
     fMask: TBitmap;
     fEncodeFilter: TEncodeFilterSet;
-    fInterlacing: Boolean;
+    fInterlacing: boolean;
     fChunkList: TChunkList;
     procedure SetFilter(Value: TEncodeFilterSet);
   public
     procedure Assign(Source: TPersistent); override;
     property Filter: TEncodeFilterSet read fEncodeFilter write SetFilter;
-    property Interlacing: Boolean read fInterlacing write fInterlacing;
+    property Interlacing: boolean read fInterlacing write fInterlacing;
     procedure Clear;
     property Chunks: TChunkList read fChunkList;
     class procedure RegisterChunkClass(ChunkType: TChunkType;
@@ -287,18 +287,18 @@ uses
 
 { Delphi versions prior 4 missing code}
 {$IFDEF PRIORDELPHI5}
-Procedure ReplaceTime(Var D:TDateTime; T:TDateTime);
- begin
-  D:=D+T; // this work for PNGImage only !
- end;
+procedure ReplaceTime(var D: TDateTime; T: TDateTime);
+begin
+  D := D + T; // this work for PNGImage only !
+end;
 {$ENDIF}
 
 { Delphi versions prior 3 missing code}
 {$IFDEF PRIORDELPHI3}
-Procedure ShowMessageFmt(msg:string; fmt:array of const);
- begin
-  ShowMessage(Format(msg,fmt));
- end;
+procedure ShowMessageFmt(msg: string; fmt: array of const);
+begin
+  ShowMessage(Format(msg, fmt));
+end;
 {$ENDIF}
 
 var
@@ -309,11 +309,11 @@ const
   FILTERBUFFERCOUNT = 5;
 
   {Interlacing}
-  RowStart: array[0..6] of Integer = (0, 0, 4, 0, 2, 0, 1);
-  ColumnStart: array[0..6] of Integer = (0, 4, 0, 2, 0, 1, 0);
-  RowIncrement: array[0..6] of Integer = (8, 8, 8, 4, 4, 2, 2);
-  ColumnIncrement: array[0..6] of Integer = (8, 8, 4, 4, 2, 2, 1);
-  PassMask: array[0..6] of Byte = ($80, $08, $88, $22, $AA, $55, $FF);
+  RowStart: array[0..6] of integer = (0, 0, 4, 0, 2, 0, 1);
+  ColumnStart: array[0..6] of integer = (0, 4, 0, 2, 0, 1, 0);
+  RowIncrement: array[0..6] of integer = (8, 8, 8, 4, 4, 2, 2);
+  ColumnIncrement: array[0..6] of integer = (8, 8, 4, 4, 2, 2, 1);
+  PassMask: array[0..6] of byte = ($80, $08, $88, $22, $AA, $55, $FF);
 
   {Color types}
   Grayscale = 0;
@@ -330,19 +330,20 @@ const
   FILTERPAETH = 4;
 
   {Valid PNG header (first 8 bytes)}
-  PNGHeader: array[0..7] of Byte = (137, 80, 78, 71, 13, 10, 26, 10);
+  PNGHeader: array[0..7] of byte = (137, 80, 78, 71, 13, 10, 26, 10);
 
 type
-  pCardinal = ^Cardinal;
+  pCardinal = ^cardinal;
 
   {Default error handler for PNG format}
-  EPNGImageException = Class(Exception);
+  EPNGImageException = class(Exception);
 
   {:IHDR Chunk}
   pIHDRChunk = ^TIHDRChunk;
+
   TIHDRChunk = packed record
     {Width and height give the image dimensions in pixels}
-    Width, Height: Cardinal;
+    Width, Height: cardinal;
     {Bit depth is a single-byte integer giving the number of bits }
     {per sample or per palette index (not per pixel). Valid values}
     {are 1, 2, 4, 8, and 16, although not all values are allowed  }
@@ -374,40 +375,40 @@ type
     {Interlace method is a single-byte integer that indicates  }
     {the transmission order of the image data. Two values are  }
     {currently defined: 0 (no interlace) or 1 (Adam7 interlace)}
-    Interlaced: Byte;
+    Interlaced: byte;
   end;
 
   {tIME Chunk}
   pTIMEChunk = ^TTimeChunk;
-  TTIMEChunk = Record
-    Year    : Word;
-    Month   : Byte;
-    Day     : Byte;
-    Hour    : Byte;
-    Min     : Byte;
-    Sec     : Byte;
+
+  TTIMEChunk = record
+    Year: word;
+    Month: byte;
+    Day: byte;
+    Hour: byte;
+    Min: byte;
+    Sec: byte;
   end;
 
   {Pixel memory access}
   pRGBLine = ^TRGBLine;
-  TRGBLine = Array[Word] of TRGBTriple;
+  TRGBLine = array[word] of TRGBTriple;
   pRGBALine = ^TRGBALine;
-  TRGBALine = Array[Word] of TRGBQuad;
+  TRGBALine = array[word] of TRGBQuad;
 
   {Standard PNG header}
-  TPNGHeader = Array[0..7] of Byte;
+  TPNGHeader = array[0..7] of byte;
 
 procedure ConvertBits(Source: array of Pointer; Target: Pointer;
-  Count: Cardinal; Mask: Byte; FSourceBPS, FTargetBPS: Byte); forward;
+  Count: cardinal; Mask: byte; FSourceBPS, FTargetBPS: byte); forward;
 
 {Forward declaration for the CRC check function}
-function crc(chunktype: tchunktype; buf: pbytearray;
-  len: Integer): Cardinal; forward;
+function crc(chunktype: tchunktype; buf: pbytearray; len: integer): cardinal; forward;
 
 {:swaps high and low bytes of the given 32 bit value}
-function SwapLong(Value: Cardinal): Cardinal;
+function SwapLong(Value: cardinal): cardinal;
 asm
-  BSWAP EAX
+         BSWAP   EAX
 end;
 
 {:Register a new chunk kind class}
@@ -418,9 +419,9 @@ begin
 end;
 
 {:Extracted from PNG specification, returns paeth prediction of the values}
-function PaethPredictor(a, b, c: Byte): Byte;
+function PaethPredictor(a, b, c: byte): byte;
 var
-  p, pa, pb, pc: Integer;
+  p, pa, pb, pc: integer;
 begin
   { a = left, b = above, c = upper left }
   p := a + b - c;        { initial estimate }
@@ -431,18 +432,18 @@ begin
   if (pa <= pb) and (pa <= pc) then
     Result := a
   else
-    if pb <= pc then
-      Result := b
-    else
-      Result := c;
+  if pb <= pc then
+    Result := b
+  else
+    Result := c;
 end;
 
 {:Default error handler method}
-procedure CallError(ErrorCode: String);
+procedure CallError(ErrorCode: string);
 begin
   {Show the error message}
   raise EPNGImageException.CreateFmt('Portable Network Graphics format handler ' +
-      'error%s%s', [#13#10#13#10, ErrorCode]);
+    'error%s%s', [#13#10#13#10, ErrorCode]);
 end;
 
 {Returns the RGB color}
@@ -472,7 +473,7 @@ end;
 {:Return the value of the date and time stamped on the chunk}
 function TChunkTIME.GetDateTime: TDateTime;
 var
-  Data    : TTimeChunk;
+  Data: TTimeChunk;
 begin
   {Makes sure that the stream size is 7}
   if fStream.Size <> 7 then
@@ -486,7 +487,8 @@ begin
   with Data do
     {Test if time is corrupted}
     try
-      if Year = 0 then Year := 2000;
+      if Year = 0 then
+        Year := 2000;
       Result := EncodeDate(Year, Month, Day);
       ReplaceTime(Result, EncodeTime(Hour, Min, Sec, 0));
     except
@@ -500,14 +502,8 @@ end;
 {:Set the value for the date and time in the chunk}
 procedure TChunkTIME.SetDateTime(const Value: TDateTime);
 var
-  Year,
-  Month,
-  Day,
-  Hour,
-  Min,
-  Sec,
-  MSec   : word;
-  Temp   : Byte;
+  Year, Month, Day, Hour, Min, Sec, MSec: word;
+  Temp: byte;
 begin
   fStream.Clear;
 
@@ -518,17 +514,22 @@ begin
   {Write the values}
   Year := SwapLong(Year);
   fStream.Write(Year, 2);
-  Temp := Month; fStream.Write(Temp, 1);
-  Temp := Day;   fStream.Write(Temp, 1);
-  Temp := Hour;  fStream.Write(Temp, 1);
-  Temp := Min;   fStream.Write(Temp, 1);
-  Temp := Sec;   fStream.Write(Sec, 1);
+  Temp := Month;
+  fStream.Write(Temp, 1);
+  Temp := Day;
+  fStream.Write(Temp, 1);
+  Temp := Hour;
+  fStream.Write(Temp, 1);
+  Temp := Min;
+  fStream.Write(Temp, 1);
+  Temp := Sec;
+  fStream.Write(Sec, 1);
 end;
 
 {When the chunk is being saved}
 procedure TChunkTRNS.SaveToStream(Stream: TStream);
 var
-  Temp: Byte;
+  Temp: byte;
 begin
   {Clear the data contents}
   fStream.Clear;
@@ -538,41 +539,44 @@ begin
     RGB:
     begin
       {RGB data}
-      Temp := GetRValue(Bitmap.TransparentColor);  fStream.Write(Temp, 1);
-      Temp := GetGValue(Bitmap.TransparentColor);  fStream.Write(Temp, 1);
-      Temp := GetBValue(Bitmap.TransparentColor);  fStream.Write(Temp, 1);
+      Temp := GetRValue(Bitmap.TransparentColor);
+      fStream.Write(Temp, 1);
+      Temp := GetGValue(Bitmap.TransparentColor);
+      fStream.Write(Temp, 1);
+      Temp := GetBValue(Bitmap.TransparentColor);
+      fStream.Write(Temp, 1);
     end;
-  else
-    exit;
+    else
+      exit;
   end;
 
   inherited;
 end;
 
 {:Return value of one of the properties}
-function TChunkZTXT.GetValue(Index: Integer): String;
+function TChunkZTXT.GetValue(Index: integer): string;
 var
-  fKeyword: Pchar;
-  DSize   : Integer;
-  fText   : Pchar; { Paul - Array of Char; }
-  Decode  : TZDecompressionStream;
+  fKeyword: PChar;
+  DSize: integer;
+  fText: PChar; { Paul - Array of Char; }
+  Decode: TZDecompressionStream;
 begin
   {Read the keyword}
   fKeyword := fStream.Memory;
 
   {Get the size of the uncompressed text and resize the holder}
   DSize := fStream.Size - Length(fKeyword) - 2;
-  GetMem(fText,DSize); { Paul - SetLength(fText, DSize); }
+  GetMem(fText, DSize); { Paul - SetLength(fText, DSize); }
 
   {Create a especial stream to decompress}
   fStream.Position := Length(fKeyword) + 2;
   Decode := TZDecompressionStream.Create(fStream);
   Decode.Read(fText[0], DSize);
   case Index of
-  0:
-    Result := fKeyword;
-  else
-    Result := ftext; { Paul - pchar(@fText[0]); }
+    0:
+      Result := fKeyword;
+    else
+      Result := ftext; { Paul - pchar(@fText[0]); }
   end;
   {Free that stream}
   Decode.Free;
@@ -580,24 +584,25 @@ begin
 end;
 
 {:Set the value of one of the properties}
-procedure TChunkZTXT.SetValue(Index: Integer; Value: String);
+procedure TChunkZTXT.SetValue(Index: integer; Value: string);
 var
-  fKeyword, fText: pchar;
-  Encode         : TZCompressionStream;
-  Method         : Byte;
+  fKeyword, fText: PChar;
+  Encode: TZCompressionStream;
+  Method: byte;
 begin
   {Test which property to set}
   case Index of
-  0: begin
+    0:
+    begin
       {Setting keyword}
-      fKeyword := pchar(Value);
-      fText := pchar(Text);
+      fKeyword := PChar(Value);
+      fText := PChar(Text);
     end;
-  else
+    else
     begin
       {Setting text}
-      fText := pchar(Value);
-      fKeyword := pchar(Keyword);
+      fText := PChar(Value);
+      fKeyword := PChar(Keyword);
     end;
   end;
 
@@ -628,38 +633,39 @@ begin
 end;
 
 {:Return one of the properties of the chunk TEXT}
-function TChunkTEXT.GetValue(Index: Integer): String;
+function TChunkTEXT.GetValue(Index: integer): string;
 var
-  fKeyword, fText: pChar;
+  fKeyword, fText: PChar;
 begin
   fKeyword := fStream.Memory;
   fText := @pByteArray(fStream.Memory)[Length(fKeyword) + 1];
 
   {Test which property to return}
   case Index of
-  0: Result := fKeyword;
-  else
-     Result := fText;
+    0: Result := fKeyword;
+    else
+      Result := fText;
   end;
 end;
 
 {:Set the value of the TEXT chunk}
-procedure TChunkTEXT.SetValue(Index: Integer; Value: String);
+procedure TChunkTEXT.SetValue(Index: integer; Value: string);
 var
-  fKeyword, fText: pchar;
+  fKeyword, fText: PChar;
 begin
   {Test which property to set}
   case Index of
-  0: begin
+    0:
+    begin
       {Setting keyword}
-      fKeyword := pchar(Value);
-      fText := pchar(Text);
+      fKeyword := PChar(Value);
+      fText := PChar(Text);
     end;
-  else
+    else
     begin
       {Setting text}
-      fText := pchar(Value);
-      fKeyword := pchar(Keyword);
+      fText := PChar(Value);
+      fKeyword := PChar(Keyword);
     end;
   end;
 
@@ -692,8 +698,8 @@ end;
 function TChunkPLTE.GetPalette: HPalette;
 var
   MaxPalette: TMaxLogPalette;
-  i: Integer;
-  GamaChunk : TChunkGAMA;
+  i: integer;
+  GamaChunk: TChunkGAMA;
 begin
   GamaChunk := Gama;
 
@@ -702,7 +708,7 @@ begin
     DeleteObject(fPalette);
 
   {The palette stream must be divisible by 3}
-  if fStream.Size MOD 3 <> 0 then
+  if fStream.Size mod 3 <> 0 then
     CallError(PNG_ERROR_INVALID_PLTE);
 
   {Set the MaxPalette attributes}
@@ -710,30 +716,30 @@ begin
   begin
     Fillchar(MaxPalette, sizeof(MaxPalette), 0);
     palVersion := $300;
-    palNumEntries := fStream.Size DIV 3;
+    palNumEntries := fStream.Size div 3;
 
     {Get each value}
-    FOR i := 0 to palNumEntries - 1 DO
-    WITH palPalEntry[i] do
-    BEGIN
-      peRed := pByteArray(fStream.Memory)[(i * 3)];
-      {Correct red using gamma}
-      if Assigned(GamaChunk) then
-        peRed := GamaChunk.GammaTable[peRed];
+    for i := 0 to palNumEntries - 1 do
+      with palPalEntry[i] do
+      begin
+        peRed := pByteArray(fStream.Memory)[(i * 3)];
+        {Correct red using gamma}
+        if Assigned(GamaChunk) then
+          peRed := GamaChunk.GammaTable[peRed];
 
-      peGreen := pByteArray(fStream.Memory)[(i * 3) + 1];
-      {Correct green using gamma}
-      if Assigned(GamaChunk) then
-        peGreen := GamaChunk.GammaTable[peGreen];
+        peGreen := pByteArray(fStream.Memory)[(i * 3) + 1];
+        {Correct green using gamma}
+        if Assigned(GamaChunk) then
+          peGreen := GamaChunk.GammaTable[peGreen];
 
-      peBlue := pByteArray(fStream.Memory)[(i * 3) + 2];
-      {Correct red using gamma}
-      if Assigned(GamaChunk) then
-        peBlue := GamaChunk.GammaTable[peBlue];
+        peBlue := pByteArray(fStream.Memory)[(i * 3) + 2];
+        {Correct red using gamma}
+        if Assigned(GamaChunk) then
+          peBlue := GamaChunk.GammaTable[peBlue];
 
-      peFlags := 0;
-    END;
-    IF (IHDR.BitDepth = 2) and (palNumEntries < 16) then
+        peFlags := 0;
+      end;
+    if (IHDR.BitDepth = 2) and (palNumEntries < 16) then
     begin
       {Note: This is really a crazy fix for supporting 2bit}
       {images}
@@ -741,9 +747,7 @@ begin
       copymemory(@palpalentry[4], @palpalentry[0], 21);
       copymemory(@palpalentry[8], @palpalentry[0], 21);
       copymemory(@palpalentry[12], @palpalentry[0], 21);
-
     end;
-
   end;
 
   {Create the palette object}
@@ -756,10 +760,10 @@ end;
 {:When the chunk is being saved}
 procedure TChunkPLTE.SaveToStream(Stream: TStream);
 var
-  PaletteSize: Word;
-  LogPalette : TMaxLogPalette;
-  I          : Integer;
-  GamaChunk  : TChunkGama;
+  PaletteSize: word;
+  LogPalette: TMaxLogPalette;
+  I: integer;
+  GamaChunk: TChunkGama;
 begin
   GamaChunk := Gama;
 
@@ -774,29 +778,29 @@ begin
     {If it does, retrieve the palette}
 
     {First discover the palette size}
-    GetObject(Bitmap.Palette, SizeOf(WORD), @PaletteSize);
+    GetObject(Bitmap.Palette, SizeOf(word), @PaletteSize);
     {Now get the entries}
     GetPaletteEntries(Bitmap.Palette, 0, PaletteSize,
       LogPalette.palpalentry);
 
     {Now write the entries to the stream}
-    FOR I := 0 TO PaletteSize - 1 DO
-    With LogPalette do
-    begin
-      {Test if uses gamma}
-      if Assigned(GamaChunk) then
+    for I := 0 to PaletteSize - 1 do
+      with LogPalette do
       begin
-        fStream.Write(GamaChunk.InverseTable[palPalEntry[i].peRed], 1);
-        fStream.Write(GamaChunk.InverseTable[palPalEntry[i].peGreen], 1);
-        fStream.Write(GamaChunk.InverseTable[palPalEntry[i].peBlue], 1);
-      end
-      else
-      begin
-        fStream.Write(palPalEntry[i].peRed, 1);
-        fStream.Write(palPalEntry[i].peGreen, 1);
-        fStream.Write(palPalEntry[i].peBlue, 1);
+        {Test if uses gamma}
+        if Assigned(GamaChunk) then
+        begin
+          fStream.Write(GamaChunk.InverseTable[palPalEntry[i].peRed], 1);
+          fStream.Write(GamaChunk.InverseTable[palPalEntry[i].peGreen], 1);
+          fStream.Write(GamaChunk.InverseTable[palPalEntry[i].peBlue], 1);
+        end
+        else
+        begin
+          fStream.Write(palPalEntry[i].peRed, 1);
+          fStream.Write(palPalEntry[i].peGreen, 1);
+          fStream.Write(palPalEntry[i].peBlue, 1);
+        end;
       end;
-    end;
 
   end;
 
@@ -806,242 +810,242 @@ end;
 
 {:Copy interlaced data into the current image}
 procedure TChunkIDAT.DecodeInterlacedRow(ImageData: Pointer; Data: pByteArray;
-  ColStart, ColIncrement, RowBytes, Pass: Integer; GamaChunk: TChunkGama);
+  ColStart, ColIncrement, RowBytes, Pass: integer; GamaChunk: TChunkGama);
 var
-  J, I: Integer;
+  J, I: integer;
 begin
   I := ColStart;
   J := 0;
 
   {Test for color type}
-  CASE IHDR.ColorType of
+  case IHDR.ColorType of
     Palette, Grayscale:
-    {Test for bit depth}
-    CASE IHDR.BitDepth of
-      2: {2 bits per pixel, not supported by TBitmap, so move to 4 bits}
-        ConvertBits([@Data[0]], ImageData, IHDR.Width, PassMask[Pass], 2, 4);
-      4: {4 bits per pixel}
-        ConvertBits([@Data[0]], ImageData, IHDR.Width, PassMask[Pass], 4, 4);
-      1: {1 bit per pixel}
-        ConvertBits([@Data[0]], ImageData, IHDR.Width, PassMask[Pass], 1, 1);
-      8: {1 byte per pixel}
-      repeat
-        pByteArray(ImageData)^[I] := Data^[J];
-        inc(J);
-        inc(I, ColIncrement);
-      until J >= RowBytes;
-     16:  {Grayscale interlaced images with 2 bytes per sample}
-      repeat
-        pByteArray(ImageData)^[I] := Data^[J];
-        inc(J, 2);
-        inc(I, ColIncrement);
-      until J >= RowBytes;
-    END;
+      {Test for bit depth}
+      case IHDR.BitDepth of
+        2: {2 bits per pixel, not supported by TBitmap, so move to 4 bits}
+          ConvertBits([@Data[0]], ImageData, IHDR.Width, PassMask[Pass], 2, 4);
+        4: {4 bits per pixel}
+          ConvertBits([@Data[0]], ImageData, IHDR.Width, PassMask[Pass], 4, 4);
+        1: {1 bit per pixel}
+          ConvertBits([@Data[0]], ImageData, IHDR.Width, PassMask[Pass], 1, 1);
+        8: {1 byte per pixel}
+          repeat
+            pByteArray(ImageData)^[I] := Data^[J];
+            Inc(J);
+            Inc(I, ColIncrement);
+          until J >= RowBytes;
+        16:  {Grayscale interlaced images with 2 bytes per sample}
+          repeat
+            pByteArray(ImageData)^[I] := Data^[J];
+            Inc(J, 2);
+            Inc(I, ColIncrement);
+          until J >= RowBytes;
+      end;
     RGB:
-    {Test for bit depth}
-    CASE IHDR.BitDepth of
-      8:   {1 byte per R, G, B}
-      repeat
-        with PRGBLine(ImageData)^[I] do
-        begin
-          rgbtRed := Data^[J];
-          rgbtGreen := Data^[J + 1];
-          rgbtBlue := Data^[J + 2];
-          {Gamma correction}
-          if Assigned(GamaChunk) then
-          begin
-            rgbtRed := GamaChunk.GammaTable[rgbtRed];
-            rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
-            rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
-          end;
-        end;
-        inc(J, 3);
-        inc(I, ColIncrement);
-      until J >= RowBytes;
-     16:   {2 bytes per R, G, B}
-      repeat
-        with PRGBLine(ImageData)^[I] do
-        begin
-          rgbtRed := Data^[J];
-          rgbtGreen := Data^[J + 2];
-          rgbtBlue := Data^[J + 4];
-          {Gamma correction}
-          if Assigned(GamaChunk) then
-          begin
-            rgbtRed := GamaChunk.GammaTable[rgbtRed];
-            rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
-            rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
-          end;
-        end;
-        inc(J, 6);
-        inc(I, ColIncrement);
-      until J >= RowBytes;
-    end;
+      {Test for bit depth}
+      case IHDR.BitDepth of
+        8:   {1 byte per R, G, B}
+          repeat
+            with PRGBLine(ImageData)^[I] do
+            begin
+              rgbtRed := Data^[J];
+              rgbtGreen := Data^[J + 1];
+              rgbtBlue := Data^[J + 2];
+              {Gamma correction}
+              if Assigned(GamaChunk) then
+              begin
+                rgbtRed := GamaChunk.GammaTable[rgbtRed];
+                rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
+                rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
+              end;
+            end;
+            Inc(J, 3);
+            Inc(I, ColIncrement);
+          until J >= RowBytes;
+        16:   {2 bytes per R, G, B}
+          repeat
+            with PRGBLine(ImageData)^[I] do
+            begin
+              rgbtRed := Data^[J];
+              rgbtGreen := Data^[J + 2];
+              rgbtBlue := Data^[J + 4];
+              {Gamma correction}
+              if Assigned(GamaChunk) then
+              begin
+                rgbtRed := GamaChunk.GammaTable[rgbtRed];
+                rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
+                rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
+              end;
+            end;
+            Inc(J, 6);
+            Inc(I, ColIncrement);
+          until J >= RowBytes;
+      end;
     RGBALPHA:
-    {Test for bit depth}
-    CASE IHDR.BitDepth of
-      8:   {1 byte per R, G, B, Alpha}
-      repeat
-        with PRGBLine(ImageData)^[I] do
-        begin
-          rgbtRed := Data^[J];
-          rgbtGreen := Data^[J + 1];
-          rgbtBlue := Data^[J + 2];
-          {Gamma correction}
-          if Assigned(GamaChunk) then
-          begin
-            rgbtRed := GamaChunk.GammaTable[rgbtRed];
-            rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
-            rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
-          end;
-        end;
-        inc(J, 4);
-        inc(I, ColIncrement);
-      until J >= RowBytes;
-     16:   {2 bytes per R, G, B, Alpha}
-      repeat
-        with PRGBLine(ImageData)^[I] do
-        begin
-          rgbtRed := Data^[J];
-          rgbtGreen := Data^[J + 2];
-          rgbtBlue := Data^[J + 4];
-          {Gamma correction}
-          if Assigned(GamaChunk) then
-          begin
-            rgbtRed := GamaChunk.GammaTable[rgbtRed];
-            rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
-            rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
-          end;
-        end;
-        inc(J, 8);
-        inc(I, ColIncrement);
-      until J >= RowBytes;
+      {Test for bit depth}
+      case IHDR.BitDepth of
+        8:   {1 byte per R, G, B, Alpha}
+          repeat
+            with PRGBLine(ImageData)^[I] do
+            begin
+              rgbtRed := Data^[J];
+              rgbtGreen := Data^[J + 1];
+              rgbtBlue := Data^[J + 2];
+              {Gamma correction}
+              if Assigned(GamaChunk) then
+              begin
+                rgbtRed := GamaChunk.GammaTable[rgbtRed];
+                rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
+                rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
+              end;
+            end;
+            Inc(J, 4);
+            Inc(I, ColIncrement);
+          until J >= RowBytes;
+        16:   {2 bytes per R, G, B, Alpha}
+          repeat
+            with PRGBLine(ImageData)^[I] do
+            begin
+              rgbtRed := Data^[J];
+              rgbtGreen := Data^[J + 2];
+              rgbtBlue := Data^[J + 4];
+              {Gamma correction}
+              if Assigned(GamaChunk) then
+              begin
+                rgbtRed := GamaChunk.GammaTable[rgbtRed];
+                rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
+                rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
+              end;
+            end;
+            Inc(J, 8);
+            Inc(I, ColIncrement);
+          until J >= RowBytes;
 
-    END;
+      end;
     GRAYSCALEALPHA:
-    {Test for bit depth}
-    CASE IHDR.BitDepth of
-      8:   {1 byte per gray and alpha}
-      repeat
-        pByteArray(ImageData)^[I] := Data^[J];
-        inc(J, 2);
-        inc(I, ColIncrement);
-      until J >= RowBytes;
-     16:   {2 bytes per gray and alpha}
-      repeat
-        pByteArray(ImageData)^[I] := Data^[J];
-        inc(J, 4);
-        inc(I, ColIncrement);
-      until J >= RowBytes;
-    END;
+      {Test for bit depth}
+      case IHDR.BitDepth of
+        8:   {1 byte per gray and alpha}
+          repeat
+            pByteArray(ImageData)^[I] := Data^[J];
+            Inc(J, 2);
+            Inc(I, ColIncrement);
+          until J >= RowBytes;
+        16:   {2 bytes per gray and alpha}
+          repeat
+            pByteArray(ImageData)^[I] := Data^[J];
+            Inc(J, 4);
+            Inc(I, ColIncrement);
+          until J >= RowBytes;
+      end;
 
   end;
 end;
 
 
 {:Copy non interlaced data into the current image}
-procedure TChunkIDAT.DecodeNonInterlacedRow(ImageData: Pointer; Data: pByteArray;
-  RowBytes: Integer; GamaChunk: TChunkGama);
+procedure TChunkIDAT.DecodeNonInterlacedRow(ImageData: Pointer;
+  Data: pByteArray; RowBytes: integer; GamaChunk: TChunkGama);
 var
-  Col: Integer;
+  Col: integer;
 begin
 
   {Test for color type}
   case IHDR.ColorType of
     Palette, Grayscale:
-    {Test for bit depth}
-    CASE IHDR.BitDepth of
-      1, 4, 8:  {Simple memory copy}
-        CopyMemory(ImageData, Data, RowBytes);
-      2: {Pixelformat pf2bits ? not supported (pf4bits being used) }
-        ConvertBits([@Data[0]], ImageData, Bitmap.Width, $FF, 2, 4);
-     16: {Grayscale with 2 pixels}
-      FOR Col := 0 to Bitmap.Width - 1  DO
-        pByteArray(ImageData)^[Col] := Data^[Col * 2];
-    END;
+      {Test for bit depth}
+      case IHDR.BitDepth of
+        1, 4, 8:  {Simple memory copy}
+          CopyMemory(ImageData, Data, RowBytes);
+        2: {Pixelformat pf2bits ? not supported (pf4bits being used) }
+          ConvertBits([@Data[0]], ImageData, Bitmap.Width, $FF, 2, 4);
+        16: {Grayscale with 2 pixels}
+          for Col := 0 to Bitmap.Width - 1 do
+            pByteArray(ImageData)^[Col] := Data^[Col * 2];
+      end;
     RGB:
-    {Test for bit depth}
-    CASE IHDR.BitDepth of
-      8: {1 byte for each R, G AND B values}
-      FOR Col := 0 to (Bitmap.Width - 1)  DO
-        with PRGBLine(ImageData)^[Col] do
-        begin
-          rgbtRed := Data^[Col * 3];
-          rgbtGreen := Data^[1 + Col * 3];
-          rgbtBlue := Data^[2 + Col * 3];
+      {Test for bit depth}
+      case IHDR.BitDepth of
+        8: {1 byte for each R, G AND B values}
+          for Col := 0 to (Bitmap.Width - 1) do
+            with PRGBLine(ImageData)^[Col] do
+            begin
+              rgbtRed := Data^[Col * 3];
+              rgbtGreen := Data^[1 + Col * 3];
+              rgbtBlue := Data^[2 + Col * 3];
 
-          {Gamma correction}
-          if Assigned(GamaChunk) then
-          begin
-            rgbtRed := GamaChunk.GammaTable[rgbtRed];
-            rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
-            rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
-          end;
-        end;
-     16: {2 bytes for each R, G AND B values}
-      FOR Col := 0 to (Bitmap.Width - 1)  DO
-        with PRGBLine(ImageData)^[Col] do
-        begin
-          rgbtRed := Data^[Col * 6];
-          rgbtGreen := Data^[2 + Col * 6];
-          rgbtBlue := Data^[4 + Col * 6];
+              {Gamma correction}
+              if Assigned(GamaChunk) then
+              begin
+                rgbtRed := GamaChunk.GammaTable[rgbtRed];
+                rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
+                rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
+              end;
+            end;
+        16: {2 bytes for each R, G AND B values}
+          for Col := 0 to (Bitmap.Width - 1) do
+            with PRGBLine(ImageData)^[Col] do
+            begin
+              rgbtRed := Data^[Col * 6];
+              rgbtGreen := Data^[2 + Col * 6];
+              rgbtBlue := Data^[4 + Col * 6];
 
-          {Gamma correction}
-          if Assigned(GamaChunk) then
-          begin
-            rgbtRed := GamaChunk.GammaTable[rgbtRed];
-            rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
-            rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
-          end;
+              {Gamma correction}
+              if Assigned(GamaChunk) then
+              begin
+                rgbtRed := GamaChunk.GammaTable[rgbtRed];
+                rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
+                rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
+              end;
 
-        end;
-     end;
+            end;
+      end;
     RGBALPHA:
-    {Test for bit depth}
-    CASE IHDR.BitDepth of
-      8: {1 byte for each R, G, B AND ALPHA values}
-      FOR Col := 0 to (Bitmap.Width - 1)  DO
-        with PRGBLine(ImageData)^[Col] do
-        begin
-          rgbtRed := Data^[Col * 4];
-          rgbtGreen := Data^[1 + Col * 4];
-          rgbtBlue := Data^[2 + Col * 4];
+      {Test for bit depth}
+      case IHDR.BitDepth of
+        8: {1 byte for each R, G, B AND ALPHA values}
+          for Col := 0 to (Bitmap.Width - 1) do
+            with PRGBLine(ImageData)^[Col] do
+            begin
+              rgbtRed := Data^[Col * 4];
+              rgbtGreen := Data^[1 + Col * 4];
+              rgbtBlue := Data^[2 + Col * 4];
 
-          {Gamma correction}
-          if Assigned(GamaChunk) then
-          begin
-            rgbtRed := GamaChunk.GammaTable[rgbtRed];
-            rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
-            rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
-          end;
-        end;
-     16: {2 bytes for each R, G AND B values and 1 for ALPHA}
-      FOR Col := 0 to (Bitmap.Width - 1)  DO
-        with PRGBLine(ImageData)^[Col] do
-        begin
-          rgbtRed := Data^[Col * 8];
-          rgbtGreen := Data^[2 + Col * 8];
-          rgbtBlue := Data^[4 + Col * 8];
+              {Gamma correction}
+              if Assigned(GamaChunk) then
+              begin
+                rgbtRed := GamaChunk.GammaTable[rgbtRed];
+                rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
+                rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
+              end;
+            end;
+        16: {2 bytes for each R, G AND B values and 1 for ALPHA}
+          for Col := 0 to (Bitmap.Width - 1) do
+            with PRGBLine(ImageData)^[Col] do
+            begin
+              rgbtRed := Data^[Col * 8];
+              rgbtGreen := Data^[2 + Col * 8];
+              rgbtBlue := Data^[4 + Col * 8];
 
-          {Gamma correction}
-          if Assigned(GamaChunk) then
-          begin
-            rgbtRed := GamaChunk.GammaTable[rgbtRed];
-            rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
-            rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
-          end;
-        end;
-    end;
+              {Gamma correction}
+              if Assigned(GamaChunk) then
+              begin
+                rgbtRed := GamaChunk.GammaTable[rgbtRed];
+                rgbtGreen := GamaChunk.GammaTable[rgbtGreen];
+                rgbtBlue := GamaChunk.GammaTable[rgbtBlue];
+              end;
+            end;
+      end;
     GRAYSCALEALPHA:
-    {Test for bit depth}
-    CASE IHDR.BitDepth of
-      8: {1 byte for grayscale and 1 for alpha}
-      FOR Col := 0 to (Bitmap.Width - 1)  DO
-        pByteArray(ImageData)^[Col] := Data^[Col * 2];
-     16: {2 bytes for grayscale and 1 for alpha}
-      FOR Col := 0 to (Bitmap.Width - 1)  DO
-        pByteArray(ImageData)^[Col] := Data^[Col * 4];
-    end;
+      {Test for bit depth}
+      case IHDR.BitDepth of
+        8: {1 byte for grayscale and 1 for alpha}
+          for Col := 0 to (Bitmap.Width - 1) do
+            pByteArray(ImageData)^[Col] := Data^[Col * 2];
+        16: {2 bytes for grayscale and 1 for alpha}
+          for Col := 0 to (Bitmap.Width - 1) do
+            pByteArray(ImageData)^[Col] := Data^[Col * 4];
+      end;
 
   end;
 end;
@@ -1051,18 +1055,18 @@ procedure TChunkIDAT.DoAction;
 const
   CHAR_BIT = 8;
 var
-  RowBuffer        : array[Boolean] of pbytearray;
-  Row_Buffer_Width : Integer;
-  OddLine          : Boolean;
-  Offset           : Integer;
-  UseProgress      : Boolean;
-  j                : Integer;
-  Pass             : Integer;
-  Decode           : TZDecompressionStream;
-  Row              : Integer;
-  PixelsThisRow    : Integer;
-  RowBytes         : Integer;
-  GamaChunk        : TChunkGama;
+  RowBuffer: array[boolean] of pbytearray;
+  Row_Buffer_Width: integer;
+  OddLine: boolean;
+  Offset: integer;
+  UseProgress: boolean;
+  j: integer;
+  Pass: integer;
+  Decode: TZDecompressionStream;
+  Row: integer;
+  PixelsThisRow: integer;
+  RowBytes: integer;
+  GamaChunk: TChunkGama;
 begin
   GamaChunk := Gama;
 
@@ -1083,7 +1087,7 @@ begin
   row_buffer_width := GetBufferWidth;
 
   {Allocate memory for the row buffers and fill them with zeros}
-  OddLine := TRUE;
+  OddLine := True;
   GetMem(RowBuffer[True], row_buffer_width + 1);
   GetMem(RowBuffer[False], row_buffer_width + 1);
   ZeroMemory(RowBuffer[False], row_buffer_width + 1);
@@ -1103,22 +1107,22 @@ begin
   if IHDR.Interlaced = 1 then
   begin
     {Each of the interlacing passes}
-    FOR Pass := 0 TO 6 DO
+    for Pass := 0 to 6 do
     begin
       {Number of pixels in this row}
-      pixelsthisrow := (Bitmap.width - ColumnStart[Pass] +
-        + ColumnIncrement[Pass] - 1) div ColumnIncrement[Pass] ;
+      pixelsthisrow := (Bitmap.Width - ColumnStart[Pass] +
+        +ColumnIncrement[Pass] - 1) div ColumnIncrement[Pass];
 
       {Number of bytes}
       case (IHDR.ColorType) of
-      Grayscale, Palette:
-        rowbytes := (pixelsthisrow * IHDR.BitDepth + CHAR_BIT - 1) div CHAR_BIT ;
-      RGB:
-        rowbytes := pixelsthisrow * 3 * IHDR.BitDepth div CHAR_BIT ;
-      RGBAlpha:
-        rowbytes := pixelsthisrow * 4 * IHDR.BitDepth div CHAR_BIT ;
-      GrayscaleAlpha:
-        rowbytes := pixelsthisrow * 2 * IHDR.BitDepth div CHAR_BIT ;
+        Grayscale, Palette:
+          rowbytes := (pixelsthisrow * IHDR.BitDepth + CHAR_BIT - 1) div CHAR_BIT;
+        RGB:
+          rowbytes := pixelsthisrow * 3 * IHDR.BitDepth div CHAR_BIT;
+        RGBAlpha:
+          rowbytes := pixelsthisrow * 4 * IHDR.BitDepth div CHAR_BIT;
+        GrayscaleAlpha:
+          rowbytes := pixelsthisrow * 2 * IHDR.BitDepth div CHAR_BIT;
       end;
 
       Row := RowStart[Pass];
@@ -1141,7 +1145,7 @@ begin
       end;
 
       {Call progress event}
-      If UseProgress then
+      if UseProgress then
         Bitmap.OnProgress(Bitmap, psRunning, MulDiv(100, Pass, 6),
           True, Rect(0, 0, Bitmap.Width, Bitmap.Height), 'Drawing...');
 
@@ -1151,7 +1155,7 @@ begin
   else if IHDR.Interlaced = 0 then
   begin
     {Pass each row}
-    for j := 0 to Bitmap.Height - 1 DO
+    for j := 0 to Bitmap.Height - 1 do
     begin
       {Decompress}
       Decode.Read(RowBuffer[OddLine][0], row_buffer_width + 1);
@@ -1169,13 +1173,13 @@ begin
 
 
       {Call progress event}
-      If UseProgress then
-          Bitmap.OnProgress(Bitmap, psRunning, MulDiv(j, 100, Bitmap.Height),
-            True, Rect(0, j - 1, Bitmap.Width, j), 'Drawing...');
+      if UseProgress then
+        Bitmap.OnProgress(Bitmap, psRunning, MulDiv(j, 100, Bitmap.Height),
+          True, Rect(0, j - 1, Bitmap.Width, j), 'Drawing...');
     end;
   end
   else
-  {Unknown interlace method}
+    {Unknown interlace method}
     CallError(PNG_ERROR_INVALID_INTERLACE);
 
   {Free memory for the row buffers}
@@ -1185,64 +1189,65 @@ begin
   {Free the decompression object}
   Decode.Free;
 
-  {$IFDEF _SHAREWARE} Shareware {$ENDIF};
+  {$IFDEF _SHAREWARE}
+  Shareware
+{$ENDIF}
+  ;
 end;
 
 {:Returns the buffer width}
-function TChunkIDAT.GetBufferWidth: Integer;
+function TChunkIDAT.GetBufferWidth: integer;
 const
   CHAR_BIT = 8;
 var
-  RowBits         : Integer;
+  RowBits: integer;
 begin
   Result := 0;
 
   case IHDR.ColorType of
-  Grayscale, Palette:
-  begin
-    rowbits := IHDR.Width * IHDR.BitDepth;
-    Result := (rowbits + CHAR_BIT - 1) div CHAR_BIT;
-  end;
-  GrayscaleAlpha:
-    Result := 2 * IHDR.width * IHDR.BitDepth div CHAR_BIT ;
-  RGB:
-    Result := IHDR.width * 3 * IHDR.BitDepth div CHAR_BIT ;
-  RGBAlpha:
-    Result := IHDR.width * 4 * IHDR.BitDepth div CHAR_BIT ;
-  else
-    {In case we have an undetermined color type}
-    CallError(PNG_ERROR_INVALID_COLOR_TYPE);
+    Grayscale, Palette:
+    begin
+      rowbits := IHDR.Width * IHDR.BitDepth;
+      Result := (rowbits + CHAR_BIT - 1) div CHAR_BIT;
+    end;
+    GrayscaleAlpha:
+      Result := 2 * IHDR.Width * IHDR.BitDepth div CHAR_BIT;
+    RGB:
+      Result := IHDR.Width * 3 * IHDR.BitDepth div CHAR_BIT;
+    RGBAlpha:
+      Result := IHDR.Width * 4 * IHDR.BitDepth div CHAR_BIT;
+    else
+      {In case we have an undetermined color type}
+      CallError(PNG_ERROR_INVALID_COLOR_TYPE);
   end;
 
 end;
 
 {:Returns the offset for filtering}
-function TChunkIDAT.GetOffset: Integer;
+function TChunkIDAT.GetOffset: integer;
 const
   CHAR_BIT = 8;
 begin
   case IHDR.ColorType of
-    Grayscale, Palette:      result := 1;
-    RGB:                     result := 3 * IHDR.BitDepth div CHAR_BIT ;
-    GrayscaleAlpha:          result := 2 * IHDR.BitDepth div CHAR_BIT ;
-    RGBAlpha:                result := 4 * IHDR.BitDepth div CHAR_BIT ;
+    Grayscale, Palette: Result := 1;
+    RGB: Result := 3 * IHDR.BitDepth div CHAR_BIT;
+    GrayscaleAlpha: Result := 2 * IHDR.BitDepth div CHAR_BIT;
+    RGBAlpha: Result := 4 * IHDR.BitDepth div CHAR_BIT;
     else
-      result := 0;
+      Result := 0;
   end;
 end;
 
 {:Filter the row for encoding}
 function TChunkIDAT.EncodeFilterRow(row_buffer: pbytearray;
-  Filter_buffers: TFilterRow; row_width, filter_width: Cardinal): Integer;
+  Filter_buffers: TFilterRow; row_width, filter_width: cardinal): integer;
 const
-  FTest: Array[0..4] of TEncodeFilter = (efNone, efSub, efUp,
+  FTest: array[0..4] of TEncodeFilter = (efNone, efSub, efUp,
     efAverage, efPaeth);
 var
-  ii, run, jj: Cardinal;
-  longestrun : Cardinal;
- last,
- above,
- lastabove   : byte;
+  ii, run, jj: cardinal;
+  longestrun: cardinal;
+  last, above, lastabove: byte;
 
 begin
 
@@ -1253,18 +1258,18 @@ begin
     for ii := 0 to row_width - 1 do
     begin
       if (ii >= filter_width) then
-        last := row_buffer^[ii-filter_width]
+        last := row_buffer^[ii - filter_width]
       else
-        last := 0 ;
+        last := 0;
 
-      filter_buffers [FILTERSUB]^[ii] := row_buffer^[ii] - last ;
+      filter_buffers[FILTERSUB]^[ii] := row_buffer^[ii] - last;
     end;
   end;
 
   if efUp in Bitmap.Filter then
     for ii := 0 to row_width - 1 do
-      filter_buffers[FILTERUP]^[ii] := row_buffer^[ii] -
-        filter_buffers[FILTERNONE]^[ii] ;
+      filter_buffers[FILTERUP]^[ii] :=
+        row_buffer^[ii] - filter_buffers[FILTERNONE]^[ii];
 
   if efAverage in Bitmap.Filter then
   begin
@@ -1273,11 +1278,11 @@ begin
       if (ii >= filter_width) then
         last := row_buffer^[ii - filter_width]
       else
-        last := 0 ;
-      above := filter_buffers [FILTERNONE]^[ii] ;
+        last := 0;
+      above := filter_buffers[FILTERNONE]^[ii];
 
-      filter_buffers [FILTERAVERAGE]^[ii]
-        := row_buffer^[ii] - (above + last) div 2 ;
+      filter_buffers[FILTERAVERAGE]^[ii] :=
+        row_buffer^[ii] - (above + last) div 2;
     end;
   end;
 
@@ -1287,18 +1292,18 @@ begin
     begin
       if (ii >= filter_width) then
       begin
-        last := row_buffer^[ii-filter_width] ;
-        lastabove := filter_buffers [FILTERNONE]^[ii - filter_width] ;
+        last := row_buffer^[ii - filter_width];
+        lastabove := filter_buffers[FILTERNONE]^[ii - filter_width];
       end
       else
       begin
-        last := 0 ;
-        lastabove := 0 ;
+        last := 0;
+        lastabove := 0;
       end;
 
-      above := filter_buffers [FILTERNONE]^[ii] ;
-      filter_buffers [FILTERPAETH]^[ii]
-        := row_buffer^[ii] - PaethPredictor (last, above, lastabove) ;
+      above := filter_buffers[FILTERNONE]^[ii];
+      filter_buffers[FILTERPAETH]^[ii] :=
+        row_buffer^[ii] - PaethPredictor(last, above, lastabove);
     end;
   end;
 
@@ -1308,11 +1313,11 @@ begin
   // here to be used in the next call with the filters that require data from the
   // previous row.
   for ii := 0 to row_width - 1 do
-    filter_buffers[FILTERNONE]^[ii] := row_buffer^[ii] ;
+    filter_buffers[FILTERNONE]^[ii] := row_buffer^[ii];
 
   // If we only performed FilterNone then we do not need to proceed
   // any further.
-  Result := FILTERNONE ;
+  Result := FILTERNONE;
   if Bitmap.Filter = [efNone] then
     exit;
 
@@ -1320,24 +1325,24 @@ begin
   // longest runs of the same value.
 
   LongestRun := 0;
-  for ii := 0 to FILTERBUFFERCOUNT - 1 DO
+  for ii := 0 to FILTERBUFFERCOUNT - 1 do
   begin
     if FTest[ii] in Bitmap.Filter then
     begin
       run := 0;
       for jj := 4 to row_width - 1 do
       begin
-        if (filter_buffers[ii]^[jj] = filter_buffers [ii]^[jj-1]) and
-            (filter_buffers[ii]^[jj] = filter_buffers [ii]^[jj-2]) and
-            (filter_buffers[ii]^[jj] = filter_buffers [ii]^[jj-3]) and
-            (filter_buffers[ii]^[jj] = filter_buffers [ii]^[jj-4]) then
-          inc(Run);
+        if (filter_buffers[ii]^[jj] = filter_buffers[ii]^[jj - 1]) and
+          (filter_buffers[ii]^[jj] = filter_buffers[ii]^[jj - 2]) and
+          (filter_buffers[ii]^[jj] = filter_buffers[ii]^[jj - 3]) and
+          (filter_buffers[ii]^[jj] = filter_buffers[ii]^[jj - 4]) then
+          Inc(Run);
       end;
 
       if (run > longestrun) then
       begin
-        result := ii ;
-        longestrun := run ;
+        Result := ii;
+        longestrun := run;
       end;
     end;
   end;
@@ -1347,22 +1352,23 @@ end;
 {:Encode the actual image from the bitmap}
 procedure TChunkIDAT.EncodeImage;
 var
-  Encode          : TZCompressionStream;
-  j, offset, i    : Integer;
-  row_buffer_width: Integer;
-  filter_buffers  : TFilterRow;
-  Filter          : byte;
-  row_buffer      : pByteArray;
-  Line            : Pointer;
-  GamaChunk       : TChunkGama;
+  Encode: TZCompressionStream;
+  j, offset, i: integer;
+  row_buffer_width: integer;
+  filter_buffers: TFilterRow;
+  Filter: byte;
+  row_buffer: pByteArray;
+  Line: Pointer;
+  GamaChunk: TChunkGama;
 
-  function AdjustValue(Value: Byte): Byte;
+  function AdjustValue(Value: byte): byte;
   begin
     if Assigned(GamaChunk) then
       Result := GamaChunk.InverseTable[Value]
     else
       Result := Value;
   end;
+
 begin
   GamaChunk := Gama;
 
@@ -1391,15 +1397,15 @@ begin
   {Fill the filternone with zeros}
   ZeroMemory(@filter_buffers[FILTERNONE][0], row_buffer_width);
 
-  Bitmap.Interlacing := FALSE;
-  
+  Bitmap.Interlacing := False;
+
   {Testing encoding method}
   if Bitmap.Interlacing then
-  {No interlacing}
+    {No interlacing}
   begin
   end
   else
-  {Interlacing}
+    {Interlacing}
   begin
     {Pass each row}
     for j := 0 to Bitmap.Height - 1 do
@@ -1407,38 +1413,38 @@ begin
 
       {Write depending on the pixel format}
       case Bitmap.PixelFormat of
-      pf1bit, pf4bit, pf8bit:
-        filter := EncodeFilterRow(Bitmap.ScanLine[j], filter_buffers,
-          row_buffer_width, offset);
-      else
-      begin
-        {Copy pointer to the line bytes}
-        Line := Bitmap.ScanLine[j];
+        pf1bit, pf4bit, pf8bit:
+          filter := EncodeFilterRow(Bitmap.ScanLine[j], filter_buffers,
+            row_buffer_width, offset);
+        else
+        begin
+          {Copy pointer to the line bytes}
+          Line := Bitmap.ScanLine[j];
 
-        {Test the pixel format}
-        case Bitmap.PixelFormat of
-          {3 bytes, just swap}
-          pf24bit:
-          FOR i := 0 to Bitmap.Width - 1 do
-          begin
-            Row_Buffer^[i * 3] := AdjustValue(pRGBLine(Line)^[i].rgbtRed);
-            Row_Buffer^[1 + (i * 3)] := AdjustValue(pRGBLine(Line)^[i].rgbtGreen);
-            Row_Buffer^[2 + (i * 3)] := AdjustValue(pRGBLine(Line)^[i].rgbtBlue);
+          {Test the pixel format}
+          case Bitmap.PixelFormat of
+            {3 bytes, just swap}
+            pf24bit:
+              for i := 0 to Bitmap.Width - 1 do
+              begin
+                Row_Buffer^[i * 3] := AdjustValue(pRGBLine(Line)^[i].rgbtRed);
+                Row_Buffer^[1 + (i * 3)] := AdjustValue(pRGBLine(Line)^[i].rgbtGreen);
+                Row_Buffer^[2 + (i * 3)] := AdjustValue(pRGBLine(Line)^[i].rgbtBlue);
+              end;
+            {4 bytes, swap and ignore last byte unused}
+            pf32bit:
+              for i := 0 to Bitmap.Width - 1 do
+              begin
+                Row_Buffer^[i * 4] := AdjustValue(pRGBALine(Line)^[i].rgbRed);
+                Row_Buffer^[1 + (i * 4)] := AdjustValue(pRGBALine(Line)^[i].rgbGreen);
+                Row_Buffer^[2 + (i * 4)] := AdjustValue(pRGBALine(Line)^[i].rgbBlue);
+              end;
           end;
-          {4 bytes, swap and ignore last byte unused}
-          pf32bit:
-          FOR i := 0 to Bitmap.Width - 1 do
-          begin
-            Row_Buffer^[i * 4] := AdjustValue(pRGBALine(Line)^[i].rgbRed);
-            Row_Buffer^[1 + (i * 4)] := AdjustValue(pRGBALine(Line)^[i].rgbGreen);
-            Row_Buffer^[2 + (i * 4)] := AdjustValue(pRGBALine(Line)^[i].rgbBlue);
-          end;
+
+          {Filter the row}
+          filter := EncodeFilterRow(@Row_Buffer[0], filter_buffers,
+            row_buffer_width, offset);
         end;
-
-        {Filter the row}
-        filter := EncodeFilterRow(@Row_Buffer[0], filter_buffers,
-          row_buffer_width, offset);
-      end;
       end;
 
       (*Write to stream*)
@@ -1461,15 +1467,18 @@ begin
   if efPaeth in Bitmap.Filter then
     FreeMem(filter_buffers[FILTERPAETH], row_buffer_width);
 
-  {$IFDEF _SHAREWARE} Shareware {$ENDIF};
+  {$IFDEF _SHAREWARE}
+  Shareware
+{$ENDIF}
+  ;
 end;
 
 {:Adjust image pixel format}
 procedure TChunkIDAT.SetupPixelFormat;
 var
-  PlteIndex, i     : Integer;
-  GrayscalePal     : TMaxLogPalette;
-  GAMACHUNK        : TChunkGAMA;
+  PlteIndex, i: integer;
+  GrayscalePal: TMaxLogPalette;
+  GAMACHUNK: TChunkGAMA;
 begin
   (*{In case we need an alpha channel bitmap}
   if (IHDR.ColorType = GrayscaleALpha) or
@@ -1493,132 +1502,134 @@ begin
   GamaChunk := Gama;
 
   {Set the pixel formats}
-  CASE IHDR.ColorType of
+  case IHDR.ColorType of
     GrayScale, Palette, GrayScaleAlpha:
-    CASE IHDR.BitDepth of
-      1: Bitmap.PixelFormat := pf1bit;     {1 bit, 2 colors: 2^1}
-      2: Bitmap.PixelFormat := pf4bit;
-      4: Bitmap.PixelFormat := pf4bit;
-      8: Bitmap.PixelFormat := pf8bit;     {1 byte in each pixel, 256 colors}
-     16: Bitmap.PixelFormat := pf8bit;     {2 bytes per sample}
-    END;
+      case IHDR.BitDepth of
+        1: Bitmap.PixelFormat := pf1bit;     {1 bit, 2 colors: 2^1}
+        2: Bitmap.PixelFormat := pf4bit;
+        4: Bitmap.PixelFormat := pf4bit;
+        8: Bitmap.PixelFormat := pf8bit;     {1 byte in each pixel, 256 colors}
+        16: Bitmap.PixelFormat := pf8bit;     {2 bytes per sample}
+      end;
     RGB, RGBALPHA:
-    CASE IHDR.BitDepth of
-      8: Bitmap.PixelFormat := pf24bit;    {R, G, B values for each pixel}
-     16: Bitmap.PixelFormat := pf24bit;    {Increased range of values for RGB}
-    END;
-  END;
+      case IHDR.BitDepth of
+        8: Bitmap.PixelFormat := pf24bit;    {R, G, B values for each pixel}
+        16: Bitmap.PixelFormat := pf24bit;    {Increased range of values for RGB}
+      end;
+  end;
 
   {Create the palettes for the file formats}
-  CASE IHDR.ColorType of
-  Grayscale, GrayscaleAlpha:
- {Create grayscale palette}
-  with GrayscalePal do
-  begin
-    palVersion := $300;
-
-    {Set the number of colors in palette}
-    {Since the max is 256 colors 16bit per sample pixels will be}
-    {averanged to 8}
-    if IHDR.BitDepth = 16 then
-      palNumEntries := 256
-    else
-      palNumEntries := (1 shl IHDR.BitDepth);
-
-    {Set the palette colors}
-    FOR i := 0 to palNumEntries - 1 DO
-      WITH palPalEntry[i] do
+  case IHDR.ColorType of
+    Grayscale, GrayscaleAlpha:
+      {Create grayscale palette}
+      with GrayscalePal do
       begin
-        {Average the colors}
-        {When i is 0, the color is black}
-        {When i is palNumEntries, the color is white}
-        peRed := MulDiv(i, 255, palNumEntries - 1);
-        {Correct using gamma}
-        if Assigned(GamaChunk) then
-          peRed := GamaChunk.GammaTable[peRed];
-        peGreen := peRed;
-        peBlue := peGreen;
-        peFlags := PC_NOCOLLAPSE;
+        palVersion := $300;
+
+        {Set the number of colors in palette}
+        {Since the max is 256 colors 16bit per sample pixels will be}
+        {averanged to 8}
+        if IHDR.BitDepth = 16 then
+          palNumEntries := 256
+        else
+          palNumEntries := (1 shl IHDR.BitDepth);
+
+        {Set the palette colors}
+        for i := 0 to palNumEntries - 1 do
+          with palPalEntry[i] do
+          begin
+            {Average the colors}
+            {When i is 0, the color is black}
+            {When i is palNumEntries, the color is white}
+            peRed := MulDiv(i, 255, palNumEntries - 1);
+            {Correct using gamma}
+            if Assigned(GamaChunk) then
+              peRed := GamaChunk.GammaTable[peRed];
+            peGreen := peRed;
+            peBlue := peGreen;
+            peFlags := PC_NOCOLLAPSE;
+          end;
+
+        if (IHDR.BitDepth = 2) and (palNumEntries < 16) then
+        begin
+          {Note: This is really a crazy totally nonsence fix for supporting 2bit}
+          palNumEntries := 16;
+          copymemory(@palpalentry[4], @palpalentry[0], 21);
+          copymemory(@palpalentry[8], @palpalentry[0], 21);
+          copymemory(@palpalentry[12], @palpalentry[0], 21);
+        end;
+
+        {Apply the bitmap palette}
+        Bitmap.Palette := CreatePalette(PLogPalette(@GrayscalePal)^);
       end;
-
-    IF (IHDR.BitDepth = 2) and (palNumEntries < 16) then
+    Palette:
     begin
-      {Note: This is really a crazy totally nonsence fix for supporting 2bit}
-      palNumEntries := 16;
-      copymemory(@palpalentry[4], @palpalentry[0], 21);
-      copymemory(@palpalentry[8], @palpalentry[0], 21);
-      copymemory(@palpalentry[12], @palpalentry[0], 21);
+      {Test if there is PLTE chunk, if so apply the palette}
+      PlteIndex := Owner.IndexOfClass(TChunkPLTE); { Paul }
+      if PlteIndex <> -1 then
+        Bitmap.Palette := TChunkPLTE(Owner[PlteIndex]).Palette
+      else
+        CallError(PNG_ERROR_NO_PALETTE);
     end;
-
-    {Apply the bitmap palette}
-    Bitmap.Palette := CreatePalette(PLogPalette(@GrayscalePal)^);
   end;
-  Palette:
-  BEGIN
-    {Test if there is PLTE chunk, if so apply the palette}
-    PlteIndex := Owner.IndexOfClass(TChunkPLTE); { Paul }
-    if PlteIndex <> -1 then
-      Bitmap.Palette := TChunkPLTE(Owner[PlteIndex]).Palette
-    ELSE
-      CallError(PNG_ERROR_NO_PALETTE);
-  END;
-  END;
 end;
 
 {:Filters the row using definied types}
-procedure TChunkIDAT.FilterRow(Filter: Byte; CurrentRow, LastRow: pByteArray;
-  offset, row_buffer_width: Integer);
+procedure TChunkIDAT.FilterRow(Filter: byte; CurrentRow, LastRow: pByteArray;
+  offset, row_buffer_width: integer);
 var
-  Col: Integer;  {Current Column}
-  Left, Above, AboveLeft: Integer;
-  vv, pp: Integer;
+  Col: integer;  {Current Column}
+  Left, Above, AboveLeft: integer;
+  vv, pp: integer;
 begin
 
   // Filter the row based upon the filter type.
   case filter of
     {No filtering, do nothing}
-    FILTERNONE: begin end;
+    FILTERNONE:
+    begin
+    end;
     {Sub filter}
     FILTERSUB:
-    {The value is the difference from the value to the left}
-    for col := offset to row_buffer_width - 1 do
-      CurrentRow[col] := (CurrentRow[col] + CurrentRow[col-offset]) AND $FF;
+      {The value is the difference from the value to the left}
+      for col := offset to row_buffer_width - 1 do
+        CurrentRow[col] := (CurrentRow[col] + CurrentRow[col - offset]) and $FF;
     FILTERUP:
-    {The value is the difference from the value in the previous row.}
-    for col := 0 to row_buffer_width - 1 do
-      CurrentRow[col] := (CurrentRow[col] + LastRow[col]) AND $FF ;
+      {The value is the difference from the value in the previous row.}
+      for col := 0 to row_buffer_width - 1 do
+        CurrentRow[col] := (CurrentRow[col] + LastRow[col]) and $FF;
     FILTERAVERAGE:
-    for col := 0 to row_buffer_width - 1 do
-    begin
-      above := LastRow[col];
-
-      if (col < offset) then
-        left := 0
-      else
-        left := CurrentRow[col-offset] ;
-
-      CurrentRow[col] := (CurrentRow[col] + (left + above) div 2) AND $FF ;
-    end;
-    FILTERPAETH:
-    for col := 0 to row_buffer_width - 1 do
-    begin
-      above := LastRow[col] ;
-
-      if (col < offset) then
+      for col := 0 to row_buffer_width - 1 do
       begin
-        left := 0 ;
-        aboveleft := 0 ;
-      end
-      else
-      begin
-        left := CurrentRow[col-offset] ;
-        aboveleft := LastRow[col-offset] ;
+        above := LastRow[col];
+
+        if (col < offset) then
+          left := 0
+        else
+          left := CurrentRow[col - offset];
+
+        CurrentRow[col] := (CurrentRow[col] + (left + above) div 2) and $FF;
       end;
+    FILTERPAETH:
+      for col := 0 to row_buffer_width - 1 do
+      begin
+        above := LastRow[col];
 
-      vv := CurrentRow[col] ;
-      pp := PaethPredictor(left, above, aboveleft) ;
-      CurrentRow[col] := (pp + vv) AND $FF ;
-    end;
+        if (col < offset) then
+        begin
+          left := 0;
+          aboveleft := 0;
+        end
+        else
+        begin
+          left := CurrentRow[col - offset];
+          aboveleft := LastRow[col - offset];
+        end;
+
+        vv := CurrentRow[col];
+        pp := PaethPredictor(left, above, aboveleft);
+        CurrentRow[col] := (pp + vv) and $FF;
+      end;
     else
       {In case the filter is not reconized}
       CallError(PNG_ERROR_INVALID_FILTER_TYPE);
@@ -1655,10 +1666,10 @@ end;
 {:Creates a gamma table for using}
 procedure TChunkGAMA.DoAction;
 var
-  I    : Integer;
+  I: integer;
 begin
   {Create gamma table and inverse gamma table (for saving)}
-  FOR I := 0 TO 255 DO
+  for I := 0 to 255 do
   begin
     GammaTable[I] := Round(Power((I / 255), 1 / (Value / 100000 * 2.2)) * 255);
     InverseTable[Round(Power((I / 255), 1 / (Value / 100000 * 2.2)) * 255)] := I;
@@ -1667,13 +1678,13 @@ end;
 
 
 {Returns the Gama value}
-function TChunkGAMA.GetValue: Cardinal;
+function TChunkGAMA.GetValue: cardinal;
 begin
   Result := SwapLong(pCardinal(fStream.Memory)^);
 end;
 
 {Sets the Gama value}
-procedure TChunkGAMA.SetValue(Value: Cardinal);
+procedure TChunkGAMA.SetValue(Value: cardinal);
 begin
   pCardinal(fStream.Memory)^ := SwapLong(Value);
 end;
@@ -1682,51 +1693,51 @@ end;
 procedure TChunkIHDR.SaveToStream(Stream: TStream);
 begin
   {Set the IHDR chunk properties}
-    Compression := 0; {The only compression method avaliable}
-    Filter := 0;      {The only filter scheme avaliable}
+  Compression := 0; {The only compression method avaliable}
+  Filter := 0;      {The only filter scheme avaliable}
 
-    if Owner.Owner.Interlacing then  {Interlace method}
-      Interlaced := 1           {ADAM 7}
-    else
-      Interlaced := 0;          {NONE}
+  if Owner.Owner.Interlacing then  {Interlace method}
+    Interlaced := 1           {ADAM 7}
+  else
+    Interlaced := 0;          {NONE}
 
-    Width := Owner.Owner.Width;
-    Height := Owner.Owner.Height;
+  Width := Owner.Owner.Width;
+  Height := Owner.Owner.Height;
 
-    {Color type}
-    case Owner.Owner.PixelFormat of
-      pf1bit, pf4bit, pf8bit:
-      begin
-        {Palette}
-        ColorType := PALETTE;
-        {Bit depth}
-        case Owner.Owner.PixelFormat of
-          pf1bit: BitDepth := 1;
-          pf4bit: BitDepth := 4;
-          pf8bit: BitDepth := 8;
-        end;
-
+  {Color type}
+  case Owner.Owner.PixelFormat of
+    pf1bit, pf4bit, pf8bit:
+    begin
+      {Palette}
+      ColorType := PALETTE;
+      {Bit depth}
+      case Owner.Owner.PixelFormat of
+        pf1bit: BitDepth := 1;
+        pf4bit: BitDepth := 4;
+        pf8bit: BitDepth := 8;
       end;
-      else
-      begin
-        {R, G, B}
-        Owner.Owner.PixelFormat := pf24bit;
-        ColorType := RGB;
-        BitDepth := 8;
-      end;
+
     end;
+    else
+    begin
+      {R, G, B}
+      Owner.Owner.PixelFormat := pf24bit;
+      ColorType := RGB;
+      BitDepth := 8;
+    end;
+  end;
 
   inherited;
 end;
 
 {Get values for the other properties}
-function TChunkIHDR.GetValue(Index: Integer): Byte;
+function TChunkIHDR.GetValue(Index: integer): byte;
 begin
   case Index of
-    0: {Bit depth}   Result := pIHDRChunk(fStream.Memory)^.BitDepth;
+    0: {Bit depth}  Result := pIHDRChunk(fStream.Memory)^.BitDepth;
     1: {Color type}  Result := pIHDRChunk(fStream.Memory)^.ColorType;
     2: {Compression} Result := pIHDRChunk(fStream.Memory)^.Compression;
-    3: {Filter}      Result := pIHDRChunk(fStream.Memory)^.Filter;
+    3: {Filter}  Result := pIHDRChunk(fStream.Memory)^.Filter;
     4: {Interlaced}  Result := pIHDRChunk(fStream.Memory)^.Interlaced;
     else {Avoid warning}
       Result := 0;
@@ -1735,31 +1746,31 @@ begin
 end;
 
 {Set value for the other properties}
-procedure TChunkIHDR.SetValue(Index: Integer; Value: Byte);
+procedure TChunkIHDR.SetValue(Index: integer; Value: byte);
 begin
   case Index of
-    0: {Bit depth}   pIHDRChunk(fStream.Memory)^.BitDepth := Value;
+    0: {Bit depth}  pIHDRChunk(fStream.Memory)^.BitDepth := Value;
     1: {Color type}  pIHDRChunk(fStream.Memory)^.ColorType := Value;
     2: {Compression} pIHDRChunk(fStream.Memory)^.Compression := Value;
-    3: {Filter}      pIHDRChunk(fStream.Memory)^.Filter := Value;
+    3: {Filter}  pIHDRChunk(fStream.Memory)^.Filter := Value;
     4: {Interlaced}  pIHDRChunk(fStream.Memory)^.Interlaced := Value;
   end;
 end;
 
 {Returns the image height}
-function TChunkIHDR.GetHeight: Cardinal;
+function TChunkIHDR.GetHeight: cardinal;
 begin
   Result := SwapLong(pIHDRChunk(fStream.Memory)^.Height);
 end;
 
 {Returns the image width}
-function TChunkIHDR.GetWidth: Cardinal;
+function TChunkIHDR.GetWidth: cardinal;
 begin
   Result := SwapLong(pIHDRChunk(fStream.Memory)^.Width);
 end;
 
 {Sets the image height}
-procedure TChunkIHDR.SetHeight(Value: Cardinal);
+procedure TChunkIHDR.SetHeight(Value: cardinal);
 begin
   pIHDRChunk(fStream.Memory)^.Height := SwapLong(Value);
 
@@ -1769,7 +1780,7 @@ begin
 end;
 
 {Sets the image width}
-procedure TChunkIHDR.SetWidth(Value: Cardinal);
+procedure TChunkIHDR.SetWidth(Value: cardinal);
 begin
   pIHDRChunk(fStream.Memory)^.Width := SwapLong(Value);
 
@@ -1787,16 +1798,16 @@ begin
 end;
 
 {:Returns the index of the chunk class}
-function TChunkClasses.IndexOfClass(Item: TChunkClass): Integer; { Paul }
+function TChunkClasses.IndexOfClass(Item: TChunkClass): integer; { Paul }
 var
-  i: Integer;
+  i: integer;
 begin
   {If none found, return -1}
   Result := -1;
 
   {Test each class}
   if Count > 0 then
-    FOR i := 0 to Count - 1 DO
+    for i := 0 to Count - 1 do
       if Self.Item[I].ChunkClass = Item then
       begin
         Result := i;
@@ -1805,16 +1816,16 @@ begin
 end;
 
 {:Returns the index of the given chunk type}
-function TChunkClasses.IndexOfType(Item: TChunkType): Integer; { Paul }
+function TChunkClasses.IndexOfType(Item: TChunkType): integer; { Paul }
 var
-  i: Integer;
+  i: integer;
 begin
   {If none found, return -1}
   Result := -1;
 
   {Test each class}
   if Count > 0 then
-    FOR i := 0 to Count - 1 DO
+    for i := 0 to Count - 1 do
       if Self.Item[I].ChunkType = Item then
       begin
         Result := i;
@@ -1825,33 +1836,34 @@ end;
 {:When the object is being destroyed}
 destructor TChunkClasses.Destroy;
 var
-  i: Integer;
+  i: integer;
 begin
   {Free each registered chunk class}
   if Count > 0 then
-  FOR i := 0 TO Count - 1 DO
-    Dispose(pChunkClassInfo(fList[i]));
+    for i := 0 to Count - 1 do
+      Dispose(pChunkClassInfo(fList[i]));
 
   {Free the list}
-  if Assigned(fList) then fList.free;
+  if Assigned(fList) then
+    fList.Free;
 
   inherited;
 end;
 
 {:Returns an item from the list}
-function TChunkClasses.GetItem(Index: Integer): TChunkClassInfo;
+function TChunkClasses.GetItem(Index: integer): TChunkClassInfo;
 begin
   {Test if the index is valid}
   if (Index < 0) or (Index > Count - 1) then
     CallError(PNG_ERROR_INVALID_CHUNK_CLASS_INDEX);
 
-    Result := pChunkClassInfo(fList[Index])^;
+  Result := pChunkClassInfo(fList[Index])^;
 
 end;
 
 
 {Returns the number of items in the list}
-function TChunkClasses.GetCount: Integer;
+function TChunkClasses.GetCount: integer;
 begin
   {If the list object exists, then return the count from it}
   {otherwise returns 0                                     }
@@ -1862,8 +1874,7 @@ begin
 end;
 
 {:Add a new chunk class to the list of classes}
-procedure TChunkClasses.Add(ChunkType: TChunkType;
-  ChunkClass: TChunkClass);
+procedure TChunkClasses.Add(ChunkType: TChunkType; ChunkClass: TChunkClass);
 var
   NewItem: pChunkClassInfo;
 begin
@@ -1898,7 +1909,7 @@ end;
 {Returns a pointer to the GAMA}
 function TChunk.GetGAMA: TChunkGAMA;
 var
-  Pos: Integer;
+  Pos: integer;
 begin
   {Position of the chunk}
   Pos := Owner.IndexOfClass(TChunkGAMA); { Paul }
@@ -1930,7 +1941,7 @@ begin
 end;
 
 {:Returns the chunk size}
-function TChunk.GetSize: Integer;
+function TChunk.GetSize: integer;
 begin
   Result := fStream.Size;
 end;
@@ -1938,8 +1949,8 @@ end;
 {:Saves the chunk data to the stream}
 procedure TChunk.SaveToStream(Stream: TStream);
 var
-  ChunkLen: Cardinal;
-  ChunkCRC: Cardinal;
+  ChunkLen: cardinal;
+  ChunkCRC: cardinal;
 begin
   {The chunk is not safe-to-copy}
   (*if ChunkType[3] = LowerCase(ChunkType[3]) then *)
@@ -1962,7 +1973,7 @@ begin
 end;
 
 {Retrieve the chunk index inside the list}
-function TChunk.GetIndex: Integer;
+function TChunk.GetIndex: integer;
 begin
   Result := Owner.IndexOfChunk(Self); { Paul }
 end;
@@ -1970,7 +1981,7 @@ end;
 {:Called when the object is being created}
 constructor TChunk.Create(AOwner: TChunkList);
 var
-  ClassPos: Integer;
+  ClassPos: integer;
 begin
   {Create the stream containg the memory data}
   fStream := TMemoryStream.Create;
@@ -1992,7 +2003,7 @@ begin
 end;
 
 {:Move one chunk position in the list}
-procedure TChunkList.Move(Index1, Index2: Integer);
+procedure TChunkList.Move(Index1, Index2: integer);
 begin
   {Test for index}
   if (Index1 < 0) or (Index1 >= Count) then
@@ -2002,13 +2013,13 @@ begin
 end;
 
 {Returns the number of items in the list (Used with Count property)}
-function TChunkList.GetCount: Integer;
+function TChunkList.GetCount: integer;
 begin
   Result := fList.Count;
 end;
 
 {Returns an item from the list (Used with Item property)}
-function TChunkList.GetItem(Index: Integer): TChunk;
+function TChunkList.GetItem(Index: integer): TChunk;
 begin
   {Test if the chunk index is valid}
   if (Index < 0) or (Index > Count - 1) then
@@ -2041,25 +2052,25 @@ end;
 
 
 {:Returns the index of the first chunk of the type in the parameter}
-function TChunkList.IndexOfClass(ChunkClass: TChunkClass): Integer; { Paul }
+function TChunkList.IndexOfClass(ChunkClass: TChunkClass): integer; { Paul }
 var
-  I: Integer;
+  I: integer;
 begin
   {Returns -1 if none found}
   Result := -1;
 
   {If there are items in the list, test each item}
   if Count > 0 then
-    FOR i := 0 TO Count - 1 DO
+    for i := 0 to Count - 1 do
       if Item[I].ClassType = ChunkClass then
       begin
-        result := i;
+        Result := i;
         break;
       end;
 end;
 
 {:Returns the position of a chunk inside the list}
-function TChunkList.IndexOfChunk(Chunk: TChunk): Integer; { Paul }
+function TChunkList.IndexOfChunk(Chunk: TChunk): integer; { Paul }
 begin
   Result := fList.IndexOf(Chunk);
 end;
@@ -2075,10 +2086,10 @@ end;
  from a stream.                                                }
 function TChunkList.AddStream(Stream: TStream): TChunk; { Paul }
 var
-  CLength: Cardinal;
-  CType  : TChunkType;
-  CCRC   : Cardinal;
-  i, p   : Integer;
+  CLength: cardinal;
+  CType: TChunkType;
+  CCRC: cardinal;
+  i, p: integer;
 begin
   {First read the chunk length}
   Stream.Read(CLength, 4);
@@ -2090,12 +2101,12 @@ begin
   i := ChunkClasses.IndexOfType(CType); { Paul }
 
   {Test if the chunk is critical but unknown}
-  if ((Byte(CType[0]) AND $20) = 0) and (i = -1) then
+  if ((byte(CType[0]) and $20) = 0) and (i = -1) then
     CallError(PNG_ERROR_UNKOWN_CRITICAL_CHUNK);
 
   {If the chunk type exists in the list, then create an object  }
   {using the class found, otherwise use the generic TChunk class}
-  if i <> - 1 then
+  if i <> -1 then
     Result := ChunkClasses[I].ChunkClass.Create(Self)
   else
     Result := TChunk.Create(Self);
@@ -2138,16 +2149,16 @@ end;
 {:Clear all the chunks in the list}
 procedure TChunkList.Clear;
 var
-  i: Integer;
+  i: integer;
 begin
   {If there are items in the list, delete each one}
   if Count > 0 then
-    FOR i := Count - 1 DOWNTO 0 DO
-    BEGIN
+    for i := Count - 1 downto 0 do
+    begin
       {Free the chunk and delete from the list}
       Item[i].Free;
       FList.Delete(I);
-    END;
+    end;
 
 end;
 
@@ -2176,7 +2187,7 @@ end;
 procedure TPNGImage.Assign(Source: TPersistent);
 var
   SourcePNG: TPNGImage;
-  i, j     : Integer;
+  i, j: integer;
 begin
   {If the source is also a TPNGImage, copy the chunks}
   if Source is TPNGImage then
@@ -2187,16 +2198,17 @@ begin
 
     {Copy the chunks}
     if SourcePNG.Chunks.Count > 0 then
-    FOR i := 0 TO SourcePNG.Chunks.Count - 1 DO
-    begin
-      j := Chunkclasses.IndexOfType(SourcePNG.Chunks[i].fType); { Paul }
-      {If the class is a know class, create it using that class}
-      {otherwise with the default TChunk class}
-      if j <> -1 then
-        Chunks.AddItem(Chunkclasses[j].ChunkClass.Create(Chunks)).Assign(SourcePNG.Chunks[i]) { Paul }
-      else
-        Chunks.AddItem(TChunk.Create(Chunks)).Assign(SourcePNG.Chunks[i]); { Paul }
-    end;
+      for i := 0 to SourcePNG.Chunks.Count - 1 do
+      begin
+        j := Chunkclasses.IndexOfType(SourcePNG.Chunks[i].fType); { Paul }
+        {If the class is a know class, create it using that class}
+        {otherwise with the default TChunk class}
+        if j <> -1 then
+          Chunks.AddItem(Chunkclasses[j].ChunkClass.Create(Chunks)).Assign(
+            SourcePNG.Chunks[i]) { Paul }
+        else
+          Chunks.AddItem(TChunk.Create(Chunks)).Assign(SourcePNG.Chunks[i]); { Paul }
+      end;
 
     {Copy other info}
     Filter := SourcePNG.fEncodeFilter;
@@ -2215,7 +2227,7 @@ begin
 
   {Create the list of chunks object}
   fChunkList := TChunkList.Create(Self);
-  fInterlacing := FALSE;
+  fInterlacing := False;
 
   Filter := [efNone, efSub, efAverage, efPaeth];
 
@@ -2275,7 +2287,7 @@ end;
 {:Saves the current PNG image to the stream}
 procedure TPNGImage.SaveToStream(Stream: TStream);
 var
-  i: Integer;
+  i: integer;
 begin
   {Do the actual writting}
   with Stream do
@@ -2314,7 +2326,7 @@ begin
       Chunks.Move(Chunks.AddClass(TChunkIDAT).Index, 1); { Paul }
 
     {Write each chunk}
-    FOR i := 0 to Chunks.Count -1 DO
+    for i := 0 to Chunks.Count - 1 do
       Chunks[i].SaveToStream(Stream);
 
   end;
@@ -2324,7 +2336,7 @@ end;
 procedure TPNGImage.LoadFromStream(Stream: TStream);
 var
   ReadHeader: TPNGHeader;
-  i         : Integer;
+  i: integer;
 begin
 
   {Clear the current chunks}
@@ -2340,9 +2352,10 @@ begin
       CallError(PNG_ERROR_INVALID_HEADER);
 
     {Read the chunks}
-    while (not (Chunks.AddStream(Stream) is TChunkIEND)) and { Paul }
-      not (Stream.Position = Stream.Size) do
-    begin end;
+    while (not (Chunks.AddStream(Stream) is TChunkIEND)) and { Paul } not
+      (Stream.Position = Stream.Size) do
+    begin
+    end;
 
     {Test if IHDR is the first chunk}
     if (Chunks.Count = 0) or not (Chunks[0] is TChunkIHDR) then
@@ -2353,21 +2366,21 @@ begin
       CallError(PNG_ERROR_NO_IDAT);
 
     {Execute each chunks action}
-      FOR i := 0 to Chunks.Count - 1 DO
-        Chunks[i].DoAction;
-        
+    for i := 0 to Chunks.Count - 1 do
+      Chunks[i].DoAction;
+
     {Test if there is tRNS chunk, if so, apply the transparency}
     if Chunks.IndexOfClass(TChunkTRNS) <> -1 then { Paul }
-    case TChunkIHDR(Chunks[0]).ColorType of
-      RGB:
-      begin
-        TransparentColor :=
-          TChunkTRNS(Chunks[Chunks.IndexOfClass(TChunkTRNS)]).GetRGBColor; { Paul }
-        Transparent := TRUE;
+      case TChunkIHDR(Chunks[0]).ColorType of
+        RGB:
+        begin
+          TransparentColor :=
+            TChunkTRNS(Chunks[Chunks.IndexOfClass(TChunkTRNS)]).GetRGBColor; { Paul }
+          Transparent := True;
+        end;
       end;
-    end;
 
- end; {with}
+  end; {with}
 
 end;
 
@@ -2379,76 +2392,82 @@ begin
 end;
 
 procedure ConvertBits(Source: array of Pointer; Target: Pointer;
-  Count: Cardinal; Mask: Byte; FSourceBPS, FTargetBPS: Byte);
+  Count: cardinal; Mask: byte; FSourceBPS, FTargetBPS: byte);
 var
   SourceRun, TargetRun: PByte;
-  Value, BitRun,TargetMask, SourceMask,  SourceShift, TargetShift, MaxInSample,
-  MaxOutSample,  SourceBPS, TargetBPS: Byte;
-  Done: Cardinal;
+  Value, BitRun, TargetMask, SourceMask, SourceShift, TargetShift,
+  MaxInSample, MaxOutSample, SourceBPS, TargetBPS: byte;
+  Done: cardinal;
 begin
-  SourceRun := Source[0]; TargetRun := Target;
-    BitRun := $80; SourceBPS := FSourceBPS; TargetBPS := FTargetBPS;
-    SourceMask := Byte(not ((1 shl (8 - SourceBPS)) - 1));
-    MaxInSample := (1 shl SourceBPS) - 1;
-    TargetMask := (1 shl (8 - TargetBPS)) - 1;
-    MaxOutSample := (1 shl TargetBPS) - 1;
-    SourceShift := 8;  TargetShift := 8 - TargetBPS;   Done := 0;
-    while Done < Count do
+  SourceRun := Source[0];
+  TargetRun := Target;
+  BitRun := $80;
+  SourceBPS := FSourceBPS;
+  TargetBPS := FTargetBPS;
+  SourceMask := byte(not ((1 shl (8 - SourceBPS)) - 1));
+  MaxInSample := (1 shl SourceBPS) - 1;
+  TargetMask := (1 shl (8 - TargetBPS)) - 1;
+  MaxOutSample := (1 shl TargetBPS) - 1;
+  SourceShift := 8;
+  TargetShift := 8 - TargetBPS;
+  Done := 0;
+  while Done < Count do
+  begin
+    if boolean(Mask and BitRun) then
     begin
-      if Boolean(Mask and BitRun) then
+      Dec(SourceShift, SourceBPS);
+      Value := (SourceRun^ and SourceMask) shr SourceShift;
+      Value := MulDiv(Value, MaxOutSample, MaxInSample);
+      TargetRun^ := (TargetRun^ and TargetMask) or (Value shl TargetShift);
+      if SourceShift = 0 then
       begin
-        Dec(SourceShift, SourceBPS);
-        Value := (SourceRun^ and SourceMask) shr SourceShift;
-        Value := MulDiv(Value, MaxOutSample, MaxInSample);
-        TargetRun^ := (TargetRun^ and TargetMask) or (Value shl TargetShift);
-        if SourceShift = 0 then
-        begin
-          SourceShift := 8;
-          Inc(SourceRun);
-        end;
-        asm
-          MOV CL, [SourceBPS]
-          ROR BYTE PTR [SourceMask], CL
-        end;
+        SourceShift := 8;
+        Inc(SourceRun);
       end;
       asm
-        ROR BYTE PTR [BitRun], 1
-        MOV CL, [TargetBPS]
-        ROR BYTE PTR [TargetMask], CL
+               MOV     CL, [SourceBPS]
+               ROR     BYTE PTR [SourceMask], CL
       end;
-      if TargetShift = 0 then
-        TargetShift := 8 - TargetBPS
-      else
-        Dec(TargetShift, TargetBPS);
-      Inc(Done);
-      if (Done mod (8 div TargetBPS)) = 0 then Inc(TargetRun);
     end;
+    asm
+             ROR     BYTE PTR [BitRun], 1
+             MOV     CL, [TargetBPS]
+             ROR     BYTE PTR [TargetMask], CL
+    end;
+    if TargetShift = 0 then
+      TargetShift := 8 - TargetBPS
+    else
+      Dec(TargetShift, TargetBPS);
+    Inc(Done);
+    if (Done mod (8 div TargetBPS)) = 0 then
+      Inc(TargetRun);
+  end;
 end;
 
 var
-(* Table of CRCs of all 8-bit messages. *)
-crc_table: array[0..255] of Cardinal;
-(* Flag: has the table been computed? Initially false. *)
-crc_table_computed: Integer = 0;
+  (* Table of CRCs of all 8-bit messages. *)
+  crc_table: array[0..255] of cardinal;
+  (* Flag: has the table been computed? Initially false. *)
+  crc_table_computed: integer = 0;
 
 (*: Make the table for a fast CRC. *)
 procedure make_crc_table;
 var
-  c   : Cardinal;
-  n, k: Integer;
+  c: cardinal;
+  n, k: integer;
 begin
 
   for n := 0 to 255 do
   begin
-     c := n;
-     for k := 0 to 7 do
-     begin
-       if boolean(c and 1) then
-         c := $edb88320 xor (c shr 1)
-       else
-         c := c shr 1;
-     end;
-     crc_table[n] := c;
+    c := n;
+    for k := 0 to 7 do
+    begin
+      if boolean(c and 1) then
+        c := $edb88320 xor (c shr 1)
+      else
+        c := c shr 1;
+    end;
+    crc_table[n] := c;
   end;
 
   crc_table_computed := 1;
@@ -2458,28 +2477,29 @@ end;
    should be initialized to all 1's, and the transmitted value
    is the 1's complement of the final running CRC (see the
    crc() routine below)). *)
-function update_crc(chunktype: tchunktype; crc: Cardinal; buf: pByteArray;
-  len: Integer): Cardinal;
+function update_crc(chunktype: tchunktype; crc: cardinal; buf: pByteArray;
+  len: integer): cardinal;
 var
-  c: Cardinal absolute crc;
-  n: Integer;
+  c: cardinal absolute crc;
+  n: integer;
 begin
   if not boolean(crc_table_computed) then
     make_crc_table;
 
   for n := 0 to 3 do
-    c := crc_table[(c XOR ord(chunktype[n])) AND $ff] XOR (c SHR 8);
+    c := crc_table[(c xor Ord(chunktype[n])) and $ff] xor (c shr 8);
 
   for n := 0 to Len - 1 do
-    c := crc_table[(c XOR buf[n]) AND $ff] XOR (c SHR 8);
+    c := crc_table[(c xor buf[n]) and $ff] xor (c shr 8);
 
   Result := C;
 end;
 
 (*: Return the CRC of the bytes buf[0..len-1]. *)
-function crc(chunktype: tchunktype; buf: pbytearray; len: Integer): Cardinal;
+function crc(chunktype: tchunktype; buf: pbytearray; len: integer): cardinal;
 begin
-  result := update_crc(chunktype, Cardinal($ffffffff), buf, len) xor Cardinal($ffffffff); { Paul }
+  Result := update_crc(chunktype, cardinal($ffffffff), buf, len) xor cardinal($ffffffff);
+  { Paul }
 end;
 
 
@@ -2502,7 +2522,7 @@ initialization
   {Register the graphical class}
   TPicture.RegisterFileFormat('PNG', 'Portable Network Graphics', TPNGImage);
 
-{When the compiled unit is being finalized}
+  {When the compiled unit is being finalized}
 finalization
   ChunkClasses.Free;
 
@@ -2510,8 +2530,3 @@ finalization
   TPicture.UnregisterGraphicClass(TPNGImage);
 
 end.
-
-
-
-
-

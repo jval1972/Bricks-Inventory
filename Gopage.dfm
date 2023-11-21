@@ -70,7 +70,7 @@ object GoPageForm: TGoPageForm
     MinValue = 1
     ParentFont = False
     TabOrder = 0
-    Value = 0
+    Value = 1
     OnEnter = PageNumEnter
     OnKeyDown = PageNumKeyDown
   end

@@ -215,7 +215,7 @@ inherited Create(AMasterList);
 VSize := 2;
 Align := Centered;
 Color := clNone;
-for I := 0 to L.Count-1 do
+for I := 0 to L.Count - 1 do
   with TAttribute(L[I]) do
     case Which of
       SizeSy: if (Value > 0) and (Value <= 20) then
@@ -449,7 +449,7 @@ destructor ThtOptionStringList.Destroy;
 var
   I: integer;
 begin
-  for I := 0 to Count-1 do
+  for I := 0 to Count - 1 do
     TOptionObj(Objects[I]).Free;
   inherited;
 end;
@@ -587,7 +587,7 @@ begin
   with (FControl as ThtListbox) do
   begin
     Items.Clear;
-    for I := 0 to TheOptions.Count-1 do
+    for I := 0 to TheOptions.Count - 1 do
     begin
       if UnicodeControls then
         Items.Add(MultibyteToWidestring(CodePage, TheOptions[I]))
@@ -702,7 +702,7 @@ begin
 LB := FControl as ThtListbox;
 if Index = 0 then
   LB.ItemIndex := 0;
-for I := 0 to TheOptions.Count-1 do
+for I := 0 to TheOptions.Count - 1 do
   begin
   if Index = 0 then
     begin
@@ -765,7 +765,7 @@ begin
 with (FControl as ThtCombobox) do
   begin
   Items.Clear;  
-  for I := 0 to TheOptions.Count-1 do
+  for I := 0 to TheOptions.Count - 1 do
     begin
     if UnicodeControls then
       Items.Add(MultibyteToWideString(CodePage, TheOptions[I]))  
@@ -844,7 +844,7 @@ var
   I: integer;
 begin
 CB := FControl as ThtCombobox;
-for I := 0 to TheOptions.Count-1 do
+for I := 0 to TheOptions.Count - 1 do
   begin
   if CompareText(V, TheOptions.Value[I]) = 0 then
     CB.ItemIndex := I;
@@ -894,7 +894,7 @@ Cols := 30;
 Wrap := wrSoft;
 SB := StdCtrls.ssVertical;
 
-for I := 0 to L.Count-1 do
+for I := 0 to L.Count - 1 do
   with TAttribute(L[I]) do
     case Which of
       RowsSy: Rows := Value;
@@ -936,87 +936,90 @@ end;
 
 destructor TTextAreaFormControlObj.Destroy;
 begin
-inherited Destroy;
+  inherited Destroy;
 end;
 
 procedure TTextAreaFormControlObj.ProcessProperties(Prop: TProperties);
 begin
-inherited;
-if BkColor <> clNone then
-  TMemo(FControl).Color := BkColor;
+  inherited;
+  if BkColor <> clNone then
+    TMemo(FControl).Color := BkColor;
 end;
 
 procedure TTextAreaFormControlObj.Draw(Canvas: TCanvas; X1, Y1: integer);
 var
   H2, I, Addon: integer;
-  ARect: TRect;  
+  ARect: TRect;
 begin
-with ThtMemo(FControl) do
+  with ThtMemo(FControl) do
   begin
-  if BorderStyle <> bsNone then  
+    if BorderStyle <> bsNone then
     begin
-    FormControlRect(Canvas, X1, Y1, X1+Width, Y1+Height, False, MasterList.PrintMonoBlack, False, TMemo(FControl).Color);    
-    Addon := 4;  
+      FormControlRect(Canvas, X1, Y1, X1 + Width, Y1 + Height, False,
+        MasterList.PrintMonoBlack, False, TMemo(FControl).Color);
+      Addon := 4;
     end
-  else
+    else
     begin
-    FillRectWhite(Canvas, X1, Y1, X1+Width, Y1+Height, TMemo(FControl).Color);
-    Addon := 2;
+      FillRectWhite(Canvas, X1, Y1, X1 + Width, Y1 + Height, TMemo(FControl).Color);
+      Addon := 2;
     end;
-  Canvas.Brush.Style := bsClear;
-  Canvas.Font := Font;
-  H2 := Canvas.TextHeight('A');
-  SetTextAlign(Canvas.handle, TA_Left+TA_Top);
-  ARect := Rect(X1+Addon, Y1+Addon, X1+Width-2*Addon, Y1+Height-2*Addon);
-  if UnicodeControls then
-    for I := 0 to IntMin(Lines.Count-1, Rows-1) do
+    Canvas.Brush.Style := bsClear;
+    Canvas.Font := Font;
+    H2 := Canvas.TextHeight('A');
+    SetTextAlign(Canvas.handle, TA_Left + TA_Top);
+    ARect := Rect(X1 + Addon, Y1 + Addon, X1 + Width - 2 * Addon, Y1 + Height - 2 * Addon);
+    if UnicodeControls then
+      for I := 0 to IntMin(Lines.Count - 1, Rows - 1) do
       {$Warnings Off}
-      ExtTextOutW(Canvas.Handle, X1+Addon, Y1+Addon+I*H2, ETO_CLIPPED, @ARect,
-         PWideChar(Lines[I]), Length(Lines[I]), nil)
+        ExtTextOutW(Canvas.Handle, X1 + Addon, Y1 + Addon + I * H2, ETO_CLIPPED, @ARect,
+          PWideChar(Lines[I]), Length(Lines[I]), nil)
       {$Warnings On}
-  else
-    for I := 0 to IntMin(Lines.Count-1, Rows-1) do
-      Canvas.TextRect(ARect, X1+Addon, Y1+Addon+I*H2, Lines[I]);
+    else
+      for I := 0 to IntMin(Lines.Count - 1, Rows - 1) do
+        Canvas.TextRect(ARect, X1 + Addon, Y1 + Addon + I * H2, Lines[I]);
   end;
 end;
 
 procedure TTextAreaFormControlObj.SetHeightWidth(Canvas: TCanvas);
 begin
-with ThtMemo(FControl) do
+  with ThtMemo(FControl) do
   begin
-  Canvas.Font := Font;
-  if FHeight >= 10 then
-    Height := FHeight
-  else ClientHeight := Canvas.TextHeight('A')*Rows + 5;
-  if not PercentWidth then
+    Canvas.Font := Font;
+    if FHeight >= 10 then
+      Height := FHeight
+    else
+      ClientHeight := Canvas.TextHeight('A') * Rows + 5;
+    if not PercentWidth then
     begin
-    if (FWidth >= 10) then    {percent width set later}
-      Width := FWidth
-    else ClientWidth := Canvas.TextWidth('s')*Cols + 5;
+      if (FWidth >= 10) then    {percent width set later}
+        Width := FWidth
+      else
+        ClientWidth := Canvas.TextWidth('s') * Cols + 5;
     end
-  else
+    else
     begin
-    Left := -4000;
-    Width := 50;
+      Left := -4000;
+      Width := 50;
     end;
   end;
 end;
 
 procedure TTextAreaFormControlObj.AddStr(const S: string);
 begin
-TheText := TheText+S;   
+  TheText := TheText + S;
 end;
 
 procedure TTextAreaFormControlObj.ResetToValue;
 begin
-with (FControl as ThtMemo) do
+  with (FControl as ThtMemo) do
   begin
-  if UnicodeControls then
-    Text := MultiByteToWideString(CodePage, TheText)   
-  else
-    Text := TheText;
-  SelStart := 0;
-  SelLength := 0;
+    if UnicodeControls then
+      Text := MultiByteToWideString(CodePage, TheText)
+    else
+      Text := TheText;
+    SelStart := 0;
+    SelLength := 0;
   end;
 end;
 
@@ -1036,13 +1039,13 @@ if Index = 0 then
       S := S+(FControl as ThtMemo).Text
   else
     with (FControl as ThtMemo) do
-      for I := 0 to Lines.Count-1 do
+      for I := 0 to Lines.Count - 1 do
         begin
         if UnicodeControls then
           S := S + WideStringToMultibyte(CodePage, Lines[I])  
         else
           S := S + Lines[I];
-        if (I < Lines.Count-1) then
+        if (I < Lines.Count - 1) then
           S := S + CRLF;
         end;
   end
@@ -1075,7 +1078,7 @@ function TFormControlList.FindControl(Posn: integer): TFormControlObj;
 var
   I: integer;
 begin
-for I := 0 to Count-1 do
+for I := 0 to Count - 1 do
   if TFormControlObj(Items[I]).Pos = Posn then
     begin
     Result := Items[I];
@@ -1140,7 +1143,7 @@ procedure TFormControlList.Decrement(N: integer);
 var
   I: integer;
 begin
-for I := 0 to Count-1 do
+for I := 0 to Count - 1 do
   with TFormControlObj(Items[I]) do
     if Pos > N then
       Dec(Pos);

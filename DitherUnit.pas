@@ -185,7 +185,7 @@ type
   TLogWebPalette  = packed record
     palVersion: word;
     palNumEntries: word;
-    PalEntries: array[0..5,0..5,0..5] of TPaletteEntry;
+    PalEntries: array[0..5, 0..5, 0..5] of TPaletteEntry;
   end;
 var
   r, g, b: byte;
@@ -195,12 +195,12 @@ begin
   with LogWebPalette do
   begin
     palVersion:= $0300;
-    palNumEntries:= 216;
-    for r:=0 to 5 do
-      for g:=0 to 5 do
-        for b:=0 to 5 do
+    palNumEntries := 216;
+    for r := 0 to 5 do
+      for g := 0 to 5 do
+        for b := 0 to 5 do
         begin
-          with PalEntries[r,g,b] do
+          with PalEntries[r, g, b] do
           begin
             peRed := 51 * r;
             peGreen := 51 * g;
@@ -219,7 +219,7 @@ procedure Error(msg: string);
   function ReturnAddr: Pointer;
   // From classes.pas
   asm
-    MOV    EAX,[EBP+4] // sysutils.pas says [EBP-4] !
+    MOV    EAX,[EBP + 4] // sysutils.pas says [EBP-4] !
   end;
 begin
   raise GIFException.Create(msg) at ReturnAddr;
@@ -686,7 +686,7 @@ begin
 
       // Finally zero any unused entried
       if (SrcColors < DstColors) then
-        FillChar(pointer(LongInt(@FDIBInfo^.bmiColors)+SizeOf(TRGBQuad)*SrcColors)^,
+        FillChar(pointer(LongInt(@FDIBInfo^.bmiColors) + SizeOf(TRGBQuad) * SrcColors)^,
           DstColors - SrcColors, 0);
      {.$ENDIF}
     end;
@@ -834,7 +834,7 @@ begin
     for i := 0 to FColors - 1 do
       with FPaletteEntries^[i] do
       begin
-        InverseIndex := (peRed shr 3) OR ((peGreen AND $F8) shl 2) OR ((peBlue AND $F8) shl 7);
+        InverseIndex := (peRed shr 3) or ((peGreen and $F8) shl 2) or ((peBlue and $F8) shl 7);
         if (FInverseLookup^[InverseIndex] = -1) then
           FInverseLookup^[InverseIndex] := i;
       end;
@@ -858,7 +858,7 @@ var
   Delta, MinDelta, MinColor: integer;
 begin
   // Reduce color space with 3 bits in each dimension
-  InverseIndex := (Red shr 3) OR ((Green and $F8) shl 2) OR ((Blue and $F8) shl 7);
+  InverseIndex := (Red shr 3) or ((Green and $F8) shl 2) OR ((Blue and $F8) shl 7);
 
   if FInverseLookup^[InverseIndex] <> -1 then
     Result := char(FInverseLookup^[InverseIndex])
@@ -867,7 +867,7 @@ begin
     // Sequential scan for nearest color to minimize euclidian distance
     MinDelta := 3 * (256 * 256);
     MinColor := 0;
-    for i := 0 to FColors-1 do
+    for i := 0 to FColors - 1 do
       with FPaletteEntries[i] do
       begin
         Delta := ABS(peRed - Red) + ABS(peGreen - Green) + ABS(peBlue - Blue);
@@ -1258,7 +1258,7 @@ end;
 
 destructor TOctreeNode.Destroy;
 var
-  i      : integer;
+  i: integer;
 begin
   for i := High(Child) downto Low(Child) do
     Child[i].Free;
@@ -1308,11 +1308,11 @@ var
 begin
   Result := True;
 
-  for j := 0 to DIB.Bitmap.Height-1 do
+  for j := 0 to DIB.Bitmap.Height - 1 do
   begin
     Scanline := DIB.Scanline[j];
     Pixel := ScanLine;
-    for i := 0 to DIB.Bitmap.Width-1 do
+    for i := 0 to DIB.Bitmap.Width - 1 do
     begin
       with Pixel^ do
         AddColor(FTree, rgbtRed, rgbtGreen, rgbtBlue,
@@ -1380,9 +1380,9 @@ begin
     begin
       if (Node.PixelCount <> 0) then
       begin
-        rgbRed   := byte(Node.RedSum   div Node.PixelCount);
+        rgbRed := byte(Node.RedSum   div Node.PixelCount);
         rgbGreen := byte(Node.GreenSum div Node.PixelCount);
-        rgbBlue  := byte(Node.BlueSum  div Node.PixelCount);
+        rgbBlue := byte(Node.BlueSum  div Node.PixelCount);
       end else
       begin
         rgbRed := 0;
@@ -1420,9 +1420,9 @@ begin
   Node := ReducibleNodes[i];
   ReducibleNodes[i] := Node.Next;
 
-  RedSum   := 0;
+  RedSum := 0;
   GreenSum := 0;
-  BlueSum  := 0;
+  BlueSum := 0;
   Children := 0;
 
   for i := Low(ReducibleNodes) to High(ReducibleNodes) do
@@ -1489,12 +1489,12 @@ begin
     ColorQuantizer.Free;
   end;
 
-  for i := 0 to Colors-1 do
+  for i := 0 to Colors - 1 do
     with LogicalPalette.palPalEntry[i+Offset] do
     begin
-      peRed   := RGBQuadArray[i].rgbRed;
+      peRed := RGBQuadArray[i].rgbRed;
       peGreen := RGBQuadArray[i].rgbGreen;
-      peBlue  := RGBQuadArray[i].rgbBlue;
+      peBlue := RGBQuadArray[i].rgbBlue;
       peFlags := RGBQuadArray[i].rgbReserved;
     end;
   Result := CreatePalette(pLogPalette(@LogicalPalette)^);
@@ -1537,8 +1537,7 @@ var
   Dst: PChar;
   BGR: TRGBTriple;
 {$ifdef DEBUG_DITHERPERFORMANCE}
-  TimeStart    ,
-  TimeStop    : DWORD;
+  TimeStart, TimeStop: DWORD;
 {$endif}
 
 
@@ -1684,12 +1683,11 @@ var
   FBitmap: TBitmap;
   ColorReduction: TColorReduction;
   DitherMode: TDitherMode;
-
 begin
   Result := nil;
-  if (Source is TBitmap) then    {should always be}
+  if Source is TBitmap then    {should always be}
   begin
-    if (TBitmap(Source).Empty) then
+    if TBitmap(Source).Empty then
       exit;
     PixelFormat := GetPixelFormat(TBitmap(Source));
     if (PixelFormat > pfDevice) then

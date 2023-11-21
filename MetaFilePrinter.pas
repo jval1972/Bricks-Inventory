@@ -118,7 +118,7 @@ procedure TMetaFilePrinter.FreeMetaFiles;
 var
    I : integer;
 begin
-   for I := 0 to FMFList.Count-1 do
+   for I := 0 to FMFList.Count - 1 do
       MetaFiles[I].Free;
    FMFList.Clear;
    FreeAndNil(FCurCanvas);
@@ -171,8 +171,8 @@ begin
    // in case NewPage was called but nothing drawn on it
    if not FUsedPage then
       begin
-         I := FMFList.Count-1;
-         MetaFiles[FMFList.Count-1].Free;
+         I := FMFList.Count - 1;
+         MetaFiles[FMFList.Count - 1].Free;
          FMFList.Delete(I);
       end;
 

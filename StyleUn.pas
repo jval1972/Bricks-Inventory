@@ -1452,7 +1452,6 @@ var
         I: integer;
       begin
         Result := TStringList.Create;
-        Result.Sorted := True;
         I := CharPos('.', S);
         while I >= 1 do
         begin
@@ -1461,6 +1460,7 @@ var
           I := CharPos('.', S);
         end;
         Result.Add(S);
+        Result.Sorted := True;
       end;
 
     begin  {PartOf}

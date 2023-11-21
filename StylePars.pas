@@ -171,7 +171,7 @@ begin
   Result := False;
 end;
 
-procedure SplitString(Src: string; var Dest: array of string; var Count: integer);
+procedure SplitStr(Src: string; var Dest: array of string; var Count: integer);
 {Split a Src string into pieces returned in the Dest string array.  Splitting
  is on spaces with spaces within quotes being ignored.  String containing a '/'
  are also split to allow for the "size/line-height" Font construct. }
@@ -328,7 +328,7 @@ var
   end;
 
 begin
-  SplitString(Value, S, Count);
+  SplitStr(Value, S, Count);
   for I := 0 to Count - 1 do
   begin
     if S[I, 1] = '/' then
@@ -383,7 +383,7 @@ begin
       Process(Styles, Selectors, 'background-image', S[I]);
     end;
   end;
-  SplitString(Value, S, Count);
+  SplitStr(Value, S, Count);
   for I := 0 to Count - 1 do
     if ColorFromString(S[I], NeedPound, Dummy) then
     begin
@@ -453,7 +453,7 @@ begin
     if ColorFromString(S[I], NeedPound, Dummy) then
       Process(Styles, Selectors, Prop + '-color', S[I]);
 
-  SplitString(Value, S, Count);
+  SplitStr(Value, S, Count);
   for I := 0 to Count - 1 do
   begin
     if ColorFromString(S[I], NeedPound, Dummy) then
@@ -481,7 +481,7 @@ var
   Count, I: integer;
 
 begin
-  SplitString(Value, S, Count);
+  SplitStr(Value, S, Count);
   for I := 0 to Count - 1 do
   begin
     if Pos('url(', S[I]) > 0 then
@@ -514,7 +514,7 @@ begin
   if Value = '' then
     Exit;
 
-  SplitString(Value, S, Count);  {split Value into parts}
+  SplitStr(Value, S, Count);  {split Value into parts}
 
   case X of
     MarginX: Index[0] := MarginTop;
@@ -582,7 +582,6 @@ begin
   Result := '';
   SL := TStringList.Create;   {TStringlist to do sorting}
   try
-    SL.Sorted := True;
     Done := False;
     I := 1;
     GetCh;
@@ -609,6 +608,7 @@ begin
         SL.Add(SS);
       end;
     end;
+    SL.Sort;
     for I := 0 to SL.Count - 1 do
       Result := Result + Copy(SL.Strings[I], 2, Length(SL.Strings[I]) - 1);
   finally

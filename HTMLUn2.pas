@@ -1752,8 +1752,8 @@ begin
     Result := Png
   else if PW^ = $D8FF then
     Result := Jpg
-  else Result :=
-    NoImage;
+  else
+    Result := NoImage;
 end;
 
 {$A-} {record field alignment off for this routine}
@@ -1764,7 +1764,7 @@ function IsTransparent(Stream: TStream; var Color: TColor): boolean;
 type
   RGB = record
     Red, Green, Blue: byte;
-    end;
+  end;
 
   GifHeader = record
     GIF: array[0..2] of char;
@@ -1805,7 +1805,8 @@ begin
   P := PChar(Colors) + (X + 1) * Sizeof(RGB);
   if (P^ <> #$21) or ((P + 1)^ <> #$F9) then
     Exit;  {extension block not found}
-  if (ord(P[3]) and 1 <> 1) then Exit;     {no transparent color specified}
+  if (ord(P[3]) and 1 <> 1) then
+    Exit;     {no transparent color specified}
 
   with Colors^[Ord(P[6])] do
     Color := integer(Blue) shl 16 or integer(Green) shl 8 or integer(Red);
@@ -1819,10 +1820,10 @@ end;
 
 
 function IsTransparentPng(Stream: TStream; var Color: TColor): boolean;
-Type
+type
   RGB = record
     Red, Green, Blue: byte;
-    end;
+  end;
 
   PngHeader = record
     width       : integer;
@@ -2014,7 +2015,8 @@ var
 begin
   Result := nil;
   Mask := nil;
-  if not FileExists(Filename) then Exit;
+  if not FileExists(Filename) then
+    Exit;
   if GDIPlusActive and (KindOfImageFile(Filename) = Png) then
   begin
     Result := TObject(TGPBitmap.Create(Filename));

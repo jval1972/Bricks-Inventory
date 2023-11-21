@@ -1511,7 +1511,6 @@ end;
 procedure TbrSubFrameSet.InitializeDimensions(X, Y, Wid, Ht: integer);
 var
   I, Total, PixTot, PctTot, RelTot, Rel, Sum, Remainder, PixDesired, PixActual: integer;
-
 begin
   if Rows then
     Total := Ht

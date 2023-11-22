@@ -7323,12 +7323,18 @@ begin
   last_bl_result := '';
 end;
 
+procedure _task_fixknownpieces;
+begin
+  db.FixKnownPieces;
+end;
+
 procedure TSetsDatabase.InitCreate(const app: string = '');
-{$IFNDEF CRAWLER}
 var
+{$IFNDEF CRAWLER}
   lst: TStringList;
   i: integer;
 {$ENDIF}
+  taskid: integer;
 begin
 //  fpciloaderparams.db := self;
   if app = '' then
@@ -7380,11 +7386,15 @@ begin
 {  RemoveDoublesFromList1(basedefault + 'db\db_pieces.extra.txt');
   RemoveDoublesFromList2(basedefault + 'db\db_knownpieces.txt');}
 
-  FixKnownPieces;
+  taskid := MT_ScheduleTask(@_task_fixknownpieces);
+  MT_ExecutePendingTask(taskid);
+//  FixKnownPieces;
 
   fCacheDB := TCacheDB.Create(basedefault + 'cache\cache.db');
   fbinarysets := TBinarySetCollection.Create(basedefault + 'db\sets1.db', basedefault + 'db\sets2.db', basedefault + 'db\sets3.db');
   fbinaryparts := TBinaryPartCollection.Create(basedefault + 'db\parts.db');
+
+  MT_WaitTask(taskid);
 
   InitPiecesInventories;
 

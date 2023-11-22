@@ -1597,6 +1597,8 @@ var
 begin
   Screen.Cursor := crHourglass;
 
+  ShowSplash;
+
   if Now - storagebinsupdatetime > 0.1 then
   begin
     storestats := True;
@@ -1605,8 +1607,13 @@ begin
   else
     storestats := False;
 
+  storages := db.StorageBins;
+
+  dbstorageinvs := db.InventoriesForAllStorageBins;
+  dbstorageinvs.Sorted := True;
+
   if domultipagedocuments then
-    document.NewMultiPageDocument('ShowStorageBins', itoa(db.StorageBins.count));
+    document.NewMultiPageDocument('ShowStorageBins', itoa(storages.count));
 
   document.write('<body background="splash.jpg">');
   document.title('Storage Bins');
@@ -1628,13 +1635,6 @@ begin
   document.write('<th><b>Weight</b></th>');
   document.write('<th><b>Euro/Kgr</b></th>');
   document.write('</tr>');
-
-  storages := db.StorageBins;
-
-  dbstorageinvs := db.InventoriesForAllStorageBins;
-  dbstorageinvs.Sorted := True;
-
-  ShowSplash;
 
   aa := 0;
   evalsum := 0.0;

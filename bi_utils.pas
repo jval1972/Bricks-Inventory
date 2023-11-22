@@ -1607,15 +1607,13 @@ end;
 
 function LeftPad(PadString: string; HowMany: integer; PadValue: string): string;
 var
-   Counter : integer;
-   x : integer;
-   NewString : string;
+  Counter : integer;
+  x : integer;
+  NewString : string;
 begin
-   Counter := HowMany - Length(PadString);
-   for x := 1 to Counter do
-   begin
-      NewString := NewString + PadValue;
-   end;
+  Counter := HowMany - Length(PadString);
+  for x := 1 to Counter do
+    NewString := NewString + PadValue;
    Result := NewString + PadString;
 end;
 
@@ -1676,7 +1674,7 @@ var
   l, n: integer;
 begin
   n := Pos('//', s);
-  l := PosEx('/', s,n + 2);
+  l := PosEx('/', s, n + 2);
   Result := Copy(s, 0, l);
 end;
 

@@ -9629,8 +9629,10 @@ begin
           for i := 1 to sKP.Count - 1 do
           begin
             splitstring(sKP.Strings[i], s1, s2, s3, ',');
-            s1 := Trim(fixpartname(s1));
-            s.Add(s1 + ',' + Trim(s3));
+            trimproc(s1);
+            trimproc(s3);
+            s1 := fixpartname(s1);
+            s.Add(s1 + ',' + s3);
             {$IFNDEF CRAWLER}
             if i mod 1000 = 0 then
               if Assigned(progressfunc) then
@@ -9672,7 +9674,7 @@ begin
         {$IFNDEF CRAWLER}
         if i mod 2000 = 0 then
           if Assigned(progressfunc) then
-            progressfunc('Compressing Descriptions...', 0.5 + i / s.Count * 0.2);
+            progressfunc('Creating Piece Objects...', 0.5 + i / s.Count * 0.2);
         {$ENDIF}
         stmp := s.Strings[i];
         if stmp <> '' then

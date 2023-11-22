@@ -2161,11 +2161,11 @@ begin
   begin
     try
       GetTempPath(Max_Path, @Path);
-      SetLength(Filename, Max_Path+1);
+      SetLength(Filename, Max_Path + 1);
       GetTempFilename(@Path, 'png', Unique, PChar(Filename));
       Inc(Unique);
       I := CharPos(#0, Filename);
-      SetLength(Filename, I-1);
+      SetLength(Filename, I - 1);
       AssignFile(F, Filename);
       ReWrite(F, 1);
       BlockWrite(F, Stream.Memory^, Stream.Size);
@@ -3731,7 +3731,7 @@ begin   {Draw image on white background first, then print}
   g := TGPGraphics.Create(bg.Canvas.Handle);
   g.DrawImage(TGPImage(Image),0,0, bg.Width, bg.Height);
   g.Free;
-  Canvas.StretchDraw(Rect(DestX, DestY, DestX+DestW, DestY+DestH), bg);
+  Canvas.StretchDraw(Rect(DestX, DestY, DestX + DestW, DestY + DestH), bg);
   bg.Free;
 end;
 

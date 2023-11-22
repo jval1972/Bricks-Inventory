@@ -825,12 +825,9 @@ procedure Replace(Old, New: char);
 var
   I: integer;
 begin
-  I := Pos(Old, FName);
-  while I > 0 do
-  begin
-    FName[I] := New;
-    I := Pos(Old, FName);
-  end;
+  for I := 1 to length(FName) do
+    if FName[I] = Old then
+      FName[I] := New;
 end;
 
 procedure ReplaceEscapeChars;

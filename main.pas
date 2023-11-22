@@ -1586,11 +1586,12 @@ end;
 procedure TMainForm.ShowStorageBins;
 var
   storages: TStringList;
-  aa, i: integer;
+  aa, i, idx: integer;
   eval, evalsum: Double;
   numitems, numlots: integer;
   st: string;
   inv: TBrickInventory;
+  dbstorageinvs: TStringList;
   w, tw: double;
   storestats: boolean;
 begin
@@ -1630,6 +1631,9 @@ begin
 
   storages := db.StorageBins;
 
+  dbstorageinvs := db.InventoriesForAllStorageBins;
+  dbstorageinvs.Sorted := True;
+
   ShowSplash;
 
   aa := 0;
@@ -1647,7 +1651,11 @@ begin
     inc(aa);
     document.StartItemId(aa);
     st := storages.Strings[i];
-    inv := db.InventoryForStorageBinCache(st);
+    idx := dbstorageinvs.IndexOf(st);
+    if idx >= 0 then
+      inv := dbstorageinvs.Objects[idx] as TBrickInventory
+    else
+      inv := db.InventoryForStorageBinCache(st);
     if storestats then
     begin
       inv.StoreHistoryStatsRec(basedefault + 'storage\storage_' + filenamestring(st) + '.stats');
@@ -1669,9 +1677,12 @@ begin
     document.write('<td width=20% align=right>' + Format('%2.3f Kgr', [w]) + '</td>');
     document.write('<td width=20% align=right>' + Format('€ %2.3f / Kgr', [dbl_safe_div(eval, w)]) + '</td>');
 
-    inv.Free;
+    if idx < 0 then
+      inv.Free;
     document.write('</tr>');
   end;
+
+  FreeList(dbstorageinvs);
 
   document.EndNavigateSection;
 

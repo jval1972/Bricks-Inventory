@@ -31,44 +31,46 @@ URLCON.PAS are covered by separate copyright notices located in those modules.
 unit HTMLUn2;
 
 interface
+
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls,
-  Forms, Dialogs, StdCtrls, ExtCtrls, Clipbrd, StyleUn, GDIPL2A; 
+  Forms, Dialogs, StdCtrls, ExtCtrls, Clipbrd, StyleUn, GDIPL2A;
 
 const
   VersionNo = '9.45';
-  MaxHScroll = 6000;  {max horizontal display in pixels}      
-  HandCursor = 10101;        
+  MaxHScroll = 6000;  {max horizontal display in pixels}
+  HandCursor = 10101;
   OldThickIBeamCursor = 2;
   UpDownCursor = 10103;
   UpOnlyCursor = 10104;
-  DownOnlyCursor = 10105;  
-  Tokenleng = 300;  
+  DownOnlyCursor = 10105;
+  Tokenleng = 300;
   TopLim = -200;   {drawing limits}
-  BotLim = 5000;   
-  FmCtl = WideChar(#2);
-  ImgPan = WideChar(#4);
-  BrkCh = WideChar(#8);
+  BotLim = 5000;
+  FmCtl = widechar(#2);
+  ImgPan = widechar(#4);
+  BrkCh = widechar(#8);
 
 var
-  IsWin95: Boolean;
+  IsWin95: boolean;
   IsWin32Platform: boolean; {win95, 98, ME}
 
 type
   TgpObject = TObject;
-  TScriptEvent = procedure(Sender: TObject; const Name, Language,    
-       Script: string) of Object;
+  TScriptEvent = procedure(Sender: TObject;
+    const Name, Language, Script: string) of object;
 
   TFreeList = class(TList)
-  {like a TList but frees it's items.  Use only descendents of TObject}
+    {like a TList but frees it's items.  Use only descendents of TObject}
     destructor Destroy; override;
     {$Warnings Off}
     procedure Clear;       {do not override}
-    end;
+  end;
+
     {$Warnings On}
 
   Transparency = (NotTransp, LLCorner, TGif, TPng);
-  JustifyType = (NoJustify, Left, Centered, Right, FullJustify);  
+  JustifyType = (NoJustify, Left, Centered, Right, FullJustify);
   TRowType = (THead, TBody, TFoot);
 
   Symb = (
@@ -76,9 +78,9 @@ type
     HtmlEndSy, TitleEndSy, BodyEndSy, HeadEndSy, BRSy, HeadingSy, HeadingEndSy,
     EmSy, EmEndSy, StrongSy, StrongEndSy, USy, UEndSy, HRSy,
     CiteSy, VarSy, CiteEndSy, VarEndSy, BaseSy,
-       {Keep order}
-    TTSy, CodeSy, KbdSy, SampSy,  TTEndSy, CodeEndSy, KbdEndSy, SampEndSy,
-       {end order}
+    {Keep order}
+    TTSy, CodeSy, KbdSy, SampSy, TTEndSy, CodeEndSy, KbdEndSy, SampEndSy,
+    {end order}
     OLSy, OLEndSy, LISy, ULSy, ULEndSy, DirSy, DirEndSy, MenuSy, MenuEndSy,
     DLSy, DLEndSy, DDSy, DTSy, AddressSy, AddressEndSy, BlockQuoteSy, BlockQuoteEndSy,
     PreSy, PreEndSy, ImageSy, Centersy, CenterEndSy,
@@ -95,7 +97,7 @@ type
     BigSy, BigEndSy, SmallSy, SmallEndSy, BorderColorSy, MapSy, MapEndSy,
     AreaSy, ShapeSy, CoordsSy, NoHrefSy, UseMapSy, HeightSy, PlainSy,
     FrameSetSy, FrameSetEndSy, FrameSy, TargetSy, NoFramesSy, NoFramesEndSy,
-    NoResizeSy, ScrollingSy, PageSy, HSpaceSy, VSpaceSy, ScriptSy, ScriptEndSy,  
+    NoResizeSy, ScrollingSy, PageSy, HSpaceSy, VSpaceSy, ScriptSy, ScriptEndSy,
     LanguageSy, DivSy, DivEndSy, SSy, SEndSy, StrikeSy, StrikeEndSy,
     FrameBorderSy, MarginWidthSy, MarginHeightSy, BgSoundSy, LoopSy,
     OnClickSy, WrapSy, NoShadeSy, MetaSy, HttpEqSy, ContentSy, EncTypeSy,
@@ -105,8 +107,8 @@ type
     CharSetSy, RatioSy, OnFocusSy, OnBlurSy, OnChangeSy, ColSy, ColGroupSy,
     ColGroupEndSy, TabIndexSy, BGPropertiesSy, DisabledSy,
     TopMarginSy, LeftMarginSy, LabelSy, LabelEndSy, THeadSy, TBodySy, TFootSy,
-    THeadEndSy, TBodyEndSy, TFootEndSy, ObjectSy, ObjectEndSy, ParamSy, 
-    ReadonlySy, EolSy);   
+    THeadEndSy, TBodyEndSy, TFootEndSy, ObjectSy, ObjectEndSy, ParamSy,
+    ReadonlySy, EolSy);
 
   TAttribute = class(TObject)  {holds a tag attribute}
   public
@@ -114,31 +116,31 @@ type
     WhichName: string;
     Value: integer;  {numeric value if appropriate}
     Percent: boolean;{if value is in percent}
-    Name: String;   {String (mixed case), value after '=' sign}
+    Name: string;   {String (mixed case), value after '=' sign}
     CodePage: integer;
     constructor Create(ASym: Symb; AValue: integer;
-           Const NameStr, ValueStr: string; ACodePage: integer);  
+      const NameStr, ValueStr: string; ACodePage: integer);
     destructor Destroy; override;
   end;
 
   TAttributeList = class(TFreeList)  {a list of tag attributes,(TAttributes)}
-    private
-      Prop: TProperties;
-      SaveID: string;
-      function GetClass: string;
-      function GetID: string;
-      function GetTitle: string;  
-      function GetStyle: TProperties;
-    public
-      destructor Destroy; override;
-      procedure Clear;
-      function Find(Sy: Symb; var T: TAttribute): boolean;
-      function CreateStringList: TStringList;   
-      property TheClass: string read GetClass;
-      property TheID: string read GetID;
-      property TheTitle: string read GetTitle;    
-      property TheStyle: TProperties read GetStyle;
-    end;
+  private
+    Prop: TProperties;
+    SaveID: string;
+    function GetClass: string;
+    function GetID: string;
+    function GetTitle: string;
+    function GetStyle: TProperties;
+  public
+    destructor Destroy; override;
+    procedure Clear;
+    function Find(Sy: Symb; var T: TAttribute): boolean;
+    function CreateStringList: TStringList;
+    property TheClass: string read GetClass;
+    property TheID: string read GetID;
+    property TheTitle: string read GetTitle;
+    property TheStyle: TProperties read GetStyle;
+  end;
 
   TBitmapItem = class(TObject)
   public
@@ -152,13 +154,13 @@ type
   end;
 
   TStringBitmapList = class(TStringList)
-      {a list of bitmap filenames and TBitmapItems}
+    {a list of bitmap filenames and TBitmapItems}
   public
     MaxCache: integer;
     constructor Create;
     destructor Destroy; override;
     procedure Clear; override;
-    function AddObject(const S: string; AObject: TObject): Integer; override;
+    function AddObject(const S: string; AObject: TObject): integer; override;
     procedure DecUsage(const S: string);
     procedure IncUsage(const S: string);
     procedure BumpAndCheck;
@@ -176,14 +178,14 @@ type
     procedure AddText(P: PWideChar; Size: integer); virtual;
     procedure AddTextCR(P: PWideChar; Size: integer);
     function Terminate: integer; virtual;
-    end;
+  end;
 
   TSelTextBuf = class(TSelTextCount)
   public
     constructor Create(ABuffer: PWideChar; Size: integer);
     procedure AddText(P: PWideChar; Size: integer); override;
     function Terminate: integer; override;
-    end;
+  end;
 
   TClipBuffer = class(TSelTextBuf)
   private
@@ -192,63 +194,62 @@ type
     constructor Create(Leng: integer);
     destructor Destroy; override;
     function Terminate: integer; override;
-    end;
+  end;
 
-  TutText = class   {holds start and end point of URL text} 
+  TutText = class   {holds start and end point of URL text}
     Start: integer;
     Last: integer;
-    end;
+  end;
 
-  TUrlTarget = Class(TObject)
-    private
-      function GetStart: integer;  
-      function GetLast: integer;
-    public
-      URL,
-      Target: string;
-      ID: integer;
-      Attr: string;   
-      utText: TutText; 
-      TabIndex: integer;
-      constructor Create;
-      procedure Copy(UT: TUrlTarget);
-      destructor Destroy; override;
-      procedure Assign(AnUrl, ATarget: String; L: TAttributeList; AStart: integer);   
-      procedure Clear;
-      procedure SetLast(List: TList; ALast: integer);
-      property Start: integer read GetStart;
-      property Last: integer read GetLast;
-      end;
+  TUrlTarget = class(TObject)
+  private
+    function GetStart: integer;
+    function GetLast: integer;
+  public
+    URL, Target: string;
+    ID: integer;
+    Attr: string;
+    utText: TutText;
+    TabIndex: integer;
+    constructor Create;
+    procedure Copy(UT: TUrlTarget);
+    destructor Destroy; override;
+    procedure Assign(AnUrl, ATarget: string; L: TAttributeList; AStart: integer);
+    procedure Clear;
+    procedure SetLast(List: TList; ALast: integer);
+    property Start: integer read GetStart;
+    property Last: integer read GetLast;
+  end;
 
   TMapItem = class(TObject)   {holds a client map info}
-    MapName: String;
+    MapName: string;
     Areas: TStringList;       {holds the URL and region handle}
     AreaTargets: TStringList; {holds the target window}
-    AreaTitles: TStringList;  {the Title strings}   
+    AreaTitles: TStringList;  {the Title strings}
     constructor Create;
     destructor Destroy; override;
-    function GetURL(X, Y: integer; var URLTarg: TURLTarget; var ATitle: string): boolean;  
+    function GetURL(X, Y: integer; var URLTarg: TURLTarget; var ATitle: string): boolean;
     procedure AddArea(Attrib: TAttributeList);
-    end;
+  end;
 
   TDib = class(TObject)
-    private
-      Info  : PBitmapInfoHeader;
-      InfoSize: integer;
-      Image: Pointer;
-      ImageSize : integer;
-      FHandle: THandle;
-      procedure InitializeBitmapInfoHeader(Bitmap: HBITMAP);
-      procedure GetDIBX(DC: HDC; Bitmap: HBITMAP; Palette: HPALETTE);
-      procedure Allocate(Size: integer);
-      procedure DeAllocate;
-    public
-      constructor CreateDIB(DC: HDC; Bitmap: TBitmap);
-      destructor Destroy; override;
-      function CreateDIBmp: hBitmap;
-      procedure DrawDIB(DC: HDC; X: Integer; Y: integer; W, H: integer;
-                ROP: DWord);
-    end;
+  private
+    Info: PBitmapInfoHeader;
+    InfoSize: integer;
+    Image: Pointer;
+    ImageSize: integer;
+    FHandle: THandle;
+    procedure InitializeBitmapInfoHeader(Bitmap: HBITMAP);
+    procedure GetDIBX(DC: HDC; Bitmap: HBITMAP; Palette: HPALETTE);
+    procedure Allocate(Size: integer);
+    procedure DeAllocate;
+  public
+    constructor CreateDIB(DC: HDC; Bitmap: TBitmap);
+    destructor Destroy; override;
+    function CreateDIBmp: hBitmap;
+    procedure DrawDIB(DC: HDC; X: integer; Y: integer; W, H: integer;
+      ROP: DWord);
+  end;
 
   IndentRec = class(TObject)
     X: integer;       {indent for this record}
@@ -258,10 +259,10 @@ type
   end;
 
   IndentManagerBasic = class(TObject)
-    Width, ClipWidth: Integer;
-    L, R: TFreeList;  {holds info (IndentRec's) on left and right indents}
+    Width, ClipWidth: integer;
+    L, R: TFreeList;          {holds info (IndentRec's) on left and right indents}
     CurrentID: TObject;       {the current level (a TBlock pointer)}
-    LfEdge, RtEdge: integer;     {current extreme edges}
+    LfEdge, RtEdge: integer;  {current extreme edges}
 
     constructor Create;
     destructor Destroy; override;
@@ -287,7 +288,7 @@ type
 
   IndexArray = array[1..TokenLeng] of integer;
   PIndexArray = ^IndexArray;
-  ChrArray = array[1..TokenLeng] of WideChar;
+  ChrArray = array[1..TokenLeng] of widechar;
 
   {Simplified variant of TokenObj, to temporarily keep a string of ANSI
    characters along with their original indices.}
@@ -295,20 +296,20 @@ type
   private
     FChars: string;
     FIndices: PIndexArray;
-    FCurrentIndex: Integer;
-    function GetSize: Integer;
+    FCurrentIndex: integer;
+    function GetSize: integer;
     function GetAsString: string;
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Add(C: Char; Index: Integer);
+    procedure Add(C: char; Index: integer);
     procedure Clear;
     procedure Concat(T: TCharCollection);
 
     property AsString: string read GetAsString;
     property Chars: string read FChars;
     property Indices: PIndexArray read FIndices;
-    property Size: Integer read GetSize;
+    property Size: integer read GetSize;
   end;
 
   TokenObj = class
@@ -322,25 +323,25 @@ type
     MaxIndex, Leng: integer;
     constructor Create;
     destructor Destroy; override;
-    procedure AddUnicodeChar(Ch: WideChar; Ind: integer);
-    procedure AddString(S: TCharCollection; CodePage: Integer);
+    procedure AddUnicodeChar(Ch: widechar; Ind: integer);
+    procedure AddString(S: TCharCollection; CodePage: integer);
     procedure Concat(T: TokenObj);
     procedure Clear;
     procedure Remove(N: integer);
-    procedure Replace(N: integer; Ch: WideChar);
+    procedure Replace(N: integer; Ch: widechar);
 
     property S: WideString read GetString;
   end;
 
-//------------------------------------------------------------------------------
-// TIDObject is base class for all tag objects.
-//------------------------------------------------------------------------------
-// If they have an ID, the parser puts them into the HtmlViewer's IDNameList,
-// a TIDObjectList, where they can be obtained from by ID.
-// Their Y coordinates can be retrieved and HtmlViewer can scroll to them.
-//
-// Most descendants are objects representing an HTML tag, except TChPosObj.
-//------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+  // TIDObject is base class for all tag objects.
+  //------------------------------------------------------------------------------
+  // If they have an ID, the parser puts them into the HtmlViewer's IDNameList,
+  // a TIDObjectList, where they can be obtained from by ID.
+  // Their Y coordinates can be retrieved and HtmlViewer can scroll to them.
+
+  // Most descendants are objects representing an HTML tag, except TChPosObj.
+  //------------------------------------------------------------------------------
 
   TIDObject = class(TObject)
   protected
@@ -350,7 +351,7 @@ type
     destructor Destroy; override;
   end;
 
-  TChPosObj = class (TIDObject)
+  TChPosObj = class(TIDObject)
   private
     ChPos: integer;
     List: TList;
@@ -365,7 +366,7 @@ type
     constructor Create(List: TList);
     destructor Destroy; override;
     procedure Clear; override;
-    function AddObject(const S: string; AObject: TObject): Integer; override;
+    function AddObject(const S: string; AObject: TObject): integer; override;
     procedure AddChPosObject(const S: string; Pos: integer);
   end;
 
@@ -384,102 +385,105 @@ type
     property Mask: TBitmap read GetMask;
     property WhiteBGBitmap: TBitmap read GetWhiteBGBitmap;
   end;
+
 {$endif}
 
   ImageType = (NoImage, Bmp, Gif, Gif89, Png, Jpg);
-  SetOfChar = Set of Char;
+  SetOfChar = set of char;
 
   htColorArray = packed array[0..3] of TColor;
   htBorderStyleArray = packed array[0..3] of BorderStyleType;
 
 var
-  ColorBits: Byte;
+  ColorBits: byte;
   ThePalette: HPalette;       {the rainbow palette for 256 colors}
   PalRelative: integer;
   DefBitMap, ErrorBitMap, ErrorBitmapMask: TBitMap;
   ABitmapList: TStringBitmapList; {the image cache}
   WaitStream: TMemoryStream;
 
-function InSet(W: WideChar; S: SetOfChar): boolean;
+function InSet(W: widechar; S: SetOfChar): boolean;
 
-function StrLenW(Str: PWideChar): Cardinal;
+function StrLenW(Str: PWideChar): cardinal;
 function StrPosW(Str, SubStr: PWideChar): PWideChar;
-function StrScanW(const Str: PWideChar; Chr: WideChar): PWideChar;
-function StrRScanW(const Str: PWideChar; Chr: WideChar): PWideChar;
-function FitText(DC: HDC; S: PWideChar; Max, Width: Integer; var Extent: integer): Integer;
-function WidePos(SubStr, S: WideString): Integer;
-function WideTrim(const S : WideString) : WideString;
+function StrScanW(const Str: PWideChar; Chr: widechar): PWideChar;
+function StrRScanW(const Str: PWideChar; Chr: widechar): PWideChar;
+function FitText(DC: HDC; S: PWideChar; Max, Width: integer;
+  var Extent: integer): integer;
+function WidePos(SubStr, S: WideString): integer;
+function WideTrim(const S: WideString): WideString;
 function WideUpperCase1(const S: WideString): WideString;
 function WideLowerCase1(const S: WideString): WideString;
 function WideSameText1(const S1, S2: WideString): boolean;
 function WideSameStr1(const S1, S2: WideString): boolean;
-function PosX(const SubStr, S: string; Offset: integer = 1): Integer;
-   {find substring in S starting at Offset}
+function PosX(const SubStr, S: string; Offset: integer = 1): integer;
+{find substring in S starting at Offset}
 
-function IntMin(A, B: Integer): Integer;
-function IntMax(A, B: Integer): Integer;
+function IntMin(A, B: integer): integer;
+function IntMax(A, B: integer): integer;
 procedure GetClippingRgn(Canvas: TCanvas; ARect: TRect; Printing: boolean;
-          var Rgn, SaveRgn: HRgn);
+  var Rgn, SaveRgn: HRgn);
 
-function GetImageAndMaskFromFile(const Filename: string; var Transparent: Transparency;
-                            var Mask: TBitmap): TgpObject;
+function GetImageAndMaskFromFile(const Filename: string;
+  var Transparent: Transparency; var Mask: TBitmap): TgpObject;
 function HTMLToDos(FName: string): string;
-  {convert an HTML style filename to one for Dos}
+{convert an HTML style filename to one for Dos}
 function HTMLServerToDos(FName, Root: string): string;
 
 procedure WrapTextW(Canvas: TCanvas; X1, Y1, X2, Y2: integer; S: WideString);
 
-procedure FinishTransparentBitmap (ahdc: HDC;
-            InImage, Mask: TBitmap; xStart, yStart, W, H: integer);
+procedure FinishTransparentBitmap(ahdc: HDC; InImage, Mask: TBitmap;
+  xStart, yStart, W, H: integer);
 function GetImageMask(Image: TBitmap; ColorValid: boolean; AColor: TColor): TBitmap;
 function TransparentGIF(const FName: string; var Color: TColor): boolean;
 function Allocate(Size: integer): AllocRec;
 procedure DeAllocate(AR: AllocRec);
 function CopyPalette(Source: hPalette): hPalette;
 procedure SetGlobalPalette(Value: HPalette);
-function GetImageFromFile(const Filename: String): TBitmap;
+function GetImageFromFile(const Filename: string): TBitmap;
 function GetImageAndMaskFromStream(Stream: TMemoryStream;
-        var Transparent: Transparency; var AMask: TBitmap): TgpObject;
-function KindOfImageFile(FName: String): ImageType;
+  var Transparent: Transparency; var AMask: TBitmap): TgpObject;
+function KindOfImageFile(FName: string): ImageType;
 function KindOfImage(Start: Pointer): ImageType;
 procedure FillRectWhite(Canvas: TCanvas; X1, Y1, X2, Y2: integer; Color: TColor);
-procedure FormControlRect(Canvas: TCanvas; X1: integer;
-           Y1: integer; X2: integer; Y2: integer; Raised, PrintMonoBlack, Disabled: boolean; Color: TColor);
+procedure FormControlRect(Canvas: TCanvas; X1: integer; Y1: integer;
+  X2: integer; Y2: integer; Raised, PrintMonoBlack, Disabled: boolean; Color: TColor);
 function GetXExtent(DC: HDC; P: PWideChar; N: integer): integer;
-procedure RaisedRect(SectionList: TFreeList; Canvas: TCanvas; X1: integer;
-           Y1: integer; X2: integer; Y2: integer; Raised: boolean; W: integer);
-procedure RaisedRectColor(SectionList: TFreeList; Canvas: TCanvas; X1: integer;
-           Y1: integer; X2: integer; Y2: integer; Light, Dark: TColor; Raised: boolean;
-           W: integer);
+procedure RaisedRect(SectionList: TFreeList; Canvas: TCanvas;
+  X1: integer; Y1: integer; X2: integer; Y2: integer;
+  Raised: boolean; W: integer);
+procedure RaisedRectColor(SectionList: TFreeList; Canvas: TCanvas;
+  X1: integer; Y1: integer; X2: integer; Y2: integer;
+  Light, Dark: TColor; Raised: boolean; W: integer);
 function EnlargeImage(Image: TGpObject; W, H: integer): TBitmap;
 procedure PrintBitmap(Canvas: TCanvas; X, Y, W, H: integer;
-             BMHandle: HBitmap);
+  BMHandle: HBitmap);
 procedure PrintBitmap1(Canvas: TCanvas; X, Y, W, H, YI, HI: integer;
-             BMHandle: HBitmap);
+  BMHandle: HBitmap);
 procedure PrintTransparentBitmap1(Canvas: TCanvas; X, Y, NewW, NewH: integer;
-             Bitmap, Mask: TBitmap; YI, HI: integer);
+  Bitmap, Mask: TBitmap; YI, HI: integer);
 procedure PrintTransparentBitmap3(Canvas: TCanvas; X, Y, NewW, NewH: integer;
-             Bitmap, Mask: TBitmap; YI, HI: integer);
+  Bitmap, Mask: TBitmap; YI, HI: integer);
 procedure DrawGpImage(Handle: THandle; Image: TGPImage; DestX, DestY: integer); overload;
-procedure DrawGpImage(Handle: THandle; Image: TGpImage; DestX, DestY,
-            SrcX, SrcY, SrcW, SrcH: integer); overload;
-procedure StretchDrawGpImage(Handle: THandle; Image: TGpImage; DestX, DestY, DestW, DestH: integer);
-procedure PrintGpImageDirect(Handle: THandle; Image: TGpImage; DestX, DestY: integer;
-              ScaleX, ScaleY: single);
+procedure DrawGpImage(Handle: THandle; Image: TGpImage;
+  DestX, DestY, SrcX, SrcY, SrcW, SrcH: integer); overload;
+procedure StretchDrawGpImage(Handle: THandle; Image: TGpImage;
+  DestX, DestY, DestW, DestH: integer);
+procedure PrintGpImageDirect(Handle: THandle; Image: TGpImage;
+  DestX, DestY: integer; ScaleX, ScaleY: single);
 procedure StretchPrintGpImageDirect(Handle: THandle; Image: TGpImage;
-              DestX, DestY, DestW, DestH: integer;
-              ScaleX, ScaleY: single);
+  DestX, DestY, DestW, DestH: integer; ScaleX, ScaleY: single);
 procedure StretchPrintGpImageOnColor(Canvas: TCanvas; Image: TGpImage;
-              DestX, DestY, DestW, DestH: integer; Color: TColor = clWhite);
+  DestX, DestY, DestW, DestH: integer; Color: TColor = clWhite);
 function htStyles(P0, P1, P2, P3: BorderStyleType): htBorderStyleArray;
 function htColors(C0, C1, C2, C3: TColor): htColorArray;
 procedure DrawBorder(Canvas: TCanvas; ORect, IRect: TRect; C: htColorArray;
-            S: htBorderStyleArray; BGround: TColor; Print: boolean);
+  S: htBorderStyleArray; BGround: TColor; Print: boolean);
 function MultibyteToWideString(CodePage: integer; const S: string): WideString;
-function WideStringToMultibyte(CodePage: integer; W: WideString): string;   
+function WideStringToMultibyte(CodePage: integer; W: WideString): string;
 function GetImageHeight(Image: TGpObject): integer;
 function GetImageWidth(Image: TGpObject): integer;
-function CharPos(const ch: Char; const s: string): integer;
+function CharPos(const ch: char; const s: string): integer;
 
 implementation
 
@@ -498,18 +502,17 @@ var
   DC: HDC;
 
 {----------------StrLenW}
-function StrLenW(Str: PWideChar): Cardinal;
-{returns number of characters in a string excluding the null terminator}
-
+function StrLenW(Str: PWideChar): cardinal;
+// returns number of characters in a string excluding the null terminator
 asm
-       MOV     EDX, EDI
-       MOV     EDI, EAX
-       MOV     ECX, 0FFFFFFFFH
-       XOR     AX, AX
-       REPNE   SCASW
-       MOV     EAX, 0FFFFFFFEH
-       SUB     EAX, ECX
-       MOV     EDI, EDX
+         MOV     EDX, EDI
+         MOV     EDI, EAX
+         MOV     ECX, 0FFFFFFFFH
+         XOR     AX, AX
+         REPNE   SCASW
+         MOV     EAX, 0FFFFFFFEH
+         SUB     EAX, ECX
+         MOV     EDI, EDX
 
 end;
 
@@ -517,100 +520,102 @@ end;
 function StrPosW(Str, SubStr: PWideChar): PWideChar;
 // returns a pointer to the first occurance of SubStr in Str
 asm
-       PUSH    EDI
-       PUSH    ESI
-       PUSH    EBX
-       OR      EAX, EAX
-       JZ      @@2
-       OR      EDX, EDX
-       JZ      @@2
-       MOV     EBX, EAX
-       MOV     EDI, EDX
-       XOR     AX, AX
-       MOV     ECX, 0FFFFFFFFH
-       REPNE   SCASW
-       NOT     ECX
-       DEC     ECX
-       JZ      @@2
-       MOV     ESI, ECX
-       MOV     EDI, EBX
-       MOV     ECX, 0FFFFFFFFH
-       REPNE   SCASW
-       NOT     ECX
-       SUB     ECX, ESI
-       JBE     @@2
-       MOV     EDI, EBX
-       LEA     EBX, [ESI - 1]
-@@1:
-       MOV     ESI, EDX
-       LODSW
-       REPNE   SCASW
-       JNE     @@2
-       MOV     EAX, ECX
-       PUSH    EDI
-       MOV     ECX, EBX
-       REPE    CMPSW
-       POP     EDI
-       MOV     ECX, EAX
-       JNE     @@1
-       LEA     EAX, [EDI - 2]
-       JMP     @@3
+         PUSH    EDI
+         PUSH    ESI
+         PUSH    EBX
+         OR      EAX, EAX
+         JZ      @@2
+         OR      EDX, EDX
+         JZ      @@2
+         MOV     EBX, EAX
+         MOV     EDI, EDX
+         XOR     AX, AX
+         MOV     ECX, 0FFFFFFFFH
+         REPNE   SCASW
+         NOT     ECX
+         DEC     ECX
+         JZ      @@2
+         MOV     ESI, ECX
+         MOV     EDI, EBX
+         MOV     ECX, 0FFFFFFFFH
+         REPNE   SCASW
+         NOT     ECX
+         SUB     ECX, ESI
+         JBE     @@2
+         MOV     EDI, EBX
+         LEA     EBX, [ESI - 1]
+         @@1:
+         MOV     ESI, EDX
+         LODSW
+         REPNE   SCASW
+         JNE     @@2
+         MOV     EAX, ECX
+         PUSH    EDI
+         MOV     ECX, EBX
+         REPE    CMPSW
+         POP     EDI
+         MOV     ECX, EAX
+         JNE     @@1
+         LEA     EAX, [EDI - 2]
+         JMP     @@3
 
-@@2:
-       XOR     EAX, EAX
-@@3:
-       POP     EBX
-       POP     ESI
-       POP     EDI
+         @@2:
+         XOR     EAX, EAX
+         @@3:
+         POP     EBX
+         POP     ESI
+         POP     EDI
 end;
 
 {----------------StrRScanW}
-function StrRScanW(const Str: PWideChar; Chr: WideChar): PWideChar; assembler;
+function StrRScanW(const Str: PWideChar; Chr: widechar): PWideChar; assembler;
 asm
-        PUSH    EDI
-        MOV     EDI,Str
-        MOV     ECX,0FFFFFFFFH
-        XOR     AX,AX
-        REPNE   SCASW
-        NOT     ECX
-        STD
-        DEC     EDI
-        DEC     EDI
-        MOV     AX,Chr
-        REPNE   SCASW
-        MOV     EAX,0
-        JNE     @@1
-        MOV     EAX,EDI
-        INC     EAX
-        INC     EAX
-@@1:    CLD
-        POP     EDI
+         PUSH    EDI
+         MOV     EDI,Str
+         MOV     ECX,0FFFFFFFFH
+         XOR     AX,AX
+         REPNE   SCASW
+         NOT     ECX
+         STD
+         DEC     EDI
+         DEC     EDI
+         MOV     AX,Chr
+         REPNE   SCASW
+         MOV     EAX,0
+         JNE     @@1
+         MOV     EAX,EDI
+         INC     EAX
+         INC     EAX
+         @@1:
+         CLD
+         POP     EDI
 end;
 
 {----------------StrScanW}
-function StrScanW(const Str: PWideChar; Chr: WideChar): PWideChar; assembler;
+function StrScanW(const Str: PWideChar; Chr: widechar): PWideChar; assembler;
 asm
-        PUSH    EDI
-        PUSH    EAX
-        MOV     EDI,Str
-        MOV     ECX,$FFFFFFFF
-        XOR     AX,AX
-        REPNE   SCASW
-        NOT     ECX
-        POP     EDI
-        MOV     AX,Chr
-        REPNE   SCASW
-        MOV     EAX,0
-        JNE     @@1
-        MOV     EAX,EDI
-        DEC     EAX
-        DEC     EAX
-@@1:    POP     EDI
+         PUSH    EDI
+         PUSH    EAX
+         MOV     EDI,Str
+         MOV     ECX,$FFFFFFFF
+         XOR     AX,AX
+         REPNE   SCASW
+         NOT     ECX
+         POP     EDI
+         MOV     AX,Chr
+         REPNE   SCASW
+         MOV     EAX,0
+         JNE     @@1
+         MOV     EAX,EDI
+         DEC     EAX
+         DEC     EAX
+         @@1:
+         POP     EDI
 end;
 
 {----------------FitText}
 function FitText(DC: HDC; S: PWideChar; Max, Width: Integer; var Extent: integer): Integer;
-  {return count <= Max which fits in Width.  Return X, the extent of chars that fit}
+// return count <= Max which fits in Width.  Return X, the extent of chars that fit
 type
   Integers = array[1..1] of integer;
 var
@@ -766,7 +771,7 @@ asm
 @1:
 end;
 
-procedure GetClippingRgn(Canvas: TCanvas; ARect: TRect; Printing: boolean; var Rgn, SaveRgn: HRgn);    
+procedure GetClippingRgn(Canvas: TCanvas; ARect: TRect; Printing: boolean; var Rgn, SaveRgn: HRgn);
 var
   Point: TPoint;
   SizeV, SizeW: TSize;
@@ -1963,21 +1968,21 @@ function ConvertImage(Bitmap: TBitmap): TBitmap;
     OldPal: HPalette;
     Hnd: HBitmap;
   begin
-  DC := CreateCompatibleDC(0);
-  OldBmp := SelectObject(DC, Bitmap.Handle);
-  OldPal := SelectPalette(DC, ThePalette, False);
-  RealizePalette(DC);
-  DIB := TDib.CreateDIB(DC, Bitmap);
-  Hnd := DIB.CreateDIBmp;
-  DIB.Free;
-  SelectPalette(DC, OldPal, False);
-  SelectObject(DC, OldBmp);
-  DeleteDC(DC);
-  Bitmap.Free;
-  Result := TBitmap.Create;
-  Result.Handle := Hnd;
-  if (ColorBits = 8) and (Result.Palette = 0) then  
-    Result.Palette := CopyPalette(ThePalette);
+    DC := CreateCompatibleDC(0);
+    OldBmp := SelectObject(DC, Bitmap.Handle);
+    OldPal := SelectPalette(DC, ThePalette, False);
+    RealizePalette(DC);
+    DIB := TDib.CreateDIB(DC, Bitmap);
+    Hnd := DIB.CreateDIBmp;
+    DIB.Free;
+    SelectPalette(DC, OldPal, False);
+    SelectObject(DC, OldBmp);
+    DeleteDC(DC);
+    Bitmap.Free;
+    Result := TBitmap.Create;
+    Result.Handle := Hnd;
+    if (ColorBits = 8) and (Result.Palette = 0) then
+      Result.Palette := CopyPalette(ThePalette);
   end;
 
 begin
@@ -2002,7 +2007,7 @@ begin
     Bitmap.Free;
     Exit;
   end;
-  
+
   Result := DIBConvert;
 end;
 
@@ -3477,7 +3482,7 @@ end;
 
 {----------------PrintTransparentBitmap1}
 procedure PrintTransparentBitmap1(Canvas: TCanvas; X, Y, NewW, NewH: integer;
-             Bitmap, Mask: TBitmap; YI, HI: integer);
+  Bitmap, Mask: TBitmap; YI, HI: integer);
 {Y relative to top of display here}
 {This routine prints transparently but only on a white background}
 {X, Y are point where upper left corner will be printed.
@@ -4189,5 +4194,6 @@ initialization
 
 finalization
   ThisExit;
+
 end.
 

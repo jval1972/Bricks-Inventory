@@ -2627,7 +2627,7 @@ begin
 
   orders.Free;
   inventory.Free;
-  db.Free;
+  FreeAndNil(db);
 
   for i := 0 to streams.Count - 1 do
     streams.Objects[i].Free;

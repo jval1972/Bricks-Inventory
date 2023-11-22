@@ -16815,7 +16815,7 @@ begin
   begin
     desc := SetDesc(sid);
     for i := 1 to length(desc) do
-      if desc[i] =',' then
+      if desc[i] = ',' then
         desc[i] := ' ';
     lst.Add(sid + ',' + desc + ',' + itoa(SetYear(sid)));
     S_BackupFile(fname);

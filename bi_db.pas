@@ -14925,6 +14925,7 @@ var
   idx2: integer;
   stmp2: TStringList;
   needssave: boolean;
+  pdesc: string;
   {$ENDIF}
 begin
   newname := fixpartname(spart);
@@ -14950,9 +14951,10 @@ begin
   end;
   {$ELSE}
   tmppartname := Trim(stringreplace(newname, ',', '', [rfReplaceAll, rfIgnoreCase]));
-  if (PieceDesc(newname) = '') or
-     (UpperCase(PieceDesc(newname)) = UpperCase(newname)) or
-     (UpperCase(PieceDesc(newname)) = UpperCase(tmppartname)) then
+  pdesc := PieceDesc(newname);
+  if (pdesc = '') or
+     (UpperCase(pdesc) = UpperCase(newname)) or
+     (UpperCase(pdesc) = UpperCase(tmppartname)) then
   begin
     pi := PieceInfo(newname);
     needssave := false;

@@ -31,6 +31,7 @@ unit bi_multithread;
 interface
 
 uses
+  bi_delphi,
   bi_threads;
 
 procedure MT_Init;
@@ -96,10 +97,19 @@ type
 
   mt_range_p = ^mt_range_t;
 
+function MT_ScheduleTask(const proc: PProcedure): integer;
+
+procedure MT_ExecutePendingTask(const id: integer);
+
+procedure MT_ExecutePendingTasks;
+
+procedure MT_WaitTask(const id: integer);
+
+procedure MT_WaitTasks;
+
 implementation
 
 uses
-  bi_delphi,
   bi_system;
 
 var
@@ -119,6 +129,13 @@ const
 
 var
   exec_threads: array[0..NUMEXECTHREADS - 1] of TDThread;
+
+// JVAL: Tasks
+const
+  NUMTASKTHREADS = 8;
+
+var
+  task_threads: array[0..NUMTASKTHREADS - 1] of TDThread;
 
 //
 // MT_ZeroMemory
@@ -315,6 +332,8 @@ begin
     gp_threads[i] := TDThread.Create;
   for i := 0 to NUMEXECTHREADS - 1 do
     exec_threads[i] := TDThread.Create;
+  for i := 0 to NUMTASKTHREADS - 1 do
+    task_threads[i] := TDThread.Create;
   mt_initialized := True;
 end;
 
@@ -326,6 +345,8 @@ begin
     gp_threads[i].Free;
   for i := 0 to NUMEXECTHREADS - 1 do
     exec_threads[i].Free;
+  for i := 0 to NUMTASKTHREADS - 1 do
+    task_threads[i].Free;
   mt_initialized := False;
 end;
 
@@ -609,6 +630,74 @@ begin
   mt_execute_fetched := False;
 end;
 
+type
+  taskinfo_t = record
+    id: integer;
+    proc: PProcedure;
+  end;
+  Ptaskinfo_t = ^taskinfo_t;
+
+var
+  tasks: array[0..NUMTASKTHREADS - 1] of taskinfo_t;
+
+function _execute_task(p: pointer): integer; stdcall;
+var
+  pt: Ptaskinfo_t;
+begin
+  pt := p;
+  pt.proc;
+  result := pt.id;
+  pt.id := -1;
+  pt.proc := nil;
+end;
+
+function MT_ScheduleTask(const proc: PProcedure): integer;
+var
+  i: integer;
+begin
+  for i := 0 to NUMTASKTHREADS - 1 do
+    if not Assigned(tasks[i].proc) then
+    begin
+      tasks[i].id := i;
+      tasks[i].proc := proc;
+      result := i;
+      exit;
+    end;
+  proc;
+  result := -1;
+end;
+
+procedure MT_ExecutePendingTask(const id: integer);
+begin
+  if Assigned(tasks[id].proc) then
+    task_threads[id].Activate(_execute_task, @tasks[id]);
+end;
+
+procedure MT_ExecutePendingTasks;
+var
+  i: integer;
+begin
+  for i := 0 to NUMTASKTHREADS - 1 do
+    if Assigned(tasks[i].proc) then
+      task_threads[i].Activate(_execute_task, @tasks[i]);
+end;
+
+procedure MT_WaitTask(const id: integer);
+begin
+  if (id < 0) or (id >= NUMTASKTHREADS) then
+    exit;
+  if Assigned(tasks[id].proc) then
+    task_threads[id].Wait;
+end;
+
+procedure MT_WaitTasks;
+var
+  i: integer;
+begin
+  for i := 0 to NUMTASKTHREADS - 1 do
+    if Assigned(tasks[i].proc) then
+      task_threads[i].Wait;
+end;
 
 end.
 

@@ -1794,7 +1794,7 @@ begin
   begin
     ErrorCode := GetLastError;
     if (ErrorCode <> 0) and (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nil,
-      ErrorCode, LOCALE_USER_DEFAULT, Buf, sizeof(Buf), nil) <> 0) then
+      ErrorCode, LOCALE_USER_DEFAULT, Buf, SizeOf(Buf), nil) <> 0) then
       raise EOutOfResources.Create(Buf) at ReturnAddr
     else
       raise EOutOfResources.Create(SOutOfResources) at ReturnAddr;
@@ -2013,12 +2013,12 @@ begin
   if Bytes = 0 then
     Error(sInvalidBitmap);
 
-  if (Bytes >= (sizeof(DIB.dsbm) + sizeof(DIB.dsbmih))) and
-    (DIB.dsbmih.biSize >= sizeof(DIB.dsbmih)) then
+  if (Bytes >= (SizeOf(DIB.dsbm) + SizeOf(DIB.dsbmih))) and
+    (DIB.dsbmih.biSize >= SizeOf(DIB.dsbmih)) then
     Info := DIB.dsbmih
   else
   begin
-    FillChar(Info, sizeof(Info), 0);
+    FillChar(Info, SizeOf(Info), 0);
     with Info, DIB.dsbm do
     begin
       biSize := SizeOf(Info);
@@ -2164,21 +2164,21 @@ begin
   // Get header- and pixel data size for new pixel format
   InternalGetDIBSizes(Src, HeaderSize, ImageSize, PixelFormat);
   // Make room in stream for a TBitmapInfo and pixel data
-  FileSize := sizeof(TBitmapFileHeader) + HeaderSize + ImageSize;
+  FileSize := SizeOf(TBitmapFileHeader) + HeaderSize + ImageSize;
   Stream.SetSize(FileSize);
   // Get pointer to TBitmapFileHeader
   BitmapFileHeader := Stream.Memory;
   // Get pointer to TBitmapInfo
-  DIBHeader := Pointer(Longint(BitmapFileHeader) + sizeof(TBitmapFileHeader));
+  DIBHeader := Pointer(Longint(BitmapFileHeader) + SizeOf(TBitmapFileHeader));
   // Get pointer to pixel data
   DIBBits := Pointer(Longint(DIBHeader) + HeaderSize);
   // Initialize file header
-  FillChar(BitmapFileHeader^, sizeof(TBitmapFileHeader), 0);
+  FillChar(BitmapFileHeader^, SizeOf(TBitmapFileHeader), 0);
   with BitmapFileHeader^ do
   begin
     bfType := $4D42; // 'BM' = Windows BMP signature
     bfSize := FileSize; // File size (not needed)
-    bfOffBits := sizeof(TBitmapFileHeader) + HeaderSize; // Offset of pixel data
+    bfOffBits := SizeOf(TBitmapFileHeader) + HeaderSize; // Offset of pixel data
   end;
   // Get pixel data in new pixel format
   InternalGetDIB(Src, Pal, DIBHeader^, DIBBits^, PixelFormat);
@@ -2783,7 +2783,7 @@ begin
       FDIBInfo^.bmiHeader.biBitCount := 8;
       // Find number of colors defined by palette
       if (Palette <> 0) and
-        (GetObject(Palette, sizeof(SrcColors), @SrcColors) <> 0) and
+        (GetObject(Palette, SizeOf(SrcColors), @SrcColors) <> 0) and
         (SrcColors <> 0) then
       begin
         // Copy all colors...
@@ -2898,18 +2898,18 @@ begin
     Stream := TMemoryStream.Create;
     try
       // Make room in stream for a TBitmapInfo and pixel data
-      FileSize := sizeof(TBitmapFileHeader) + FDIBInfoSize + FDIBBitsSize;
+      FileSize := SizeOf(TBitmapFileHeader) + FDIBInfoSize + FDIBBitsSize;
       Stream.SetSize(FileSize);
       // Initialize file header
-      FillChar(BitmapFileHeader, sizeof(TBitmapFileHeader), 0);
+      FillChar(BitmapFileHeader, SizeOf(TBitmapFileHeader), 0);
       with BitmapFileHeader do
       begin
         bfType := $4D42; // 'BM' = Windows BMP signature
         bfSize := FileSize; // File size (not needed)
-        bfOffBits := sizeof(TBitmapFileHeader) + FDIBInfoSize; // Offset of pixel data
+        bfOffBits := SizeOf(TBitmapFileHeader) + FDIBInfoSize; // Offset of pixel data
       end;
       // Save file header
-      Stream.Write(BitmapFileHeader, sizeof(TBitmapFileHeader));
+      Stream.Write(BitmapFileHeader, SizeOf(TBitmapFileHeader));
       // Save TBitmapInfo structure
       Stream.Write(FDIBInfo^, FDIBInfoSize);
       // Save pixel data
@@ -3023,7 +3023,7 @@ var
 begin
   inherited Create(Palette);
 
-  GetMem(FPaletteEntries, sizeof(TPaletteEntry) * 256);
+  GetMem(FPaletteEntries, SizeOf(TPaletteEntry) * 256);
   FColors := GetPaletteEntries(Palette, 0, 256, FPaletteEntries^);
 
   New(FInverseLookup);
@@ -3097,7 +3097,7 @@ begin
   FColors := GetPaletteEntries(Palette, 0, 256, nil^);
   if (FColors > 0) then
   begin
-    GetMem(FPaletteEntries, sizeof(TPaletteEntry) * FColors);
+    GetMem(FPaletteEntries, SizeOf(TPaletteEntry) * FColors);
     FColors := GetPaletteEntries(Palette, 0, 256, FPaletteEntries^);
   end;
 end;
@@ -3359,12 +3359,12 @@ begin
   // need only a few extra variables to hold the errors immediately around the
   // current column.  (If we are lucky, those variables are in registers, but
   // even if not, they're probably cheaper to access than array elements are.)
-  GetMem(ErrorsR, sizeof(TErrorTerm) * (Width + 2));
-  GetMem(ErrorsG, sizeof(TErrorTerm) * (Width + 2));
-  GetMem(ErrorsB, sizeof(TErrorTerm) * (Width + 2));
-  FillChar(ErrorsR^, sizeof(TErrorTerm) * (Width + 2), 0);
-  FillChar(ErrorsG^, sizeof(TErrorTerm) * (Width + 2), 0);
-  FillChar(ErrorsB^, sizeof(TErrorTerm) * (Width + 2), 0);
+  GetMem(ErrorsR, SizeOf(TErrorTerm) * (Width + 2));
+  GetMem(ErrorsG, SizeOf(TErrorTerm) * (Width + 2));
+  GetMem(ErrorsB, SizeOf(TErrorTerm) * (Width + 2));
+  FillChar(ErrorsR^, SizeOf(TErrorTerm) * (Width + 2), 0);
+  FillChar(ErrorsG^, SizeOf(TErrorTerm) * (Width + 2), 0);
+  FillChar(ErrorsB^, SizeOf(TErrorTerm) * (Width + 2), 0);
   ErrorR := ErrorsR;
   ErrorG := ErrorsG;
   ErrorB := ErrorsB;
@@ -3483,14 +3483,14 @@ begin
   // Move on to next column
   if (Direction = 1) then
   begin
-    inc(longInt(ErrorR), sizeof(TErrorTerm));
-    inc(longInt(ErrorG), sizeof(TErrorTerm));
-    inc(longInt(ErrorB), sizeof(TErrorTerm));
+    inc(longInt(ErrorR), SizeOf(TErrorTerm));
+    inc(longInt(ErrorG), SizeOf(TErrorTerm));
+    inc(longInt(ErrorB), SizeOf(TErrorTerm));
   end else
   begin
-    dec(longInt(ErrorR), sizeof(TErrorTerm));
-    dec(longInt(ErrorG), sizeof(TErrorTerm));
-    dec(longInt(ErrorB), sizeof(TErrorTerm));
+    dec(longInt(ErrorR), SizeOf(TErrorTerm));
+    dec(longInt(ErrorG), SizeOf(TErrorTerm));
+    dec(longInt(ErrorB), SizeOf(TErrorTerm));
   end;
 end;
 {$IFDEF R_PLUS}
@@ -3547,36 +3547,36 @@ constructor T5by3Ditherer.Create(AWidth: integer; Lookup: TColorLookup);
 begin
   inherited Create(AWidth, Lookup);
 
-  GetMem(ErrorsR0, sizeof(TErrorTerm) * (Width + 4));
-  GetMem(ErrorsG0, sizeof(TErrorTerm) * (Width + 4));
-  GetMem(ErrorsB0, sizeof(TErrorTerm) * (Width + 4));
-  GetMem(ErrorsR1, sizeof(TErrorTerm) * (Width + 4));
-  GetMem(ErrorsG1, sizeof(TErrorTerm) * (Width + 4));
-  GetMem(ErrorsB1, sizeof(TErrorTerm) * (Width + 4));
-  GetMem(ErrorsR2, sizeof(TErrorTerm) * (Width + 4));
-  GetMem(ErrorsG2, sizeof(TErrorTerm) * (Width + 4));
-  GetMem(ErrorsB2, sizeof(TErrorTerm) * (Width + 4));
-  FillChar(ErrorsR0^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsG0^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsB0^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsR1^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsG1^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsB1^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsR2^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsG2^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsB2^, sizeof(TErrorTerm) * (Width + 4), 0);
+  GetMem(ErrorsR0, SizeOf(TErrorTerm) * (Width + 4));
+  GetMem(ErrorsG0, SizeOf(TErrorTerm) * (Width + 4));
+  GetMem(ErrorsB0, SizeOf(TErrorTerm) * (Width + 4));
+  GetMem(ErrorsR1, SizeOf(TErrorTerm) * (Width + 4));
+  GetMem(ErrorsG1, SizeOf(TErrorTerm) * (Width + 4));
+  GetMem(ErrorsB1, SizeOf(TErrorTerm) * (Width + 4));
+  GetMem(ErrorsR2, SizeOf(TErrorTerm) * (Width + 4));
+  GetMem(ErrorsG2, SizeOf(TErrorTerm) * (Width + 4));
+  GetMem(ErrorsB2, SizeOf(TErrorTerm) * (Width + 4));
+  FillChar(ErrorsR0^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsG0^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsB0^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsR1^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsG1^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsB1^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsR2^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsG2^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsB2^, SizeOf(TErrorTerm) * (Width + 4), 0);
 
   FDivisor := 1;
   FDirection2 := 2 * Direction;
-  ErrorR0 := PErrors(longint(ErrorsR0) + 2 * sizeof(TErrorTerm));
-  ErrorG0 := PErrors(longint(ErrorsG0) + 2 * sizeof(TErrorTerm));
-  ErrorB0 := PErrors(longint(ErrorsB0) + 2 * sizeof(TErrorTerm));
-  ErrorR1 := PErrors(longint(ErrorsR1) + 2 * sizeof(TErrorTerm));
-  ErrorG1 := PErrors(longint(ErrorsG1) + 2 * sizeof(TErrorTerm));
-  ErrorB1 := PErrors(longint(ErrorsB1) + 2 * sizeof(TErrorTerm));
-  ErrorR2 := PErrors(longint(ErrorsR2) + 2 * sizeof(TErrorTerm));
-  ErrorG2 := PErrors(longint(ErrorsG2) + 2 * sizeof(TErrorTerm));
-  ErrorB2 := PErrors(longint(ErrorsB2) + 2 * sizeof(TErrorTerm));
+  ErrorR0 := PErrors(longint(ErrorsR0) + 2 * SizeOf(TErrorTerm));
+  ErrorG0 := PErrors(longint(ErrorsG0) + 2 * SizeOf(TErrorTerm));
+  ErrorB0 := PErrors(longint(ErrorsB0) + 2 * SizeOf(TErrorTerm));
+  ErrorR1 := PErrors(longint(ErrorsR1) + 2 * SizeOf(TErrorTerm));
+  ErrorG1 := PErrors(longint(ErrorsG1) + 2 * SizeOf(TErrorTerm));
+  ErrorB1 := PErrors(longint(ErrorsB1) + 2 * SizeOf(TErrorTerm));
+  ErrorR2 := PErrors(longint(ErrorsR2) + 2 * SizeOf(TErrorTerm));
+  ErrorG2 := PErrors(longint(ErrorsG2) + 2 * SizeOf(TErrorTerm));
+  ErrorB2 := PErrors(longint(ErrorsB2) + 2 * SizeOf(TErrorTerm));
 end;
 
 destructor T5by3Ditherer.Destroy;
@@ -3635,26 +3635,26 @@ begin
   // Move on to next column
   if (Direction = 1) then
   begin
-    inc(longInt(ErrorR0), sizeof(TErrorTerm));
-    inc(longInt(ErrorG0), sizeof(TErrorTerm));
-    inc(longInt(ErrorB0), sizeof(TErrorTerm));
-    inc(longInt(ErrorR1), sizeof(TErrorTerm));
-    inc(longInt(ErrorG1), sizeof(TErrorTerm));
-    inc(longInt(ErrorB1), sizeof(TErrorTerm));
-    inc(longInt(ErrorR2), sizeof(TErrorTerm));
-    inc(longInt(ErrorG2), sizeof(TErrorTerm));
-    inc(longInt(ErrorB2), sizeof(TErrorTerm));
+    inc(longInt(ErrorR0), SizeOf(TErrorTerm));
+    inc(longInt(ErrorG0), SizeOf(TErrorTerm));
+    inc(longInt(ErrorB0), SizeOf(TErrorTerm));
+    inc(longInt(ErrorR1), SizeOf(TErrorTerm));
+    inc(longInt(ErrorG1), SizeOf(TErrorTerm));
+    inc(longInt(ErrorB1), SizeOf(TErrorTerm));
+    inc(longInt(ErrorR2), SizeOf(TErrorTerm));
+    inc(longInt(ErrorG2), SizeOf(TErrorTerm));
+    inc(longInt(ErrorB2), SizeOf(TErrorTerm));
   end else
   begin
-    dec(longInt(ErrorR0), sizeof(TErrorTerm));
-    dec(longInt(ErrorG0), sizeof(TErrorTerm));
-    dec(longInt(ErrorB0), sizeof(TErrorTerm));
-    dec(longInt(ErrorR1), sizeof(TErrorTerm));
-    dec(longInt(ErrorG1), sizeof(TErrorTerm));
-    dec(longInt(ErrorB1), sizeof(TErrorTerm));
-    dec(longInt(ErrorR2), sizeof(TErrorTerm));
-    dec(longInt(ErrorG2), sizeof(TErrorTerm));
-    dec(longInt(ErrorB2), sizeof(TErrorTerm));
+    dec(longInt(ErrorR0), SizeOf(TErrorTerm));
+    dec(longInt(ErrorG0), SizeOf(TErrorTerm));
+    dec(longInt(ErrorB0), SizeOf(TErrorTerm));
+    dec(longInt(ErrorR1), SizeOf(TErrorTerm));
+    dec(longInt(ErrorG1), SizeOf(TErrorTerm));
+    dec(longInt(ErrorB1), SizeOf(TErrorTerm));
+    dec(longInt(ErrorR2), SizeOf(TErrorTerm));
+    dec(longInt(ErrorG2), SizeOf(TErrorTerm));
+    dec(longInt(ErrorB2), SizeOf(TErrorTerm));
   end;
 end;
 {$IFDEF R_PLUS}
@@ -3670,9 +3670,9 @@ procedure T5by3Ditherer.NextLine;
 var
   TempErrors: PErrors;
 begin
-  FillChar(ErrorsR0^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsG0^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsB0^, sizeof(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsR0^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsG0^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsB0^, SizeOf(TErrorTerm) * (Width + 4), 0);
 
   // Swap lines
   TempErrors := ErrorsR0;
@@ -3696,16 +3696,16 @@ begin
   if (Direction = 1) then
   begin
     // ErrorsR0[1] gives compiler error, so we
-    // use PErrors(longInt(ErrorsR0)+sizeof(TErrorTerm)) instead...
-    ErrorR0 := PErrors(longint(ErrorsR0) + 2 * sizeof(TErrorTerm));
-    ErrorG0 := PErrors(longint(ErrorsG0) + 2 * sizeof(TErrorTerm));
-    ErrorB0 := PErrors(longint(ErrorsB0) + 2 * sizeof(TErrorTerm));
-    ErrorR1 := PErrors(longint(ErrorsR1) + 2 * sizeof(TErrorTerm));
-    ErrorG1 := PErrors(longint(ErrorsG1) + 2 * sizeof(TErrorTerm));
-    ErrorB1 := PErrors(longint(ErrorsB1) + 2 * sizeof(TErrorTerm));
-    ErrorR2 := PErrors(longint(ErrorsR2) + 2 * sizeof(TErrorTerm));
-    ErrorG2 := PErrors(longint(ErrorsG2) + 2 * sizeof(TErrorTerm));
-    ErrorB2 := PErrors(longint(ErrorsB2) + 2 * sizeof(TErrorTerm));
+    // use PErrors(longInt(ErrorsR0)+SizeOf(TErrorTerm)) instead...
+    ErrorR0 := PErrors(longint(ErrorsR0) + 2 * SizeOf(TErrorTerm));
+    ErrorG0 := PErrors(longint(ErrorsG0) + 2 * SizeOf(TErrorTerm));
+    ErrorB0 := PErrors(longint(ErrorsB0) + 2 * SizeOf(TErrorTerm));
+    ErrorR1 := PErrors(longint(ErrorsR1) + 2 * SizeOf(TErrorTerm));
+    ErrorG1 := PErrors(longint(ErrorsG1) + 2 * SizeOf(TErrorTerm));
+    ErrorB1 := PErrors(longint(ErrorsB1) + 2 * SizeOf(TErrorTerm));
+    ErrorR2 := PErrors(longint(ErrorsR2) + 2 * SizeOf(TErrorTerm));
+    ErrorG2 := PErrors(longint(ErrorsG2) + 2 * SizeOf(TErrorTerm));
+    ErrorB2 := PErrors(longint(ErrorsB2) + 2 * SizeOf(TErrorTerm));
   end
   else
   begin
@@ -3867,46 +3867,46 @@ constructor TSteveArcheDitherer.Create(AWidth: integer; Lookup: TColorLookup);
 begin
   inherited Create(AWidth, Lookup);
 
-  GetMem(ErrorsR0, sizeof(TErrorTerm) * (Width + 6));
-  GetMem(ErrorsG0, sizeof(TErrorTerm) * (Width + 6));
-  GetMem(ErrorsB0, sizeof(TErrorTerm) * (Width + 6));
-  GetMem(ErrorsR1, sizeof(TErrorTerm) * (Width + 6));
-  GetMem(ErrorsG1, sizeof(TErrorTerm) * (Width + 6));
-  GetMem(ErrorsB1, sizeof(TErrorTerm) * (Width + 6));
-  GetMem(ErrorsR2, sizeof(TErrorTerm) * (Width + 6));
-  GetMem(ErrorsG2, sizeof(TErrorTerm) * (Width + 6));
-  GetMem(ErrorsB2, sizeof(TErrorTerm) * (Width + 6));
-  GetMem(ErrorsR3, sizeof(TErrorTerm) * (Width + 6));
-  GetMem(ErrorsG3, sizeof(TErrorTerm) * (Width + 6));
-  GetMem(ErrorsB3, sizeof(TErrorTerm) * (Width + 6));
-  FillChar(ErrorsR0^, sizeof(TErrorTerm) * (Width + 6), 0);
-  FillChar(ErrorsG0^, sizeof(TErrorTerm) * (Width + 6), 0);
-  FillChar(ErrorsB0^, sizeof(TErrorTerm) * (Width + 6), 0);
-  FillChar(ErrorsR1^, sizeof(TErrorTerm) * (Width + 6), 0);
-  FillChar(ErrorsG1^, sizeof(TErrorTerm) * (Width + 6), 0);
-  FillChar(ErrorsB1^, sizeof(TErrorTerm) * (Width + 6), 0);
-  FillChar(ErrorsR2^, sizeof(TErrorTerm) * (Width + 6), 0);
-  FillChar(ErrorsG2^, sizeof(TErrorTerm) * (Width + 6), 0);
-  FillChar(ErrorsB2^, sizeof(TErrorTerm) * (Width + 6), 0);
-  FillChar(ErrorsR3^, sizeof(TErrorTerm) * (Width + 6), 0);
-  FillChar(ErrorsG3^, sizeof(TErrorTerm) * (Width + 6), 0);
-  FillChar(ErrorsB3^, sizeof(TErrorTerm) * (Width + 6), 0);
+  GetMem(ErrorsR0, SizeOf(TErrorTerm) * (Width + 6));
+  GetMem(ErrorsG0, SizeOf(TErrorTerm) * (Width + 6));
+  GetMem(ErrorsB0, SizeOf(TErrorTerm) * (Width + 6));
+  GetMem(ErrorsR1, SizeOf(TErrorTerm) * (Width + 6));
+  GetMem(ErrorsG1, SizeOf(TErrorTerm) * (Width + 6));
+  GetMem(ErrorsB1, SizeOf(TErrorTerm) * (Width + 6));
+  GetMem(ErrorsR2, SizeOf(TErrorTerm) * (Width + 6));
+  GetMem(ErrorsG2, SizeOf(TErrorTerm) * (Width + 6));
+  GetMem(ErrorsB2, SizeOf(TErrorTerm) * (Width + 6));
+  GetMem(ErrorsR3, SizeOf(TErrorTerm) * (Width + 6));
+  GetMem(ErrorsG3, SizeOf(TErrorTerm) * (Width + 6));
+  GetMem(ErrorsB3, SizeOf(TErrorTerm) * (Width + 6));
+  FillChar(ErrorsR0^, SizeOf(TErrorTerm) * (Width + 6), 0);
+  FillChar(ErrorsG0^, SizeOf(TErrorTerm) * (Width + 6), 0);
+  FillChar(ErrorsB0^, SizeOf(TErrorTerm) * (Width + 6), 0);
+  FillChar(ErrorsR1^, SizeOf(TErrorTerm) * (Width + 6), 0);
+  FillChar(ErrorsG1^, SizeOf(TErrorTerm) * (Width + 6), 0);
+  FillChar(ErrorsB1^, SizeOf(TErrorTerm) * (Width + 6), 0);
+  FillChar(ErrorsR2^, SizeOf(TErrorTerm) * (Width + 6), 0);
+  FillChar(ErrorsG2^, SizeOf(TErrorTerm) * (Width + 6), 0);
+  FillChar(ErrorsB2^, SizeOf(TErrorTerm) * (Width + 6), 0);
+  FillChar(ErrorsR3^, SizeOf(TErrorTerm) * (Width + 6), 0);
+  FillChar(ErrorsG3^, SizeOf(TErrorTerm) * (Width + 6), 0);
+  FillChar(ErrorsB3^, SizeOf(TErrorTerm) * (Width + 6), 0);
 
   FDirection2 := 2 * Direction;
   FDirection3 := 3 * Direction;
 
-  ErrorR0 := PErrors(longint(ErrorsR0) + 3 * sizeof(TErrorTerm));
-  ErrorG0 := PErrors(longint(ErrorsG0) + 3 * sizeof(TErrorTerm));
-  ErrorB0 := PErrors(longint(ErrorsB0) + 3 * sizeof(TErrorTerm));
-  ErrorR1 := PErrors(longint(ErrorsR1) + 3 * sizeof(TErrorTerm));
-  ErrorG1 := PErrors(longint(ErrorsG1) + 3 * sizeof(TErrorTerm));
-  ErrorB1 := PErrors(longint(ErrorsB1) + 3 * sizeof(TErrorTerm));
-  ErrorR2 := PErrors(longint(ErrorsR2) + 3 * sizeof(TErrorTerm));
-  ErrorG2 := PErrors(longint(ErrorsG2) + 3 * sizeof(TErrorTerm));
-  ErrorB2 := PErrors(longint(ErrorsB2) + 3 * sizeof(TErrorTerm));
-  ErrorR3 := PErrors(longint(ErrorsR3) + 3 * sizeof(TErrorTerm));
-  ErrorG3 := PErrors(longint(ErrorsG3) + 3 * sizeof(TErrorTerm));
-  ErrorB3 := PErrors(longint(ErrorsB3) + 3 * sizeof(TErrorTerm));
+  ErrorR0 := PErrors(longint(ErrorsR0) + 3 * SizeOf(TErrorTerm));
+  ErrorG0 := PErrors(longint(ErrorsG0) + 3 * SizeOf(TErrorTerm));
+  ErrorB0 := PErrors(longint(ErrorsB0) + 3 * SizeOf(TErrorTerm));
+  ErrorR1 := PErrors(longint(ErrorsR1) + 3 * SizeOf(TErrorTerm));
+  ErrorG1 := PErrors(longint(ErrorsG1) + 3 * SizeOf(TErrorTerm));
+  ErrorB1 := PErrors(longint(ErrorsB1) + 3 * SizeOf(TErrorTerm));
+  ErrorR2 := PErrors(longint(ErrorsR2) + 3 * SizeOf(TErrorTerm));
+  ErrorG2 := PErrors(longint(ErrorsG2) + 3 * SizeOf(TErrorTerm));
+  ErrorB2 := PErrors(longint(ErrorsB2) + 3 * SizeOf(TErrorTerm));
+  ErrorR3 := PErrors(longint(ErrorsR3) + 3 * SizeOf(TErrorTerm));
+  ErrorG3 := PErrors(longint(ErrorsG3) + 3 * SizeOf(TErrorTerm));
+  ErrorB3 := PErrors(longint(ErrorsB3) + 3 * SizeOf(TErrorTerm));
 end;
 
 destructor TSteveArcheDitherer.Destroy;
@@ -4002,32 +4002,32 @@ begin
   // Move on to next column
   if (Direction = 1) then
   begin
-    inc(longInt(ErrorR0), sizeof(TErrorTerm));
-    inc(longInt(ErrorG0), sizeof(TErrorTerm));
-    inc(longInt(ErrorB0), sizeof(TErrorTerm));
-    inc(longInt(ErrorR1), sizeof(TErrorTerm));
-    inc(longInt(ErrorG1), sizeof(TErrorTerm));
-    inc(longInt(ErrorB1), sizeof(TErrorTerm));
-    inc(longInt(ErrorR2), sizeof(TErrorTerm));
-    inc(longInt(ErrorG2), sizeof(TErrorTerm));
-    inc(longInt(ErrorB2), sizeof(TErrorTerm));
-    inc(longInt(ErrorR3), sizeof(TErrorTerm));
-    inc(longInt(ErrorG3), sizeof(TErrorTerm));
-    inc(longInt(ErrorB3), sizeof(TErrorTerm));
+    inc(longInt(ErrorR0), SizeOf(TErrorTerm));
+    inc(longInt(ErrorG0), SizeOf(TErrorTerm));
+    inc(longInt(ErrorB0), SizeOf(TErrorTerm));
+    inc(longInt(ErrorR1), SizeOf(TErrorTerm));
+    inc(longInt(ErrorG1), SizeOf(TErrorTerm));
+    inc(longInt(ErrorB1), SizeOf(TErrorTerm));
+    inc(longInt(ErrorR2), SizeOf(TErrorTerm));
+    inc(longInt(ErrorG2), SizeOf(TErrorTerm));
+    inc(longInt(ErrorB2), SizeOf(TErrorTerm));
+    inc(longInt(ErrorR3), SizeOf(TErrorTerm));
+    inc(longInt(ErrorG3), SizeOf(TErrorTerm));
+    inc(longInt(ErrorB3), SizeOf(TErrorTerm));
   end else
   begin
-    dec(longInt(ErrorR0), sizeof(TErrorTerm));
-    dec(longInt(ErrorG0), sizeof(TErrorTerm));
-    dec(longInt(ErrorB0), sizeof(TErrorTerm));
-    dec(longInt(ErrorR1), sizeof(TErrorTerm));
-    dec(longInt(ErrorG1), sizeof(TErrorTerm));
-    dec(longInt(ErrorB1), sizeof(TErrorTerm));
-    dec(longInt(ErrorR2), sizeof(TErrorTerm));
-    dec(longInt(ErrorG2), sizeof(TErrorTerm));
-    dec(longInt(ErrorB2), sizeof(TErrorTerm));
-    dec(longInt(ErrorR3), sizeof(TErrorTerm));
-    dec(longInt(ErrorG3), sizeof(TErrorTerm));
-    dec(longInt(ErrorB3), sizeof(TErrorTerm));
+    dec(longInt(ErrorR0), SizeOf(TErrorTerm));
+    dec(longInt(ErrorG0), SizeOf(TErrorTerm));
+    dec(longInt(ErrorB0), SizeOf(TErrorTerm));
+    dec(longInt(ErrorR1), SizeOf(TErrorTerm));
+    dec(longInt(ErrorG1), SizeOf(TErrorTerm));
+    dec(longInt(ErrorB1), SizeOf(TErrorTerm));
+    dec(longInt(ErrorR2), SizeOf(TErrorTerm));
+    dec(longInt(ErrorG2), SizeOf(TErrorTerm));
+    dec(longInt(ErrorB2), SizeOf(TErrorTerm));
+    dec(longInt(ErrorR3), SizeOf(TErrorTerm));
+    dec(longInt(ErrorG3), SizeOf(TErrorTerm));
+    dec(longInt(ErrorB3), SizeOf(TErrorTerm));
   end;
 end;
 {$IFDEF R_PLUS}
@@ -4043,9 +4043,9 @@ procedure TSteveArcheDitherer.NextLine;
 var
   TempErrors: PErrors;
 begin
-  FillChar(ErrorsR0^, sizeof(TErrorTerm) * (Width + 6), 0);
-  FillChar(ErrorsG0^, sizeof(TErrorTerm) * (Width + 6), 0);
-  FillChar(ErrorsB0^, sizeof(TErrorTerm) * (Width + 6), 0);
+  FillChar(ErrorsR0^, SizeOf(TErrorTerm) * (Width + 6), 0);
+  FillChar(ErrorsG0^, SizeOf(TErrorTerm) * (Width + 6), 0);
+  FillChar(ErrorsB0^, SizeOf(TErrorTerm) * (Width + 6), 0);
 
   // Swap lines
   TempErrors := ErrorsR0;
@@ -4074,19 +4074,19 @@ begin
   if (Direction = 1) then
   begin
     // ErrorsR0[1] gives compiler error, so we
-    // use PErrors(longInt(ErrorsR0)+sizeof(TErrorTerm)) instead...
-    ErrorR0 := PErrors(longint(ErrorsR0) + 3 * sizeof(TErrorTerm));
-    ErrorG0 := PErrors(longint(ErrorsG0) + 3 * sizeof(TErrorTerm));
-    ErrorB0 := PErrors(longint(ErrorsB0) + 3 * sizeof(TErrorTerm));
-    ErrorR1 := PErrors(longint(ErrorsR1) + 3 * sizeof(TErrorTerm));
-    ErrorG1 := PErrors(longint(ErrorsG1) + 3 * sizeof(TErrorTerm));
-    ErrorB1 := PErrors(longint(ErrorsB1) + 3 * sizeof(TErrorTerm));
-    ErrorR2 := PErrors(longint(ErrorsR2) + 3 * sizeof(TErrorTerm));
-    ErrorG2 := PErrors(longint(ErrorsG2) + 3 * sizeof(TErrorTerm));
-    ErrorB2 := PErrors(longint(ErrorsB2) + 3 * sizeof(TErrorTerm));
-    ErrorR3 := PErrors(longint(ErrorsR3) + 3 * sizeof(TErrorTerm));
-    ErrorG3 := PErrors(longint(ErrorsG3) + 3 * sizeof(TErrorTerm));
-    ErrorB3 := PErrors(longint(ErrorsB3) + 3 * sizeof(TErrorTerm));
+    // use PErrors(longInt(ErrorsR0)+SizeOf(TErrorTerm)) instead...
+    ErrorR0 := PErrors(longint(ErrorsR0) + 3 * SizeOf(TErrorTerm));
+    ErrorG0 := PErrors(longint(ErrorsG0) + 3 * SizeOf(TErrorTerm));
+    ErrorB0 := PErrors(longint(ErrorsB0) + 3 * SizeOf(TErrorTerm));
+    ErrorR1 := PErrors(longint(ErrorsR1) + 3 * SizeOf(TErrorTerm));
+    ErrorG1 := PErrors(longint(ErrorsG1) + 3 * SizeOf(TErrorTerm));
+    ErrorB1 := PErrors(longint(ErrorsB1) + 3 * SizeOf(TErrorTerm));
+    ErrorR2 := PErrors(longint(ErrorsR2) + 3 * SizeOf(TErrorTerm));
+    ErrorG2 := PErrors(longint(ErrorsG2) + 3 * SizeOf(TErrorTerm));
+    ErrorB2 := PErrors(longint(ErrorsB2) + 3 * SizeOf(TErrorTerm));
+    ErrorR3 := PErrors(longint(ErrorsR3) + 3 * SizeOf(TErrorTerm));
+    ErrorG3 := PErrors(longint(ErrorsG3) + 3 * SizeOf(TErrorTerm));
+    ErrorB3 := PErrors(longint(ErrorsB3) + 3 * SizeOf(TErrorTerm));
   end
   else
   begin
@@ -4115,26 +4115,26 @@ constructor TBurkesDitherer.Create(AWidth: integer; Lookup: TColorLookup);
 begin
   inherited Create(AWidth, Lookup);
 
-  GetMem(ErrorsR0, sizeof(TErrorTerm) * (Width + 4));
-  GetMem(ErrorsG0, sizeof(TErrorTerm) * (Width + 4));
-  GetMem(ErrorsB0, sizeof(TErrorTerm) * (Width + 4));
-  GetMem(ErrorsR1, sizeof(TErrorTerm) * (Width + 4));
-  GetMem(ErrorsG1, sizeof(TErrorTerm) * (Width + 4));
-  GetMem(ErrorsB1, sizeof(TErrorTerm) * (Width + 4));
-  FillChar(ErrorsR0^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsG0^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsB0^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsR1^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsG1^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsB1^, sizeof(TErrorTerm) * (Width + 4), 0);
+  GetMem(ErrorsR0, SizeOf(TErrorTerm) * (Width + 4));
+  GetMem(ErrorsG0, SizeOf(TErrorTerm) * (Width + 4));
+  GetMem(ErrorsB0, SizeOf(TErrorTerm) * (Width + 4));
+  GetMem(ErrorsR1, SizeOf(TErrorTerm) * (Width + 4));
+  GetMem(ErrorsG1, SizeOf(TErrorTerm) * (Width + 4));
+  GetMem(ErrorsB1, SizeOf(TErrorTerm) * (Width + 4));
+  FillChar(ErrorsR0^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsG0^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsB0^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsR1^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsG1^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsB1^, SizeOf(TErrorTerm) * (Width + 4), 0);
 
   FDirection2 := 2 * Direction;
-  ErrorR0 := PErrors(longint(ErrorsR0) + 2 * sizeof(TErrorTerm));
-  ErrorG0 := PErrors(longint(ErrorsG0) + 2 * sizeof(TErrorTerm));
-  ErrorB0 := PErrors(longint(ErrorsB0) + 2 * sizeof(TErrorTerm));
-  ErrorR1 := PErrors(longint(ErrorsR1) + 2 * sizeof(TErrorTerm));
-  ErrorG1 := PErrors(longint(ErrorsG1) + 2 * sizeof(TErrorTerm));
-  ErrorB1 := PErrors(longint(ErrorsB1) + 2 * sizeof(TErrorTerm));
+  ErrorR0 := PErrors(longint(ErrorsR0) + 2 * SizeOf(TErrorTerm));
+  ErrorG0 := PErrors(longint(ErrorsG0) + 2 * SizeOf(TErrorTerm));
+  ErrorB0 := PErrors(longint(ErrorsB0) + 2 * SizeOf(TErrorTerm));
+  ErrorR1 := PErrors(longint(ErrorsR1) + 2 * SizeOf(TErrorTerm));
+  ErrorG1 := PErrors(longint(ErrorsG1) + 2 * SizeOf(TErrorTerm));
+  ErrorB1 := PErrors(longint(ErrorsB1) + 2 * SizeOf(TErrorTerm));
 end;
 
 destructor TBurkesDitherer.Destroy;
@@ -4212,20 +4212,20 @@ begin
   // Move on to next column
   if (Direction = 1) then
   begin
-    inc(longInt(ErrorR0), sizeof(TErrorTerm));
-    inc(longInt(ErrorG0), sizeof(TErrorTerm));
-    inc(longInt(ErrorB0), sizeof(TErrorTerm));
-    inc(longInt(ErrorR1), sizeof(TErrorTerm));
-    inc(longInt(ErrorG1), sizeof(TErrorTerm));
-    inc(longInt(ErrorB1), sizeof(TErrorTerm));
+    inc(longInt(ErrorR0), SizeOf(TErrorTerm));
+    inc(longInt(ErrorG0), SizeOf(TErrorTerm));
+    inc(longInt(ErrorB0), SizeOf(TErrorTerm));
+    inc(longInt(ErrorR1), SizeOf(TErrorTerm));
+    inc(longInt(ErrorG1), SizeOf(TErrorTerm));
+    inc(longInt(ErrorB1), SizeOf(TErrorTerm));
   end else
   begin
-    dec(longInt(ErrorR0), sizeof(TErrorTerm));
-    dec(longInt(ErrorG0), sizeof(TErrorTerm));
-    dec(longInt(ErrorB0), sizeof(TErrorTerm));
-    dec(longInt(ErrorR1), sizeof(TErrorTerm));
-    dec(longInt(ErrorG1), sizeof(TErrorTerm));
-    dec(longInt(ErrorB1), sizeof(TErrorTerm));
+    dec(longInt(ErrorR0), SizeOf(TErrorTerm));
+    dec(longInt(ErrorG0), SizeOf(TErrorTerm));
+    dec(longInt(ErrorB0), SizeOf(TErrorTerm));
+    dec(longInt(ErrorR1), SizeOf(TErrorTerm));
+    dec(longInt(ErrorG1), SizeOf(TErrorTerm));
+    dec(longInt(ErrorB1), SizeOf(TErrorTerm));
   end;
 end;
 {$IFDEF R_PLUS}
@@ -4241,9 +4241,9 @@ procedure TBurkesDitherer.NextLine;
 var
   TempErrors: PErrors;
 begin
-  FillChar(ErrorsR0^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsG0^, sizeof(TErrorTerm) * (Width + 4), 0);
-  FillChar(ErrorsB0^, sizeof(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsR0^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsG0^, SizeOf(TErrorTerm) * (Width + 4), 0);
+  FillChar(ErrorsB0^, SizeOf(TErrorTerm) * (Width + 4), 0);
 
   // Swap lines
   TempErrors := ErrorsR0;
@@ -4264,13 +4264,13 @@ begin
   if (Direction = 1) then
   begin
     // ErrorsR0[1] gives compiler error, so we
-    // use PErrors(longInt(ErrorsR0)+sizeof(TErrorTerm)) instead...
-    ErrorR0 := PErrors(longint(ErrorsR0) + 2 * sizeof(TErrorTerm));
-    ErrorG0 := PErrors(longint(ErrorsG0) + 2 * sizeof(TErrorTerm));
-    ErrorB0 := PErrors(longint(ErrorsB0) + 2 * sizeof(TErrorTerm));
-    ErrorR1 := PErrors(longint(ErrorsR1) + 2 * sizeof(TErrorTerm));
-    ErrorG1 := PErrors(longint(ErrorsG1) + 2 * sizeof(TErrorTerm));
-    ErrorB1 := PErrors(longint(ErrorsB1) + 2 * sizeof(TErrorTerm));
+    // use PErrors(longInt(ErrorsR0)+SizeOf(TErrorTerm)) instead...
+    ErrorR0 := PErrors(longint(ErrorsR0) + 2 * SizeOf(TErrorTerm));
+    ErrorG0 := PErrors(longint(ErrorsG0) + 2 * SizeOf(TErrorTerm));
+    ErrorB0 := PErrors(longint(ErrorsB0) + 2 * SizeOf(TErrorTerm));
+    ErrorR1 := PErrors(longint(ErrorsR1) + 2 * SizeOf(TErrorTerm));
+    ErrorG1 := PErrors(longint(ErrorsG1) + 2 * SizeOf(TErrorTerm));
+    ErrorB1 := PErrors(longint(ErrorsB1) + 2 * SizeOf(TErrorTerm));
   end
   else
   begin
@@ -4951,7 +4951,7 @@ begin
       begin
         SrcScanline := DIBSource.ScanLine[Row];
         DstScanline := DIBResult.ScanLine[Row];
-        Src := pointer(longint(SrcScanLine) + Ditherer.Column * sizeof(TRGBTriple));
+        Src := pointer(longint(SrcScanLine) + Ditherer.Column * SizeOf(TRGBTriple));
         Dst := pointer(longint(DstScanLine) + Ditherer.Column);
 
         while (Ditherer.Column < Ditherer.Width) and (Ditherer.Column >= 0) do
@@ -5061,14 +5061,14 @@ var
 begin
   if (FCount = 0) then
     exit;
-  Stream.WriteBuffer(FColorMap^, FCount * sizeof(TGIFColor));
+  Stream.WriteBuffer(FColorMap^, FCount * SizeOf(TGIFColor));
   Dummies := (1 shl BitsPerPixel) - FCount;
   Dummy.Red := 0;
   Dummy.Green := 0;
   Dummy.Blue := 0;
   while (Dummies > 0) do
   begin
-    Stream.WriteBuffer(Dummy, sizeof(TGIFColor));
+    Stream.WriteBuffer(Dummy, SizeOf(TGIFColor));
     Dec(Dummies);
   end;
 end;
@@ -5078,7 +5078,7 @@ procedure TGIFColorMap.LoadFromStream(Stream: TStream; Count: integer);
 begin
   Clear;
   SetCapacity(Count);
-  ReadCheck(Stream, FColorMap^, Count * sizeof(TGIFColor));
+  ReadCheck(Stream, FColorMap^, Count * SizeOf(TGIFColor));
   FCount := Count;
 end;
 
@@ -5127,7 +5127,7 @@ begin
         DeltaColorMapSize;
     if (FCapacity > GIFMaxColors) then
       FCapacity := GIFMaxColors;
-    ReallocMem(FColorMap, FCapacity * sizeof(TGIFColor));
+    ReallocMem(FColorMap, FCapacity * SizeOf(TGIFColor));
   end;
 end;
 
@@ -5165,7 +5165,7 @@ begin
   SetCapacity(Count);
   FCount := Count;
 
-  System.Move(Map, FColorMap^, FCount * sizeof(TGIFColor));
+  System.Move(Map, FColorMap^, FCount * SizeOf(TGIFColor));
 
   Changed;
 end;
@@ -5197,7 +5197,7 @@ var
   NewCount: integer;
 begin
   Clear;
-  GetMem(Pal, sizeof(TRGBQuad) * 256);
+  GetMem(Pal, SizeOf(TRGBQuad) * 256);
   try
     NewCount := GetDIBColorTable(Handle, 0, 256, Pal^);
     ImportColorTable(Pal, NewCount);
@@ -5268,7 +5268,7 @@ begin
   Dec(FCount);
   if (Index < FCount) then
     System.Move(FColorMap^[Index + 1], FColorMap^[Index], (FCount - Index) *
-      sizeof(TGIFColor));
+      SizeOf(TGIFColor));
   FOptimized := False;
   Changed;
 end;
@@ -5376,7 +5376,7 @@ begin
   *)
   LastFound := False;
   NewCount := FCount;
-  Move(FColorMap^, TempMap, FCount * sizeof(TGIFColor));
+  Move(FColorMap^, TempMap, FCount * SizeOf(TGIFColor));
   for i := 0 to FCount - 1 do
   begin
     FColorMap^[ReverseMap[i]] := TempMap[i];
@@ -5407,8 +5407,8 @@ begin
     FCapacity := TGIFColorMap(Source).FCapacity;
     FCount := TGIFColorMap(Source).FCount;
     FOptimized := TGIFColorMap(Source).FOptimized;
-    FColorMap := AllocMem(FCapacity * sizeof(TGIFColor));
-    System.Move(TGIFColorMap(Source).FColorMap^, FColorMap^, FCount * sizeof(TGIFColor));
+    FColorMap := AllocMem(FCapacity * SizeOf(TGIFColor));
+    System.Move(TGIFColorMap(Source).FColorMap^, FColorMap^, FCount * SizeOf(TGIFColor));
     Changed;
   end
   else
@@ -5763,8 +5763,8 @@ begin
   GifHeader.Version := GIFVersions[v];
 
   Prepare;
-  Stream.Write(GifHeader, sizeof(GifHeader));
-  Stream.Write(FLogicalScreenDescriptor, sizeof(FLogicalScreenDescriptor));
+  Stream.Write(GifHeader, SizeOf(GifHeader));
+  Stream.Write(FLogicalScreenDescriptor, SizeOf(FLogicalScreenDescriptor));
   if (FLogicalScreenDescriptor.PackedFields and lsdGlobalColorTable =
     lsdGlobalColorTable) then
     ColorMap.SaveToStream(Stream);
@@ -5778,7 +5778,7 @@ var
 begin
   Position := Stream.Position;
 
-  ReadCheck(Stream, GifHeader, sizeof(GifHeader));
+  ReadCheck(Stream, GifHeader, SizeOf(GifHeader));
   // 2008.10.19 ->
   //  if (uppercase(GifHeader.Signature) <> 'GIF') then
   if (uppercase(string(GifHeader.Signature)) <> 'GIF') then
@@ -5787,9 +5787,9 @@ begin
     // Attempt recovery in case we are reading a GIF stored in a form by rxLib
     Stream.Position := Position;
     // Seek past size stored in stream
-    Stream.Seek(sizeof(longint), soFromCurrent);
+    Stream.Seek(SizeOf(longint), soFromCurrent);
     // Attempt to read signature again
-    ReadCheck(Stream, GifHeader, sizeof(GifHeader));
+    ReadCheck(Stream, GifHeader, SizeOf(GifHeader));
     // 2008.10.19 ->
     //    if (uppercase(GifHeader.Signature) <> 'GIF') then
     if (uppercase(string(GifHeader.Signature)) <> 'GIF') then
@@ -5797,7 +5797,7 @@ begin
       Error(sBadSignature);
   end;
 
-  ReadCheck(Stream, FLogicalScreenDescriptor, sizeof(FLogicalScreenDescriptor));
+  ReadCheck(Stream, FLogicalScreenDescriptor, SizeOf(FLogicalScreenDescriptor));
 
   if (FLogicalScreenDescriptor.PackedFields and lsdGlobalColorTable =
     lsdGlobalColorTable) then
@@ -6362,7 +6362,7 @@ begin
   ASSERT(longint($FFFFFFFF) = -1, 'TGIFImage implementation assumes $FFFFFFFF = -1');
 
   inherited Create;
-  GetMem(HashTable, sizeof(THashArray));
+  GetMem(HashTable, SizeOf(THashArray));
   Clear;
 {$ifdef DEBUG_HASHPERFORMANCE}
   CountLookupFound := 0;
@@ -6401,7 +6401,7 @@ begin
     [HashSize, Count, Count / HashSize]));
 {$endif}
 
-  FillChar(HashTable^, sizeof(THashArray), $FF);
+  FillChar(HashTable^, SizeOf(THashArray), $FF);
 end;
 
 // Insert new key/value pair into hash table
@@ -6647,9 +6647,9 @@ begin
   while (Count > 0) do
   begin
     // Move data to the internal buffer in 255 byte chunks
-    while (FBufferCount < sizeof(FBuffer)) and (Count > 0) do
+    while (FBufferCount < SizeOf(FBuffer)) and (Count > 0) do
     begin
-      n := sizeof(FBuffer) - FBufferCount;
+      n := SizeOf(FBuffer) - FBufferCount;
       if (n > Count) then
         n := Count;
       Move(Src^, FBuffer[FBufferCount], n);
@@ -6659,7 +6659,7 @@ begin
     end;
 
     // Flush the buffer when it is full
-    if (FBufferCount >= sizeof(FBuffer)) then
+    if (FBufferCount >= SizeOf(FBuffer)) then
       FlushBuffer;
   end;
 end;
@@ -8181,7 +8181,7 @@ begin
   if (Empty) then
     exit;
   Prepare;
-  Stream.Write(FImageDescriptor, sizeof(TImageDescriptor));
+  Stream.Write(FImageDescriptor, SizeOf(TImageDescriptor));
   ColorMap.SaveToStream(Stream);
   Compress(Stream);
 end;
@@ -8200,7 +8200,7 @@ begin
   if (b = bsTrailer) or (b = 0) then
     exit;
 
-  ReadCheck(Stream, FImageDescriptor, sizeof(TImageDescriptor));
+  ReadCheck(Stream, FImageDescriptor, SizeOf(TImageDescriptor));
 
   // From Mozilla source:
   // Work around more broken GIF files that have zero image
@@ -8420,7 +8420,7 @@ var
       t := ColorMap^[0].Red;
       ColorMap^[0].Red := ColorMap^[0].Blue;
       ColorMap^[0].Blue := t;
-      inc(integer(ColorMap), sizeof(TGIFColor));
+      inc(integer(ColorMap), SizeOf(TGIFColor));
       dec(i);
     end;
   end;
@@ -9222,7 +9222,7 @@ begin
           ) and (
             // Replace same colored pixels with transparency
             ((pDestMap = pSourceMap) and (pDest^ = pSource^)) or
-            (CompareMem(@(pDestMap^[ord(pDest^)]), @(pSourceMap^[ord(pSource^)]), sizeof(TGIFColor)))
+            (CompareMem(@(pDestMap^[ord(pDest^)]), @(pSourceMap^[ord(pSource^)]), SizeOf(TGIFColor)))
           ) then
       begin
         if (NeedTransparentColorIndex) then
@@ -9437,14 +9437,14 @@ var
 begin
   ExtensionLeadIn.Introducer := bsExtensionIntroducer;
   ExtensionLeadIn.ExtensionLabel := ExtensionType;
-  Stream.Write(ExtensionLeadIn, sizeof(ExtensionLeadIn));
+  Stream.Write(ExtensionLeadIn, SizeOf(ExtensionLeadIn));
 end;
 
 function TGIFExtension.DoReadFromStream(Stream: TStream): TGIFExtensionType;
 var
   ExtensionLeadIn   : TExtensionLeadIn;
 begin
-  ReadCheck(Stream, ExtensionLeadIn, sizeof(ExtensionLeadIn));
+  ReadCheck(Stream, ExtensionLeadIn, SizeOf(ExtensionLeadIn));
   if (ExtensionLeadIn.Introducer <> bsExtensionIntroducer) then
     Error(sBadExtensionLabel);
   Result := ExtensionLeadIn.ExtensionLabel;
@@ -9453,7 +9453,7 @@ end;
 procedure TGIFExtension.LoadFromStream(Stream: TStream);
 begin
   // Seek past lead-in
-  // Stream.Seek(sizeof(TExtensionLeadIn), soFromCurrent);
+  // Stream.Seek(SizeOf(TExtensionLeadIn), soFromCurrent);
   if (DoReadFromStream(Stream) <> ExtensionType) then
     Error(sBadExtensionInstance);
 end;
@@ -9576,13 +9576,13 @@ end;
 procedure TGIFGraphicControlExtension.SaveToStream(Stream: TStream);
 begin
   inherited SaveToStream(Stream);
-  Stream.Write(FGCExtension, sizeof(FGCExtension));
+  Stream.Write(FGCExtension, SizeOf(FGCExtension));
 end;
 
 procedure TGIFGraphicControlExtension.LoadFromStream(Stream: TStream);
 begin
   inherited LoadFromStream(Stream);
-  if (Stream.Read(FGCExtension, sizeof(FGCExtension)) <> sizeof(FGCExtension)) then
+  if (Stream.Read(FGCExtension, SizeOf(FGCExtension)) <> SizeOf(FGCExtension)) then
   begin
     Warning(gsWarning, sOutOfData);
     exit;
@@ -9704,14 +9704,14 @@ end;
 procedure TGIFTextExtension.SaveToStream(Stream: TStream);
 begin
   inherited SaveToStream(Stream);
-  Stream.Write(FPlainTextExtension, sizeof(FPlainTextExtension));
+  Stream.Write(FPlainTextExtension, SizeOf(FPlainTextExtension));
   WriteStrings(Stream, FText);
 end;
 
 procedure TGIFTextExtension.LoadFromStream(Stream: TStream);
 begin
   inherited LoadFromStream(Stream);
-  ReadCheck(Stream, FPlainTextExtension, sizeof(FPlainTextExtension));
+  ReadCheck(Stream, FPlainTextExtension, SizeOf(FPlainTextExtension));
   ReadStrings(Stream, FText);
 end;
 
@@ -9806,7 +9806,7 @@ var
 begin
   for I := Count - 1 downto 0 do
     with PAppExtRec(Items[I])^ do
-      if CompareMem(@Ident, @eIdent, sizeof(TGIFApplicationRec)) then
+      if CompareMem(@Ident, @eIdent, SizeOf(TGIFApplicationRec)) then
       begin
         Result := AppClass;
         Exit;
@@ -9866,8 +9866,8 @@ begin
     Result := TGIFUnknownAppExtension;
     exit;
   end else
-  if (Size <> sizeof(TGIFApplicationRec)) or
-    (Stream.Read(eIdent, sizeof(eIdent)) <> sizeof(eIdent)) then
+  if (Size <> SizeOf(TGIFApplicationRec)) or
+    (Stream.Read(eIdent, SizeOf(eIdent)) <> SizeOf(eIdent)) then
   begin
     Stream.Position := OldPos;
     Result := inherited FindSubExtension(Stream);
@@ -9887,7 +9887,7 @@ end;
 constructor TGIFApplicationExtension.Create(ASubImage: TGIFSubImage);
 begin
   inherited Create(ASubImage);
-  FillChar(FIdent, sizeof(FIdent), 0);
+  FillChar(FIdent, SizeOf(FIdent), 0);
 end;
 
 destructor TGIFApplicationExtension.Destroy;
@@ -9907,9 +9907,9 @@ end;
 
 procedure TGIFApplicationExtension.SetAuthentication(const Value: AnsiString);
 begin
-  if (Length(Value) < sizeof(TGIFAuthenticationCode)) then
-    FillChar(FIdent.Authentication, sizeof(TGIFAuthenticationCode), 32);
-  StrLCopy(@(FIdent.Authentication[0]), PAnsiChar(Value), sizeof(TGIFAuthenticationCode));
+  if (Length(Value) < SizeOf(TGIFAuthenticationCode)) then
+    FillChar(FIdent.Authentication, SizeOf(TGIFAuthenticationCode), 32);
+  StrLCopy(@(FIdent.Authentication[0]), PAnsiChar(Value), SizeOf(TGIFAuthenticationCode));
 end;
 
 function TGIFApplicationExtension.GetIdentifier: AnsiString;
@@ -9919,16 +9919,16 @@ end;
 
 procedure TGIFApplicationExtension.SetIdentifier(const Value: AnsiString);
 begin
-  if (Length(Value) < sizeof(TGIFIdentifierCode)) then
-    FillChar(FIdent.Identifier, sizeof(TGIFIdentifierCode), 32);
-  StrLCopy(@(FIdent.Identifier[0]), PAnsiChar(Value), sizeof(TGIFIdentifierCode));
+  if (Length(Value) < SizeOf(TGIFIdentifierCode)) then
+    FillChar(FIdent.Identifier, SizeOf(TGIFIdentifierCode), 32);
+  StrLCopy(@(FIdent.Identifier[0]), PAnsiChar(Value), SizeOf(TGIFIdentifierCode));
 end;
 
 procedure TGIFApplicationExtension.SaveToStream(Stream: TStream);
 begin
   inherited SaveToStream(Stream);
-  WriteByte(Stream, sizeof(FIdent)); // Block size
-  Stream.Write(FIdent, sizeof(FIdent));
+  WriteByte(Stream, SizeOf(FIdent)); // Block size
+  Stream.Write(FIdent, SizeOf(FIdent));
   SaveData(Stream);
 end;
 
@@ -9940,14 +9940,14 @@ begin
   i := ReadByte(Stream);
   // Some old Adobe export filters mistakenly uses a value of 10
   if (i = 10) then
-    FillChar(FIdent, sizeOf(FIdent), 0)
+    FillChar(FIdent, SizeOf(FIdent), 0)
   else
     if (i < 11) then
       Error(sBadBlockSize);
 
-  ReadCheck(Stream, FIdent, sizeof(FIdent));
+  ReadCheck(Stream, FIdent, SizeOf(FIdent));
 
-  Dec(i, sizeof(FIdent));
+  Dec(i, SizeOf(FIdent));
   // Ignore extra data
   Stream.Seek(i, soFromCurrent);
 
@@ -10065,16 +10065,16 @@ end;
 procedure TGIFAppExtNSLoop.SaveData(Stream: TStream);
 begin
   // Write loop count
-  WriteByte(Stream, 1 + sizeof(FLoops)); // Size of block
+  WriteByte(Stream, 1 + SizeOf(FLoops)); // Size of block
   WriteByte(Stream, nbLoopExtension); // Identify sub block as looping extension data
-  Stream.Write(FLoops, sizeof(FLoops)); // Loop count
+  Stream.Write(FLoops, SizeOf(FLoops)); // Loop count
 
   // Write buffer size if specified
   if (FBufferSize > 0) then
   begin
-    WriteByte(Stream, 1 + sizeof(FBufferSize)); // Size of block
+    WriteByte(Stream, 1 + SizeOf(FBufferSize)); // Size of block
     WriteByte(Stream, nbBufferExtension); // Identify sub block as buffer size data
-    Stream.Write(FBufferSize, sizeof(FBufferSize)); // Buffer size
+    Stream.Write(FBufferSize, SizeOf(FBufferSize)); // Buffer size
   end;
 
   WriteByte(Stream, 0); // Terminating zero
@@ -10095,19 +10095,19 @@ begin
     case (BlockType AND $07) of
       nbLoopExtension:
         begin
-          if (BlockSize < sizeof(FLoops)) then
+          if (BlockSize < SizeOf(FLoops)) then
             Error(sInvalidData);
           // Read loop count
-          ReadCheck(Stream, FLoops, sizeof(FLoops));
-          dec(BlockSize, sizeof(FLoops));
+          ReadCheck(Stream, FLoops, SizeOf(FLoops));
+          dec(BlockSize, SizeOf(FLoops));
         end;
       nbBufferExtension:
         begin
-          if (BlockSize < sizeof(FBufferSize)) then
+          if (BlockSize < SizeOf(FBufferSize)) then
             Error(sInvalidData);
           // Read buffer size
-          ReadCheck(Stream, FBufferSize, sizeof(FBufferSize));
-          dec(BlockSize, sizeof(FBufferSize));
+          ReadCheck(Stream, FBufferSize, SizeOf(FBufferSize));
+          dec(BlockSize, SizeOf(FBufferSize));
         end;
     end;
 
@@ -10999,7 +10999,7 @@ begin
   FImages := TList.Create;
 
   // Allocate memory for histogram
-  GetMem(PHistogram, FCount * sizeof(TOptimizeEntry));
+  GetMem(PHistogram, FCount * SizeOf(TOptimizeEntry));
   FList := TList.Create;
 
   FList.Capacity := FCount;

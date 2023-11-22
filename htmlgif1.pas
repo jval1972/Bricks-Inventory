@@ -446,7 +446,7 @@ begin
   new(fScreenDescriptor);
   if (fScreenDescriptor = nil) then
     OutOfMemoryError;
-  fillchar(fScreenDescriptor^, sizeof(TGifScreenDescriptor), 0);
+  fillchar(fScreenDescriptor^, SizeOf(TGifScreenDescriptor), 0);
 
   fImageDescriptorList := TList.Create;
   fColorTableList := TList.Create;
@@ -514,7 +514,7 @@ begin
 
   if (fScreenDescriptor = nil) then
     new(fScreenDescriptor);
-  fillchar(fScreenDescriptor^, sizeof(TGifScreenDescriptor), 0);
+  fillchar(fScreenDescriptor^, SizeOf(TGifScreenDescriptor), 0);
 
   // delete all items from image list, but leave the list
 
@@ -844,7 +844,7 @@ begin
 
   // initialize data
 
-  fillchar(id^, sizeof(TGifImageDescriptor), 0);
+  fillchar(id^, SizeOf(TGifImageDescriptor), 0);
 
   // init the sotrage for compressed data
 
@@ -998,7 +998,7 @@ begin
   new(eb);
   if (eb = nil) then
     OutOfMemoryError;
-  fillchar(eb^, sizeof(TGifExtension), 0);
+  fillchar(eb^, SizeOf(TGifExtension), 0);
   fExtension.Add(eb);
 
   // get the type of extension
@@ -1234,7 +1234,7 @@ begin
 
   // init data block
 
-  fillchar(fZipData^, sizeof(TGifZip), 0);
+  fillchar(fZipData^, SizeOf(TGifZip), 0);
   fZipData^.rID := pID;
   fZipData^.rCT := fColorTableList.Items[pID^.rLocalColorTable];
 
@@ -1828,7 +1828,7 @@ begin
         if FullWidth and $3 <> 0 then
           FullWidth := (FullWidth and $FFFFFFFC) + $4;
         PixelSize := FullWidth * rHeight;
-        FileSize := Sizeof(LayoutType) + PixelSize;
+        FileSize := SizeOf(LayoutType) + PixelSize;
         Stream := TMemoryStream.Create;
         try
           Stream.Size := FileSize;
@@ -1841,11 +1841,11 @@ begin
             bfSize := FileSize;
             bfReserved1 := 0;
             bfReserved2 := 0;
-            bfOffBits := Sizeof(LayoutType);
+            bfOffBits := SizeOf(LayoutType);
           end;
           with PL^.BIH do
           begin
-            biSize := Sizeof(TBitmapInfoHeader);
+            biSize := SizeOf(TBitmapInfoHeader);
             biWidth := rWidth;
             biHeight := rHeight;
             biPlanes := 1;
@@ -1865,7 +1865,7 @@ begin
             ct^.rColors[TrIndex] := TransColor;
 
           N := 0;
-          Pix := PChar(PL) + Sizeof(LayoutType);
+          Pix := PChar(PL) + SizeOf(LayoutType);
           for Y := rHeight - 1 downto 0 do
           begin
             P := Pix + (Y * FullWidth);
@@ -1938,7 +1938,7 @@ begin
   if FullWidth and $3 <> 0 then         {make sure it is DWord boundary}
     FullWidth := (FullWidth and $FFFFFFFC) + $4;
   PixelSize := FullWidth * Height;
-  FileSize := Sizeof(LayoutType) + PixelSize;
+  FileSize := SizeOf(LayoutType) + PixelSize;
   if (FileSize > 200000000) or Transparent and (FileSize > 100000000) then
     GIF_Error(25);
   Stream := TMemoryStream.Create;
@@ -1953,11 +1953,11 @@ begin
       bfSize := FileSize;
       bfReserved1 := 0;
       bfReserved2 := 0;
-      bfOffBits := Sizeof(LayoutType);
+      bfOffBits := SizeOf(LayoutType);
     end;
     with PL^.BIH do
     begin           {and the bitmap info header}
-      biSize := Sizeof(TBitmapInfoHeader);
+      biSize := SizeOf(TBitmapInfoHeader);
       biWidth := Width * ImageCount;
       biHeight := Height;
       biPlanes := 1;
@@ -1970,7 +1970,7 @@ begin
       biClrImportant := 0;
     end;
 
-    Pix := PChar(PL) + Sizeof(LayoutType);  {where pixels start}
+    Pix := PChar(PL) + SizeOf(LayoutType);  {where pixels start}
 
     IsTransparent := Transparent;
     if IsTransparent then
@@ -1979,7 +1979,7 @@ begin
       MStream.Size := FileSize;
       MPL := MStream.Memory;
       Move(PL^, MPL^, FileSize);   {for now, this is a direct copy}
-      MPix := PChar(MPL) + Sizeof(LayoutType);   {where mask pixels start}
+      MPix := PChar(MPL) + SizeOf(LayoutType);   {where mask pixels start}
       FillChar(MPix^, PixelSize, $FF);   {Need to make first frame totally transparent}
     end;
 

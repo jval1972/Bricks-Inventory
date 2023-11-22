@@ -1807,8 +1807,8 @@ begin
   DimCount := 0;
   First := True;
   Rows := False;
-  FillChar(Fixed, Sizeof(Fixed), 0);
-  FillChar(Lines, Sizeof(Lines), 0);
+  FillChar(Fixed, SizeOf(Fixed), 0);
+  FillChar(Lines, SizeOf(Lines), 0);
   FBase := '';
   FBaseTarget := '';
 end;

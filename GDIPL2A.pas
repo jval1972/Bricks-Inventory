@@ -288,7 +288,7 @@ begin
   if not FileExists(FileName) then
     raise EGDIPlus.Create(Format('Image file %s not found.', [FileName]));
   err := GdipLoadImageFromFile(StringToWideChar(FileName, Buffer,
-    sizeof(Buffer)), fHandle);
+    SizeOf(Buffer)), fHandle);
   if err <> 0 then
     raise EGDIPlus.Create(Format('Can''t load image file %s.', [FileName]));
   if TmpFile then
@@ -431,7 +431,7 @@ begin
       @GdipGetInterpolationMode := GetProcAddress(LibHandle, 'GdipGetInterpolationMode');
       @GdipBitmapSetPixel := GetProcAddress(LibHandle, 'GdipBitmapSetPixel');
 
-      FillChar(Startup, sizeof(Startup), 0);
+      FillChar(Startup, SizeOf(Startup), 0);
       Startup.Version := 1;
       Err := GdiPlusStartup(InitToken, @Startup, nil);
       GDIPlusActive := Err = 0;

@@ -714,7 +714,7 @@ begin
   {Set the MaxPalette attributes}
   with MaxPalette do
   begin
-    Fillchar(MaxPalette, sizeof(MaxPalette), 0);
+    Fillchar(MaxPalette, SizeOf(MaxPalette), 0);
     palVersion := $300;
     palNumEntries := fStream.Size div 3;
 

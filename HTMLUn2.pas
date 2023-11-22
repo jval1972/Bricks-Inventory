@@ -625,7 +625,7 @@ begin
 
   if not IsWin32Platform then
   begin
-    GetMem(Ints, Sizeof(Integer)* Max);
+    GetMem(Ints, SizeOf(Integer)* Max);
     try
       {$ifdef ver120_plus}
       if GetTextExtentExPointW(DC, S, Max, Width, @Result, @Ints^, ExtS) then
@@ -1029,54 +1029,56 @@ var
   White, BlackBorder: boolean;
   Light, Dark: TColor;
 begin
-with SectionList as TSectionList, Canvas do
+  with SectionList as TSectionList, Canvas do
   begin
-  White := Printing or ((Background and $FFFFFF = clWhite) or
+    White := Printing or ((Background and $FFFFFF = clWhite) or
       ((Background = clWindow) and (GetSysColor(Color_Window) = $FFFFFF)));
-  BlackBorder := Printing and PrintMonoBlack and (GetDeviceCaps(Handle, BITSPIXEL) = 1) and
+    BlackBorder := Printing and PrintMonoBlack and (GetDeviceCaps(Handle, BITSPIXEL) = 1) and
       (GetDeviceCaps(Handle, PLANES) = 1);
   end;
-if BlackBorder then
+  if BlackBorder then
   begin
-  Light := clBlack;
-  Dark := clBlack;
+    Light := clBlack;
+    Dark := clBlack;
   end
-else
+  else
   begin
-  Dark := clBtnShadow;
-  if White then
-    Light := clSilver
-   else Light := clBtnHighLight;
+    Dark := clBtnShadow;
+    if White then
+      Light := clSilver
+     else
+      Light := clBtnHighLight;
   end;
-RaisedRectColor(SectionList, Canvas, X1, Y1, X2, Y2, Light, Dark, Raised, W);
+  RaisedRectColor(SectionList, Canvas, X1, Y1, X2, Y2, Light, Dark, Raised, W);
 end;
 
 procedure RaisedRectColor1(Canvas: TCanvas; X1: integer;
            Y1: integer; X2: integer; Y2: integer; Light, Dark: TColor; Raised: boolean);
 {Draws single line colored raised or lowered rectangles for table borders}
 begin
-Y1 := IntMax(Y1, TopLim);
-Y2 := IntMin(Y2, BotLim);
-with Canvas do
+  Y1 := IntMax(Y1, TopLim);
+  Y2 := IntMin(Y2, BotLim);
+  with Canvas do
   begin
-  if Raised then
-    Pen.Color := Light
-  else Pen.Color := Dark;
+    if Raised then
+      Pen.Color := Light
+    else
+      Pen.Color := Dark;
 
-  MoveTo(X1, Y2);
-  LineTo(X1, Y1);
-  LineTo(X2, Y1);
-  if not Raised then
-    Pen.Color := Light
-  else Pen.Color := Dark;
-  LineTo(X2, Y2);
-  LineTo(X1, Y2);
+    MoveTo(X1, Y2);
+    LineTo(X1, Y1);
+    LineTo(X2, Y1);
+    if not Raised then
+      Pen.Color := Light
+    else Pen.Color := Dark;
+    LineTo(X2, Y2);
+    LineTo(X1, Y2);
   end;
 end;
 
 procedure RaisedRectColor(SectionList: TFreeList; Canvas: TCanvas; X1: integer;
-           Y1: integer; X2: integer; Y2: integer; Light, Dark: TColor; Raised: boolean;
-           W: integer);
+  Y1: integer; X2: integer; Y2: integer; Light, Dark: TColor; Raised: boolean;
+  W: integer);
 {Draws colored raised or lowered rectangles for table borders}
 var
   Colors: htColorArray;
@@ -1777,29 +1779,29 @@ var
   Header: ^GifHeader;
   X: integer;
   Colors: ^ColorArray;
-  Buff: array[0..Sizeof(GifHeader)+Sizeof(ColorArray)+8] of byte;
+  Buff: array[0..SizeOf(GifHeader)+SizeOf(ColorArray)+8] of byte;
   P: PChar;
   OldPosition: integer;
 
 begin
   Result := False;
-  Fillchar(Buff, Sizeof(Buff), 0);  {in case read comes short}
+  Fillchar(Buff, SizeOf(Buff), 0);  {in case read comes short}
   OldPosition := Stream.Position;
   Stream.Position := 0;
-  Stream.Read(Buff, Sizeof(Buff));
+  Stream.Read(Buff, SizeOf(Buff));
   Stream.Position := OldPosition;
 
   Header := @Buff;
   if KindOfImage(Header) <> Gif89 then
     Exit;
-  Colors := @Buff[Sizeof(GifHeader)];
+  Colors := @Buff[SizeOf(GifHeader)];
   with Header^ do
   begin
     X := 1 shl ((Field and 7) + 1) - 1;  {X is last item in color table}
     if X = 0 then
       Exit;   {no main color table}
   end;
-  P := PChar(Colors) + (X + 1) * Sizeof(RGB);
+  P := PChar(Colors) + (X + 1) * SizeOf(RGB);
   if (P^ <> #$21) or ((P + 1)^ <> #$F9) then
     Exit;  {extension block not found}
   if (ord(P[3]) and 1 <> 1) then
@@ -1823,13 +1825,13 @@ type
   end;
 
   PngHeader = record
-    width       : integer;
-    height      : integer;
-    bitDepth    : byte;
-    colorType   : byte;
-    compression : byte;
-    filter      : byte;
-    interlace   : byte;
+    width: integer;
+    height: integer;
+    bitDepth: byte;
+    colorType: byte;
+    compression: byte;
+    filter: byte;
+    interlace: byte;
     end;
 var
   Header: PngHeader;
@@ -2275,8 +2277,8 @@ begin
 end;
 
 {----------------FinishTransparentBitmap }
-procedure FinishTransparentBitmap (ahdc: HDC;
-              InImage, Mask: TBitmap; xStart, yStart, W, H: integer);
+procedure FinishTransparentBitmap (ahdc: HDC; InImage, Mask: TBitmap;
+  xStart, yStart, W, H: integer);
 var
   bmAndBack,
   bmSave,
@@ -2289,7 +2291,6 @@ var
   OldBack, OldFore: TColor;
   BM: Windows.TBitmap;
   Image: TBitmap;
-
 begin
   Image := TBitmap.Create;  {protect original image}
   try
@@ -2431,10 +2432,10 @@ var
   BM: Windows.TBitmap;
   BitCount: integer;
 
-function WidthBytes(I: integer): integer;
-begin
-  Result := ((I + 31) div 32) * 4;
-end;
+  function WidthBytes(I: integer): integer;
+  begin
+    Result := ((I + 31) div 32) * 4;
+  end;
 
 begin
   GetObject(Bitmap, SizeOf(BM), @BM);
@@ -2545,7 +2546,7 @@ begin
 end;
 
 procedure IndentManagerBasic.UpdateTable(Y: integer; IW: integer; IH: integer;
-                           Justify: JustifyType);
+  Justify: JustifyType);
 {Given a floating table, update the edge information. }
 var
   IR: IndentRec;
@@ -2554,22 +2555,22 @@ begin
   if (Justify = Left) then
   begin
     with IR do
-      begin
+    begin
       X := -LfEdge + IW;
       YT := Y;
       YB := Y + IH;
       L.Add(IR);
-      end;
+    end;
   end
   else if (Justify = Right) then
   begin
     with IR do
-      begin
+    begin
       X := RightSide(Y) - IW;
       YT := Y;
       YB := Y + IH;
       R.Add(IR);
-      end;
+    end;
   end;
 end;
 
@@ -2727,7 +2728,7 @@ begin
   Result := 0;
   if ColorBits > 8 then
     Exit;
-  GetMem(LP, Sizeof(TLogPalette) + 256 * Sizeof(TPaletteEntry));
+  GetMem(LP, SizeOf(TLogPalette) + 256 * SizeOf(TPaletteEntry));
   try
     with LP^ do
     begin
@@ -2741,7 +2742,7 @@ begin
       end;
     end;
   finally
-    FreeMem(LP, Sizeof(TLogPalette) + 256 * Sizeof(TPaletteEntry));
+    FreeMem(LP, SizeOf(TLogPalette) + 256 * SizeOf(TPaletteEntry));
   end;
 end;
 
@@ -2753,7 +2754,7 @@ var
   LP: ^TLogPalette;
   I, J, K, Sub: integer;
 begin
-  GetMem(LP, Sizeof(TLogPalette) + 256 * Sizeof(TPaletteEntry));
+  GetMem(LP, SizeOf(TLogPalette) + 256 * SizeOf(TPaletteEntry));
   try
     with LP^ do
     begin
@@ -2794,7 +2795,7 @@ begin
       ThePalette := CreatePalette(LP^);
     end;
   finally
-    FreeMem(LP, Sizeof(TLogPalette) + 256 * Sizeof(TPaletteEntry));
+    FreeMem(LP, SizeOf(TLogPalette) + 256 * SizeOf(TPaletteEntry));
   end;
 end;
 
@@ -2989,7 +2990,7 @@ constructor TCharCollection.Create;
 begin
   inherited;
   SetLength(FChars, TokenLeng);
-  GetMem(FIndices, TokenLeng*Sizeof(integer));
+  GetMem(FIndices, TokenLeng*SizeOf(integer));
   FCurrentIndex := 0;
 end;
 
@@ -3004,7 +3005,7 @@ begin
   if FCurrentIndex = Length(FChars) then
   begin
     SetLength(FChars, FCurrentIndex + 50);
-    ReallocMem(FIndices, (FCurrentIndex+50)*Sizeof(integer));
+    ReallocMem(FIndices, (FCurrentIndex+50)*SizeOf(integer));
   end;
   Inc(FCurrentIndex);
   FIndices^[FCurrentIndex] := Index;
@@ -3025,18 +3026,18 @@ begin
   if K >= Length(FChars) then
   begin
     SetLength(FChars, K + 50);
-    ReallocMem(FIndices, (K + 50) * Sizeof(Integer));
+    ReallocMem(FIndices, (K + 50) * SizeOf(Integer));
   end;
   Move(PChar(T.FChars)^, FChars[FCurrentIndex + 1], T.FCurrentIndex);
-  Move(T.FIndices^[1], FIndices^[FCurrentIndex + 1], T.FCurrentIndex * Sizeof(Integer));
+  Move(T.FIndices^[1], FIndices^[FCurrentIndex + 1], T.FCurrentIndex * SizeOf(Integer));
   FCurrentIndex := K;
 end;
 {----------------TokenObj.Create}
 constructor TokenObj.Create;    
 begin
   inherited;
-  GetMem(C, TokenLeng * Sizeof(WideChar));
-  GetMem(I, TokenLeng * Sizeof(Integer));
+  GetMem(C, TokenLeng * SizeOf(WideChar));
+  GetMem(I, TokenLeng * SizeOf(Integer));
   MaxIndex := TokenLeng;
   Leng := 0;
   St := '';
@@ -3055,8 +3056,8 @@ procedure TokenObj.AddUnicodeChar(Ch: WideChar; Ind: integer);
 begin
   if Leng >= MaxIndex then
   begin
-    ReallocMem(C, (MaxIndex + 50) * Sizeof(WideChar));
-    ReallocMem(I, (MaxIndex + 50)*Sizeof(Integer));
+    ReallocMem(C, (MaxIndex + 50) * SizeOf(WideChar));
+    ReallocMem(I, (MaxIndex + 50) * SizeOf(Integer));
     Inc(MaxIndex, 50);
   end;
   Inc(Leng);
@@ -3202,12 +3203,12 @@ begin
   K := Leng + T.Leng;
   if K > MaxIndex then
   begin
-    ReallocMem(C, (K + 50) * Sizeof(WideChar));
-    ReallocMem(I, (K + 50) * Sizeof(Integer));
+    ReallocMem(C, (K + 50) * SizeOf(WideChar));
+    ReallocMem(I, (K + 50) * SizeOf(Integer));
     MaxIndex := K + 50;
   end;
-  Move(T.C^, C^[Leng + 1], T.Leng * Sizeof(WideChar));
-  Move(T.I^, I^[Leng + 1], T.Leng * Sizeof(Integer));
+  Move(T.C^, C^[Leng + 1], T.Leng * SizeOf(WideChar));
+  Move(T.I^, I^[Leng + 1], T.Leng * SizeOf(Integer));
   Leng := K;
   StringOK := False;
 end;
@@ -3216,8 +3217,8 @@ procedure TokenObj.Remove(N: integer);
 begin    {remove a single character}
   if N <= Leng then
   begin
-    Move(C^[N + 1], C^[N], (Leng - N) * Sizeof(WideChar));
-    Move(I^[N+1], I^[N], (Leng - N) * Sizeof(integer));
+    Move(C^[N + 1], C^[N], (Leng - N) * SizeOf(WideChar));
+    Move(I^[N+1], I^[N], (Leng - N) * SizeOf(integer));
     if StringOK then
       Delete(St, N, 1);
     Dec(Leng);

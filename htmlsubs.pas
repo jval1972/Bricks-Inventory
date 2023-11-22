@@ -4380,7 +4380,7 @@ begin
   inherited CreateCopy(AMasterList, T);
   TT := T as TBlock;
   System.Move(TT.MargArray, MargArray, DWord(@Converted) - DWord(@MargArray) +
-    Sizeof(Converted));
+    SizeOf(Converted));
   MyCell := TBlockCell.CreateCopy(AMasterList, TT.MyCell);
   MyCell.Owner := Self;
   DrawList := TList.Create;
@@ -5750,7 +5750,7 @@ var
 begin
   inherited;
   TT := T as TTableBlock;
-  System.Move(TT.WidthAttr, WidthAttr, DWord(@Justify) - DWord(@WidthAttr) + Sizeof(Justify));
+  System.Move(TT.WidthAttr, WidthAttr, DWord(@Justify) - DWord(@WidthAttr) + SizeOf(Justify));
   Item := MyCell.Items[0];
   Table := Item as ThtmlTable;
 end;
@@ -6336,7 +6336,7 @@ begin
   IsCopy := True;
   inherited CreateCopy(Self, T);
   System.Move(T.ShowImages, ShowImages, DWord(@Background) - Dword(
-    @ShowImages) + Sizeof(integer));
+    @ShowImages) + SizeOf(integer));
   BitmapName := '';
   BackgroundBitmap := nil;
   BackgroundMask := nil;
@@ -9982,7 +9982,7 @@ begin
     else
       St := T.S;
   end;
-  Move(T.I[1], XP^[Len], T.Leng * Sizeof(integer));
+  Move(T.I[1], XP^[Len], T.Leng * SizeOf(integer));
   if NoBreak or (Self is TPreformated) then
     C := 'n'
   else
@@ -10043,7 +10043,7 @@ var
 
   procedure Remove(I: integer);
   begin
-    Move(XP^[I], XP^[I - 1], ((Length(BuffS)) - I) * Sizeof(integer));
+    Move(XP^[I], XP^[I - 1], ((Length(BuffS)) - I) * SizeOf(integer));
     System.Delete(BuffS, I, 1);
     System.Delete(Brk, I, 1);
     TFormControlList(FormControls).Decrement(I - 1);
@@ -10155,7 +10155,7 @@ procedure TSection.Allocate(N: integer);
 begin
   if BuffSize < N then
   begin
-    ReAllocMem(XP, N * Sizeof(integer));
+    ReAllocMem(XP, N * SizeOf(integer));
     BuffSize := N;
   end;
 end;

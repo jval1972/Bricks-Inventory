@@ -9642,7 +9642,7 @@ begin
             splitstring(sKP.Strings[i], s1, s2, s3, ',');
             trimproc(s1);
             trimproc(s3);
-            s1 := fixpartname(s1);
+            // s1 := fixpartname(s1); was fixed in FixKnownPieces
             s.Add(s1 + ',' + s3);
             {$IFNDEF CRAWLER}
             if i mod 1000 = 0 then
@@ -9685,7 +9685,7 @@ begin
         {$IFNDEF CRAWLER}
         if i mod 2000 = 0 then
           if Assigned(progressfunc) then
-            progressfunc('Creating Piece Objects...', 0.5 + i / s.Count * 0.2);
+            progressfunc('Creating Piece Objects...', 0.55 + i / s.Count * 0.15);
         {$ENDIF}
         stmp := s.Strings[i];
         if stmp <> '' then

@@ -7394,9 +7394,9 @@ begin
   fbinarysets := TBinarySetCollection.Create(basedefault + 'db\sets1.db', basedefault + 'db\sets2.db', basedefault + 'db\sets3.db');
   fbinaryparts := TBinaryPartCollection.Create(basedefault + 'db\parts.db');
 
-  MT_WaitTask(taskid);
-
   InitPiecesInventories;
+
+  MT_WaitTask(taskid);
 
   st_pciloads := 0;
   st_pciloadscache := 0;

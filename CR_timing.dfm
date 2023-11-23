@@ -482,6 +482,15 @@ object Form1: TForm1
           Caption = 'Retry Success: '
           FocusControl = Edit4
         end
+        object SpeedLabel: TLabel
+          Left = 312
+          Top = 144
+          Width = 81
+          Height = 13
+          Alignment = taRightJustify
+          AutoSize = False
+          Caption = '              '
+        end
         object Edit1: TEdit
           Left = 108
           Top = 16

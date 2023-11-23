@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2019 by Jim Valavanis
+//  Copyright (C) 2014-2023 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -91,6 +91,8 @@ var
   criticalcpupriority: boolean;
 
 function I_GetNumCPUs: integer;
+
+function I_GetSysTime: extended;
 
 const
   TICRATE = 200;

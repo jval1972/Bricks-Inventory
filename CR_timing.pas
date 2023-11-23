@@ -39,6 +39,7 @@ type
     RetryOnFailCheckBox: TCheckBox;
     Label8: TLabel;
     Edit4: TEdit;
+    SpeedLabel: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure CrawlerTimerTimer(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -54,6 +55,8 @@ type
     cancrowl: boolean;
     cnt_total, cnt_success: integer;
     cont_success, cont_fail: integer;
+    last_time: extended;
+    last_total: integer;
     procedure CrawlerStep;
     procedure UpdateControls;
   public
@@ -69,7 +72,7 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_db, bi_globals, bi_crawler, bi_tmp;
+  bi_db, bi_globals, bi_crawler, bi_tmp, bi_multithread, bi_system;
 
 function InputBox(const ACaption, APrompt, ADefault: string): string;
 begin
@@ -83,6 +86,7 @@ var
   ACaption, APrompt, ADefault: string;
 begin
   I_InitTempFiles;
+  MT_Init;
   cancrowl := false;
   ACaption := 'Crawler file:';
   APrompt := 'Give the crawler file';
@@ -120,6 +124,9 @@ begin
   cont_success := 0;
   cont_fail := 0;
 
+  last_time := 0.0;
+  last_total := 0;
+
   CrawlerTimer.Enabled := true;
  { tr := TThreadComponent.Create(nil);
   tr.Sleep := CrawlerTimer.Interval;
@@ -128,12 +135,17 @@ begin
 end;
 
 procedure TForm1.CrawlerStep;
+var
+  now_time: extended;
 begin
   if doabort then
   begin
     Close;
     Exit;
   end;
+
+  if last_time = 0.0 then
+    last_time := I_GetSysTime;
 
   Sleep(0);
 
@@ -222,6 +234,14 @@ begin
     begin
       StatisticsLabel.Caption := 'Success hits = ' + IntToStr(cnt_success) + '/' + IntToStr(cnt_total) + Format(' (%2.3f%s)', [cnt_success / cnt_total * 100, '%']);
       StatisticsLabel.Update;
+      now_time := I_GetSysTime;
+      if now_time - last_time > 5.0 then
+      begin
+        SpeedLabel.Caption := IntToStr(Round(60 * (cnt_total - last_total) / (now_time - last_time))) + ' hits/min';
+        SpeedLabel.Update;
+        last_time := now_time;
+        last_total := cnt_total;
+      end;
     end;
 
     if cont_success > 0 then
@@ -279,6 +299,7 @@ begin
     CrawlerTimer.Enabled := false;
     db.Free;
   end;
+  MT_ShutDown;
   I_ShutDownTempFiles;
 end;
 

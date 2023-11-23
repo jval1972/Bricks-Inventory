@@ -37,7 +37,7 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_db, bi_globals, bi_crawler, bi_tmp;
+  bi_db, bi_globals, bi_crawler, bi_tmp, bi_multithread;
 
 function InputBox(const ACaption, APrompt, ADefault: string): string;
 begin
@@ -51,6 +51,7 @@ var
   ACaption, APrompt, ADefault: string;
 begin
   I_InitTempFiles;
+  MT_Init;
   cancrowl := false;
   ACaption := 'Crawler file:';
   APrompt := 'Give the crawler file';
@@ -152,6 +153,7 @@ begin
     CrawlerTimer.Enabled := false;
     db.Free;
   end;
+  MT_ShutDown;
   I_ShutDownTempFiles;
 end;
 

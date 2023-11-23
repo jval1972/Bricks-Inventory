@@ -63,8 +63,11 @@ type
     ComboBox1: TComboBox;
     Label2: TLabel;
     CheckBox12: TCheckBox;
+    TabSheet5: TTabSheet;
+    ListBox1: TListBox;
     procedure Edit1KeyPress(Sender: TObject; var Key: Char);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
   public
@@ -78,12 +81,14 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_delphi, bi_defs, bi_system;
+  bi_delphi, bi_defs, bi_system, bi_currency;
 
 function BI_EditOptions: boolean;
 var
   f: TOptionsForm;
   oldpagesize: integer;
+  i, idx: integer;
+  s1, s2: string;
 begin
   result := false;
   f := TOptionsForm.Create(nil);
@@ -104,6 +109,17 @@ begin
     f.CheckBox11.Checked := dodraworderinfolite;
     f.CheckBox12.Checked := quantizeimagetosavemem;
     f.CheckBox13.Checked := savealwayswantedlists;
+
+    idx := 0;
+    optdefaultcurrency := strupper(optdefaultcurrency);
+    for i := 0 to currency_names.Count - 1 do
+    begin
+      splitstring(currency_names.strings[i], s1, s2, '=');
+      f.ListBox1.AddItem(s1 + ' (' + s2 + ')', TStringInit.Create(s1));
+      if s1 = optdefaultcurrency then
+        idx := i;
+    end;
+    f.ListBox1.ItemIndex := idx;
 
     if IsIntegerInRange(inventorysortmethod, 0, f.RadioGroup1.items.Count - 1) then
       f.RadioGroup1.ItemIndex := inventorysortmethod;
@@ -126,6 +142,9 @@ begin
       dodraworderinfolite := f.CheckBox11.Checked;
       quantizeimagetosavemem := f.CheckBox12.Checked;
       savealwayswantedlists := f.CheckBox13.Checked;
+      idx := f.ListBox1.ItemIndex;
+      if idx >= 0 then
+        optdefaultcurrency := (f.ListBox1.Items.Objects[idx] as TStringInit).text;
     end;
   finally
     f.Free;
@@ -150,6 +169,14 @@ end;
 procedure TOptionsForm.FormCreate(Sender: TObject);
 begin
   PageControl1.ActivePageIndex := 0;
+end;
+
+procedure TOptionsForm.FormDestroy(Sender: TObject);
+var
+  i: integer;
+begin
+  for i := 0 to ListBox1.Items.Count - 1 do
+    ListBox1.Items.Objects[i].Free;
 end;
 
 end.

@@ -153,7 +153,8 @@ uses
   bi_colorpickerbutton in 'bi_colorpickerbutton.pas',
   bi_dropdownbutton in 'bi_dropdownbutton.pas',
   bi_binary in 'bi_binary.pas',
-  bi_undo in 'bi_undo.pas';
+  bi_undo in 'bi_undo.pas',
+  frm_selectcurrency in 'frm_selectcurrency.pas' {SelectCurrencyForm};
 
 {$R *.res}
 

@@ -5,7 +5,7 @@ object OptionsForm: TOptionsForm
   BorderStyle = bsDialog
   Caption = 'Options'
   ClientHeight = 291
-  ClientWidth = 354
+  ClientWidth = 388
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -546,12 +546,13 @@ object OptionsForm: TOptionsForm
   OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
     Top = 250
-    Width = 354
+    Width = 388
     Height = 41
     Align = alBottom
     BevelOuter = bvNone
@@ -564,7 +565,7 @@ object OptionsForm: TOptionsForm
     ParentFont = False
     TabOrder = 0
     object Panel2: TPanel
-      Left = 153
+      Left = 187
       Top = 0
       Width = 201
       Height = 41
@@ -609,9 +610,9 @@ object OptionsForm: TOptionsForm
   object PageControl1: TPageControl
     Left = 24
     Top = 8
-    Width = 313
+    Width = 345
     Height = 225
-    ActivePage = TabSheet4
+    ActivePage = TabSheet5
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
     Font.Height = -13
@@ -789,6 +790,18 @@ object OptionsForm: TOptionsForm
           Caption = 'Additional locations'
           TabOrder = 3
         end
+      end
+    end
+    object TabSheet5: TTabSheet
+      Caption = 'Currency'
+      ImageIndex = 4
+      object ListBox1: TListBox
+        Left = 16
+        Top = 8
+        Width = 305
+        Height = 177
+        ItemHeight = 16
+        TabOrder = 0
       end
     end
   end

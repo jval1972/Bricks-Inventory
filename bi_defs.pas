@@ -31,10 +31,10 @@ unit bi_defs;
 interface
 
 uses
-  bi_system;
+  bi_delphi, bi_system;
 
 type
-  ttype_t = (tText, tInteger, tBoolean, tGroup);
+  ttype_t = (tText, tString255, tInteger, tBoolean, tGroup);
 
   default_t = record
     name: string;
@@ -64,9 +64,10 @@ var
   optlocationsorders: boolean;
   optlocationsreadylist: boolean;
   optenablecrawling: boolean;
+  optdefaultcurrency: string255;
 
 const
-  NUMDEFAULTS = 19;
+  NUMDEFAULTS = 20;
 
   defaults: array[0..NUMDEFAULTS - 1] of default_t = (
     (name: 'General';
@@ -165,6 +166,14 @@ const
      defaultbvalue: False;
      _type: tInteger),
 
+    (name: 'optdefaultcurrency';
+     location: @optdefaultcurrency;
+     setable: true;
+     defaultsvalue: 'EUR';
+     defaultivalue: 0;
+     defaultbvalue: False;
+     _type: tString255),
+
     (name: 'MultiPage';
      location: nil;
      setable: false;
@@ -231,7 +240,7 @@ procedure BI_SaveDefaults(const fname: string);
 implementation
 
 uses
-  bi_delphi, Classes, bi_utils;
+  Classes, bi_utils;
 
 procedure BI_LoadDefaults(const fname: string);
 var
@@ -249,7 +258,9 @@ begin
     else if defaults[i]._type = tBoolean then
       PBoolean(defaults[i].location)^ := defaults[i].defaultbvalue
     else if defaults[i]._type = tText then
-      PString(defaults[i].location)^ := defaults[i].defaultsvalue;
+      PString(defaults[i].location)^ := defaults[i].defaultsvalue
+    else if defaults[i]._type = tString255 then
+      PString255(defaults[i].location)^ := defaults[i].defaultsvalue;
 
   if fexists(fname) then
   begin
@@ -277,7 +288,9 @@ begin
           else if pd._type = tBoolean then
              PBoolean(pd.location)^ := atoi(s.Values[n]) <> 0
           else if pd._type = tText then
-             PString(pd.location)^ := s.Values[n];
+             PString(pd.location)^ := s.Values[n]
+          else if pd._type = tString255 then
+             PString255(pd.location)^ := s.Values[n];
         end;
       end;
     finally
@@ -301,6 +314,8 @@ begin
         s.Add(pd.name + '=' + itoa(PInteger(pd.location)^))
       else if pd._type = tText then
         s.Add(pd.name + '=' + PString(pd.location)^)
+      else if pd._type = tString255 then
+        s.Add(pd.name + '=' + PString255(pd.location)^)
       else if pd._type = tBoolean then
         s.Add(pd.name + '=' + itoa(intval(PBoolean(pd.location)^)))
       else if pd._type = tGroup then

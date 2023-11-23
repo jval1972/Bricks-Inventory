@@ -117,6 +117,7 @@ type
     CurrencyButton6: TSpeedButton;
     CurrencyButton7: TSpeedButton;
     CurrencyButton8: TSpeedButton;
+    CurrencyButton9: TSpeedButton;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -173,12 +174,14 @@ type
     procedure SpeedButton1Click(Sender: TObject);
     procedure CurrencyButtonClick(Sender: TObject);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
     fcurrency: string;
   protected
     piece: string;
     color: integer;
+    lastdown: TSpeedButton;
     procedure DoMakeChart(const idx: integer);
   public
     { Public declarations }
@@ -195,7 +198,8 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_db, bi_delphi, bi_utils, bi_orders, bi_pghistory, bi_globals;
+  bi_db, bi_delphi, bi_utils, bi_orders, bi_pghistory, bi_globals, bi_currency,
+  bi_defs, frm_selectcurrency;
 
 const
   PG_nTimesSold = 1;
@@ -1382,8 +1386,63 @@ end;
 procedure TDiagramForm.FormCreate(Sender: TObject);
 begin
   PageControl1.ActivePageIndex := 0;
-  fcurrency := 'EUR';
+  fcurrency := strupper(optdefaultcurrency);
   KeyPreview := True; // Needed to close with ESC
+  CurrencyButton1.Hint := currency_names.Values[UpperCase(CurrencyButton1.Caption)];
+  CurrencyButton2.Hint := currency_names.Values[UpperCase(CurrencyButton2.Caption)];
+  CurrencyButton3.Hint := currency_names.Values[UpperCase(CurrencyButton3.Caption)];
+  CurrencyButton4.Hint := currency_names.Values[UpperCase(CurrencyButton4.Caption)];
+  CurrencyButton5.Hint := currency_names.Values[UpperCase(CurrencyButton5.Caption)];
+  CurrencyButton6.Hint := currency_names.Values[UpperCase(CurrencyButton6.Caption)];
+  CurrencyButton7.Hint := currency_names.Values[UpperCase(CurrencyButton7.Caption)];
+  CurrencyButton8.Hint := currency_names.Values[UpperCase(CurrencyButton8.Caption)];
+  if CurrencyButton1.Caption = fcurrency then
+  begin
+    CurrencyButton1.Down := True;
+    lastdown := CurrencyButton1;
+  end
+  else if CurrencyButton2.Caption = fcurrency then
+  begin
+    CurrencyButton2.Down := True;
+    lastdown := CurrencyButton2;
+  end
+  else if CurrencyButton3.Caption = fcurrency then
+  begin
+    CurrencyButton3.Down := True;
+    lastdown := CurrencyButton3;
+  end
+  else if CurrencyButton4.Caption = fcurrency then
+  begin
+    CurrencyButton4.Down := True;
+    lastdown := CurrencyButton4;
+  end
+  else if CurrencyButton5.Caption = fcurrency then
+  begin
+    CurrencyButton5.Down := True;
+    lastdown := CurrencyButton5;
+  end
+  else if CurrencyButton6.Caption = fcurrency then
+  begin
+    CurrencyButton6.Down := True;
+    lastdown := CurrencyButton6;
+  end
+  else if CurrencyButton7.Caption = fcurrency then
+  begin
+    CurrencyButton7.Down := True;
+    lastdown := CurrencyButton7;
+  end
+  else if CurrencyButton8.Caption = fcurrency then
+  begin
+    CurrencyButton8.Down := True;
+    lastdown := CurrencyButton8;
+  end
+  else if currency_names.IndexOfName(fcurrency) >= 0 then
+  begin
+    CurrencyButton9.Caption := '(' + fcurrency + ')';
+    CurrencyButton9.Down := True;
+    CurrencyButton9.Hint := currency_names.Values[fcurrency];
+    lastdown := CurrencyButton9;
+  end;
 end;
 
 procedure TDiagramForm.SpeedButton1Click(Sender: TObject);
@@ -1395,12 +1454,34 @@ begin
 end;
 
 procedure TDiagramForm.CurrencyButtonClick(Sender: TObject);
+var
+  cur, s: string;
 begin
   if Sender is TSpeedButton then
   begin
-    fcurrency := (Sender as TSpeedButton).Caption;
+    s := (Sender as TSpeedButton).Caption;
+    if (s = '...') or (Length(s) <> 3) then
+    begin
+      cur := strupper(optdefaultcurrency);
+      if Length(s) = 5 then
+        if s[1] = '(' then
+          if s[5] = ')' then
+            cur := strupper(s[2] + s[3] + s[4]);
+
+      if not SelectCurrency(cur) then
+      begin
+        lastdown.Down := True;
+        Exit;
+      end;
+      (Sender as TSpeedButton).Caption := '(' + cur + ')';
+      (Sender as TSpeedButton).Hint := currency_names.Values[cur];
+      fcurrency := cur;
+    end
+    else
+      fcurrency := (Sender as TSpeedButton).Caption;
     if Chart1.Tag <> 0 then
       DoMakeChart(Chart1.Tag);
+    lastdown := (Sender as TSpeedButton);
   end;
 end;
 
@@ -1408,6 +1489,11 @@ procedure TDiagramForm.FormKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key = #27 then
     Close;
+end;
+
+procedure TDiagramForm.FormDestroy(Sender: TObject);
+begin
+  optdefaultcurrency := fcurrency
 end;
 
 end.

@@ -99,6 +99,9 @@ type
 
   PDouble = ^Double;
 
+  string255 = string[255];
+  Pstring255 = ^string255;
+
 type
   charset_t = set of char;
 
@@ -568,6 +571,12 @@ type
   TString = class(TObject)
   public
     text: string;
+  end;
+
+  TStringInit = class(TObject)
+  public
+    text: string;
+    constructor Create(const s: string); virtual;
   end;
 
 function string2stringlist(const s: string; const c: char): TStringList;
@@ -3058,6 +3067,12 @@ end;
 procedure TCInteger.IncValue;
 begin
   inc(fvalue);
+end;
+
+constructor TStringInit.Create(const s: string);
+begin
+  Inherited Create;
+  text := s;
 end;
 
 function string2stringlist(const s: string; const c: char): TStringList;

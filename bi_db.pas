@@ -7383,7 +7383,7 @@ begin
   lst.Free;
   {$ENDIF}
 
-{  RemoveDoublesFromList1(basedefault + 'db\db_pieces.extra.txt');
+{  RemoveDoublesFromList1(basedefault + 'db\db_pieces_extra.txt');
   RemoveDoublesFromList2(basedefault + 'db\db_knownpieces.txt');}
 
   taskid := MT_ScheduleTask(@_task_fixknownpieces);
@@ -9522,7 +9522,7 @@ begin
 
   s := TStringList.Create;
   S_LoadFromFile(s, basedefault + 'db\db_pieces.txt');
-  fn := basedefault + 'db\db_pieces.extra.txt';
+  fn := basedefault + 'db\db_pieces_extra.txt';
   if fexists(fn) then
   begin
     sextra := TStringList.Create;
@@ -14060,9 +14060,9 @@ begin
       pi.desc := desc;
     end;
     stmp2 := TStringList.Create;
-    if fexists(basedefault + 'db\db_pieces.extra.txt') then
+    if fexists(basedefault + 'db\db_pieces_extra.txt') then
     begin
-      S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+      S_LoadFromFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
       RemoveBlancLines(stmp2);
     end;
     if checkname <> '' then
@@ -14085,9 +14085,9 @@ begin
     if stmp2.IndexOf(checkname) < 0 then
     begin
       stmp2.Add(spart + ',' + pi.desc);
-      S_BackupFile(basedefault + 'db\db_pieces.extra.txt');
+      S_BackupFile(basedefault + 'db\db_pieces_extra.txt');
       RemoveBlancLines(stmp2);
-      S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+      S_SaveToFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
     end;
     stmp2.Free;
   end;
@@ -14180,9 +14180,9 @@ begin
       pi.desc := desc;
     end;
     stmp2 := TStringList.Create;
-    if fexists(basedefault + 'db\db_pieces.extra.txt') then
+    if fexists(basedefault + 'db\db_pieces_extra.txt') then
     begin
-      S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+      S_LoadFromFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
       RemoveBlancLines(stmp2);
     end;
     if checkname <> '' then
@@ -14205,9 +14205,9 @@ begin
     if stmp2.IndexOf(checkname) < 0 then
     begin
       stmp2.Add(spart + ',' + pi.desc);
-      S_BackupFile(basedefault + 'db\db_pieces.extra.txt');
+      S_BackupFile(basedefault + 'db\db_pieces_extra.txt');
       RemoveBlancLines(stmp2);
-      S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+      S_SaveToFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
     end;
     stmp2.Free;
   end;
@@ -14499,15 +14499,15 @@ begin
   if doadd then
   begin
     stmp2 := TStringList.Create;
-    if fexists(basedefault + 'db\db_pieces.extra.txt') then
+    if fexists(basedefault + 'db\db_pieces_extra.txt') then
     begin
-      S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+      S_LoadFromFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
       RemoveBlancLines(stmp2);
     end;
     stmp2.Add(newname + ',' + pi.desc);
-    S_BackupFile(basedefault + 'db\db_pieces.extra.txt');
+    S_BackupFile(basedefault + 'db\db_pieces_extra.txt');
     RemoveBlancLines(stmp2);
-    S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+    S_SaveToFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
     stmp2.Free;
   end
   else
@@ -14539,10 +14539,10 @@ begin
         end;
     end;
     stmp2.Clear;
-    if fexists(basedefault + 'db\db_pieces.extra.txt') then
+    if fexists(basedefault + 'db\db_pieces_extra.txt') then
     begin
       dosave := False;
-      S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+      S_LoadFromFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
       RemoveBlancLines(stmp2);
       for i := 0 to stmp2.Count - 1 do
       begin
@@ -14555,9 +14555,9 @@ begin
       end;
       if dosave then
       begin
-        S_BackupFile(basedefault + 'db\db_pieces.extra.txt');
+        S_BackupFile(basedefault + 'db\db_pieces_extra.txt');
         RemoveBlancLines(stmp2);
-        S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+        S_SaveToFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
       end;
     end;
     stmp2.Clear;
@@ -15007,9 +15007,9 @@ begin
     if needssave then
     begin
       stmp2 := TStringList.Create;
-      if fexists(basedefault + 'db\db_pieces.extra.txt') then
+      if fexists(basedefault + 'db\db_pieces_extra.txt') then
       begin
-        S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+        S_LoadFromFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
         RemoveBlancLines(stmp2);
       end;
       if checkname <> '' then
@@ -15029,9 +15029,9 @@ begin
           stmp2.Delete(idx2);
       end;
       stmp2.Add(newname + ',' + pi.desc);
-      S_BackupFile(basedefault + 'db\db_pieces.extra.txt');
+      S_BackupFile(basedefault + 'db\db_pieces_extra.txt');
       RemoveBlancLines(stmp2);
-      S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+      S_SaveToFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
       stmp2.Free;
     end;
   end;
@@ -15501,9 +15501,9 @@ begin
                     pi.desc := newpartname;
                   end;
                   stmp2 := TStringList.Create;
-                  if fexists(basedefault + 'db\db_pieces.extra.txt') then
+                  if fexists(basedefault + 'db\db_pieces_extra.txt') then
                   begin
-                    S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+                    S_LoadFromFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
                     RemoveBlancLines(stmp2);
                   end;
                   if checkname <> '' then
@@ -15527,9 +15527,9 @@ begin
                     extra2.Add('BL ' + bl_part + ',' + 'BL ' + bl_scolor + ',' + pi.desc)
                   else
                     extra3.Add(bl_part + ',' + pi.desc);
-                  S_BackupFile(basedefault + 'db\db_pieces.extra.txt');
+                  S_BackupFile(basedefault + 'db\db_pieces_extra.txt');
                   RemoveBlancLines(stmp2);
-                  S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+                  S_SaveToFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
                   stmp2.Free;
                   RefreshPartCategory(bl_part);
                 end;
@@ -16097,9 +16097,9 @@ begin
                     pi.desc := newpartname;
                   end;
                   stmp2 := TStringList.Create;
-                  if fexists(basedefault + 'db\db_pieces.extra.txt') then
+                  if fexists(basedefault + 'db\db_pieces_extra.txt') then
                   begin
-                    S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+                    S_LoadFromFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
                     RemoveBlancLines(stmp2);
                   end;
                   if checkname <> '' then
@@ -16119,9 +16119,9 @@ begin
                       stmp2.Delete(idx2);
                   end;
                   stmp2.Add(bl_part + ',' + pi.desc);
-                  S_BackupFile(basedefault + 'db\db_pieces.extra.txt');
+                  S_BackupFile(basedefault + 'db\db_pieces_extra.txt');
                   RemoveBlancLines(stmp2);
-                  S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+                  S_SaveToFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
                   stmp2.Free;
                   RefreshPartCategory(bl_part);
                 end;
@@ -16400,15 +16400,15 @@ begin
               pi.lname := LowerCase(pi.name);
               idx := fpieces.AddObject(pi.name, pi);
               stmp2 := TStringList.Create;
-              if fexists(basedefault + 'db\db_pieces.extra.txt') then
+              if fexists(basedefault + 'db\db_pieces_extra.txt') then
               begin
-                S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+                S_LoadFromFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
                 RemoveBlancLines(stmp2);
               end;
               stmp2.Add(fpieces.Strings[idx] + ',' + (fpieces.Objects[idx] as TPieceInfo).desc);
-              S_BackupFile(basedefault + 'db\db_pieces.extra.txt');
+              S_BackupFile(basedefault + 'db\db_pieces_extra.txt');
               RemoveBlancLines(stmp2);
-              S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+              S_SaveToFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
               stmp2.Free;
             end;
           end;
@@ -16548,15 +16548,15 @@ begin
       fpieces.AddObject(spiece, pi);
       pci.pieceinfo := pi;
       stmp2 := TStringList.Create;
-      if fexists(basedefault + 'db\db_pieces.extra.txt') then
+      if fexists(basedefault + 'db\db_pieces_extra.txt') then
       begin
-        S_LoadFromFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+        S_LoadFromFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
         RemoveBlancLines(stmp2);
       end;
       stmp2.Add(spiece + ',' + spiece);
-      S_BackupFile(basedefault + 'db\db_pieces.extra.txt');
+      S_BackupFile(basedefault + 'db\db_pieces_extra.txt');
       RemoveBlancLines(stmp2);
-      S_SaveToFile(stmp2, basedefault + 'db\db_pieces.extra.txt');
+      S_SaveToFile(stmp2, basedefault + 'db\db_pieces_extra.txt');
       stmp2.Free;
     end;
   end;

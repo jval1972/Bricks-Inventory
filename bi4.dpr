@@ -123,7 +123,6 @@ uses
   bi_imagerotate in 'bi_imagerotate.pas',
   buildinexcludes in 'buildinexcludes.pas',
   bi_readylist in 'bi_readylist.pas',
-  bi_storage in 'bi_storage.pas',
   DitherUnit in 'DitherUnit.pas',
   FramBrwz in 'FramBrwz.pas',
   FramView in 'framview.pas',

@@ -411,7 +411,8 @@ begin
     Result := S_SaveToFile_disk(s, fname, maxretry, msecs);
     Exit;
   end;
-  f.list.Text := s.Text;
+  if f.list <> s then
+    f.list.Text := s.Text;
   inc(f.hits);
   if f.hits > MAXFSCACHEHITS then
     f.Flash;

@@ -997,6 +997,7 @@ type
     procedure MarkUnInventoriedPart(const pcs: string); overload;
     procedure MarkUnInventoriedPart(const pi: TPieceInfo; const pcs: string); overload;
     procedure LoadPieceCodes;
+    procedure LoadCurrencies;
     {$IFNDEF CRAWLER}
     procedure SavePieceCodes;
     {$ENDIF}
@@ -20008,6 +20009,61 @@ begin
     Result := 'P';
 end;
 
+procedure TSetsDatabase.LoadCurrencies;
+var
+  i: integer;
+  cname: string;
+  sstart, send: string;
+  yyyy, mm, dd: string;
+begin
+  fcurrencies := TCurrency.Create(basedefault + 'db\db_currency.txt');
+  fcurrencyconvert := TCurrencyConvert.Create('eur', basedefault + 'db\db_currencyconvert.txt');
+
+  if not fexists(basedefault + 'db\db_currencyconvert.txt') then
+  begin
+    // Unreachable code, since TCurrencyConvert.Create() will create the file
+    sstart := '20140101';
+    send := datetostring(Now);
+
+    while True do
+    begin
+      if sstart >= send then
+        break;
+      fcurrencyconvert.UpdateAllCurrenciesAt(stringtodate(sstart));
+      yyyy := sstart[1] + sstart[2] + sstart[3] + sstart[4];
+      mm := sstart[5] + sstart[6];
+      dd := sstart[7] + sstart[8];
+      if dd = '01' then
+        dd := '05'
+      else if dd = '05' then
+        dd := '10'
+      else if dd = '10' then
+        dd := '15'
+      else if dd = '15' then
+        dd := '20'
+      else if dd = '20' then
+        dd := '25'
+      else
+      begin
+        dd := '01';
+        mm := IntToStrzFill(2, atoi(mm) + 1);
+        if mm = '13' then
+        begin
+          mm := '01';
+          yyyy := itoa(atoi(yyyy) + 1);
+        end;
+      end;
+      sstart := yyyy + mm + dd;
+    end;
+  end;
+
+  for i := 0 to currency_names.Count - 1 do
+  begin
+    cname := strupper(currency_names.Names[i]);
+    fcurrencies.Update(cname, fcurrencyconvert.ConvertAt(cname, Now));
+  end;
+end;
+
 function TSetsDatabase.LoadFromDisk(const fname: string): boolean;
 var
   s: TStringList;
@@ -20034,8 +20090,8 @@ var
 {$ENDIF}
 begin
   AllowInternetAccess := False;
-  fcurrencies := TCurrency.Create(basedefault + 'db\db_currency.txt');
-  fcurrencyconvert := TCurrencyConvert.Create('eur', basedefault + 'db\db_currencyconvert.txt');
+
+  LoadCurrencies;
 
   InitSetReferences;
   LoadKnownPieces;

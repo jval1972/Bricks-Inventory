@@ -33,14 +33,20 @@ interface
 uses
   SysUtils, Classes;
 
+var
+  currency_names: TStringList;
+
 type
   TCurrency = class(TObject)
   private
+    ffilename: string;
     currencies: TStringList;
+    procedure DoSave;
   public
     constructor Create(const afile: string); virtual;
     destructor Destroy; override;
     function Convert(const cur: string): double;
+    procedure Update(const cur: string; const value: double);
   end;
 
 type
@@ -61,6 +67,7 @@ type
     A: currencyconvert_pa;
     fnumitems: integer;
     frealnumitems: integer;
+    allowgooglesearch: boolean;
   protected
     procedure Grow;
     procedure LoadFromFile;
@@ -70,20 +77,70 @@ type
     procedure Add(const scurrency: string; const ddate: TDateTime; const value: double); overload;
     function IndexOf(const scurrency: string; const sdate: string): integer; overload;
     function IndexOf(const scurrency: string; const ddate: TDateTime): integer; overload;
-    procedure InternetUpdateMD(const acurrency: string);
+    procedure InternetUpdateMD(const acurrency: string; const ddate: TDateTime);
   public
     constructor Create(const abasecurrencyname: string; const afilename: string); virtual;
     destructor Destroy; override;
-    procedure InternetUpdate(const acurrency: string);
+    procedure InternetUpdate(const acurrency: string; const ddate: TDateTime);
+    procedure UpdateAllCurrenciesAt(const ddate: TDateTime);
     function ConvertAt(const acurrency: string; const dd: TDateTime): double;
     property basecurrencyname: string read fbasecurrencyname write fbasecurrencyname;
     property filename: string read ffilename write ffilename;
   end;
 
+function stringtodate(const s: string): TDateTime;
+
+function datetostring(const dd: TDateTime): string;
+
 implementation
 
 uses
   bi_delphi, bi_db, bi_utils, DateUtils, StrUtils, UrlMon, bi_tmp, bi_cachefile;
+
+const
+  C_CURRENCY_NAMES =
+    'EUR=Euro'#13#10+
+    'USD=US Dollar'#13#10+
+    'RUB=Russian Ruble'#13#10+
+    'RON=Romanian Leu'#13#10+
+    'UAH=Ukraine Hryvnia'#13#10+
+    'AED=U.A.E. Dirham'#13#10+
+    'ALL=Albanian lek'#13#10+
+    'AMD=Armenian Dram'#13#10+
+    'AUD=Australian Dollar'#13#10+
+    'AZN=Azerbaijanian Manat'#13#10+
+    'BGN=Bulgarian Lev'#13#10+
+    'BYN=Belarussian Ruble'#13#10+
+    'CAD=Canadian Dollar'#13#10+
+    'CHF=Swiss Franc'#13#10+
+    'CNY=Chinese yuan renminbi'#13#10+
+    'CZK=Czech Koruna'#13#10+
+    'DKK=Danish Krone'#13#10+
+    'GBP=Pound Sterling'#13#10+
+    'GEL=Georgian Lar'#13#10+
+    'HKD=Hong Kong dollar'#13#10+
+    'HRK=Croatian Kuna'#13#10+
+    'HUF=Hungarian Forint'#13#10+
+    'ILS=Shekel Israelit'#13#10+
+    'INR=Indian rupee'#13#10+
+    'ISK=Iceland Krona'#13#10+
+    'JPY=Japanese Yen'#13#10+
+    'KGS=Kyrgyzstan Som'#13#10+
+    'KRW=South Korean won'#13#10+
+    'KWD=Kuwaiti Dinar'#13#10+
+    'KZT=Kazakhstan Tenge'#13#10+
+    'MKD=Macedonian denar'#13#10+
+    'MYR=Malaysian Ringgit'#13#10+
+    'NOK=Norwegian Krone'#13#10+
+    'NZD=New Zealand Dollar'#13#10+
+    'PLN=Polish Zloty'#13#10+
+    'RSD=Serbian Dinar'#13#10+
+    'SEK=Swedish Krona'#13#10+
+    'TJS=Tajikistan Somoni'#13#10+
+    'TMT=Turkmenistan Manat'#13#10+
+    'TRY=Turkish Lira'#13#10+
+    'UZS=Uzbekistan Sum'#13#10+
+    'XDR=Special Drawing Rights'#13#10;
 
 constructor TCurrency.Create(const afile: string);
 var
@@ -92,6 +149,7 @@ var
   s1, s2: string;
 begin
   currencies := TStringList.Create;
+  ffilename := afile;
   if fexists(afile) then
   begin
     s := TStringList.Create;
@@ -129,6 +187,39 @@ begin
     Result := (currencies.Objects[idx] as TDouble).value;
 end;
 
+procedure TCurrency.Update(const cur: string; const value: double);
+var
+  idx: integer;
+begin
+  idx := currencies.IndexOf(cur);
+  if idx < 0 then
+    currencies.AddObject(cur, TDouble.Create(value))
+  else if (currencies.Objects[idx] as TDouble).value <> value then
+    (currencies.Objects[idx] as TDouble).value := value
+  else
+    Exit;
+
+  DoSave;
+end;
+
+procedure TCurrency.DoSave;
+var
+  s: TStringList;
+  i: integer;
+begin
+  s := TStringList.Create;
+  try
+    s.Add('currency,euro');
+    for i := 0 to currencies.Count - 1 do
+      s.Add(currencies.Strings[i] + ',' + Format('%1.15f', [(currencies.Objects[i] as TDouble).value]));
+    backupfile(ffilename);
+    S_SaveToFile(s, ffilename);
+  finally
+    s.Free;
+  end;
+end;
+
+
 ////////////////////////////////////////////////////////////////////////////////
 function stringtodate(const s: string): TDateTime;
 var
@@ -154,26 +245,14 @@ end;
 constructor TCurrencyConvert.Create(const abasecurrencyname: string; const afilename: string);
 begin
   ffilename := afilename;
+  allowgooglesearch := false;
   fbasecurrencyname := UpperCase(abasecurrencyname);
   A := nil;
   fnumitems := 0;
   frealnumitems := 0;
   Inherited Create;
   LoadFromFile;
-  if IndexOf('USD', Now) < 0 then
-    InternetUpdate('USD');
-  if IndexOf('GBP', Now) < 0 then
-    InternetUpdate('GBP');
-  if IndexOf('CZK', Now) < 0 then
-    InternetUpdate('CZK');
-  if IndexOf('PLN', Now) < 0 then
-    InternetUpdate('PLN');
-  if IndexOf('CAD', Now) < 0 then
-    InternetUpdate('CAD');
-  if IndexOf('AUD', Now) < 0 then
-    InternetUpdate('AUD');
-  if IndexOf('HUF', Now) < 0 then
-    InternetUpdate('HUF');
+  UpdateAllCurrenciesAt(Now);
 end;
 
 destructor TCurrencyConvert.Destroy;
@@ -190,7 +269,22 @@ begin
   frealnumitems := 0;
 end;
 
-procedure TCurrencyConvert.InternetUpdate(const acurrency: string);
+procedure TCurrencyConvert.UpdateAllCurrenciesAt(const ddate: TDateTime);
+var
+  i: integer;
+  cname: string;
+begin
+  if ddate <> 0.0 then
+    for i := 0 to currency_names.Count - 1 do
+    begin
+      cname := strupper(currency_names.Names[i]);
+      if cname <> fbasecurrencyname then
+        if IndexOf(cname, ddate) < 0 then
+          InternetUpdate(cname, ddate);
+    end;
+end;
+
+procedure TCurrencyConvert.InternetUpdate(const acurrency: string; const ddate: TDateTime);
 var
   urlstr: string;
   ret: boolean;
@@ -201,12 +295,17 @@ var
   svalue: string;
   check: string;
 begin
-  urlstr := 'https://www.google.com/search?q=+' + LowerCase(acurrency) + '+to+' + LowerCase(fbasecurrencyname);
-  tmpname := I_NewTempFile('currency_' + acurrency + '_' + fbasecurrencyname + '_' + itoa(random(1000)) + '.html');
-  ret := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
+  if allowgooglesearch and (datetostring(ddate) = datetostring(Now)) then
+  begin
+    urlstr := 'https://www.google.com/search?q=+' + LowerCase(acurrency) + '+to+' + LowerCase(fbasecurrencyname);
+    tmpname := I_NewTempFile('currency_' + acurrency + '_' + fbasecurrencyname + '_' + itoa(random(1000)) + '.html');
+    ret := UrlDownloadToFile(nil, PChar(urlstr), PChar(tmpname), 0, nil) = 0;
+  end
+  else
+    ret := False;
   if not ret then
   begin
-    InternetUpdateMD(acurrency);
+    InternetUpdateMD(acurrency, ddate);
     Exit;
   end;
 
@@ -222,7 +321,7 @@ begin
       p := Pos(UpperCase(check), UpperCase(htm));
       if p < 1 then
       begin
-        InternetUpdateMD(acurrency);
+        InternetUpdateMD(acurrency, Now);
         Exit;
       end;
     end;
@@ -239,7 +338,7 @@ begin
   SaveToFile;
 end;
 
-procedure TCurrencyConvert.InternetUpdateMD(const acurrency: string);
+procedure TCurrencyConvert.InternetUpdateMD(const acurrency: string; const ddate: TDateTime);
 var
   spath: string;
   sdate: string;
@@ -259,7 +358,7 @@ begin
   if not DirectoryExists(basedefault + 'db\currency\') then
     ForceDirectories(basedefault + 'db\currency\');
 
-  sdate := FormatDateTime('dd.mm.yyyy', Now);
+  sdate := FormatDateTime('dd.mm.yyyy', ddate);
   spath := basedefault + 'db\currency\' + sdate + '.xml';
 
   if not fexists(spath) then
@@ -282,11 +381,13 @@ begin
     eur_value := -1.0;
     eur_nominal := -1;
 
-    idx := sl.IndexOf('<CharCode>EUR</CharCode>');
+    idx := sl.IndexOf('<CharCode>' + fbasecurrencyname + '</CharCode>');
     if idx >= 0 then
     begin
       for i := idx + 1 to idx + 7 do
       begin
+        if i = sl.Count then
+          Break;
         s := sl.Strings[i];
         if eur_value < 0 then
           if Pos1('<Value>', s) then
@@ -317,6 +418,8 @@ begin
       begin
         for i := idx + 1 to idx + 7 do
         begin
+          if i = sl.Count then
+            Break;
           s := sl.Strings[i];
           if cur_value < 0 then
             if Pos1('<Value>', s) then
@@ -340,7 +443,7 @@ begin
 
     if (cur_value > 0) and (cur_nominal > 0) and (eur_value > 0) and (eur_nominal > 0) then
     begin
-      Add(acurrency, Now, (cur_value / cur_nominal) / (eur_value / eur_nominal));
+      Add(acurrency, ddate, (cur_value / cur_nominal) / (eur_value / eur_nominal));
       SaveToFile;
     end;
 
@@ -555,5 +658,12 @@ function TCurrencyConvert.IndexOf(const scurrency: string; const ddate: TDateTim
 begin
   Result := IndexOf(scurrency, datetostring(ddate));
 end;
+
+initialization
+  currency_names := TStringList.Create;
+  currency_names.Text := C_CURRENCY_NAMES;
+
+finalization
+  currency_names.Free;
 
 end.

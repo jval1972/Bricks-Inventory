@@ -3,6 +3,9 @@ Bricks Inventory is a tool that helps you to manage your bricks inventory.
 History
 -------
 
+Lower memory utilization.
+Additional currencies.
+User notes for parts and sets.
 Does not allow parts with brickarm categories to be marked as minifigure.
 Speed and memory optimization in parts loading.
 Related pieces.

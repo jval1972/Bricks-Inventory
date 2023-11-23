@@ -13944,12 +13944,12 @@ begin
   else if Pos1('compare2sets/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
-    ShowCompare2Sets(s2, s3);
+    ShowCompare2Sets(Trim(s2), Trim(s3));
   end
   else if Pos1('common2sets/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
-    ShowCommon2Sets(s2, s3);
+    ShowCommon2Sets(Trim(s2), Trim(s3));
   end
   else if Pos1('setsIcanbuild/', slink) then
   begin

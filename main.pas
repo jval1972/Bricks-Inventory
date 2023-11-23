@@ -670,6 +670,7 @@ type
     thumbnailcache: array[0..127] of TStringList;
     thumbnailfilesexist: array[0..127] of TStringList;
     newtabUrl: string;
+    starttime: extended;
     function CheckAA(const AA, fromAA, toAA: integer): boolean;
     procedure Navigate(const akey: string; const pg: integer);
     procedure DrawColorCell(const cc: integer; const width: integer);
@@ -1074,6 +1075,7 @@ begin
 //  I_InitializeIO;
 //  I_InitTempFiles;
   I_Init;
+  starttime := I_GetSysTime;
   MT_Init;
   SplashForm := TSplashForm.Create(nil);
   lastset := '';
@@ -2801,6 +2803,7 @@ begin
 
   IdleTimer.Enabled := True;
 
+  printf('Loaded in %2.3f secs.'#13#10, [I_GetSysTime - starttime]);
 {  db.CrawlerPriorityPart('15714', 15);
   db.CrawlerPriorityPart('15714', 41);
   db.CrawlerPriorityPart('15714', 14);

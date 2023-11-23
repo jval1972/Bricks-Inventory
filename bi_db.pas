@@ -11447,7 +11447,6 @@ function TSetsDatabase.RefreshSet(const s: string; const lite: boolean = False):
 var
   inv: TBrickInventory;
   pci: TPieceColorInfo;
-  idx: integer;
   fn: string;
 begin
   Result := False;

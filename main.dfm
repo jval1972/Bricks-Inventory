@@ -998,6 +998,7 @@ object MainForm: TMainForm
     Top = 41
     object File1: TMenuItem
       Caption = 'File'
+      OnClick = File1Click
       object NewTab1: TMenuItem
         Caption = 'New Tab'
         OnClick = NewTab1Click
@@ -1103,6 +1104,7 @@ object MainForm: TMainForm
     end
     object Database1: TMenuItem
       Caption = 'Database'
+      OnClick = Database1Click
       object Set2: TMenuItem
         Caption = 'Edit Set'
         OnClick = Set2Click
@@ -1129,6 +1131,7 @@ object MainForm: TMainForm
     end
     object Queries1: TMenuItem
       Caption = 'Tools'
+      OnClick = Queries1Click
       object Update1: TMenuItem
         Caption = 'Update'
         object Sets3: TMenuItem
@@ -1963,6 +1966,7 @@ object MainForm: TMainForm
     end
     object Inventory1: TMenuItem
       Caption = 'Inventory'
+      OnClick = Inventory1Click
       object Mylooseparts1: TMenuItem
         Caption = 'My loose parts'
         OnClick = Mylooseparts1Click
@@ -2125,6 +2129,7 @@ object MainForm: TMainForm
     end
     object Help1: TMenuItem
       Caption = 'Help'
+      OnClick = Help1Click
       object About1: TMenuItem
         Caption = 'About'
         OnClick = About1Click

@@ -645,6 +645,11 @@ type
     procedure BricklinkandRebrickablenameconflicts1Click(Sender: TObject);
     procedure Pieceswithoutupdatethelast3years1Click(Sender: TObject);
     procedure AddressEditChange(Sender: TObject);
+    procedure File1Click(Sender: TObject);
+    procedure Database1Click(Sender: TObject);
+    procedure Queries1Click(Sender: TObject);
+    procedure Inventory1Click(Sender: TObject);
+    procedure Help1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -16320,6 +16325,7 @@ begin
   Showorderinformation1.Checked := dodraworderinfo;
   Multipagedisplay1.Checked := domultipagedocuments;
   UsemultipleCPUcores1.Checked := usemultithread;
+  activebits := 20000;
 end;
 
 procedure TMainForm.Showorderinformation1Click(Sender: TObject);
@@ -19679,6 +19685,7 @@ end;
 procedure TMainForm.Edit1Click(Sender: TObject);
 begin
   HtmlCopy1.Enabled := HTML.SelLength <> 0;
+  activebits := 20000;
 end;
 
 procedure TMainForm.HtmlFindClick(Sender: TObject);
@@ -19847,6 +19854,7 @@ begin
   N20191.Visible := fexists(basedefault + 'lugbulks\2019.txt');
   N20201.Visible := fexists(basedefault + 'lugbulks\2020.txt');
   N20211.Visible := fexists(basedefault + 'lugbulks\2021.txt');
+  activebits := 20000;
 end;
 
 procedure TMainForm.Setsbynumpieces1Click(Sender: TObject);
@@ -21692,6 +21700,31 @@ begin
     document.writefromfile(fname);
     document.write('</font></td></tr></table>');
   end;
+end;
+
+procedure TMainForm.File1Click(Sender: TObject);
+begin
+  activebits := 20000;
+end;
+
+procedure TMainForm.Database1Click(Sender: TObject);
+begin
+  activebits := 20000;
+end;
+
+procedure TMainForm.Queries1Click(Sender: TObject);
+begin
+  activebits := 20000;
+end;
+
+procedure TMainForm.Inventory1Click(Sender: TObject);
+begin
+  activebits := 20000;
+end;
+
+procedure TMainForm.Help1Click(Sender: TObject);
+begin
+  activebits := 20000;
 end;
 
 end.

@@ -9501,6 +9501,7 @@ var
   sCatalogs: TStringList;
   sp: TPieceInfo;
   {$IFNDEF CRAWLER}
+  sp1: TPieceInfo;
   sp2: TPieceInfo;
   {$ENDIF}
   stmp: string;
@@ -9512,6 +9513,36 @@ var
   fn: string;
 {  spart: string;
   idx: integer;}
+
+  function _keep_piece_name(const s1, s2: string): string;
+  var
+    x1, x2: integer;
+    i: integer;
+  begin
+    x1 := 0;
+    for i := 1 to Length(s1) do
+      if (Ord(s1[i]) >= Ord('A')) and (Ord(s1[i]) <= Ord('Z')) then
+        inc(x1);
+    x2 := 0;
+    for i := 1 to Length(s2) do
+      if (Ord(s2[i]) >= Ord('A')) and (Ord(s2[i]) <= Ord('Z')) then
+        inc(x2);
+    if x1 > x2 then
+      Result := s1
+    else
+      Result := s2;
+  end;
+
+  {$IFNDEF CRAWLER}
+  function _keep_desc_name(const s1, d1, d2: string): string;
+  begin
+    if Pos1(strupper(s1), strupper(d1)) then
+      Result := d2
+    else
+      Result := d1;
+  end;
+  {$ENDIF}
+
 begin
   fpieces := TStringList.Create;
   fpieceshash := THashTable.Create;
@@ -9745,6 +9776,21 @@ begin
     progressfunc('Removing Duplicated Keys...', 0.9);
   {$ENDIF}
 
+  for i := fpieces.Count - 1 downto 1 do
+    if AnsiCompareText(fpieces.Strings[i], fpieces.Strings[i - 1]) = 0 then
+    begin
+      fpieces.Strings[i - 1] := _keep_piece_name(fpieces.Strings[i], fpieces.Strings[i - 1]);
+      {$IFNDEF CRAWLER}
+      sp1 := fpieces.Objects[i] as TPieceInfo;
+      sp2 := fpieces.Objects[i - 1] as TPieceInfo;
+      sp2.desc := _keep_desc_name(fpieces.Strings[i - 1], sp1.desc, sp2.desc);
+      {$ENDIF}
+      fpieces.Strings[i] := fpieces.Strings[fpieces.Count - 1];
+      fpieces.Objects[i].Free;
+      fpieces.Objects[i] := fpieces.Objects[fpieces.Count - 1];
+      fpieces.Delete(fpieces.Count - 1);
+    end;
+(*
   {$IFNDEF CRAWLER}
   for i := fpieces.Count - 1 downto 1 do
     if fpieces.Strings[i] = fpieces.Strings[i - 1] then
@@ -9769,7 +9815,7 @@ begin
       fpieces.Delete(i);
     end;
   {$ENDIF}
-
+*)
   {$IFNDEF CRAWLER}
   if Assigned(progressfunc) then
     progressfunc('Processing...', 0.95);
@@ -9778,8 +9824,7 @@ begin
   for i := 0 to fpieces.Count - 1 do
   begin
     sp := (fpieces.Objects[i] as TPieceInfo);
-    s1 := sp.name;
-    fpieces.Strings[i] := s1;
+    sp.name := fpieces.Strings[i];
   end;
 
   {$IFNDEF CRAWLER}

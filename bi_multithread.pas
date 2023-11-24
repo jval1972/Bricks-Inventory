@@ -99,6 +99,8 @@ type
 
 function MT_ScheduleTask(const proc: PProcedure): integer;
 
+function MT_ExecuteTask(const proc: PProcedure): integer;
+
 procedure MT_ExecutePendingTask(const id: integer);
 
 procedure MT_ExecutePendingTasks;
@@ -665,6 +667,12 @@ begin
     end;
   proc;
   result := -1;
+end;
+
+function MT_ExecuteTask(const proc: PProcedure): integer;
+begin
+  Result := MT_ScheduleTask(proc);
+  MT_ExecutePendingTask(Result);
 end;
 
 procedure MT_ExecutePendingTask(const id: integer);

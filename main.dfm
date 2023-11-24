@@ -2104,6 +2104,10 @@ object MainForm: TMainForm
         Caption = 'Clear image cache'
         OnClick = Clearimagecache1Click
       end
+      object Clearthumbnailcache1: TMenuItem
+        Caption = 'Clear thumbnail cache'
+        OnClick = Clearthumbnailcache1Click
+      end
       object N28: TMenuItem
         Caption = '-'
       end

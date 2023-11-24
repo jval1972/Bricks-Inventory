@@ -391,6 +391,7 @@ type
     BricklinkandRebrickablenameconflicts1: TMenuItem;
     Pieceswithoutupdatethelast3years1: TMenuItem;
     Partswithdifferentcase1: TMenuItem;
+    Clearthumbnailcache1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -652,10 +653,12 @@ type
     procedure Inventory1Click(Sender: TObject);
     procedure Help1Click(Sender: TObject);
     procedure Partswithdifferentcase1Click(Sender: TObject);
+    procedure Clearthumbnailcache1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
     imagerequests: THashStringList;
+    thumbrequests: TStringList;
     initialized: boolean;
     document: TDocument;
     entries: TStringList;
@@ -1105,6 +1108,8 @@ begin
   end;
   streams := TStringList.Create;
   imagerequests := THashStringList.Create;
+  thumbrequests := TStringList.Create;
+  thumbrequests.Sorted := True;
   entries := TStringList.Create;
   entriesHash := THashTable.Create;
   goback := TStringList.Create;
@@ -2138,8 +2143,19 @@ begin
 
   if IsThumbImageLink(scheck) then
   begin
-    if not fexists(basedefault + scheck) then
-      ConvertThumbnailImageExCache(scheck);
+    if thumbrequests.IndexOf(basedefault + scheck) < 0 then
+    begin
+      if thumbrequests.Count > 1100 then
+      begin
+        thumbrequests.Sorted := False;
+        for i := 0 to 100 do
+          thumbrequests.Delete(Random(thumbrequests.Count));
+        thumbrequests.Sorted := True;
+      end;
+      thumbrequests.Add(basedefault + scheck);
+      if not fexists(basedefault + scheck) then
+        ConvertThumbnailImageExCache(scheck);
+    end;
     Exit;
   end;
 
@@ -2654,6 +2670,7 @@ begin
     streams.Objects[i].Free;
   streams.Free;
   imagerequests.Free;
+  thumbrequests.Free;
   for i := 0 to 127 do
     FreeList(thumbnailcache[i]);
   for i := 0 to 127 do
@@ -21840,6 +21857,11 @@ begin
     cmolds.Free;
     Screen.Cursor := crDefault;
   end;
+end;
+
+procedure TMainForm.Clearthumbnailcache1Click(Sender: TObject);
+begin
+  thumbrequests.Clear;
 end;
 
 end.

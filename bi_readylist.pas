@@ -131,7 +131,6 @@ end;
 function BI_QueryQtyFromReadyList(const part: string; const color: Integer; const rlname: string): integer;
 var
   inv: TBrickInventory;
-  oldqty: Integer;
 begin
   inv := BI_GetReadyListInv(rlname);
   if inv = nil then

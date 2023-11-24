@@ -21859,8 +21859,11 @@ begin
 end;
 
 procedure TMainForm.Clearthumbnailcache1Click(Sender: TObject);
+var
+  foo: boolean;
 begin
   thumbrequests.Clear;
+  HTMLClick('refresh', foo);
 end;
 
 end.

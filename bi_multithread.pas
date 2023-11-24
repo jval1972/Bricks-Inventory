@@ -647,7 +647,8 @@ var
   pt: Ptaskinfo_t;
 begin
   pt := p;
-  pt.proc;
+  if Assigned(pt.proc) then
+    pt.proc;
   result := pt.id;
   pt.id := -1;
   pt.proc := nil;

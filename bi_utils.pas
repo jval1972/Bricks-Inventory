@@ -221,6 +221,8 @@ type
 
 procedure FreeListContainer(var s: TStringListContainer);
 
+procedure FastStringListDeleteObj(const lst: TStringList; const idx: integer);
+
 implementation
 
 uses
@@ -2660,6 +2662,19 @@ begin
     end;
   FreeAndNil(s);
   s := nil;
+end;
+
+procedure FastStringListDeleteObj(const lst: TStringList; const idx: integer);
+begin
+  if idx = lst.Count - 1 then
+  begin
+    lst.Objects[idx].Free;
+    lst.Delete(idx);
+    Exit;
+  end;
+  lst.Objects[idx].Free;
+  lst.Objects[idx] := lst.Objects[lst.Count - 1];
+  lst.Strings[idx] := lst.Strings[lst.Count - 1];
 end;
 
 end.

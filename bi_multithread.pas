@@ -669,6 +669,8 @@ end;
 
 procedure MT_ExecutePendingTask(const id: integer);
 begin
+  if (id < 0) or (id >= NUMTASKTHREADS) then
+    exit;
   if Assigned(tasks[id].proc) then
     task_threads[id].Activate(_execute_task, @tasks[id]);
 end;

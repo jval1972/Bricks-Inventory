@@ -970,6 +970,7 @@ type
 //    fpciloader: TDThread;
 //    fpciloaderparams: fpciloaderparams_t;
     procedure InitColors;
+    procedure PrepareCategories;
     procedure InitCategories;
     procedure InitWeightTable;
     {$IFNDEF CRAWLER}
@@ -1015,6 +1016,9 @@ type
     function RemoveDoublesFromList2(const lst: TStringList): boolean; overload;
     function RemoveDoublesFromList2(const fname1: string): boolean; overload;
     procedure FixKnownPieces;
+    procedure FixPieces;
+    procedure FixBooks;
+    procedure FixCatalogs;
     procedure ClearRBResult;
   public
     progressfunc: progressfunc_t;
@@ -1307,8 +1311,13 @@ begin
         end;
 
   for i := k to Length(spart) do
-    if not (spart[i] in [' ', Chr(160), Chr($A0), #13, #10]) then
+  begin
+    if spart[i] in [' ', #0, Chr(160), Chr($A0), #13, #10] then
+    else if spart[i] = Chr(233) then
+      Result := Result + 'e'
+    else
       Result := Result + spart[i];
+  end;
 
   if Result = '6141' then
     Result := '4073'
@@ -1403,16 +1412,33 @@ begin
     else if Result = 'dupupn0008pr0005' then Result := 'dupupn08pr05'
     else if Result = 'dupupn0008pr0007' then Result := 'dupupn08pr07';
   end;
+  trimproc(Result);
 end;
 
-function fixdescname(const spart: string): string;
+function fixdescname(const sdesc: string): string;
 var
   i: integer;
+  ch: char;
 begin
   Result := '';
-  for i := 1 to Length(spart) do
-    if not (spart[i] in [Chr(160), Chr($A0), #13, #10]) then
-      Result := Result + spart[i];
+  for i := 1 to Length(sdesc) do
+  begin
+    ch := sdesc[i];
+    if ch in [Chr(160), Chr($A0), #13, #10] then
+    else if ch = ',' then
+    begin
+      if i < Length(sdesc) then
+      begin
+        if sdesc[i + 1] = ' ' then
+          Result := Result + ' -'
+        else
+          Result := Result + ' - '
+      end;
+    end
+    else
+      Result := Result + ch;
+  end;
+  trimproc(Result);
 end;
 
 {$IFNDEF CRAWLER}
@@ -7269,6 +7295,7 @@ var
   dosave: boolean;
   i: integer;
   spart, scolor, sdesc: string;
+  npart, ndesc: string;
   check: string;
   ts: TString;
 begin
@@ -7289,12 +7316,15 @@ begin
           for i := 1 to s.Count - 1 do
           begin
             splitstring(s.Strings[i], spart, scolor, sdesc, ',');
-            spart := fixpartname(spart);
-            check := UpperCase(spart + ',' + scolor);
-            if (Trim(spart) <> '') and (buf.IndexOf(check) < 0) then
+            npart := fixpartname(spart);
+            ndesc := fixdescname(sdesc);
+            check := UpperCase(npart + ',' + scolor);
+            if (Trim(npart) <> '') and (buf.IndexOf(check) < 0) then
             begin
               ts := TString.Create;
-              ts.text := s.Strings[i];
+              ts.text := npart + ',' + scolor + ',' + ndesc;
+              if (npart <> spart) or (ndesc <> sdesc) then
+                dosave := true;
               buf.AddObject(check, ts);
             end
             else
@@ -7319,6 +7349,165 @@ begin
       end;
   finally
     s.Free;
+  end;
+end;
+
+procedure TSetsDatabase.FixPieces;
+var
+  s: TStringList;
+  fn: string;
+  dosave: boolean;
+
+  procedure _fix_pieces_work;
+  var
+    i: integer;
+    spart, sdesc: string;
+    npart, ndesc: string;
+  begin
+    for i := 0 to s.Count - 1 do
+    begin
+      splitstring(s.Strings[i], spart, sdesc, ',');
+      npart := fixpartname(spart);
+      ndesc := fixdescname(sdesc);
+      if npart + ',' + ndesc <> s.Strings[i] then
+      begin
+        dosave := True;
+        s.Strings[i] := npart + ',' + ndesc;
+      end;
+    end;
+  end;
+
+begin
+  s := TStringList.Create;
+
+  fn := basedefault + 'db\db_pieces.txt';
+  if fexists(fn) then
+  begin
+    S_LoadFromFile(s, fn);
+    if s.Count > 0 then
+      if s.Strings[0] = 'piece_id,descr' then
+      begin
+        s.Delete(0);
+        dosave := false;
+        _fix_pieces_work;
+        if dosave then
+        begin
+          s.Insert(0, 'piece_id,descr');
+          S_BackupFile(fn);
+          S_SaveToFile(s, fn);
+        end;
+      end;
+  end;
+
+  s.Clear;
+
+  fn := basedefault + 'db\db_pieces_extra.txt';
+  if fexists(fn) then
+  begin
+    S_LoadFromFile(s, fn);
+    if s.Count > 0 then
+    begin
+      dosave := false;
+      _fix_pieces_work;
+      if dosave then
+      begin
+        S_BackupFile(fn);
+        S_SaveToFile(s, fn);
+      end;
+    end;
+  end;
+  s.Free;
+end;
+
+procedure TSetsDatabase.FixBooks;
+var
+  fn: string;
+  stmp: string;
+  spart, sdesc, syear: string;
+  npart, ndesc: string;
+  i: integer;
+  s: TStringList;
+  dosave: boolean;
+begin
+  fn := basedefault + 'db\db_books.txt';
+  if fexists(fn) then
+  begin
+    s := TStringList.Create;
+    try
+      S_LoadFromFile(s, fn);
+      if s.Count > 0 then
+      begin
+        stmp := s.Strings[0];
+        if Trim(stmp) = 'Number,Name,Year' then
+        begin
+          dosave := false;
+          for i := 1 to s.Count - 1 do
+          begin
+            splitstring(s.Strings[i], spart, sdesc, syear, ',');
+            npart := fixpartname(spart);
+            ndesc := fixdescname(sdesc);
+            if (npart <> spart) or (ndesc <> sdesc) then
+            begin
+              dosave := True;
+              s.Strings[i] := npart + ',' + ndesc + ',' + syear;
+            end;
+          end;
+          if dosave then
+          begin
+            S_BackupFile(fn);
+            S_SaveToFile(s, fn);
+          end;
+        end;
+      end;
+    finally
+      s.Free;
+    end;
+  end;
+end;
+
+procedure TSetsDatabase.FixCatalogs;
+var
+  fn: string;
+  stmp: string;
+  scat, spart, sdesc, syear, sweight: string;
+  npart, ndesc: string;
+  i: integer;
+  s: TStringList;
+  dosave: boolean;
+begin
+  fn := basedefault + 'db\db_catalogs.txt';
+  if fexists(fn) then
+  begin
+    s := TStringList.Create;
+    try
+      S_LoadFromFile(s, fn);
+      if s.Count > 0 then
+      begin
+        stmp := s.Strings[0];
+        if Trim(stmp) = 'Category,Number,Name,Year,Weight' then
+        begin
+          dosave := false;
+          for i := 1 to s.Count - 1 do
+          begin
+            splitstring(s.Strings[i], scat, spart, sdesc, syear, sweight, ',');
+            npart := fixpartname(spart);
+            ndesc := fixdescname(sdesc);
+            if (npart <> spart) or (ndesc <> sdesc) then
+            begin
+              dosave := True;
+              s.Strings[i] := scat + ',' + spart + ',' + sdesc + ',' + syear + ',' + sweight;
+            end;
+          end;
+          if dosave then
+          begin
+            S_BackupFile(fn);
+            S_SaveToFile(s, fn);
+          end;
+        end;
+      end;
+    finally
+      s.Free;
+    end;
   end;
 end;
 
@@ -7368,9 +7557,13 @@ begin
   lst.Free;
 end;
 {$ENDIF}
-procedure _task_fixknownpieces;
+
+procedure _task_fix;
 begin
   db.FixKnownPieces;
+  db.FixPieces;
+  db.FixBooks;
+  db.FixCatalogs;
 end;
 
 procedure TSetsDatabase.Load(const app: string = '');
@@ -7396,12 +7589,14 @@ begin
   PrecacheFiles;
   {$ENDIF}
 
-  taskid := MT_ExecuteTask(@_task_fixknownpieces);
+  taskid := MT_ExecuteTask(@_task_fix);
   LoadBinaryFiles;
   InitPiecesInventories;
-  MT_WaitTask(taskid);
   InitVariables;
   InitColors;
+  PrepareCategories;
+  LoadCurrencies;
+  MT_WaitTask(taskid);
   InitPieces;
   InitSets;
   InitBooks;
@@ -7410,7 +7605,6 @@ begin
   InitCategories;
   InitWeightTable;
   InitPartReferences;
-  LoadCurrencies;
   InitSetReferences;
   LoadKnownPieces;
   LoadAdditionalSets;
@@ -7775,19 +7969,13 @@ begin
   fpiececodes.Sorted := True;
 end;
 
-procedure TSetsDatabase.InitCategories;
+procedure TSetsDatabase.PrepareCategories;
 var
   sl: TStringList;
   s: string;
   s1, s2: string;
   idx: integer;
   i: integer;
-  pinf: TPieceInfo;
-  tmpcat: integer;
-  scat, spiece, sname, syear, sweight, sdim: string;
-  {$IFNDEF CRAWLER}
-  sdimx, sdimy, sdimz: string;
-  {$ENDIF}
   fn: string;
 begin
   MT_ZeroMemory(@fcategories, SizeOf(categoryinfoarray_t));
@@ -7818,7 +8006,22 @@ begin
         end;
     sl.Free;
   end;
+end;
 
+procedure TSetsDatabase.InitCategories;
+var
+  sl: TStringList;
+  s: string;
+  idx: integer;
+  i: integer;
+  pinf: TPieceInfo;
+  tmpcat: integer;
+  scat, spiece, sname, syear, sweight, sdim: string;
+  {$IFNDEF CRAWLER}
+  sdimx, sdimy, sdimz: string;
+  {$ENDIF}
+  fn: string;
+begin
   fn := basedefault + 'db\db_pieces_bl.txt';
   if fexists(fn) then
   begin
@@ -7900,7 +8103,6 @@ begin
         begin
           s := sl.Strings[i];
           splitstring(s, scat, spiece, sname, syear, sweight, ',');
-          spiece := fixpartname(spiece);
           spiece := RebrickablePart(spiece);
           idx := IndexOfString(fpieceshash, spiece);
           if idx < 0 then
@@ -8939,7 +9141,7 @@ begin
                 progressfunc(progressstring, (i / s.Count) / 2);
             stmp := Trim(s.Strings[i]);
             splitstring(stmp, s1, s2, s3, ',');
-            sbook := fixpartname(s1);
+            sbook := s1;
             idx := tmplist.IndexOf(sbook);
             if idx < 0 then
             begin
@@ -8984,7 +9186,7 @@ begin
               progressfunc(progressstring, (i / s.Count) / 2 + 0.5);
           stmp := Trim(s.Strings[i]);
           splitstring(stmp, s1, s2, s3, ',');
-          sbook := fixpartname(s1);
+          sbook := s1;
           fallbooks.Add(sbook);
           pi := PieceInfo(sbook);
           if pi <> nil then
@@ -8999,7 +9201,6 @@ begin
               yyyy := atoi(s3);
               pci.year := yyyy;
               {$ENDIF}
-
               if fColors[-1].knownpieces = nil then
                 fColors[-1].knownpieces := THashStringList.Create;
               fColors[-1].knownpieces.AddObject(sbook, pci);
@@ -9052,9 +9253,9 @@ begin
           if i mod 50 = 0 then
             if Assigned(progressfunc) then
               progressfunc(progressstring, i / s.Count);
-          stmp := Trim(s.Strings[i]);
+          stmp := s.Strings[i];
           splitstring(stmp, s1, s2, s3, s4, s5, ',');
-          scatalog := fixpartname(s2);
+          scatalog := s2;
           pi := PieceInfo(scatalog);
           if pi <> nil then
           begin
@@ -9632,8 +9833,6 @@ begin
           for i := 1 to sBooks.Count - 1 do
           begin
             splitstring(sBooks.Strings[i], s1, s2, s3, ',');
-            trimproc(s1);
-            trimproc(s2);
             s.Add(s1 + ',' + s2);
           end;
         end;
@@ -9662,8 +9861,6 @@ begin
           for i := 1 to sCatalogs.Count - 1 do
           begin
             splitstring(sCatalogs.Strings[i], s1, s2, s3, s4, ',');
-            trimproc(s2);
-            trimproc(s3);
             s.Add(s2 + ',' + s3);
           end;
         end;
@@ -9692,9 +9889,6 @@ begin
           for i := 1 to sKP.Count - 1 do
           begin
             splitstring(sKP.Strings[i], s1, s2, s3, ',');
-            trimproc(s1);
-            trimproc(s3);
-            // s1 := fixpartname(s1); was fixed in FixKnownPieces
             s.Add(s1 + ',' + s3);
             {$IFNDEF CRAWLER}
             if i mod 1000 = 0 then
@@ -9746,10 +9940,10 @@ begin
           if p > 0 then
           begin
             sp := TPieceInfo.Create;
-            sp.name := fixpartname(Trim(Copy(stmp, 1, p - 1)));
+            sp.name := Copy(stmp, 1, p - 1);
             sp.lname := LowerCase(sp.name);
             {$IFNDEF CRAWLER}
-            sp.desc := fixdescname(Trim(Copy(stmp, p + 1, Length(stmp) - p)));
+            sp.desc := Copy(stmp, p + 1, Length(stmp) - p);
             {$ENDIF}
             fpieces.AddObject(sp.name, sp);
           end;
@@ -9791,6 +9985,7 @@ begin
       sp1 := fpieces.Objects[i] as TPieceInfo;
       sp2 := fpieces.Objects[i - 1] as TPieceInfo;
       sp2.desc := _keep_desc_name(fpieces.Strings[i - 1], sp1.desc, sp2.desc);
+      sp2.name := fpieces.Strings[i - 1];
       {$ENDIF}
       fpieces.Strings[i] := fpieces.Strings[fpieces.Count - 1];
       fpieces.Objects[i].Free;
@@ -9803,11 +9998,11 @@ begin
     progressfunc('Processing...', 0.95);
   {$ENDIF}
 
-  for i := 0 to fpieces.Count - 1 do
+{  for i := 0 to fpieces.Count - 1 do
   begin
     sp := (fpieces.Objects[i] as TPieceInfo);
     sp.name := fpieces.Strings[i];
-  end;
+  end;}
 
   {$IFNDEF CRAWLER}
   if Assigned(progressfunc) then
@@ -14471,19 +14666,7 @@ var
 
 begin
   Result := False;
-  desc := '';
-  for i := 1 to Length(adesc) do
-  begin
-    if adesc[i] <> ',' then
-      desc := desc + adesc[i]
-    else
-    begin
-      if i < Length(adesc) then
-        if adesc[i + 1] = ' ' then
-          desc := desc + ' -';
-    end;
-  end;
-
+  desc := fixdescname(adesc);
   newname := fixpartname(spart);
   pi := PieceInfo(newname);
   if pi = nil then

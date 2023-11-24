@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2019 by Jim Valavanis
+//  Copyright (C) 2014-2023 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -162,11 +162,19 @@ begin
   for i := 0 to oo.ITEM.Count - 1 do
   begin
     ii := oo.ITEM.Items[i];
-    if ii.ITEMTYPE = 'P' then
+    if (ii.ITEMTYPE = 'P') or (ii.ITEMTYPE = 'G') or (ii.ITEMTYPE = 'B') then
       Result.AddLoosePart(db.RebrickablePart(ii.ITEMID), db.BrickLinkColorToSystemColor(ii.COLOR), ii.QTY)
     else if (ii.ITEMTYPE = 'S') or (ii.ITEMTYPE = 'M') then
+    begin
       for j := 0 to ii.QTY - 1 do
         Result.AddSet(db.RebrickablePart(ii.ITEMID), False);
+    end
+    else if ii.ITEMTYPE = 'C' then
+      Result.AddLoosePart(db.RebrickablePart(ii.ITEMID), CATALOGCOLORINDEX, ii.QTY)
+    else if ii.ITEMTYPE = 'I' then
+      Result.AddLoosePart(db.RebrickablePart(ii.ITEMID), INSTRUCTIONCOLORINDEX, ii.QTY)
+    else if ii.ITEMTYPE = 'O' then
+      Result.AddLoosePart(db.RebrickablePart(ii.ITEMID), BOXCOLORINDEX, ii.QTY)
   end;
 end;
 

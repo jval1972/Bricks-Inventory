@@ -2794,8 +2794,7 @@ begin
   db := TSetsDatabase.Create;
   progress_string := 'Loading database...';
   db.progressfunc := dbloadprogress;
-  db.InitCreate;
-  db.LoadFromDisk(basedefault + 'db\db_set_pieces.txt');
+  db.Load;
   inventory := TBrickInventory.Create;
   inventory.CreateExtentedHashTable;
   if fexists(basedefault + 'myparts.txt') then

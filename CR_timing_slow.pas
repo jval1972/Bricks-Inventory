@@ -63,8 +63,7 @@ begin
     Label1.Caption := crfile;
     Memo1.Lines.Clear;
     db := TSetsDatabase.Create;
-    db.InitCreate(crfile);
-    db.LoadFromDisk(basedefault + 'db\db_set_pieces.txt');
+    db.Load(crfile);
     crawling := false;
     cancrowl := true;
   end

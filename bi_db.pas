@@ -990,8 +990,14 @@ type
     procedure InitCatalogs;
     procedure InitGears;
     procedure InitPiecesInventories;
+    procedure InitColorPieces;
+    procedure LoadBinaryFiles;
+    procedure InitVariables;
     procedure InitSetReferences;
     procedure InitPartReferences;
+    procedure LoadAdditionalSets;
+    procedure LoadCrawler;
+    procedure LoadCache;
     procedure MarkInventoriedPart(const pcs: string); overload;
     procedure MarkInventoriedPart(const pi: TPieceInfo; const pcs: string); overload;
     procedure MarkUnInventoriedPart(const pcs: string); overload;
@@ -1000,6 +1006,7 @@ type
     procedure LoadCurrencies;
     {$IFNDEF CRAWLER}
     procedure SavePieceCodes;
+    procedure PrecacheFiles;
     {$ENDIF}
     function smallparsepartname(const p: string; const data: string): string;
     procedure TmpSaveCrawler;
@@ -1012,9 +1019,8 @@ type
   public
     progressfunc: progressfunc_t;
     constructor Create; virtual;
-    procedure InitCreate(const app: string = ''); virtual;
+    procedure Load(const app: string = ''); virtual;
     destructor Destroy; override;
-    function LoadFromDisk(const fname: string): boolean;
     procedure AddSetPiece(const setid: string; const part: string; const typ: string;
       const color: integer; const num: integer; const pci: TObject = nil;
       const invsize: integer = -1);
@@ -7324,34 +7330,12 @@ begin
   last_bl_result := '';
 end;
 
-procedure _task_fixknownpieces;
-begin
-  db.FixKnownPieces;
-end;
-
-procedure TSetsDatabase.InitCreate(const app: string = '');
-var
 {$IFNDEF CRAWLER}
+procedure TSetsDatabase.PrecacheFiles;
+var
   lst: TStringList;
   i: integer;
-{$ENDIF}
-  taskid: integer;
 begin
-//  fpciloaderparams.db := self;
-  if app = '' then
-    fcrawlerfilename := 'crawler.tmp'
-  else
-    fcrawlerfilename := app + '.tmp';
-  if not DirectoryExists(basedefault + 'cache') then
-    MkDir(basedefault + 'cache');
-  {$IFNDEF CRAWLER}
-  if not DirectoryExists(basedefault + 'storage') then
-    MkDir(basedefault + 'storage');
-  {$ENDIF}
-  if not DirectoryExists(basedefault + 'out\') then
-    MkDir(basedefault + 'out\');
-
-  {$IFNDEF CRAWLER}
   lst := TStringList.Create;
   lst.Add('db_books.txt');
   lst.Add('db_boxes.txt');
@@ -7382,43 +7366,41 @@ begin
   end;
 
   lst.Free;
+end;
+{$ENDIF}
+procedure _task_fixknownpieces;
+begin
+  db.FixKnownPieces;
+end;
+
+procedure TSetsDatabase.Load(const app: string = '');
+var
+  taskid: integer;
+begin
+  AllowInternetAccess := False;
+
+  if app = '' then
+    fcrawlerfilename := 'crawler.tmp'
+  else
+    fcrawlerfilename := app + '.tmp';
+  if not DirectoryExists(basedefault + 'cache') then
+    MkDir(basedefault + 'cache');
+  {$IFNDEF CRAWLER}
+  if not DirectoryExists(basedefault + 'storage') then
+    MkDir(basedefault + 'storage');
+  {$ENDIF}
+  if not DirectoryExists(basedefault + 'out\') then
+    MkDir(basedefault + 'out\');
+
+  {$IFNDEF CRAWLER}
+  PrecacheFiles;
   {$ENDIF}
 
-{  RemoveDoublesFromList1(basedefault + 'db\db_pieces_extra.txt');
-  RemoveDoublesFromList2(basedefault + 'db\db_knownpieces.txt');}
-
-  taskid := MT_ScheduleTask(@_task_fixknownpieces);
-  MT_ExecutePendingTask(taskid);
-//  FixKnownPieces;
-
-  fCacheDB := TCacheDB.Create(basedefault + 'cache\cache.db');
-  fbinarysets := TBinarySetCollection.Create(basedefault + 'db\sets1.db', basedefault + 'db\sets2.db', basedefault + 'db\sets3.db');
-  fbinaryparts := TBinaryPartCollection.Create(basedefault + 'db\parts.db');
-
+  taskid := MT_ExecuteTask(@_task_fixknownpieces);
+  LoadBinaryFiles;
   InitPiecesInventories;
-
   MT_WaitTask(taskid);
-
-  st_pciloads := 0;
-  st_pciloadscache := 0;
-
-  ZeroMemory(@fbricklinkcolortosystemcolor, SizeOf(fbricklinkcolortosystemcolor));
-  ZeroMemory(@frebrickablecolortosystemcolor, SizeOf(frebrickablecolortosystemcolor));
-
-  fstubpieceinfo := TPieceInfo.Create;
-  {$IFNDEF CRAWLER}
-  fstubpieceinfo.desc := '(Unknown)';
-  {$ENDIF}
-  floaded := False;
-  fallsets := THashStringList.Create;
-  fallbooks := THashStringList.Create;
-  fcolorpieces := TStringList.Create;
-  fcrawlerpriority := TStringList.Create;
-  fcrawlerhistory := TStringList.Create;
-  {$IFNDEF CRAWLER}
-  fstorage := TStringList.Create;
-  {$ENDIF}
-  fpiececodes := TStringList.Create;
+  InitVariables;
   InitColors;
   InitPieces;
   InitSets;
@@ -7428,7 +7410,32 @@ begin
   InitCategories;
   InitWeightTable;
   InitPartReferences;
-//  fpciloader := TDThread.Create(@fpciloaderworker);
+  LoadCurrencies;
+  InitSetReferences;
+  LoadKnownPieces;
+  LoadAdditionalSets;
+  InitColorPieces;
+  LoadCrawler;
+  LoadCache;
+  LoadPieceCodes;
+  {$IFNDEF CRAWLER}
+  LoadStorage;
+  RefreshAllSetsYears;
+  {$ENDIF}
+  RefreshAllSetsAssets;
+  InitPartTypes;
+  {$IFNDEF CRAWLER}
+  InitYearTable;
+  InitBaseMolds;
+  InitRelationShips;
+  InitTags;
+  InitLugBulksPieces;
+  InitPreferedLocations;
+  {$ENDIF}
+
+  AllowInternetAccess := True;
+  floaded := True;
+  fneedsidletime := True;
 end;
 
 {$IFNDEF CRAWLER}
@@ -7641,6 +7648,7 @@ begin
         if newcode = '' then
         begin
           fpiececodes.Delete(i);
+          ccode.Free;
           pci.code := '';
         end
         else
@@ -7762,10 +7770,7 @@ begin
   fpiececodes.Sort;
   for i := fpiececodes.Count - 1 downto 1 do
     if fpiececodes.Strings[i] = fpiececodes.Strings[i - 1] then
-    begin
-      fpiececodes.Objects[i].Free;
-      fpiececodes.Delete(i);
-    end;
+      FastStringListDeleteObj(fpiececodes, i);
 
   fpiececodes.Sorted := True;
 end;
@@ -7847,10 +7852,7 @@ begin
             {$ENDIF}
             idx := StrToIntDef(scat, 0);
             if (idx >= 0) and (idx < MAXCATEGORIES) then
-            begin
               pinf.category := idx;
-//              fcategories[idx].knownpieces.AddObject(pinf.name, pinf);
-            end;
           end;
         end;
     sl.Free;
@@ -7880,13 +7882,7 @@ begin
             begin
               tmpcat := pinf.category;
               if tmpcat <> idx then
-              begin
                 pinf.category := idx;
-//                fcategories[idx].knownpieces.AddObject(pinf.name, pinf);
-//                idx := fcategories[oldcat].knownpieces.IndexOf(pinf.name);
-//                if idx >= oldcat then
-//                  fcategories[oldcat].knownpieces.Delete(idx);
-              end;
             end;
           end;
         end;
@@ -7916,13 +7912,7 @@ begin
             begin
               idx := StrToIntDef(scat, 0);
               if (idx >= 0) and (idx < MAXCATEGORIES) then
-              begin
                 pinf.category := idx;
-//                fcategories[idx].knownpieces.AddObject(pinf.name, pinf);
-//                idx := fcategories[0].knownpieces.IndexOf(pinf.name);
-//                if idx >= 0 then
-//                  fcategories[0].knownpieces.Delete(idx);
-              end;
             end;
           end;
         end;
@@ -9322,6 +9312,37 @@ begin
 end;
 {$ENDIF}
 
+procedure TSetsDatabase.LoadBinaryFiles;
+begin
+  fCacheDB := TCacheDB.Create(basedefault + 'cache\cache.db');
+  fbinarysets := TBinarySetCollection.Create(basedefault + 'db\sets1.db', basedefault + 'db\sets2.db', basedefault + 'db\sets3.db');
+  fbinaryparts := TBinaryPartCollection.Create(basedefault + 'db\parts.db');
+end;
+
+procedure TSetsDatabase.InitVariables;
+begin
+  st_pciloads := 0;
+  st_pciloadscache := 0;
+
+  ZeroMemory(@fbricklinkcolortosystemcolor, SizeOf(fbricklinkcolortosystemcolor));
+  ZeroMemory(@frebrickablecolortosystemcolor, SizeOf(frebrickablecolortosystemcolor));
+
+  fstubpieceinfo := TPieceInfo.Create;
+  {$IFNDEF CRAWLER}
+  fstubpieceinfo.desc := '(Unknown)';
+  {$ENDIF}
+  floaded := False;
+  fallsets := THashStringList.Create;
+  fallbooks := THashStringList.Create;
+  fcolorpieces := TStringList.Create;
+  fcrawlerpriority := TStringList.Create;
+  fcrawlerhistory := TStringList.Create;
+  {$IFNDEF CRAWLER}
+  fstorage := TStringList.Create;
+  {$ENDIF}
+  fpiececodes := TStringList.Create;
+end;
+
 procedure TSetsDatabase.InitPiecesInventories;
 var
   stmp: TStringList;
@@ -9750,20 +9771,6 @@ begin
   {$ENDIF}
 
   InitNewNames;
-  // Remove duplicates
-{  for i := 0 to fpieces.Count - 1 do
-  begin
-    spart := LowerCase(fixpartname(fpieces.Strings[i]));
-    idx := fpiecesaliasBL.IndexOfUCS(spart);
-    if idx >= 0 then
-    begin
-      spart := (fpiecesaliasBL.Objects[idx] as TString).text;
-      (fpieces.Objects[i] as TPieceInfo).name := spart;
-      (fpieces.Objects[i] as TPieceInfo).lname := LowerCase(spart);
-      spart := LowerCase(fixpartname(spart));
-    end;
-    fpieces.Strings[i] := spart;
-  end;     }
 
   {$IFNDEF CRAWLER}
   if Assigned(progressfunc) then
@@ -9790,32 +9797,7 @@ begin
       fpieces.Objects[i] := fpieces.Objects[fpieces.Count - 1];
       fpieces.Delete(fpieces.Count - 1);
     end;
-(*
-  {$IFNDEF CRAWLER}
-  for i := fpieces.Count - 1 downto 1 do
-    if fpieces.Strings[i] = fpieces.Strings[i - 1] then
-    begin
-      sp2 := fpieces.Objects[i - 1] as TPieceInfo;
-      if Pos1(sp2.name, sp2.desc) then
-      begin
-        fpieces.Objects[i - 1].Free;
-        fpieces.Delete(i - 1);
-      end
-      else
-      begin
-        fpieces.Objects[i].Free;
-        fpieces.Delete(i);
-      end;
-    end;
-  {$ELSE}
-  for i := fpieces.Count - 1 downto 1 do
-    if fpieces.Strings[i] = fpieces.Strings[i - 1] then
-    begin
-      fpieces.Objects[i].Free;
-      fpieces.Delete(i);
-    end;
-  {$ENDIF}
-*)
+
   {$IFNDEF CRAWLER}
   if Assigned(progressfunc) then
     progressfunc('Processing...', 0.95);
@@ -14263,7 +14245,7 @@ end;
 {$IFNDEF CRAWLER}
 function TSetsDatabase.UpdateNameFromRebrickable(const pid: string): boolean;
 begin
-  if Pos('-', pid) > 0 then
+  if CharPos('-', pid) > 0 then
   begin
     Result := UpdateSetNameFromRebrickable(pid);
     if not Result then
@@ -20109,14 +20091,12 @@ begin
   end;
 end;
 
-function TSetsDatabase.LoadFromDisk(const fname: string): boolean;
+procedure TSetsDatabase.LoadAdditionalSets;
 var
+  fname: string;
   s: TStringList;
-  kp: THashStringList;
-  i, j, tot: integer;
+  i: integer;
   sset, snum, spiece, scolor, stype: string[255];
-  sitemcheck: string[255];
-  sc, sp: string;
   npieces: integer;
   cc: integer;
   pci: TPieceColorInfo;
@@ -20126,28 +20106,17 @@ var
   prosets: TStringList;
   lastignoredset: string;
   sout: TStringList;
-  lsets1, lsets2: TStringList;
-  lparts1, lparts2: TStringList;
-  stmp: string;
-  oldname, newname: string;
+  progressstring: string;
 {$IFNDEF CRAWLER}
   lyear: integer;
 {$ENDIF}
 begin
-  AllowInternetAccess := False;
-
-  LoadCurrencies;
-
-  InitSetReferences;
-  LoadKnownPieces;
-
   s := TStringList.Create;
+  fname := basedefault + 'db\db_set_pieces.txt';
   S_LoadFromFile(s, fname);
   if s.Count = 0 then
   begin
     s.Free;
-    Result := False;
-    AllowInternetAccess := True;
     Exit;
   end;
 
@@ -20155,16 +20124,15 @@ begin
     if s.Strings[0] <> 'set_num,part_num,quantity,color_id,type' then
     begin
       s.Free;
-      Result := False;
-      AllowInternetAccess := True;
       Exit;
     end;
 
   sout := TStringList.Create;
   sout.Add('set_id,piece_id,num,color,type');
 
+  progressstring := 'Loading additional sets...';
   if Assigned(progressfunc) then
-    progressfunc('Loading database...', 0.0);
+    progressfunc(progressstring, 0.0);
 
   prosets := TStringList.Create;
   prosets.AddStrings(fallsets);
@@ -20177,7 +20145,7 @@ begin
   begin
     if i mod 500 = 0 then
       if Assigned(progressfunc) then
-        progressfunc('Loading database...', i / s.Count);
+        progressfunc(progressstring, i / s.Count);
       ss := s.strings[i];
       len := Length(ss);
       sset := '';
@@ -20284,9 +20252,6 @@ begin
       AddSetPiece(sset, spiece, stype, cc, npieces); // ? remove ?
   end;
 
-  if Assigned(progressfunc) then
-    progressfunc('Loading database...', 1.0);
-
   if sout.Count <> s.Count + 1 then
   begin
     S_BackupFile(fname);
@@ -20294,7 +20259,18 @@ begin
   end;
   sout.Free;
   s.Free;
+  prosets.Free;
 
+  if Assigned(progressfunc) then
+    progressfunc(progressstring, 1.0);
+end;
+
+procedure TSetsDatabase.InitColorPieces;
+var
+  i, j: integer;
+  kp: THashStringList;
+  scolor: string;
+begin
   for i := -1 to MAXINFOCOLOR - 1 do
   begin
     kp := fcolors[i].knownpieces;
@@ -20303,8 +20279,7 @@ begin
       if i = -1 then
       begin
         for j := 0 to kp.Count - 1 do
-//          if not IsMoc(kp.Strings[j]) then
-            fcolorpieces.AddObject('-1,' + kp.Strings[j], kp.Objects[j]);
+          fcolorpieces.AddObject('-1,' + kp.Strings[j], kp.Objects[j]);
       end
       else
       begin
@@ -20314,9 +20289,22 @@ begin
       end;
     end;
   end;
+end;
 
-  prosets.Free;
-
+procedure TSetsDatabase.LoadCrawler;
+var
+  i, j: integer;
+  cc: integer;
+  kp: THashStringList;
+  spiece, sitemcheck: string[255];
+  sc, sp: string;
+  idx: integer;
+  pci: TPieceColorInfo;
+  lparts1, lparts2: TStringList;
+  lsets1, lsets2: TStringList;
+  oldname, newname: string;
+  stmp: string;
+begin
   fcolorpieces.Sorted := True;
 
   kp := fcolors[MAXINFOCOLOR].knownpieces;
@@ -20403,9 +20391,13 @@ begin
       lsets2.Free;
     end;
   end;
+end;
 
-//  fpciloader.Activate(@fpciloaderparams);
-
+procedure TSetsDatabase.LoadCache;
+var
+  i, k, j, tot: integer;
+  kp: THashStringList;
+begin
   if Assigned(progressfunc) then
     progressfunc('Loading cache...', 0.0);
   tot := 0;
@@ -20427,8 +20419,6 @@ begin
             if j mod 1000 = 999 then
               progressfunc('Loading cache...', (k + j) / tot);
           (kp.Objects[j] as TPieceColorInfo).Load;
-{          if not (kp.Objects[j] as TPieceColorInfo).cacheread then
-            (kp.Objects[j] as TPieceColorInfo).DoSaveToDisk;}
         end;
         inc(k, kp.Count);
         if Assigned(progressfunc) then
@@ -20437,33 +20427,6 @@ begin
     end;
   if Assigned(progressfunc) then
     progressfunc('Loading cache...', 1.0);
-
-  LoadPieceCodes;
-
-  {$IFNDEF CRAWLER}
-  LoadStorage;
-  {$ENDIF}
-
-  {$IFNDEF CRAWLER}
-  RefreshAllSetsYears;
-  {$ENDIF}
-
-  RefreshAllSetsAssets;
-  InitPartTypes;
-
-  {$IFNDEF CRAWLER}
-  InitYearTable;
-  InitBaseMolds;
-  InitRelationShips;
-  InitTags;
-  InitLugBulksPieces;
-  InitPreferedLocations;
-  {$ENDIF}
-
-  Result := True;
-  AllowInternetAccess := True;
-  floaded := True;
-  fneedsidletime := True;
 end;
 
 var

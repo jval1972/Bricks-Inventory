@@ -99,8 +99,7 @@ begin
     Memo1.Lines.Clear;
     Memo2.Lines.Clear;
     db := TSetsDatabase.Create;
-    db.InitCreate(crfile);
-    db.LoadFromDisk(basedefault + 'db\db_set_pieces.txt');
+    db.Load(crfile);
     crawling := false;
     cancrowl := true;
     Edit3.Text := IntToStr(db.crawlerpriority.Count);

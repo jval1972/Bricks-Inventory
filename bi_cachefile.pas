@@ -445,7 +445,6 @@ end;
 function S_GetStringList(const fname: string; const fsorted: boolean; const maxretry: integer = 10; const msecs: integer = 100): TStringList;
 var
   f: TFSList;
-  ret: boolean;
 begin
   f := S_GetFSList(fname);
   if f = nil then

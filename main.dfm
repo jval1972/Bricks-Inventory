@@ -1759,6 +1759,10 @@ object MainForm: TMainForm
           Caption = 'Bricklink and Rebrickable name conflicts'
           OnClick = BricklinkandRebrickablenameconflicts1Click
         end
+        object Partswithdifferentcase1: TMenuItem
+          Caption = 'Parts with case conflicts'
+          OnClick = Partswithdifferentcase1Click
+        end
       end
     end
     object LugBulks1: TMenuItem

@@ -390,6 +390,7 @@ type
     Internalchecks1: TMenuItem;
     BricklinkandRebrickablenameconflicts1: TMenuItem;
     Pieceswithoutupdatethelast3years1: TMenuItem;
+    Partswithdifferentcase1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -650,6 +651,7 @@ type
     procedure Queries1Click(Sender: TObject);
     procedure Inventory1Click(Sender: TObject);
     procedure Help1Click(Sender: TObject);
+    procedure Partswithdifferentcase1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -810,6 +812,7 @@ type
     procedure ShowLengthQuerySlopes(const id: string);
     procedure ShowDimentionsQuery(const id: string);
     procedure ShowBricklinkandRebrickablenameconflicts;
+    procedure ShowPiecesCaseconflicts;
     procedure DrawNavigateBar;
     procedure DrawNavigateCatalog;
     procedure DrawHeadLine(const s: string);
@@ -14044,6 +14047,10 @@ begin
   begin
     ShowBricklinkandRebrickablenameconflicts;
   end
+  else if slink = 'ShowPiecesCaseconflicts' then
+  begin
+    ShowPiecesCaseconflicts;
+  end
   else
     Handled := False;
 
@@ -21728,6 +21735,111 @@ end;
 procedure TMainForm.Help1Click(Sender: TObject);
 begin
   activebits := 20000;
+end;
+
+procedure TMainForm.Partswithdifferentcase1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('ShowPiecesCaseconflicts', foo);
+end;
+
+type
+  CaseConflictsParams_t = record
+    start, stop: integer;
+    list: TStringList;
+  end;
+  CaseConflictsParams_p = ^CaseConflictsParams_t;
+
+function CaseConflicts_thr(p: pointer): integer; stdcall;
+var
+  parms: CaseConflictsParams_p;
+  i: integer;
+  part1, part2: string;
+begin
+  parms := p;
+  for i := parms.start downto parms.stop do
+  begin
+    part1 := db.AllPieces.Strings[i];
+    part2 := db.AllPieces.Strings[i - 1];
+    if strupper(part1) = strupper(part2) then
+      parms.list.Add(part1 + ',' + part2);
+  end;
+  Result := 1;
+end;
+
+procedure TMainForm.ShowPiecesCaseconflicts;
+var
+  cmolds: TStringList;
+  cmolds2: TStringList;
+  cmolds3: TStringList;
+  cmolds4: TStringList;
+  params1: CaseConflictsParams_t;
+  params2: CaseConflictsParams_t;
+  params3: CaseConflictsParams_t;
+  params4: CaseConflictsParams_t;
+  cnt: integer;
+  tit: string;
+  step: integer;
+begin
+  Screen.Cursor := crHourglass;
+  cmolds := TStringList.Create;
+  try
+    cnt := db.AllPieces.Count;
+    if usemultithread and (cnt > 127) then
+    begin
+      cmolds2 := TStringList.Create;
+      cmolds3 := TStringList.Create;
+      cmolds4 := TStringList.Create;
+
+      step := cnt div 4;
+
+      params1.start := step;
+      params1.stop := 1;
+      params1.list := cmolds;
+
+      params2.start := params1.start + step;
+      params2.stop := params1.start + 1;
+      params2.list := cmolds2;
+
+      params3.start := params2.start + step;
+      params3.stop := params2.start + 1;
+      params3.list := cmolds3;
+
+      params4.start := cnt - 1;
+      params4.stop := params3.start + 1;
+      params4.list := cmolds4;
+
+      MT_Execute(
+        @CaseConflicts_thr, @params1,
+        @CaseConflicts_thr, @params2,
+        @CaseConflicts_thr, @params3,
+        @CaseConflicts_thr, @params4);
+
+      cmolds.AddStrings(cmolds2);
+      cmolds.AddStrings(cmolds3);
+      cmolds.AddStrings(cmolds4);
+
+      cmolds2.Free;
+      cmolds3.Free;
+      cmolds4.Free;
+    end
+    else
+    begin
+      params1.start := cnt - 1;
+      params1.stop := 1;
+      params1.list := cmolds;
+      BLRBConflicts_thr(@params1);
+    end;
+
+    cmolds.Sort;
+    tit := 'Case conflicts';
+    DrawMoldList2(tit, cmolds, False, False, 'Case conflict', tit);
+
+  finally
+    cmolds.Free;
+    Screen.Cursor := crDefault;
+  end;
 end;
 
 end.

@@ -4755,10 +4755,11 @@ begin
     brick := Pointer(StrToInt(lst.Strings[i]));
     scolor := itoa(brick.Color);
     num := num + brick.num;
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' +
-      IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br><b>');
+    lalt := lst.Objects[i] as TStringList;
+    document.write('<tr bgcolor=' + TBGCOLOR + '><td rowspan="' + itoa(lalt.Count) + '" width=5% align=right>' +
+      IntToStr(aa) + '.</td><td rowspan="' + itoa(lalt.Count) + '" width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br><b>');
     document.write('<a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
-    document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=20%>');
+    document.write(' - ' + db.PieceDesc(brick.part) + '</td><td rowspan="' + itoa(lalt.Count) + '" width=20%>');
     DrawColorCell(brick.color, 25);
 
     pci := db.PieceColorInfo(brick);
@@ -4778,16 +4779,15 @@ begin
           HtmlDrawInvImgLink(brick.part, brick.color, pi) +
           HtmlDrawSetMostLink(pci));
 
-    document.write('<td width=10% align=right>' + IntToStr(brick.num));
+    document.write('<td rowspan="' + itoa(lalt.Count) + '" width=10% align=right>' + IntToStr(brick.num));
     document.write('<br><a href=editpiece/' + brick.part + '/' + scolor + '><img src="images\edit.png"></a>');
     document.write('<br><a href=diagrampiece/' + brick.part + '/' + scolor + '><img src="images\diagram.png"></a>');
     document.write('</td>');
 
-    lalt := lst.Objects[i] as TStringList;
     for j := 0 to lalt.Count - 1 do
     begin
       if j <> 0 then
-        document.write('<tr><td colspan="4"></td>');
+        document.write('<tr>');
       document.write('<td width=35%>');
       salt := lalt.Strings[j];
       document.write(

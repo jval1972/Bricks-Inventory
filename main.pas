@@ -392,6 +392,8 @@ type
     Pieceswithoutupdatethelast3years1: TMenuItem;
     Partswithdifferentcase1: TMenuItem;
     Clearthumbnailcache1: TMenuItem;
+    RelatedAlternatepieces1: TMenuItem;
+    N61: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -654,6 +656,7 @@ type
     procedure Help1Click(Sender: TObject);
     procedure Partswithdifferentcase1Click(Sender: TObject);
     procedure Clearthumbnailcache1Click(Sender: TObject);
+    procedure RelatedAlternatepieces1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -691,6 +694,8 @@ type
     procedure ShowLooseParts(inv: TBrickInventory; colormask: Integer = -1; partmask: string = ''; cat: Integer = -1;
       const fromAA: integer = -1; const toAA: integer = MAXINT);
     procedure ShowSetInventory(const setid: string; const lite: Boolean = False);
+    procedure ShowInventoryRelatedPieces(const inv: TBrickInventory; const tit, headline: string);
+    procedure ShowMyInventoryRelatedPieces;
     procedure ShowSetPartsStorage(const setid: string; const ppreview: boolean);
     procedure DrawInventoryPartsStorage(const psinv: TBrickInventory; const ppreview: boolean);
     procedure PreviewInventoryTable(inv: TBrickInventory);
@@ -4664,6 +4669,165 @@ begin
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   Screen.Cursor := crDefault;
+end;
+
+procedure TMainForm.ShowInventoryRelatedPieces(const inv: TBrickInventory; const tit, headline: string);
+var
+  i, j: integer;
+  lst, lalt, dbalt: TStringList;
+  cc: colorinfo_p;
+  pi: TPieceInfo;
+  pci: TPieceColorInfo;
+  aa, num: integer;
+  brick: brickpool_p;
+  scolor: string;
+  salt: string;
+begin
+  Screen.Cursor := crHourGlass;
+
+  SplashProgress('Working...', 0.0);
+
+  document.write('<body background="splash.jpg">');
+  document.title(tit);
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+
+  DrawHeadLine(headline);
+
+  SortInventory(inv);
+
+  SplashProgress('Working...', 0.1);
+
+  lst := TStringList.Create;
+
+  for i := 0 to inv.numlooseparts - 1 do
+  begin
+    brick := @inv.looseparts[i];
+    pci := db.PieceColorInfo(brick);
+    if pci <> nil then
+    begin
+      dbalt := db.GetRelatedPieces(brick.part);
+      if dbalt.Count > 0 then
+      begin
+        cc := db.Colors(pci.color);
+        lalt := TStringList.Create;
+        for j := 0 to dbalt.Count - 1 do
+        begin
+          salt := dbalt.Strings[j];
+          if salt <> brick.part then
+            if cc.knownpieces.IndexOf(salt) > 0 then
+              lalt.Add(dbalt.Strings[j]);
+        end;
+        if lalt.Count > 0 then
+          lst.AddObject(IntToStr(integer(brick)), lalt)
+        else
+          lalt.Free;
+      end;
+      dbalt.Free;
+    end;
+  end;
+
+  SplashProgress('Working...', 0.2);
+
+////////////////////////////////////////////////////////////////////////////////
+  if domultipagedocuments then
+    document.NewMultiPageDocument('ShowInventoryRelatedPieces' + tit + headline, lst.Text);
+
+  document.StartNavigateSection;
+
+  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+  document.write('<tr bgcolor=' + THBGCOLOR + '>');
+  document.write('<th><b>#</b></th>');
+  document.write('<th><b>Part</b></th>');
+  document.write('<th>Color</th>');
+  document.write('<th>Num pieces</th>');
+  document.write('<th>Related pieces</th>');
+  document.write('<th>Num related pieces</th>');
+  document.write('</tr>');
+
+  aa := 0;
+  num := 0;
+  for i := 0 to lst.Count - 1 do
+  begin
+    inc(aa);
+    document.StartItemId(aa);
+    brick := Pointer(StrToInt(lst.Strings[i]));
+    scolor := itoa(brick.Color);
+    num := num + brick.num;
+    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' +
+      IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br><b>');
+    document.write('<a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
+    document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=20%>');
+    DrawColorCell(brick.color, 25);
+
+    pci := db.PieceColorInfo(brick);
+    pi := db.PieceInfo(pci);
+    if pi = nil then
+      pi := db.PieceInfo(brick.part);
+    cc := db.colors(brick.color);
+    if pci = nil then
+      document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' + cc.name +
+        ' (' + scolor + ') (BL=' + IntToStr(cc.BrickLinkColor) + ')' +
+          GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
+          HtmlDrawInvImgLink(brick.part, brick.color, pi) + '</td>')
+    else
+      document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' + cc.name +
+        ' (' + scolor + ') (BL=' + IntToStr(cc.BrickLinkColor) + ')' +
+          GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
+          HtmlDrawInvImgLink(brick.part, brick.color, pi) +
+          HtmlDrawSetMostLink(pci));
+
+    document.write('<td width=10% align=right>' + IntToStr(brick.num));
+    document.write('<br><a href=editpiece/' + brick.part + '/' + scolor + '><img src="images\edit.png"></a>');
+    document.write('<br><a href=diagrampiece/' + brick.part + '/' + scolor + '><img src="images\diagram.png"></a>');
+    document.write('</td>');
+
+    lalt := lst.Objects[i] as TStringList;
+    for j := 0 to lalt.Count - 1 do
+    begin
+      if j <> 0 then
+        document.write('<tr><td colspan="4"></td>');
+      document.write('<td width=35%>');
+      salt := lalt.Strings[j];
+      document.write(
+        '<img width=100px src=' + scolor + '\' + salt + '.png><br><b><a href=spiece/' + salt + '>' + salt + '</a></b> - ' + db.PieceDesc(salt) + '</td>');
+      document.write('<td width=10% align=right>' + itoa(inv.LoosePartCount(salt, brick.color)));
+      document.write('<br><a href=editpiece/' + salt + '/' + scolor + '><img src="images\edit.png"></a>');
+      document.write('<br><a href=diagrampiece/' + salt + '/' + scolor + '><img src="images\diagram.png"></a>');
+      document.write('</td></tr>');
+    end;
+
+    DrawBrickOrderInfo(brick, '', -1, -1, false);
+
+    if (lst.Count < 20) or (i mod 4 = 0) then
+      SplashProgress('Working...', 0.2 + 0.8 * i / lst.Count);
+  end;
+
+  document.EndNavigateSection;
+
+  SplashProgress('Working...', 1.0);
+
+  document.write('</tr></table>');
+
+  document.MarkBottomNavigateSection;
+
+  HideSplash;
+
+  FreeList(lst);
+  document.write('</div></body>');
+  document.SaveBufferToFile(diskmirror);
+  document.Flash;
+  Screen.Cursor := crDefault;
+end;
+
+procedure TMainForm.ShowMyInventoryRelatedPieces;
+var
+  tit, headline: string;
+begin
+  tit := 'My Inventory - Related Pieces';
+  headline := 'My Inventory - Related Pieces';
+  ShowInventoryRelatedPieces(inventory, tit, headline);
 end;
 
 procedure TMainForm.ShowSetPartsStorage(const setid: string; const ppreview: boolean);
@@ -13529,6 +13693,10 @@ begin
     splitstring(slink, s1, s2, '/');
     ShowSetInventory(s2);
   end
+  else if slink = 'ShowMyInventoryRelatedPieces' then
+  begin
+    ShowMyInventoryRelatedPieces;
+  end
   else if Pos1('sstorageloc/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
@@ -21864,6 +22032,13 @@ var
 begin
   thumbrequests.Clear;
   HTMLClick('refresh', foo);
+end;
+
+procedure TMainForm.RelatedAlternatepieces1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('ShowMyInventoryRelatedPieces', foo);
 end;
 
 end.

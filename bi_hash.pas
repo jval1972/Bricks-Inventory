@@ -185,6 +185,12 @@ begin
     Exit;
   end;
 
+  if fList.Sorted then
+  begin
+    result := fList.IndexOf(value);
+    Exit;
+  end;
+
   if flist.Count = 0 then
   begin
     result := -1;

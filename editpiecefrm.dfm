@@ -1006,7 +1006,7 @@ object EditPieceForm: TEditPieceForm
     Top = 248
     Width = 361
     Height = 24
-    Font.Charset = GREEK_CHARSET
+    Font.Charset = DEFAULT_CHARSET
     Font.Color = clBlack
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
@@ -1117,7 +1117,7 @@ object EditPieceForm: TEditPieceForm
     Top = 344
     Width = 417
     Height = 257
-    ActivePage = OrdersTabSheet
+    ActivePage = TabSheet1
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -13
@@ -1238,7 +1238,13 @@ object EditPieceForm: TEditPieceForm
         Top = 8
         Width = 233
         Height = 209
+        Font.Charset = GREEK_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
         ItemHeight = 16
+        ParentFont = False
         TabOrder = 1
         OnClick = LugbulksListBoxClick
       end
@@ -1260,7 +1266,13 @@ object EditPieceForm: TEditPieceForm
         Top = 8
         Width = 233
         Height = 209
+        Font.Charset = GREEK_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
         ItemHeight = 16
+        ParentFont = False
         TabOrder = 1
         OnClick = OrdersListBoxClick
       end
@@ -1273,7 +1285,13 @@ object EditPieceForm: TEditPieceForm
         Top = 8
         Width = 233
         Height = 209
+        Font.Charset = GREEK_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
         ItemHeight = 16
+        ParentFont = False
         TabOrder = 0
       end
       object AddTagButton: TButton

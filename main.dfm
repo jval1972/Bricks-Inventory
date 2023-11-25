@@ -2081,6 +2081,13 @@ object MainForm: TMainForm
       object N47: TMenuItem
         Caption = '-'
       end
+      object RelatedAlternatepieces1: TMenuItem
+        Caption = 'Related/Alternate pieces'
+        OnClick = RelatedAlternatepieces1Click
+      end
+      object N61: TMenuItem
+        Caption = '-'
+      end
       object Correntunknowncategoriesofmyinventory1: TMenuItem
         Caption = 'Correct unknown categories of my inventory'
         OnClick = Correntunknowncategoriesofmyinventory1Click

@@ -929,6 +929,7 @@ type
     fsets: TStringList;
     fsetshash: THashTable;
     fpiecenewnames: TStringList;
+    finvpiecenewnames: TStringList;
     fpiecesalias: THashStringList;
     fpiecesaliasBL: THashStringList;
     fpiecesaliasRB: THashStringList;
@@ -984,6 +985,7 @@ type
     procedure InitPieces;
     procedure InitPiecesAlias;
     procedure InitNewNames;
+    procedure BuildInvNewNames; // Inverted index to fpiecenewnames
     procedure SaveNewNames;
     procedure InitCrawlerLinks;
     procedure InitSets;
@@ -10068,6 +10070,8 @@ var
   s1, s2: string;
 begin
   fpiecenewnames := TStringList.Create;
+  finvpiecenewnames := TStringList.Create;
+
   stmp := TStringList.Create;
   try
     fnname := basedefault + 'db\db_newnames.txt';
@@ -10091,6 +10095,42 @@ begin
   finally
     stmp.Free;
   end;
+  BuildInvNewNames;
+end;
+
+procedure TSetsDatabase.BuildInvNewNames;
+var
+  i: integer;
+  lst: TStringList;
+  s1, s2: string;
+  lasts: string;
+begin
+  lst := TStringList.Create;
+  for i := 0 to fpiecenewnames.Count - 1 do
+    lst.Add((fpiecenewnames.Objects[i] as TString).text + ',' + fpiecenewnames.Strings[i]);
+
+  FreeList(finvpiecenewnames);
+  finvpiecenewnames := TStringList.Create;
+
+  lasts := '';
+  lst.Sort;
+  for i := 0 to lst.Count - 1 do
+  begin
+    splitstring(lst.Strings[i], s1, s2, ',');
+    if s1 <> '' then
+      if s1 = lasts then
+        (finvpiecenewnames.Objects[finvpiecenewnames.Count - 1] as TStringList).Add(s2)
+      else
+      begin
+        finvpiecenewnames.AddObject(s1, TStringList.Create);
+        (finvpiecenewnames.Objects[finvpiecenewnames.Count - 1] as TStringList).Add(s2);
+        lasts := s1;
+      end;
+  end;
+
+  lst.Free;
+
+  finvpiecenewnames.Sorted := True;
 end;
 
 var
@@ -10259,6 +10299,7 @@ begin
   finally
     stmp.Free;
   end;
+  BuildInvNewNames;
 end;
 
 procedure TSetsDatabase.InitPiecesAlias;
@@ -10822,6 +10863,7 @@ begin
     fcategories[i].knownpieces.Free;
 
   FreeList(fpiecenewnames);
+  FreeList(finvpiecenewnames);
   FreeHashList(fpiecesalias);
   FreeHashList(fpiecesaliasBL);
   FreeHashList(fpiecesaliasRB);
@@ -20827,11 +20869,23 @@ var
   lst: TStringList;
 
   procedure _AddRelatedPiece(const s: string);
+  var
+    ii, idx: integer;
+    rlst: TStringList;
   begin
     if s <> '' then
       if lst.IndexOf(s) < 0 then
         if s <> '(Unknown)' then
+        begin
           lst.Add(s);
+          idx := finvpiecenewnames.IndexOf(s);
+          if idx >= 0 then
+          begin
+            rlst := finvpiecenewnames.Objects[idx] as TStringList;
+            for ii := 0 to rlst.Count - 1 do
+              _AddRelatedPiece(PieceInfo(rlst.Strings[ii]).name);
+          end;
+        end;
   end;
 
 begin
@@ -20844,12 +20898,13 @@ begin
 
   _AddRelatedPiece(RebrickablePart(pcs));
 
+{
   for i := 0 to fpiecenewnames.Count - 1 do
   begin
     ptmp := (fpiecenewnames.Objects[i] as TString).text;
     if lst.IndexOf(ptmp) >= 0 then
       _AddRelatedPiece(PieceInfo(fpiecenewnames.Strings[i]).name);
-  end;
+  end;}
 
   Result := lst;
 end;

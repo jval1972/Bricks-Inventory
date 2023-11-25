@@ -149,6 +149,8 @@ var
   initnewname: string;
   part: string;
   pt: string;
+  linv: TBrickInventory;
+  lnum: integer;
   initialstorage: string;
   initialyear, newyear: integer;
   initialcode: string;
@@ -261,7 +263,16 @@ begin
 
       for i := 2015 to 2015 + 31 do
         if pci.GetLugbulk(i) then
-          f.LugbulksListBox.Items.Add(itoa(i));
+        begin
+          lnum := 0;
+          linv := db.GetSetInventory('LUGBULK-' + itoa(i));
+          if linv <> nil then
+            lnum := linv.LoosePartCount(part, color);
+          if lnum > 0 then
+            f.LugbulksListBox.Items.Add(itoa(i) + ': ' + itoa(lnum))
+          else
+            f.LugbulksListBox.Items.Add(itoa(i));
+        end;
       if f.LugbulksListBox.Items.Count > 0 then
         try f.LugbulksListBox.ItemIndex := 0 except end;
       f.PreferLugbulkButton.Enabled := f.LugbulksListBox.Items.Count > 0;
@@ -272,7 +283,7 @@ begin
         begin
           oitem := oinf.Objects[i] as TOrderItemInfo;
           if (oitem.orderstatus <> 'NSS') and (oitem.orderstatus <> 'Canceled') and (oitem.orderstatus <> 'Cancelled') then
-            f.OrdersListBox.Items.Add(itoa(oitem.orderid));
+            f.OrdersListBox.Items.Add(itoa(oitem.orderid) + ': ' + itoa(oitem.num));
         end;
       if f.OrdersListBox.Items.Count > 0 then
         try f.OrdersListBox.ItemIndex := 0 except end;
@@ -831,13 +842,13 @@ end;
 procedure TEditPieceForm.PreferLugbulkButtonClick(Sender: TObject);
 begin
   if LugbulksListBox.ItemIndex > -1 then
-    PrefLocationEdit.Text := 'LUGBULK ' + LugbulksListBox.Items.Strings[LugbulksListBox.ItemIndex];
+    PrefLocationEdit.Text := 'LUGBULK ' + firstword(LugbulksListBox.Items.Strings[LugbulksListBox.ItemIndex], ':');
 end;
 
 procedure TEditPieceForm.PreferOrderButtonClick(Sender: TObject);
 begin
   if OrdersListBox.ItemIndex > -1 then
-    PrefLocationEdit.Text := 'ORDER ' + OrdersListBox.Items.Strings[OrdersListBox.ItemIndex];
+    PrefLocationEdit.Text := 'ORDER ' + firstword(OrdersListBox.Items.Strings[OrdersListBox.ItemIndex], ':');
 end;
 
 procedure TEditPieceForm.LugbulksListBoxClick(Sender: TObject);

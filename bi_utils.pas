@@ -2724,7 +2724,7 @@ begin
   begin
     if s[p2] = d2 then
       break;
-    inc(p);
+    inc(p2);
   end;
 
   Result := '';
@@ -2736,7 +2736,7 @@ begin
 
   if s[p1] = d1 then
     if s[p2] = d2 then
-      for i := d1 + 1 to d2 - 1 do
+      for i := p1 + 1 to p2 - 1 do
         Result := Result + s[i];
 end;
 

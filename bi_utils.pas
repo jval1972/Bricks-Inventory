@@ -223,7 +223,9 @@ procedure FreeListContainer(var s: TStringListContainer);
 
 procedure FastStringListDeleteObj(const lst: TStringList; const idx: integer);
 
-function ExtractFromDelimiters(const s: string; const d1, d2: Char; const p: integer = 1): string;
+function ExtractAfterDelimiters(const s: string; const p: integer; const d1, d2: Char): string;
+
+function ExtractAtDelimiters(const s: string; const p: integer; const d1, d2: Char): string;
 
 implementation
 
@@ -2679,8 +2681,8 @@ begin
   lst.Strings[idx] := lst.Strings[lst.Count - 1];
 end;
 
-// Exctract text between d1 & d2 from s, start searching at position p (default = 1);
-function ExtractFromDelimiters(const s: string; const d1, d2: Char; const p: integer = 1): string;
+// Exctract text between d1 & d2 from s, start searching at position p
+function ExtractAfterDelimiters(const s: string; const p: integer; const d1, d2: Char): string;
 var
   i: integer;
   ch: char;

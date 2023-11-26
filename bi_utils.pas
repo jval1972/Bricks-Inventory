@@ -227,6 +227,8 @@ function ExtractAfterDelimiters(const s: string; const p: integer; const d1, d2:
 
 function ExtractAtDelimiters(const s: string; const p: integer; const d1, d2: Char): string;
 
+function CountOccurences(const SubText: string; const Text: string): Integer;
+
 implementation
 
 uses
@@ -2703,6 +2705,47 @@ begin
     if ch = d1 then
       b := True;
   end;
+end;
+
+function ExtractAtDelimiters(const s: string; const p: integer; const d1, d2: Char): string;
+var
+  i, p1, p2: integer;
+begin
+  p1 := p;
+  while p1 >= 1 do
+  begin
+    if s[p1] = d1 then
+      break;
+    dec(p1);
+  end;
+
+  p2 := p;
+  while p2 <= Length(s) do
+  begin
+    if s[p2] = d2 then
+      break;
+    inc(p);
+  end;
+
+  Result := '';
+
+  if p1 < 1 then
+    Exit;
+  if p2 > Length(s) then
+    Exit;
+
+  if s[p1] = d1 then
+    if s[p2] = d2 then
+      for i := d1 + 1 to d2 - 1 do
+        Result := Result + s[i];
+end;
+
+function CountOccurences(const SubText: string; const Text: string): Integer;
+begin
+  if (SubText = '') or (Text = '') or (Pos(SubText, Text) = 0) then
+    Result := 0
+  else
+    Result := (Length(Text) - Length(StringReplace(Text, SubText, '', [rfReplaceAll]))) div  Length(subtext);
 end;
 
 end.

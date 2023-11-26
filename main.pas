@@ -394,6 +394,8 @@ type
     Clearthumbnailcache1: TMenuItem;
     RelatedAlternatepieces1: TMenuItem;
     N61: TMenuItem;
+    Panel3: TPanel;
+    CrawlerPanel: TPanel;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);

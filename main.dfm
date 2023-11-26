@@ -923,10 +923,30 @@ object MainForm: TMainForm
       Transparent = False
       OnClick = SpeedButton2Click
     end
+    object Panel3: TPanel
+      Left = 256
+      Top = 1
+      Width = 25
+      Height = 25
+      BevelOuter = bvNone
+      BorderWidth = 8
+      Caption = ' '
+      TabOrder = 3
+      object CrawlerPanel: TPanel
+        Left = 8
+        Top = 8
+        Width = 9
+        Height = 9
+        Align = alClient
+        BevelOuter = bvNone
+        Caption = ' '
+        TabOrder = 0
+      end
+    end
     object CheckBox1: TCheckBox
       Left = 160
       Top = 4
-      Width = 97
+      Width = 92
       Height = 17
       Caption = 'Enable crawling'
       TabOrder = 0

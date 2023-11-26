@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2019 by Jim Valavanis
+//  Copyright (C) 2014-2023 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -87,8 +87,15 @@ begin
     Exit;
 
   crawling := True;
-  db.Crawler;
-  crawling := False;
+  MainForm.CrawlerPanel.Color := RGB(64, 255, 64);
+  MainForm.CrawlerPanel.Update;
+  try
+    db.Crawler;
+  finally
+    MainForm.CrawlerPanel.Color := clBtnFace;
+    MainForm.CrawlerPanel.Update;
+    crawling := False;
+  end;
 end;
 
 procedure TTimingForm.FormDestroy(Sender: TObject);

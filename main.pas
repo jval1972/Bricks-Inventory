@@ -716,6 +716,7 @@ type
     procedure DoAddNewSetAsPiece(const pcs: string; const desc: string);
     procedure AddNewSetAsPiece(const pcs: string; const desc: string);
     procedure RefreshUnKnownPiecesCategory(const limit: integer);
+    procedure RefreshAllNotesFromDisk(const limit: integer);
     procedure RefreshUnKnownSetsCategoryAndWeight(const limit: integer);
     procedure RefreshUnKnownMinifigCategory(const limit: integer);
     procedure RefreshUnKnownInventoryPiecesCategory;
@@ -885,6 +886,7 @@ type
     procedure IdleEventHandler(Sender: TObject; var Done: Boolean);
     procedure DrawPieceColorNotes(const pcs, color: string);
     procedure DrawPieceNotes(const pcs: string);
+    procedure GatherOfflineNotes(const pcs: string);
   public
     { Public declarations }
     activebits: integer;
@@ -8789,9 +8791,12 @@ begin
 
   DrawHeadLine('<a href=spiece/' + pcs + '>' + pcs + '</a> - ' + db.Colors(9997).name + ' ' + db.PieceDesc(pi) +
     ' <a href=editpiece/' + pcs + '/9997><img src="images\edit.png"></a>' +
+    ' <a href=editpiececolornotes/' + pcs + '/9997><img src="images\notes.png"></a>' +
     HtmlDrawInvImgLink(pcs, 9997, pi) +
     '<br><a href=diagrampiece/' + pcs + '/9997><img src="images\diagram.png"></a>' +
     '<br><br><img width=360px src=9997\' + pcs + '.png>' + stmp);
+
+  DrawPieceColorNotes(pcs, '9997');
 
   document.StartNavigateSection;
 
@@ -12299,6 +12304,7 @@ begin
   if s1 = UpperCase('DoAddNewSetAsPiece/') then Exit;
   if s1 = UpperCase('RefreshUnKnownSetsCategoryAndWeight/') then Exit;
   if s1 = UpperCase('RefreshUnKnownPiecesCategory/') then Exit;
+  if s1 = UpperCase('RefreshAllNotesFromDisk/') then Exit;
   if s1 = UpperCase('RefreshUnKnownPiecesWeight/') then Exit;
   if s1 = UpperCase('RefreshUnKnownMinifigCategory/') then Exit;
   if s1 = UpperCase('RefreshUnKnownMinifigWeight/') then Exit;
@@ -13223,6 +13229,17 @@ begin
       Exit;
     end;
 
+    if Pos1('RefreshAllNotesFromDisk/', SRC) then
+    begin
+      Screen.Cursor := crHourglass;
+      splitstring(SRC, s1, s2, '/');
+      RefreshAllNotesFromDisk(atoi(s2));
+      HTMLClick('refresh', Handled);
+      Handled := True;
+      Screen.Cursor := crDefault;
+      Exit;
+    end;
+
     if Pos1('RefreshUnKnownPiecesWeight/', SRC) then
     begin
       Screen.Cursor := crHourglass;
@@ -13916,6 +13933,16 @@ begin
   begin
     splitstring(slink, s1, s2, s3, s4, '/');
     ShowColorPiece(s2, atoi(s3, 0), atoi(s4, -1));
+  end
+  else if Pos1('spieceI/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowColorPiece(s2, INSTRUCTIONCOLORINDEX, -1);
+  end
+  else if Pos1('spieceO/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowColorPiece(s2, BOXCOLORINDEX, -1);
   end
   else if Pos1('spiececlt/', slink) then
   begin
@@ -22041,6 +22068,298 @@ var
   foo: boolean;
 begin
   HTMLClick('ShowMyInventoryRelatedPieces', foo);
+end;
+
+procedure TMainForm.GatherOfflineNotes(const pcs: string);
+const
+  DIMSEC_PROPS: array[0..3] of string[12] = (
+    'Size: ',
+    'Stud Dim.: ',
+    'Pack. Dim.: ',
+    'Item Dim.: '
+  );
+  FITS_PROPS: array[0..1] of string[24] = (
+    'fits with the following ',
+    'fits with and is usually'
+  );
+var
+  ret: string;
+
+  function _parse_list(const s: string): string;
+  const
+    TYPE_SPIECE_CHARS = 'PSMCBG';
+  var
+    tmp: string;
+    i: integer;
+  begin
+    tmp := StringReplace(s, '<ul>', '<ul>'#13#10, [rfReplaceAll, rfIgnoreCase]);
+    tmp := StringReplace(tmp, '<li>', '<li>'#13#10, [rfReplaceAll, rfIgnoreCase]);
+    for i := 1 to Length(TYPE_SPIECE_CHARS) do
+      tmp := StringReplace(tmp, '<a href="catalogitem.page?' + TYPE_SPIECE_CHARS[i] + '=', '<a href="spiece/', [rfReplaceAll, rfIgnoreCase]);
+    tmp := StringReplace(tmp, '<a href="catalogitem.page?I=', '<a href="spieceI/', [rfReplaceAll, rfIgnoreCase]);
+    tmp := StringReplace(tmp, '<a href="catalogitem.page?O=', '<a href="spieceO/', [rfReplaceAll, rfIgnoreCase]);
+    Result := tmp;
+  end;
+
+  function _try_file(const fin: string): string;
+  var
+    sdata, sUdata: string;
+    i, k, p, p1, p2: integer;
+    check: string;
+    tmp: string;
+    tmpret: string;
+    sl: TStringList;
+  begin
+    Result := '';
+
+    sdata := LoadStringFromFile(fin + pcs + '.htm');
+    if sdata = '' then
+    begin
+      sdata := LoadStringFromFile(fin + db.GetBLNetPieceName(pcs) + '.htm');
+      if sdata = '' then
+        Exit;
+    end;
+
+    sUdata := strupper(sdata);
+
+    check := 'Alternate Item No: <span';
+    p := Pos(check, sData);
+    if p > 0 then
+    begin
+      tmp := ExtractAfterDelimiters(sdata, p + Length(check) - 1, '>', '<');
+      if tmp <> '' then
+      begin
+        tmp := stringreplace(tmp, ',', #13#10, [rfReplaceAll]);
+        sl := TStringList.Create;
+        sl.Text := tmp;
+        if sl.Count > 0 then
+        begin
+          Result := '<p><b>Alternate Item No:</b>'#13#10;
+          for i := 0 to sl.Count - 1 do
+          begin
+            tmp := strtrim(sl.Strings[i]);
+            Result := Result + '<a href=spiece/' + tmp + '>' + tmp + '</a>' + decide(i = sl.Count - 1, '', ',') + #13#10;
+          end;
+          Result := Result + '</p>'#13#10;
+        end;
+        sl.Free;
+      end;
+    end;
+
+    tmpret := '';
+    for k := low(DIMSEC_PROPS) to high(DIMSEC_PROPS) do
+    begin
+      check := DIMSEC_PROPS[k] + '<span id="dimSec">';
+      p := Pos(check, sdata);
+      if p > 0 then
+      begin
+        tmp := ExtractAfterDelimiters(sdata, p + Length(check) - 1, '>', '<');
+        trimproc(tmp);
+        if tmp <> '' then
+          tmpret := tmpret + '<b>' + DIMSEC_PROPS[k] + '</b>' + tmp + '<br>'#13#10;
+      end;
+    end;
+    if tmpret <> '' then
+    begin
+      if Result <> '' then
+        Result := Result + '<hr>'#13#10;
+      Result := Result + '<p>' + tmpret + '</p>'#13#10
+    end;
+
+    check := '<br>Booklets: ';
+    p := Pos(check, sdata);
+    if p > 0 then
+    begin
+      p2 := PosEx('<', sdata, p);
+      if p2 > 0 then
+        if p2 - p < 200 then
+        begin
+          tmp := '';
+          for i := p + Length(check) to p2 - 1 do
+            if not (sdata[i] in [#9, #10, #13]) then
+              tmp := tmp + sdata[i];
+          trimproc(tmp);
+          if tmp <> '' then
+          begin
+            if Result <> '' then
+              Result := Result + '<hr>'#13#10;
+            Result := Result + '<b>Booklets: </b>' + tmp + '</br>'#13#10;
+          end;
+        end;
+    end;
+
+    p := Pos('<b>Language:</', sdata);
+    if p > 0 then
+    begin
+      check := '&langID=';
+      p2 := PosEx(check, sdata, p);
+      if p2 > 0 then
+        if p2 - p < 200 then
+        begin
+          tmp := ExtractAfterDelimiters(sdata, p2 + Length(check), '>', '<');
+          trimproc(tmp);
+          if tmp <> '' then
+          begin
+            if Result <> '' then
+              Result := Result + '<hr>'#13#10;
+            Result := Result + '<b>Language: </b>' + tmp + '</br>'#13#10;
+          end;
+        end;
+    end;
+
+    p := Pos('<b>Co-Branding:</', sdata);
+    if p > 0 then
+    begin
+      check := 'promoCatID=';
+      p2 := PosEx(check, sdata, p);
+      if p2 > 0 then
+        if p2 - p < 200 then
+        begin
+          tmp := ExtractAfterDelimiters(sdata, p2 + Length(check), '>', '<');
+          trimproc(tmp);
+          if tmp <> '' then
+          begin
+            if Result <> '' then
+              Result := Result + '<hr>'#13#10;
+            Result := Result + '<b>Co-Branding: </b>' + tmp + '</br>'#13#10;
+          end;
+        end;
+    end;
+
+    check := '<b>This Item is a mold variant of the following Item(s):</b>';
+    p := Pos(check, sdata);
+    if p > 0 then
+    begin
+      p1 := PosEx('<UL>', sUdata, p + Length(check));
+      if p1 > 0 then
+      begin
+        p2 := PosEx('</UL>', sUdata, p + Length(check));
+        if p2 > p1 then
+        begin
+          tmp := '';
+          for i := p1 to p2 + 4 do
+            if not (sdata[i] in [#9, #10, #13]) then
+              tmp := tmp + sdata[i];
+          if Pos('<LI>', strupper(tmp)) > 0 then
+          begin
+            tmp := _parse_list(tmp);
+            if tmp <> '' then
+            begin
+              if Result <> '' then
+                Result := Result + '<hr>'#13#10;
+              Result := Result +
+                '<p><b>This Item is a mold variant of the following Item' + decide(CountOccurences('<li>', tmp) > 1, 's', '') + ': </b></br>'#13#10 +
+                  tmp + '</p>'#13#10;
+            end;
+          end;
+        end;
+      end;
+    end;
+
+    for k := low(FITS_PROPS) to high(FITS_PROPS) do
+    begin
+      check := FITS_PROPS[k];
+      p := Pos(check, sdata);
+      if p > 0 then
+      begin
+        p1 := PosEx('<UL>', sUdata, p + Length(check));
+        if p1 > 0 then
+        begin
+          p2 := PosEx('</UL>', sUdata, p + Length(check));
+          if p2 > p1 then
+          begin
+            tmp := '';
+            for i := p1 to p2 + 4 do
+              if not (sdata[i] in [#9, #10, #13]) then
+                tmp := tmp + sdata[i];
+            if Pos('<LI>', strupper(tmp)) > 0 then
+            begin
+              tmp := _parse_list(tmp);
+              if tmp <> '' then
+              begin
+                if Result <> '' then
+                  Result := Result + '<hr>'#13#10;
+                Result := Result +
+                  '<p><b>' + ExtractAtDelimiters(sdata, p, '>', '<') + ' </b></br>'#13#10 +
+                    tmp + '</p>'#13#10;
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+
+  end;
+
+  procedure _try_save(const fout: string);
+  var
+    tmp: string;
+  begin
+    if not DirectoryExists(ExtractFilePath(fout)) then
+    begin
+      MkDir(ExtractFilePath(fout));
+      SaveStringToFile(fout, ret);
+      Exit;
+    end;
+
+    tmp := LoadStringFromFile(fout);
+    if tmp <> '' then
+      SaveStringToFile(fout, tmp + #13#10 + '<hr>' + ret)
+    else
+      SaveStringToFile(fout, ret);
+  end;
+
+var
+  sl: TStringList;
+  i: integer;
+begin
+  ret := _try_file(basedefault + 'db\catalogs\');
+  if ret <> '' then
+    _try_save(PieceColorNotesFName(pcs, '9996'));
+
+  ret := _try_file(basedefault + 'db\instructions\');
+  if ret <> '' then
+    _try_save(PieceColorNotesFName(pcs, '9997'));
+
+  ret := _try_file(basedefault + 'db\boxes\');
+  if ret <> '' then
+    _try_save(PieceColorNotesFName(pcs, '9998'));
+
+  sl := TStringList.Create;
+  sl.Add(basedefault + 'db\molds\');
+  sl.Add(basedefault + 'db\setmolds\');
+  sl.Add(basedefault + 'db\minifigs\');
+  sl.Add(basedefault + 'db\gears\');
+  sl.Add(basedefault + 'db\books\');
+
+  for i := 0 to sl.Count - 1 do
+  begin
+    ret := _try_file(sl[i]);
+    if ret <> '' then
+    begin
+      _try_save(PieceNotesFName(pcs));
+      Break;
+    end;
+  end;
+end;
+
+procedure TMainForm.RefreshAllNotesFromDisk(const limit: integer);
+var
+  i: integer;
+begin
+  ShowSplash;
+  SplashProgress('Working...', 0);
+
+  for i := 0 to db.AllPieces.Count - 1 do
+  begin
+    if i = limit then
+      Exit;
+    GatherOfflineNotes(db.AllPieces.Strings[i]);
+    if i mod 2000 = 0 then
+      SplashProgress('Working...', i / db.AllPieces.Count);
+  end;
+  SplashProgress('Working...', 1);
+  HideSplash;
 end;
 
 end.

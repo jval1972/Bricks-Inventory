@@ -4,7 +4,7 @@ object OptionsForm: TOptionsForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 301
+  ClientHeight = 291
   ClientWidth = 388
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -551,7 +551,7 @@ object OptionsForm: TOptionsForm
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 260
+    Top = 250
     Width = 388
     Height = 41
     Align = alBottom
@@ -611,7 +611,7 @@ object OptionsForm: TOptionsForm
     Left = 24
     Top = 8
     Width = 345
-    Height = 249
+    Height = 233
     ActivePage = TabSheet1
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
@@ -646,45 +646,37 @@ object OptionsForm: TOptionsForm
         Caption = 'Always save part inventory statistics'
         TabOrder = 2
       end
-      object CheckBox5: TCheckBox
+      object CheckBox6: TCheckBox
         Left = 8
         Top = 96
         Width = 273
         Height = 17
-        Caption = 'Generate thumbnails on demand'
+        Caption = 'Silent warnings'
         TabOrder = 3
       end
-      object CheckBox6: TCheckBox
+      object CheckBox13: TCheckBox
         Left = 8
         Top = 120
-        Width = 273
+        Width = 265
         Height = 17
-        Caption = 'Silent warnings'
+        Caption = 'Always save wanted lists'
         TabOrder = 4
       end
-      object CheckBox13: TCheckBox
+      object CheckBox7: TCheckBox
         Left = 8
         Top = 144
         Width = 265
         Height = 17
-        Caption = 'Always save wanted lists'
+        Caption = 'Display user notes'
         TabOrder = 5
       end
-      object CheckBox7: TCheckBox
+      object CheckBox14: TCheckBox
         Left = 8
         Top = 168
         Width = 265
         Height = 17
-        Caption = 'Display user notes'
-        TabOrder = 6
-      end
-      object CheckBox14: TCheckBox
-        Left = 8
-        Top = 192
-        Width = 265
-        Height = 17
         Caption = 'Display automated notes'
-        TabOrder = 7
+        TabOrder = 6
       end
     end
     object TabSheet4: TTabSheet
@@ -719,6 +711,14 @@ object OptionsForm: TOptionsForm
         Height = 17
         Caption = 'Quantize to reduce memory usage'
         TabOrder = 1
+      end
+      object CheckBox5: TCheckBox
+        Left = 8
+        Top = 72
+        Width = 273
+        Height = 17
+        Caption = 'Generate thumbnails on demand'
+        TabOrder = 2
       end
     end
     object TabSheet2: TTabSheet
@@ -815,7 +815,7 @@ object OptionsForm: TOptionsForm
         Left = 16
         Top = 8
         Width = 305
-        Height = 193
+        Height = 177
         ItemHeight = 16
         TabOrder = 0
       end

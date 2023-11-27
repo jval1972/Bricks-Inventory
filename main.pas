@@ -22183,20 +22183,13 @@ begin
   if Result <> '' then
     Exit;
 
-  Result := BI_AutoNotes(pcs, basedefault + 'db\instructions\');
-  if Result <> '' then
-    Exit;
-
-  Result := BI_AutoNotes(pcs, basedefault + 'db\boxes\');
-  if Result <> '' then
-    Exit;
-
   sl := TStringList.Create;
   sl.Add(basedefault + 'db\molds\');
   sl.Add(basedefault + 'db\setmolds\');
   sl.Add(basedefault + 'db\minifigs\');
   sl.Add(basedefault + 'db\gears\');
   sl.Add(basedefault + 'db\books\');
+  sl.Add(basedefault + 'db\boxes\');
 
   for i := 0 to sl.Count - 1 do
   begin

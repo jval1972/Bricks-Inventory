@@ -4,7 +4,7 @@ object OptionsForm: TOptionsForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 291
+  ClientHeight = 301
   ClientWidth = 388
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -551,7 +551,7 @@ object OptionsForm: TOptionsForm
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 250
+    Top = 260
     Width = 388
     Height = 41
     Align = alBottom
@@ -611,8 +611,8 @@ object OptionsForm: TOptionsForm
     Left = 24
     Top = 8
     Width = 345
-    Height = 225
-    ActivePage = TabSheet5
+    Height = 249
+    ActivePage = TabSheet1
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
     Font.Height = -13
@@ -669,6 +669,22 @@ object OptionsForm: TOptionsForm
         Height = 17
         Caption = 'Always save wanted lists'
         TabOrder = 5
+      end
+      object CheckBox7: TCheckBox
+        Left = 8
+        Top = 168
+        Width = 265
+        Height = 17
+        Caption = 'Display user notes'
+        TabOrder = 6
+      end
+      object CheckBox14: TCheckBox
+        Left = 8
+        Top = 192
+        Width = 265
+        Height = 17
+        Caption = 'Display automated notes'
+        TabOrder = 7
       end
     end
     object TabSheet4: TTabSheet
@@ -799,7 +815,7 @@ object OptionsForm: TOptionsForm
         Left = 16
         Top = 8
         Width = 305
-        Height = 177
+        Height = 193
         ItemHeight = 16
         TabOrder = 0
       end

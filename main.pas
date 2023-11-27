@@ -886,7 +886,9 @@ type
     procedure IdleEventHandler(Sender: TObject; var Done: Boolean);
     procedure DrawPieceColorNotes(const pcs, color: string);
     procedure DrawPieceNotes(const pcs: string);
-    procedure GatherOfflineNotes(const pcs: string);
+    function GatherOfflineNotes(const pcs: string): string; overload;
+    function GatherOfflineNotes(const pcs: string; const color: integer): string; overload;
+    procedure GatherAndSaveOfflineNotes(const pcs: string);
   public
     { Public declarations }
     activebits: integer;
@@ -906,7 +908,7 @@ uses
   frm_editsetastext, frm_setsminifigspartout_params, editmoldfrm, frm_update1,
   frm_update2, frm_update3, frm_update4, bi_cachefile, frm_editlugbulkprice,
   frm_options, bi_multithread, bi_iterators, bi_defs, bi_crawler, bi_script,
-  buildinexcludes, bi_instructions, frm_pdfinstructions, bi_data,
+  buildinexcludes, bi_instructions, frm_pdfinstructions, bi_data, bi_notes,
   bi_imagerotate, bi_readylist, HTMLEd1;
 
 {$R *.dfm}
@@ -12305,6 +12307,7 @@ begin
   if s1 = UpperCase('RefreshUnKnownSetsCategoryAndWeight/') then Exit;
   if s1 = UpperCase('RefreshUnKnownPiecesCategory/') then Exit;
   if s1 = UpperCase('RefreshAllNotesFromDisk/') then Exit;
+  if s1 = UpperCase('GatherAndSaveOfflineNotes/') then Exit;
   if s1 = UpperCase('RefreshUnKnownPiecesWeight/') then Exit;
   if s1 = UpperCase('RefreshUnKnownMinifigCategory/') then Exit;
   if s1 = UpperCase('RefreshUnKnownMinifigWeight/') then Exit;
@@ -13234,6 +13237,17 @@ begin
       Screen.Cursor := crHourglass;
       splitstring(SRC, s1, s2, '/');
       RefreshAllNotesFromDisk(atoi(s2));
+      HTMLClick('refresh', Handled);
+      Handled := True;
+      Screen.Cursor := crDefault;
+      Exit;
+    end;
+
+    if Pos1('GatherAndSaveOfflineNotes/', SRC) then
+    begin
+      Screen.Cursor := crHourglass;
+      splitstring(SRC, s1, s2, '/');
+      GatherAndSaveOfflineNotes(s2);
       HTMLClick('refresh', Handled);
       Handled := True;
       Screen.Cursor := crDefault;
@@ -21894,34 +21908,76 @@ end;
 procedure TMainForm.DrawPieceColorNotes(const pcs, color: string);
 var
   fname: string;
+  autonotes: string;
 begin
-  fname := PieceColorNotesFName(pcs, color);
-  if fexists(fname) then
+  if optshowusernotes then
   begin
-    document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-    document.write('<tr bgcolor=' + DBGCOLOR + '>');
-    document.write('<th><b>Notes:</b></th></tr>');
-    document.write('<tr bgcolor=' + TBGCOLOR + '>');
-    document.write('<td width 100%><font color=' + DFGCOLOR + '>');
-    document.writefromfile(fname);
-    document.write('</font></td></tr></table>');
+    fname := PieceColorNotesFName(pcs, color);
+    if fexists(fname) then
+    begin
+      document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+      document.write('<tr bgcolor=' + DBGCOLOR + '>');
+      document.write('<th><b>User Notes:</b></th></tr>');
+      document.write('<tr bgcolor=' + TBGCOLOR + '>');
+      document.write('<td width 100%><font color=' + DFGCOLOR + '>');
+      document.writefromfile(fname);
+      document.write('</font></td></tr></table>');
+    end;
+  end;
+
+  if optshowautonotes then
+  begin
+    autonotes := GatherOfflineNotes(pcs, atoi(color));
+    if autonotes = '' then
+      autonotes := LoadStringFromFile(PieceColorNotesFName(pcs, color) + '_auto');
+    if autonotes <> '' then
+    begin
+      document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+      document.write('<tr bgcolor=' + DBGCOLOR + '>');
+      document.write('<th><b>Notes:</b></th></tr>');
+      document.write('<tr bgcolor=' + TBGCOLOR + '>');
+      document.write('<td width 100%><font color=' + DFGCOLOR + '>');
+      document.write(autonotes);
+      document.write('</font></td></tr></table>');
+    end;
   end;
 end;
 
 procedure TMainForm.DrawPieceNotes(const pcs: string);
 var
   fname: string;
+  autonotes: string;
 begin
-  fname := PieceNotesFName(pcs);
-  if fexists(fname) then
+  if optshowusernotes then
   begin
-    document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-    document.write('<tr bgcolor=' + DBGCOLOR + '>');
-    document.write('<th><b>Notes:</b></th></tr>');
-    document.write('<tr bgcolor=' + TBGCOLOR + '>');
-    document.write('<td width 100%><font color=' + DFGCOLOR + '>');
-    document.writefromfile(fname);
-    document.write('</font></td></tr></table>');
+    fname := PieceNotesFName(pcs);
+    if fexists(fname) then
+    begin
+      document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+      document.write('<tr bgcolor=' + DBGCOLOR + '>');
+      document.write('<th><b>User Notes:</b></th></tr>');
+      document.write('<tr bgcolor=' + TBGCOLOR + '>');
+      document.write('<td width 100%><font color=' + DFGCOLOR + '>');
+      document.writefromfile(fname);
+      document.write('</font></td></tr></table>');
+    end;
+  end;
+
+  if optshowautonotes then
+  begin
+    autonotes := GatherOfflineNotes(pcs);
+    if autonotes = '' then
+      autonotes := LoadStringFromFile(PieceNotesFName(pcs) + '_auto');
+    if autonotes <> '' then
+    begin
+      document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+      document.write('<tr bgcolor=' + DBGCOLOR + '>');
+      document.write('<th><b>Notes:</b></th></tr>');
+      document.write('<tr bgcolor=' + TBGCOLOR + '>');
+      document.write('<td width 100%><font color=' + DFGCOLOR + '>');
+      document.write(autonotes);
+      document.write('</font></td></tr></table>');
+    end;
   end;
 end;
 
@@ -22070,260 +22126,34 @@ begin
   HTMLClick('ShowMyInventoryRelatedPieces', foo);
 end;
 
-procedure TMainForm.GatherOfflineNotes(const pcs: string);
-const
-  DIMSEC_PROPS: array[0..3] of string[12] = (
-    'Size: ',
-    'Stud Dim.: ',
-    'Pack. Dim.: ',
-    'Item Dim.: '
-  );
-  FITS_PROPS: array[0..1] of string[24] = (
-    'fits with the following ',
-    'fits with and is usually'
-  );
+procedure TMainForm.GatherAndSaveOfflineNotes(const pcs: string);
 var
   ret: string;
-
-  function _parse_list(const s: string): string;
-  const
-    TYPE_SPIECE_CHARS = 'PSMCBG';
-  var
-    tmp: string;
-    i: integer;
-  begin
-    tmp := StringReplace(s, '<ul>', '<ul>'#13#10, [rfReplaceAll, rfIgnoreCase]);
-    tmp := StringReplace(tmp, '<li>', '<li>'#13#10, [rfReplaceAll, rfIgnoreCase]);
-    for i := 1 to Length(TYPE_SPIECE_CHARS) do
-      tmp := StringReplace(tmp, '<a href="catalogitem.page?' + TYPE_SPIECE_CHARS[i] + '=', '<a href="spiece/', [rfReplaceAll, rfIgnoreCase]);
-    tmp := StringReplace(tmp, '<a href="catalogitem.page?I=', '<a href="spieceI/', [rfReplaceAll, rfIgnoreCase]);
-    tmp := StringReplace(tmp, '<a href="catalogitem.page?O=', '<a href="spieceO/', [rfReplaceAll, rfIgnoreCase]);
-    Result := tmp;
-  end;
-
-  function _try_file(const fin: string): string;
-  var
-    sdata, sUdata: string;
-    i, k, p, p1, p2: integer;
-    check: string;
-    tmp: string;
-    tmpret: string;
-    sl: TStringList;
-  begin
-    Result := '';
-
-    sdata := LoadStringFromFile(fin + pcs + '.htm');
-    if sdata = '' then
-    begin
-      sdata := LoadStringFromFile(fin + db.GetBLNetPieceName(pcs) + '.htm');
-      if sdata = '' then
-        Exit;
-    end;
-
-    sUdata := strupper(sdata);
-
-    check := 'Alternate Item No: <span';
-    p := Pos(check, sData);
-    if p > 0 then
-    begin
-      tmp := ExtractAfterDelimiters(sdata, p + Length(check) - 1, '>', '<');
-      if tmp <> '' then
-      begin
-        tmp := stringreplace(tmp, ',', #13#10, [rfReplaceAll]);
-        sl := TStringList.Create;
-        sl.Text := tmp;
-        if sl.Count > 0 then
-        begin
-          Result := '<p><b>Alternate Item No:</b>'#13#10;
-          for i := 0 to sl.Count - 1 do
-          begin
-            tmp := strtrim(sl.Strings[i]);
-            Result := Result + '<a href=spiece/' + tmp + '>' + tmp + '</a>' + decide(i = sl.Count - 1, '', ',') + #13#10;
-          end;
-          Result := Result + '</p>'#13#10;
-        end;
-        sl.Free;
-      end;
-    end;
-
-    tmpret := '';
-    for k := low(DIMSEC_PROPS) to high(DIMSEC_PROPS) do
-    begin
-      check := DIMSEC_PROPS[k] + '<span id="dimSec">';
-      p := Pos(check, sdata);
-      if p > 0 then
-      begin
-        tmp := ExtractAfterDelimiters(sdata, p + Length(check) - 1, '>', '<');
-        trimproc(tmp);
-        if tmp <> '' then
-          tmpret := tmpret + '<b>' + DIMSEC_PROPS[k] + '</b>' + tmp + '<br>'#13#10;
-      end;
-    end;
-    if tmpret <> '' then
-    begin
-      if Result <> '' then
-        Result := Result + '<hr>'#13#10;
-      Result := Result + '<p>' + tmpret + '</p>'#13#10
-    end;
-
-    check := '<br>Booklets: ';
-    p := Pos(check, sdata);
-    if p > 0 then
-    begin
-      p2 := PosEx('<', sdata, p);
-      if p2 > 0 then
-        if p2 - p < 200 then
-        begin
-          tmp := '';
-          for i := p + Length(check) to p2 - 1 do
-            if not (sdata[i] in [#9, #10, #13]) then
-              tmp := tmp + sdata[i];
-          trimproc(tmp);
-          if tmp <> '' then
-          begin
-            if Result <> '' then
-              Result := Result + '<hr>'#13#10;
-            Result := Result + '<b>Booklets: </b>' + tmp + '</br>'#13#10;
-          end;
-        end;
-    end;
-
-    p := Pos('<b>Language:</', sdata);
-    if p > 0 then
-    begin
-      check := '&langID=';
-      p2 := PosEx(check, sdata, p);
-      if p2 > 0 then
-        if p2 - p < 200 then
-        begin
-          tmp := ExtractAfterDelimiters(sdata, p2 + Length(check), '>', '<');
-          trimproc(tmp);
-          if tmp <> '' then
-          begin
-            if Result <> '' then
-              Result := Result + '<hr>'#13#10;
-            Result := Result + '<b>Language: </b>' + tmp + '</br>'#13#10;
-          end;
-        end;
-    end;
-
-    p := Pos('<b>Co-Branding:</', sdata);
-    if p > 0 then
-    begin
-      check := 'promoCatID=';
-      p2 := PosEx(check, sdata, p);
-      if p2 > 0 then
-        if p2 - p < 200 then
-        begin
-          tmp := ExtractAfterDelimiters(sdata, p2 + Length(check), '>', '<');
-          trimproc(tmp);
-          if tmp <> '' then
-          begin
-            if Result <> '' then
-              Result := Result + '<hr>'#13#10;
-            Result := Result + '<b>Co-Branding: </b>' + tmp + '</br>'#13#10;
-          end;
-        end;
-    end;
-
-    check := '<b>This Item is a mold variant of the following Item(s):</b>';
-    p := Pos(check, sdata);
-    if p > 0 then
-    begin
-      p1 := PosEx('<UL>', sUdata, p + Length(check));
-      if p1 > 0 then
-      begin
-        p2 := PosEx('</UL>', sUdata, p + Length(check));
-        if p2 > p1 then
-        begin
-          tmp := '';
-          for i := p1 to p2 + 4 do
-            if not (sdata[i] in [#9, #10, #13]) then
-              tmp := tmp + sdata[i];
-          if Pos('<LI>', strupper(tmp)) > 0 then
-          begin
-            tmp := _parse_list(tmp);
-            if tmp <> '' then
-            begin
-              if Result <> '' then
-                Result := Result + '<hr>'#13#10;
-              Result := Result +
-                '<p><b>This Item is a mold variant of the following Item' + decide(CountOccurences('<li>', tmp) > 1, 's', '') + ': </b></br>'#13#10 +
-                  tmp + '</p>'#13#10;
-            end;
-          end;
-        end;
-      end;
-    end;
-
-    for k := low(FITS_PROPS) to high(FITS_PROPS) do
-    begin
-      check := FITS_PROPS[k];
-      p := Pos(check, sdata);
-      if p > 0 then
-      begin
-        p1 := PosEx('<UL>', sUdata, p + Length(check));
-        if p1 > 0 then
-        begin
-          p2 := PosEx('</UL>', sUdata, p + Length(check));
-          if p2 > p1 then
-          begin
-            tmp := '';
-            for i := p1 to p2 + 4 do
-              if not (sdata[i] in [#9, #10, #13]) then
-                tmp := tmp + sdata[i];
-            if Pos('<LI>', strupper(tmp)) > 0 then
-            begin
-              tmp := _parse_list(tmp);
-              if tmp <> '' then
-              begin
-                if Result <> '' then
-                  Result := Result + '<hr>'#13#10;
-                Result := Result +
-                  '<p><b>' + ExtractAtDelimiters(sdata, p, '>', '<') + ' </b></br>'#13#10 +
-                    tmp + '</p>'#13#10;
-              end;
-            end;
-          end;
-        end;
-      end;
-    end;
-
-  end;
 
   procedure _try_save(const fout: string);
   var
     tmp: string;
   begin
     if not DirectoryExists(ExtractFilePath(fout)) then
-    begin
       MkDir(ExtractFilePath(fout));
-      SaveStringToFile(fout, ret);
-      Exit;
-    end;
-
-    tmp := LoadStringFromFile(fout);
-    if tmp <> '' then
-      SaveStringToFile(fout, tmp + #13#10 + '<hr>' + ret)
-    else
-      SaveStringToFile(fout, ret);
+    SaveStringToFile(fout, ret);
   end;
 
 var
   sl: TStringList;
   i: integer;
 begin
-  ret := _try_file(basedefault + 'db\catalogs\');
+  ret := BI_AutoNotes(pcs, basedefault + 'db\catalogs\');
   if ret <> '' then
-    _try_save(PieceColorNotesFName(pcs, '9996'));
+    _try_save(PieceColorNotesFName(pcs, '9996') + '_auto');
 
-  ret := _try_file(basedefault + 'db\instructions\');
+  ret := BI_AutoNotes(pcs, basedefault + 'db\instructions\');
   if ret <> '' then
-    _try_save(PieceColorNotesFName(pcs, '9997'));
+    _try_save(PieceColorNotesFName(pcs, '9997') + '_auto');
 
-  ret := _try_file(basedefault + 'db\boxes\');
+  ret := BI_AutoNotes(pcs, basedefault + 'db\boxes\');
   if ret <> '' then
-    _try_save(PieceColorNotesFName(pcs, '9998'));
+    _try_save(PieceColorNotesFName(pcs, '9998') + '_auto');
 
   sl := TStringList.Create;
   sl.Add(basedefault + 'db\molds\');
@@ -22334,13 +22164,96 @@ begin
 
   for i := 0 to sl.Count - 1 do
   begin
-    ret := _try_file(sl[i]);
+    ret := BI_AutoNotes(pcs, sl[i]);
     if ret <> '' then
     begin
-      _try_save(PieceNotesFName(pcs));
+      _try_save(PieceNotesFName(pcs) + '_auto');
       Break;
     end;
   end;
+  sl.Free;
+end;
+
+function TMainForm.GatherOfflineNotes(const pcs: string): string;
+var
+  sl: TStringList;
+  i: integer;
+begin
+  Result := BI_AutoNotes(pcs, basedefault + 'db\catalogs\');
+  if Result <> '' then
+    Exit;
+
+  Result := BI_AutoNotes(pcs, basedefault + 'db\instructions\');
+  if Result <> '' then
+    Exit;
+
+  Result := BI_AutoNotes(pcs, basedefault + 'db\boxes\');
+  if Result <> '' then
+    Exit;
+
+  sl := TStringList.Create;
+  sl.Add(basedefault + 'db\molds\');
+  sl.Add(basedefault + 'db\setmolds\');
+  sl.Add(basedefault + 'db\minifigs\');
+  sl.Add(basedefault + 'db\gears\');
+  sl.Add(basedefault + 'db\books\');
+
+  for i := 0 to sl.Count - 1 do
+  begin
+    Result := BI_AutoNotes(pcs, sl[i]);
+    if Result <> '' then
+      Break;
+  end;
+  sl.Free;
+end;
+
+function TMainForm.GatherOfflineNotes(const pcs: string; const color: integer): string;
+var
+  sl: TStringList;
+  i: integer;
+  pt: Char;
+  pci: TPieceColorInfo;
+begin
+  if color = INSTRUCTIONCOLORINDEX then
+  begin
+    Result := BI_AutoNotes(pcs, basedefault + 'db\instructions\');
+    Exit;
+  end;
+
+  if color = BOXCOLORINDEX then
+  begin
+    Result := BI_AutoNotes(pcs, basedefault + 'db\boxes\');
+    Exit;
+  end;
+
+  if color = CATALOGCOLORINDEX then
+  begin
+    Result := BI_AutoNotes(pcs, basedefault + 'db\catalogs\');
+      if Result <> '' then
+        Exit;
+  end;
+
+  sl := TStringList.Create;
+  if (color = CATALOGCOLORINDEX) or (color = -1) then
+    sl.Add(basedefault + 'db\molds\');
+
+  pci := db.PieceColorInfo(pcs, color);
+  if pci <> nil then
+    case pci.sparttype of
+      'S': sl.Add(basedefault + 'db\setmolds\');
+      'M': sl.Add(basedefault + 'db\minifigs\');
+      'G': sl.Add(basedefault + 'db\gears\');
+      'B': sl.Add(basedefault + 'db\books\');
+    end;
+
+  for i := 0 to sl.Count - 1 do
+  begin
+    Result := BI_AutoNotes(pcs, sl[i]);
+    if Result <> '' then
+      Break;
+  end;
+  sl.Free;
+
 end;
 
 procedure TMainForm.RefreshAllNotesFromDisk(const limit: integer);
@@ -22354,8 +22267,8 @@ begin
   begin
     if i = limit then
       Exit;
-    GatherOfflineNotes(db.AllPieces.Strings[i]);
-    if i mod 2000 = 0 then
+    GatherAndSaveOfflineNotes(db.AllPieces.Strings[i]);
+    if i mod 1000 = 0 then
       SplashProgress('Working...', i / db.AllPieces.Count);
   end;
   SplashProgress('Working...', 1);

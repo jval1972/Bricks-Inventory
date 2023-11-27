@@ -65,6 +65,8 @@ type
     CheckBox12: TCheckBox;
     TabSheet5: TTabSheet;
     ListBox1: TListBox;
+    CheckBox7: TCheckBox;
+    CheckBox14: TCheckBox;
     procedure Edit1KeyPress(Sender: TObject; var Key: Char);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -109,6 +111,8 @@ begin
     f.CheckBox11.Checked := dodraworderinfolite;
     f.CheckBox12.Checked := quantizeimagetosavemem;
     f.CheckBox13.Checked := savealwayswantedlists;
+    f.CheckBox7.Checked := optshowusernotes;
+    f.CheckBox14.Checked := optshowautonotes;
 
     idx := 0;
     optdefaultcurrency := strupper(optdefaultcurrency);
@@ -142,6 +146,8 @@ begin
       dodraworderinfolite := f.CheckBox11.Checked;
       quantizeimagetosavemem := f.CheckBox12.Checked;
       savealwayswantedlists := f.CheckBox13.Checked;
+      optshowusernotes := f.CheckBox7.Checked;
+      optshowautonotes := f.CheckBox14.Checked;
       idx := f.ListBox1.ItemIndex;
       if idx >= 0 then
         optdefaultcurrency := (f.ListBox1.Items.Objects[idx] as TStringInit).text;

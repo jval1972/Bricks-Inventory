@@ -65,9 +65,11 @@ var
   optlocationsreadylist: boolean;
   optenablecrawling: boolean;
   optdefaultcurrency: string255;
+  optshowusernotes: boolean;
+  optshowautonotes: boolean;
 
 const
-  NUMDEFAULTS = 20;
+  NUMDEFAULTS = 23;
 
   defaults: array[0..NUMDEFAULTS - 1] of default_t = (
     (name: 'General';
@@ -224,6 +226,30 @@ const
 
     (name: 'optlocationsreadylist';
      location: @optlocationsreadylist;
+     setable: true;
+     defaultsvalue: '1';
+     defaultivalue: 1;
+     defaultbvalue: True;
+     _type: tBoolean),
+
+    (name: 'StorageL';
+     location: nil;
+     setable: false;
+     defaultsvalue: '';
+     defaultivalue: 0;
+     defaultbvalue: false;
+     _type: tGroup),
+
+    (name: 'optshowusernotes';
+     location: @optshowusernotes;
+     setable: true;
+     defaultsvalue: '1';
+     defaultivalue: 1;
+     defaultbvalue: True;
+     _type: tBoolean),
+
+    (name: 'optshowautonotes';
+     location: @optshowautonotes;
      setable: true;
      defaultsvalue: '1';
      defaultivalue: 1;

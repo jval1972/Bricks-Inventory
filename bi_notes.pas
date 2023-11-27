@@ -277,6 +277,26 @@ begin
     end;
   end;
 
+  check := '<div id="_idItemDescription" class="pciExpandMore">';
+  p := Pos(check, sData);
+  if p > 0 then
+  begin
+    tmp := '';
+    for i := p + Length(check) to Length(sData) - 6 do
+    begin
+      if (sData[i] = '<') and (sData[i + 1] = '/') and (sData[i + 2] = 'd') and (sData[i + 3] = 'i') and (sData[i + 4] = 'v') and (sData[i + 5] = '>') then
+        break;
+      tmp := tmp + sData[i];
+    end;
+    if tmp <> '' then
+    begin
+      if Result <> '' then
+        Result := Result + '<hr>'#13#10;
+      Result := Result +
+        '<p><b>Additional Notes: </b><br>' + tmp + '</p>'#13#10;
+    end;
+  end;
+
 end;
 
 end.

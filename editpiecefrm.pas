@@ -362,12 +362,12 @@ begin
             if newnum > num2 then
             begin
               for i := num2 + 1 to newnum do
-                inventory.AddSet(part, False);
+                inventory.AddSet(part, AS_NORMAL);
             end
             else if newnum < num2 then
             begin
               for i := newnum + 1 to num2 do
-                inventory.RemoveSet(part, False);
+                inventory.RemoveSet(part, AS_NORMAL);
             end;
           end
           else

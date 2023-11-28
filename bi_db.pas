@@ -65,7 +65,8 @@ type
   set_t = record
     setid: string[15];
     num: integer;
-    dismantaled: integer;
+    numdismantaled: integer;
+    numwishlist: integer;
   end;
 
   set_p = ^set_t;
@@ -144,6 +145,11 @@ type
     ndismantaled: integer;
   end;
 
+const
+  AS_NORMAL = 0;
+  AS_DISMANTALED = 1;
+  AS_WISHLIST = 2;
+
 type
   TBrickInventory = class(TObject)
   private
@@ -199,9 +205,9 @@ type
     procedure RemoveAllSets;
     function LoosePartCount(const part: string; color: integer): integer;
     function BuildSetCount(const sset: string): integer;
-    procedure AddSet(const setid: string; dismantaled: boolean);
+    procedure AddSet(const setid: string; const typ: integer);
     procedure GetSetInfo(const setid: string; const s: set_p);
-    function RemoveSet(const setid: string; dismantaled: boolean): boolean;
+    function RemoveSet(const setid: string; const typ: integer): boolean;
     function DismandalSet(const setid: string): boolean;
     function DismandalAllSets: boolean;
     function BuildSet(const setid: string): boolean;
@@ -271,8 +277,10 @@ type
     function totalofficialsetsdismantaled(const asetid: string = ''): integer;
     function totalmocsbuilted(const asetid: string = ''): integer;
     function totalmocsdismantaled(const asetid: string = ''): integer;
+    function totalsetswishlist(const asetid: string = ''): integer;
     function GetMoldList: TStringList;
     function GetDismandaledSets: TStringList;
+    function GetWishList: TStringList;
     function GetHistoryStatsRec: brickstatshistory_t;
     function GetHistoryEvalRec: brickevalhistory_t;
     procedure StoreHistoryStatsRec(const fn: string; const pl: integer = 0);
@@ -1654,7 +1662,7 @@ begin
     begin
       check := s.Strings[0];
 
-      if (check = 'Set Number,Quantity') or (check = 'Set,Num,Dismantaled') then
+      if (check = 'Set Number,Quantity') or (check = 'Set,Num,Dismantaled') or (check = 'Set,Num,Dismantaled,WishList') then
         Result := LoadSets(fname)
       else if (check = 'Part,Color,Num') or (check = 'Part,Color,Quantity') then
       begin
@@ -1816,7 +1824,7 @@ function TBrickInventory.LoadSets(const fname: string): boolean;
 var
   s: TStringList;
   i, j: integer;
-  sset, snum, sdismantaled: string;
+  sset, snum, sdismantaled, swishlist: string;
 begin
   Result := False;
   if not fexists(fname) then
@@ -1830,15 +1838,29 @@ begin
     Exit;
   end;
 
-  if s.Strings[0] = 'Set,Num,Dismantaled' then
+  if s.Strings[0] = 'Set,Num,Dismantaled,WishList' then
+  begin
+    for i := 1 to s.Count - 1 do
+    begin
+      splitstring(s.Strings[i], sset, snum, sdismantaled, swishlist, ',');
+      for j := 0 to StrToIntDef(snum, 0) - 1 do
+        AddSet(sset, AS_NORMAL);
+      for j := 0 to StrToIntDef(sdismantaled, 0) - 1 do
+        AddSet(sset, AS_DISMANTALED);
+      for j := 0 to StrToIntDef(swishlist, 0) - 1 do
+        AddSet(sset, AS_WISHLIST);
+    end;
+    Result := True;
+  end
+  else if s.Strings[0] = 'Set,Num,Dismantaled' then
   begin
     for i := 1 to s.Count - 1 do
     begin
       splitstring(s.Strings[i], sset, snum, sdismantaled, ',');
       for j := 0 to StrToIntDef(snum, 0) - 1 do
-        AddSet(sset, False);
+        AddSet(sset, AS_NORMAL);
       for j := 0 to StrToIntDef(sdismantaled, 0) - 1 do
-        AddSet(sset, True);
+        AddSet(sset, AS_DISMANTALED);
     end;
     Result := True;
   end
@@ -1848,7 +1870,7 @@ begin
     begin
       splitstring(s.Strings[i], sset, snum, ',');
       for j := 0 to StrToIntDef(snum, 0) - 1 do
-        AddSet(sset, False);
+        AddSet(sset, AS_NORMAL);
     end;
     Result := True;
   end;
@@ -3960,9 +3982,9 @@ var
   i: integer;
 begin
   s := TStringList.Create;
-  s.Add('Set,Num,Dismantaled');
+  s.Add('Set,Num,Dismantaled,WishList');
   for i := 0 to fnumsets - 1 do
-    s.Add(Format('%s,%d,%d', [fsets[i].setid, fsets[i].num, fsets[i].dismantaled]));
+    s.Add(Format('%s,%d,%d,%d', [fsets[i].setid, fsets[i].num, fsets[i].numdismantaled, fsets[i].numwishlist]));
   try
     S_BackupFile(fname);
     S_SaveToFile(s, fname);
@@ -4046,9 +4068,11 @@ begin
   for i := 0 to inv.fnumsets - 1 do
   begin
     for j := 0 to inv.fsets[i].num - 1 do
-      AddSet(inv.fsets[i].setid, False);
-    for j := 0 to inv.fsets[i].dismantaled - 1 do
-      AddSet(inv.fsets[i].setid, True);
+      AddSet(inv.fsets[i].setid, AS_NORMAL);
+    for j := 0 to inv.fsets[i].numdismantaled - 1 do
+      AddSet(inv.fsets[i].setid, AS_DISMANTALED);
+    for j := 0 to inv.fsets[i].numwishlist - 1 do
+      AddSet(inv.fsets[i].setid, AS_WISHLIST);
   end;
 
   brick := @inv.flooseparts[0];
@@ -4077,9 +4101,11 @@ begin
   for i := 0 to inv.fnumsets - 1 do
   begin
     for j := 0 to inv.fsets[i].num - 1 do
-      RemoveSet(inv.fsets[i].setid, False);
-    for j := 0 to inv.fsets[i].dismantaled - 1 do
-      RemoveSet(inv.fsets[i].setid, True);
+      RemoveSet(inv.fsets[i].setid, AS_NORMAL);
+    for j := 0 to inv.fsets[i].numdismantaled - 1 do
+      RemoveSet(inv.fsets[i].setid, AS_DISMANTALED);
+    for j := 0 to inv.fsets[i].numwishlist - 1 do
+      RemoveSet(inv.fsets[i].setid, AS_WISHLIST);
   end;
 
   brick := @inv.flooseparts[0];
@@ -4386,13 +4412,13 @@ begin
   if asetid = '' then
   begin
     for i := fnumsets - 1 downto 0  do
-      Result := Result + fsets[i].dismantaled;
+      Result := Result + fsets[i].numdismantaled;
   end
   else
   begin
     for i := fnumsets - 1 downto 0 do
       if fsets[i].setid = asetid then
-        Result := Result + fsets[i].dismantaled;
+        Result := Result + fsets[i].numdismantaled;
   end;
 end;
 
@@ -4425,14 +4451,14 @@ begin
   begin
     for i := fnumsets - 1 downto 0  do
       if not db.IsMoc(fsets[i].setid) then
-        Result := Result + fsets[i].dismantaled;
+        Result := Result + fsets[i].numdismantaled;
   end
   else
   begin
     if not db.IsMoc(asetid) then
       for i := fnumsets - 1 downto 0 do
         if fsets[i].setid = asetid then
-          Result := Result + fsets[i].dismantaled;
+          Result := Result + fsets[i].numdismantaled;
   end;
 end;
 
@@ -4465,14 +4491,32 @@ begin
   begin
     for i := fnumsets - 1 downto 0  do
       if db.IsMoc(fsets[i].setid) then
-        Result := Result + fsets[i].dismantaled;
+        Result := Result + fsets[i].numdismantaled;
   end
   else
   begin
     if db.IsMoc(asetid) then
       for i := fnumsets - 1 downto 0 do
         if fsets[i].setid = asetid then
-          Result := Result + fsets[i].dismantaled;
+          Result := Result + fsets[i].numdismantaled;
+  end;
+end;
+
+function TBrickInventory.totalsetswishlist(const asetid: string = ''): integer;
+var
+  i: integer;
+begin
+  Result := 0;
+  if asetid = '' then
+  begin
+    for i := fnumsets - 1 downto 0  do
+      Result := Result + fsets[i].numwishlist;
+  end
+  else
+  begin
+    for i := fnumsets - 1 downto 0 do
+      if fsets[i].setid = asetid then
+        Result := Result + fsets[i].numwishlist;
   end;
 end;
 
@@ -4493,7 +4537,17 @@ var
 begin
   Result := TStringList.Create;
   for i := 0 to fnumsets - 1 do
-    for j := 0 to fsets[i].dismantaled - 1 do
+    for j := 0 to fsets[i].numdismantaled - 1 do
+      Result.Add(fsets[i].setid)
+end;
+
+function TBrickInventory.GetWishList: TStringList;
+var
+  i, j: integer;
+begin
+  Result := TStringList.Create;
+  for i := 0 to fnumsets - 1 do
+    for j := 0 to fsets[i].numwishlist - 1 do
       Result.Add(fsets[i].setid)
 end;
 
@@ -4591,7 +4645,7 @@ begin
     Result.nnew := 0;
     Result.nused := 0;
     Result.nbuilded := st.num + LoosePartCount(piece, -1);
-    Result.ndismantaled := st.dismantaled;
+    Result.ndismantaled := st.numdismantaled;
   end
   else
   begin
@@ -4846,12 +4900,12 @@ begin
       if num > 0 then
       begin
         for i := 0 to num - 1 do
-          AddSet(part, False);
+          AddSet(part, AS_NORMAL);
       end
       else if num < 0 then
       begin
         for i := 0 to -num - 1 do
-          RemoveSet(part, False);
+          RemoveSet(part, AS_NORMAL);
       end;
       Exit;
     end;
@@ -4897,12 +4951,12 @@ begin
       if num > 0 then
       begin
         for i := 0 to num - 1 do
-          AddSet(part, False);
+          AddSet(part, AS_NORMAL);
       end
       else if num < 0 then
       begin
         for i := 0 to num - 1 do
-          RemoveSet(part, False);
+          RemoveSet(part, AS_NORMAL);
       end;
       Exit;
     end;
@@ -4980,12 +5034,12 @@ begin
       begin
         Result := True;
         for i := 0 to num - 1 do
-          Result := Result or RemoveSet(part, False);
+          Result := Result or RemoveSet(part, AS_NORMAL);
       end
       else if num < 0 then
       begin
         for i := 0 to -num - 1 do
-          AddSet(part, False);
+          AddSet(part, AS_NORMAL);
         Result := True;
       end
       else
@@ -5073,12 +5127,12 @@ begin
       begin
         Result := True;
         for i := 0 to num - 1 do
-          Result := Result or RemoveSet(part, False);
+          Result := Result or RemoveSet(part, AS_NORMAL);
       end
       else if num < 0 then
       begin
         for i := 0 to -num - 1 do
-          AddSet(part, False);
+          AddSet(part, AS_NORMAL);
         Result := True;
       end
       else
@@ -5185,16 +5239,18 @@ begin
   Result := 0;
 end;
 
-procedure TBrickInventory.AddSet(const setid: string; dismantaled: boolean);
+procedure TBrickInventory.AddSet(const setid: string; const typ: integer);
 var
   i: Integer;
 begin
   for i := fnumsets - 1 downto 0  do
     if  fsets[i].setid = setid then
     begin
-      if dismantaled then
-        Inc(fsets[i].dismantaled)
-      else
+      if typ = AS_DISMANTALED then
+        Inc(fsets[i].numdismantaled)
+      else if typ = AS_WISHLIST then
+        Inc(fsets[i].numwishlist)
+      else if typ = AS_NORMAL then
         Inc(fsets[i].num);
       fupdatetime := 0;
       Exit;
@@ -5202,16 +5258,25 @@ begin
 
   _growsets;
   fsets[fnumsets].setid := setid;
-  if dismantaled then
+  if typ = AS_DISMANTALED then
   begin
     fsets[fnumsets].num := 0;
-    fsets[fnumsets].dismantaled := 1;
+    fsets[fnumsets].numdismantaled := 1;
+    fsets[fnumsets].numwishlist := 0;
   end
-  else
+  else if typ = AS_WISHLIST then
+  begin
+    fsets[fnumsets].num := 0;
+    fsets[fnumsets].numdismantaled := 0;
+    fsets[fnumsets].numwishlist := 1;
+  end
+  else if typ = AS_NORMAL then
   begin
     fsets[fnumsets].num := 1;
-    fsets[fnumsets].dismantaled := 0;
+    fsets[fnumsets].numdismantaled := 0;
+    fsets[fnumsets].numwishlist := 0;
   end;
+
   Inc(fnumsets);
   fupdatetime := 0;
 end;
@@ -5222,16 +5287,18 @@ var
 begin
   s.setid := setid;
   s.num := 0;
-  s.dismantaled := 0;
+  s.numdismantaled := 0;
+  s.numwishlist := 0;
   for i := 0 to fnumsets - 1 do
     if fsets[i].setid = setid then
     begin
       s.num := s.num + fsets[i].num;
-      s.dismantaled := s.dismantaled + fsets[i].dismantaled;
+      s.numdismantaled := s.numdismantaled + fsets[i].numdismantaled;
+      s.numwishlist := s.numwishlist + fsets[i].numwishlist;
     end;
 end;
 
-function TBrickInventory.RemoveSet(const setid: string; dismantaled: boolean): boolean;
+function TBrickInventory.RemoveSet(const setid: string; const typ: integer): boolean;
 var
   i{, j}: integer;
   inv: TBrickInventory;
@@ -5240,23 +5307,25 @@ begin
   for i := 0 to fnumsets - 1 do
     if  fsets[i].setid = setid then
     begin
-      if dismantaled then
+      if typ = AS_DISMANTALED then
       begin
-        if fsets[i].dismantaled = 0 then
+        if fsets[i].numdismantaled = 0 then
         begin
           Result := False;
           Exit;
         end;
-        dec(fsets[i].dismantaled);
-        inv := db.GetSetInventory(setid);
-        if inv <> nil then
-        begin
-{ jval: SOS -> Do not remove pieces from inventory!
-          for j := 0 to inv.numlooseparts - 1 do
-            RemoveLoosePart(inv.flooseparts[j].part, inv.flooseparts[j].color, inv.flooseparts[j].num);}
-        end;
+        dec(fsets[i].numdismantaled);
       end
-      else
+      else if typ = AS_WISHLIST then
+      begin
+        if fsets[i].numwishlist = 0 then
+        begin
+          Result := False;
+          Exit;
+        end;
+        dec(fsets[i].numwishlist);
+      end
+      else if typ = AS_NORMAL then
       begin
         if fsets[i].num = 0 then
         begin
@@ -5286,7 +5355,7 @@ begin
         Exit;
       end;
       dec(fsets[i].num);
-      inc(fsets[i].dismantaled);
+      inc(fsets[i].numdismantaled);
       inv := db.GetSetInventory(setid);
       if inv <> nil then
       begin
@@ -5294,7 +5363,7 @@ begin
           AddLoosePart(inv.flooseparts[j].part, inv.flooseparts[j].color, inv.flooseparts[j].num, inv.flooseparts[j].pci);
         for j := 0 to inv.fnumsets - 1 do
           for k := 0 to inv.fsets[j].num - 1 do
-            AddSet(inv.fsets[j].setid, False);
+            AddSet(inv.fsets[j].setid, AS_NORMAL);
       end;
       Exit;
     end;
@@ -5327,16 +5396,16 @@ begin
   inv := db.GetSetInventory(setid);
   if inv <> nil then
   begin
-    AddSet(setid, False);
+    AddSet(setid, AS_NORMAL);
     for i := 0 to inv.numlooseparts - 1 do
       RemoveLoosePart(inv.flooseparts[i].part, inv.flooseparts[i].color, inv.flooseparts[i].num);
     Reorganize;
 
     for i := 0 to fnumsets - 1 do
       if  fsets[i].setid = setid then
-        if fsets[i].dismantaled > 0 then
+        if fsets[i].numdismantaled > 0 then
         begin
-          dec(fsets[i].dismantaled);
+          dec(fsets[i].numdismantaled);
           break;
         end;
   end;
@@ -5349,7 +5418,7 @@ var
 begin
   Result := True;
   for i := 0 to fnumsets - 1 do
-    for j := 0 to fsets[i].dismantaled - 1 do
+    for j := 0 to fsets[i].numdismantaled - 1 do
     begin
       ret := BuildSet(fsets[i].setid);
       Result := Result and ret;

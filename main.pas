@@ -59,7 +59,6 @@ type
     ools1: TMenuItem;
     Mosaic1: TMenuItem;
     Piece1: TMenuItem;
-    N2: TMenuItem;
     Sets1: TMenuItem;
     btn_save: TSpeedButton;
     SetstobuyNew1: TMenuItem;
@@ -396,6 +395,9 @@ type
     N61: TMenuItem;
     Panel3: TPanel;
     CrawlerPanel: TPanel;
+    Missingtobuild1: TMenuItem;
+    Missingforwishlist1: TMenuItem;
+    Mywishlist1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -659,6 +661,8 @@ type
     procedure Partswithdifferentcase1Click(Sender: TObject);
     procedure Clearthumbnailcache1Click(Sender: TObject);
     procedure RelatedAlternatepieces1Click(Sender: TObject);
+    procedure Missingforwishlist1Click(Sender: TObject);
+    procedure Mywishlist1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -673,6 +677,7 @@ type
     Comparesetslist: TStringList;
     Missingformultiplesetslist: TStringList;
     Missingfordismandaledsetslist: TStringList;
+    Missingforwishlist: TStringList;
     lastset: string;
     dismantaledsetsinv: TBrickInventory;
     diskmirror: string;
@@ -817,6 +822,8 @@ type
     procedure ShowMySetsPieces;
     procedure ShowMySetsAndMocsPieces;
     procedure ShowMyMocsPieces;
+    procedure ShowMyWishList;
+    procedure ShowMyWishListPieces;
     procedure ShowMyMinifiguresMenu;
     procedure ShowMyPiecesValue;
     procedure ShowLengthQuery(const id: string);
@@ -919,6 +926,12 @@ const
   SORT_PRICE_USED = 2;
   SORT_DATE_UPDATE = 3;
   SORT_ITEMS_CINTEGER = 4;
+
+const
+  SSINV_FLAG_SETS = 1;
+  SSINV_FLAG_MOCS = 2;
+  SSINV_FLAG_SETS_AND_MOCS = 3;
+  SSINV_FLAG_WISH_LIST = 4;
 
 const
   FLG_SP_NO_ALIAS = 1;  // .ShowPiece
@@ -1141,6 +1154,8 @@ begin
   if fexists(s1) then
     Missingfordismandaledsetslist.LoadFromFile(s1);
 
+  Missingforwishlist := TStringList.Create;
+
   document := TDocument.Create(HTML);
 
   orders := TOrders.Create;
@@ -1287,15 +1302,16 @@ begin
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tr>');
 
   document.write('<td width=8%><a href="home">Home</a></td>');
-  document.write('<td width=10%><a href="cataloghome">Catalog</a></td>');
-  document.write('<td width=10%><a href="inv/0/C/-1">My loose parts</a></td>');
+  document.write('<td width=8%><a href="cataloghome">Catalog</a></td>');
+  document.write('<td width=9%><a href="inv/0/C/-1">My loose parts</a></td>');
   document.write('<td width=14%><a href="mysetsandmocs">My official sets and mocs</a></td>');
-  document.write('<td width=10%><a href="ShowMyMinifiguresMenu">My minifigures</a></td>');
+  document.write('<td width=9%><a href="ShowMyMinifiguresMenu">My minifigures</a></td>');
+  document.write('<td width=9%><a href="mywishlist">My wish list</a></td>');
   document.write('<td width=8%><a href="colors">Colors</a></td>');
-  document.write('<td width=10%><a href="categories">Categories</a></td>');
-  document.write('<td width=10%><a href="orders">Orders</a></td>');
-  document.write('<td width=10%><a href="ShowStorageBins">Storage Bins</a></td>');
-  document.write('<td width=10%><a href="tags">Tags</a></td>');
+  document.write('<td width=9%><a href="categories">Categories</a></td>');
+  document.write('<td width=9%><a href="orders">Orders</a></td>');
+  document.write('<td width=9%><a href="ShowStorageBins">Storage Bins</a></td>');
+  document.write('<td width=8%><a href="tags">Tags</a></td>');
 
   document.write('</tr></table></p></div><br><br>');
 
@@ -1849,7 +1865,7 @@ begin
   DrawInventoryTable(inv);
   document.write('<br>');
   document.write('<br>');
-  if ShowInventorySets(inv, False, 3) then
+  if ShowInventorySets(inv, False, SSINV_FLAG_SETS_AND_MOCS) then
   begin
     document.write('<br>');
     document.write('<br>');
@@ -1993,7 +2009,7 @@ begin
   DrawInventoryTable(inv);
   document.write('<br>');
   document.write('<br>');
-  if ShowInventorySets(inv, False, 3) then
+  if ShowInventorySets(inv, False, SSINV_FLAG_SETS_AND_MOCS) then
   begin
     document.write('<br>');
     document.write('<br>');
@@ -2028,6 +2044,7 @@ begin
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="myofficialsets">My official sets</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="mymocs">My mocs</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifiguresMenu">My minifigures</a></td></tr>');
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="mywishlist">My wish list</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="colors">Colors</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="categories">Categories</a></td></tr>');
   document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="orders">Orders</a></td></tr>');
@@ -2699,6 +2716,7 @@ begin
   Comparesetslist.Free;
   Missingformultiplesetslist.Free;
   Missingfordismandaledsetslist.Free;
+  Missingforwishlist.Free;
 
   if dismantaledsetsinv <> nil then
     dismantaledsetsinv.Free;
@@ -2924,7 +2942,7 @@ begin
   dismantaledsetsinv := TBrickInventory.Create;
 
   for i := 0 to inventory.numsets - 1 do
-    if inventory.sets[i].dismantaled > 0 then
+    if inventory.sets[i].numdismantaled > 0 then
     begin
       inv2 := db.GetSetInventory(inventory.sets[i].setid);
       dismantaledsetsinv.MergeWith(inv2);
@@ -3041,14 +3059,14 @@ begin
   if dismantaledsetsinv <> nil then
     if dismantaledsetsinv.LoosePartCount(brick.part, brick.color) > 0 then
       for i := 0 to inventory.numsets - 1 do
-        if inventory.sets[i].dismantaled > 0 then
+        if inventory.sets[i].numdismantaled > 0 then
         begin
           sid := inventory.sets[i].setid;
           inv := db.GetSetInventory(sid);
           if inv <> nil then
           begin
             inv2 := inv.Clone;
-            for j := 1 to inventory.sets[i].dismantaled - 1 do
+            for j := 1 to inventory.sets[i].numdismantaled - 1 do
               inv2.MergeWith(inv);
             num := inv2.LoosePartCount(brick.part, brick.color);
             if num > 0 then
@@ -3056,7 +3074,7 @@ begin
               document.write('<tr bgcolor=#EEEEEE>');
 //              document.write('<td colspan="4"><b><a href="sinv/%s">%d x %s</a></b> - %s <img width=48px src=s\%s.jpg></td>',
               document.write('<td colspan="' + sspan1 + '"><b><a href="sinv/%s">%d x %s</a></b> - %s ' + MakeThumbnailImage2(sid, -1) + '</td>',
-                [sid, inventory.sets[i].dismantaled,
+                [sid, inventory.sets[i].numdismantaled,
                  sid, db.SetDesc(sid)]);
               document.write('<td align="right">%d</td>', [num]);
 
@@ -3211,7 +3229,7 @@ begin
   if dismantaledsetsinv <> nil then
     if dismantaledsetsinv.LoosePartCount(brick.part, brick.color) > 0 then
       for i := 0 to inventory.numsets - 1 do
-        if inventory.sets[i].dismantaled > 0 then
+        if inventory.sets[i].numdismantaled > 0 then
         begin
           sid := inventory.sets[i].setid;
           inv := db.GetSetInventory(sid);
@@ -3219,7 +3237,7 @@ begin
             if db.PieceInfo(sid).category = CATEGORYLUGBULK then
             begin
               inv2 := inv.Clone;
-              for j := 1 to inventory.sets[i].dismantaled - 1 do
+              for j := 1 to inventory.sets[i].numdismantaled - 1 do
                 inv2.MergeWith(inv);
               num := inv2.LoosePartCount(brick.part, brick.color);
               if num > 0 then
@@ -3913,6 +3931,7 @@ var
   aa, i: integer;
   set1: set_p;
   link: string;
+  sf1, sf2, sf3, sf4, sf5, sf6: string;
   sinv: TBrickInventory;
   tot: integer;
   ismoc: Boolean;
@@ -3937,12 +3956,12 @@ begin
     DrawNavigateBar;
     document.write('<div style="color:' + DFGCOLOR + '">');
     document.write('<p align=center>');
-    link := '<a href=dismantleallsets>Dismantle All Sets</a> - <a href=buildallsets>Build All Sets</a>';
+    link := ''; //'<a href=dismantleallsets>Dismantle All Sets</a> - <a href=buildallsets>Build All Sets</a>';
 
     tot := 0;
 
     // Official sets only
-    if mocflag = 1 then
+    if mocflag = SSINV_FLAG_SETS then
     begin
       for i := 0 to inv.numsets - 1 do
         if not db.IsMoc(inv.sets[i].setid) then
@@ -3957,7 +3976,7 @@ begin
     end;
 
     // Mocs only
-    if mocflag = 2 then
+    if mocflag = SSINV_FLAG_MOCS then
     begin
       for i := 0 to inv.numsets - 1 do
         if db.IsMoc(inv.sets[i].setid) then
@@ -3972,17 +3991,38 @@ begin
     end;
 
     // Official sets & mocs
-    if mocflag = 3 then
+    if mocflag = SSINV_FLAG_SETS_AND_MOCS then
     begin
+      aa := 0;
       for i := 0 to inv.numsets - 1 do
+      begin
         if inv.sets[i].num > 0 then
         begin
           sinv := db.GetSetInventory(inv.sets[i].setid);
           if sinv <> nil then
             tot := tot + sinv.totallooseparts * inv.sets[i].num;
         end;
-      DrawHeadLine('My <a href="myofficialsets">Official Sets</a> and <a href="mymocs">Mocs</a> (' + IntToStr(inv.numsets) + ' lots)<br>(' + IntToStr(inv.totalsetsbuilted) + ' builted - ' + IntToStr(inv.totalsetsdismantaled) + ' dismantaled)<br><br>' +
+        if (inv.sets[i].num > 0) or (inv.sets[i].numdismantaled > 0) then
+          inc(aa);
+      end;
+
+      DrawHeadLine('My <a href="myofficialsets">Official Sets</a> and <a href="mymocs">Mocs</a> (' + IntToStr(aa) + ' lots)<br>(' + IntToStr(inv.totalsetsbuilted) + ' builted - ' + IntToStr(inv.totalsetsdismantaled) + ' dismantaled)<br><br>' +
         'My <a href="mybuiltedsets/3">builted official sets and mocs</a> have <a href="ShowMySetsAndMocsPieces">' + IntToStr(tot) + ' parts</a><br><br>' +
+          link);
+    end;
+                                                                
+    // Wish list
+    if mocflag = SSINV_FLAG_WISH_LIST then
+    begin
+      for i := 0 to inv.numsets - 1 do
+        if inv.sets[i].numwishlist > 0 then
+        begin
+          sinv := db.GetSetInventory(inv.sets[i].setid);
+          if sinv <> nil then
+            tot := tot + sinv.totallooseparts * inv.sets[i].num;
+        end;
+      DrawHeadLine('My wish list</a> (' + IntToStr(inv.totalsetswishlist) + ' sets)<br><br>' +
+        'My wish list sets have <a href=ShowMyWishListPieces>' + IntToStr(tot) + ' parts</a><br><br>' +
         link);
     end;
 
@@ -3991,16 +4031,22 @@ begin
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
   document.write('<tr bgcolor=' + THBGCOLOR + '>');
   document.write('<th><b>#</b></th>');
-  if mocflag = 2 then
+  if mocflag = SSINV_FLAG_MOCS then
     document.write('<th><b>Moc</b></th>')
-  else if mocflag = 1 then
+  else if mocflag = SSINV_FLAG_SETS then
     document.write('<th><b>Set</b></th>')
   else
     document.write('<th><b>Set/Moc</b></th>');
   if header_flash then
   begin
-    document.write('<th>Num Builded</th>');
-    document.write('<th>Num Dismandaled</th>');
+    if mocflag = SSINV_FLAG_WISH_LIST then
+      document.write('<th>Num</th>')
+    else
+    begin
+      document.write('<th>Num Builded</th>');
+      document.write('<th>Num Dismandaled</th>');
+//      document.write('<th>Num Wish List</th>');
+    end;
   end
   else
     document.write('<th>Num</th>');
@@ -4010,15 +4056,18 @@ begin
   aa := 0;
   for i := 0 to inv.numsets - 1 do
   begin
-    if mocflag = 3 then
-      showit := True
+    if mocflag = SSINV_FLAG_SETS_AND_MOCS then
+      showit := set1.num + set1.numdismantaled > 0
+    else if mocflag = SSINV_FLAG_WISH_LIST then
+      showit := set1.numwishlist > 0
     else
     begin
       ismoc := db.IsMoc(set1.setid);
-      if mocflag = 1 then
+      if mocflag = SSINV_FLAG_SETS then
         showit := not ismoc
       else
-        showit := ismoc
+        showit := ismoc;
+      showit := showit and (set1.num + set1.numdismantaled > 0);
     end;
 
     if showit then
@@ -4047,14 +4096,49 @@ begin
         document.write('<b>' + set1.setid + '</b> - ' + sdesc);
       end;
 
-      document.write('</td><td width=15% align=right>');
+      document.write('</td>');
       if header_flash then
       begin
-        document.write(IntToStr(set1.num) + '</td>');
-        document.write('<td width=15% align=right>' + IntToStr(set1.dismantaled) + '</td></tr>');
+        if inv = inventory then
+        begin
+          if mocflag <> SSINV_FLAG_WISH_LIST then
+          begin
+            sf1 := '<a href=addset/' + Trim(set1.setid) + '>+</a>';
+            if set1.num > 0 then
+              sf2 := '<a href=removeset/' + Trim(set1.setid) + '>-</a>'
+            else
+              sf2 := '';
+            sf3 := '<a href=addsetdismantaled/' + Trim(set1.setid) + '>+</a>';
+            if set1.numdismantaled > 0 then
+              sf4 := '<a href=removesetdismantaled/' + Trim(set1.setid) + '>-</a>'
+            else
+              sf4 := '';
+            document.write('<td width=15% align=right>' + IntToStr(set1.num) + '<br>' + sf2 + ' ' + sf1 + '</td>');
+            document.write('<td width=15% align=right>' + IntToStr(set1.numdismantaled) + '<br>' + sf4 + ' ' + sf3 + '</td>');
+          end
+          else
+          begin
+            sf5 := '<a href=addsetwishlist/' + Trim(set1.setid) + '>+</a>';
+            if set1.numwishlist > 0 then
+              sf6 := '<a href=removesetwishlist/' + Trim(set1.setid) + '>-</a>'
+            else
+              sf6 := '';
+            document.write('<td width=15% align=right>' + IntToStr(set1.numwishlist) + '<br>' + sf6 + ' ' + sf5 + '</td></tr>');
+          end;
+        end
+        else
+        begin
+          if mocflag <> SSINV_FLAG_WISH_LIST then
+          begin
+            document.write('<td width=15% align=right>' + IntToStr(set1.num) + '</td>');
+            document.write('<td width=15% align=right>' + IntToStr(set1.numdismantaled) + '</td>');
+          end
+          else
+            document.write('<td width=15% align=right>' + IntToStr(set1.numwishlist) + '</td></tr>');
+        end;
       end
       else
-        document.write(IntToStr(set1.num + set1.dismantaled) + '</td></tr>');
+        document.write('<td width=15% align=right>' + IntToStr(set1.num + set1.numdismantaled) + '</td></tr>');
     end;
 
     Inc(set1);
@@ -4114,7 +4198,7 @@ begin
   tot := 0;
 
   // Official sets only
-  if mocflag = 1 then
+  if mocflag = SSINV_FLAG_SETS then
   begin
     for i := 0 to inventory.numsets - 1 do
       if not db.IsMoc(inventory.sets[i].setid) then
@@ -4129,7 +4213,7 @@ begin
   end;
 
   // Mocs only
-  if mocflag = 2 then
+  if mocflag = SSINV_FLAG_MOCS then
   begin
     for i := 0 to inventory.numsets - 1 do
       if db.IsMoc(inventory.sets[i].setid) then
@@ -4144,7 +4228,7 @@ begin
   end;
 
   // Official sets & mocs
-  if mocflag = 3 then
+  if mocflag = SSINV_FLAG_SETS_AND_MOCS then
   begin
     for i := 0 to inventory.numsets - 1 do
       if inventory.sets[i].num > 0 then
@@ -4160,9 +4244,9 @@ begin
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
   document.write('<tr bgcolor=' + THBGCOLOR + '>');
   document.write('<th><b>#</b></th>');
-  if mocflag = 2 then
+  if mocflag = SSINV_FLAG_MOCS then
     document.write('<th><b>Moc</b></th>')
-  else if mocflag = 1 then
+  else if mocflag = SSINV_FLAG_SETS then
     document.write('<th><b>Set</b></th>')
   else
     document.write('<th><b>Set/Moc</b></th>');
@@ -4174,8 +4258,8 @@ begin
   aa := 0;
   for i := 0 to inventory.numsets - 1 do
   begin
-    if mocflag = 3 then
-      showit := True
+    if mocflag = SSINV_FLAG_SETS_AND_MOCS then
+      showit := set1.num + set1.numdismantaled > 0
     else
     begin
       ismoc := db.IsMoc(set1.setid);
@@ -4241,17 +4325,22 @@ end;
 
 procedure TMainForm.ShowMySetsAndMocs;
 begin
-  ShowInventorySets(inventory, True, 3);
+  ShowInventorySets(inventory, True, SSINV_FLAG_SETS_AND_MOCS);
 end;
 
 procedure TMainForm.ShowMyMocs;
 begin
-  ShowInventorySets(inventory, True, 2);
+  ShowInventorySets(inventory, True, SSINV_FLAG_MOCS);
 end;
 
 procedure TMainForm.ShowMyOfficialSets;
 begin
-  ShowInventorySets(inventory, True, 1);
+  ShowInventorySets(inventory, True, SSINV_FLAG_SETS);
+end;
+
+procedure TMainForm.ShowMyWishList;
+begin
+  ShowInventorySets(inventory, True, SSINV_FLAG_WISH_LIST);
 end;
 
 function BLColorPieceInfo(const pcs: string; const color: integer): string;
@@ -4261,6 +4350,7 @@ const
 var
   s: TStringList;
   stmp: string;
+  utmp: string;
   stmp2: string;
   stmp3: string;
   i, p, lpos: integer;
@@ -4275,14 +4365,15 @@ begin
     S_LoadFromFile(s, fname);
     stmp := Utf8ToAnsi(s.Text);
     s.Free;
-    p1 := Pos('<TABLE ', UpperCase(stmp));
+    utmp := UpperCase(stmp);
+    p1 := Pos('<TABLE ', utmp);
     if p1 > 0 then
     begin
-      p2 := Pos('</TABLE>', UpperCase(stmp));
+      p2 := Pos('</TABLE>', utmp);
       if p2 > p1 then
         Result :=
           '<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tr bgcolor=' + DBGCOLOR + '><td width 100%>' +
-          StringReplace(Copy(stmp, p1, p2 - p1 + 8), ' SIZE="2"', '', [rfReplaceAll, rfIgnoreCase]) + 
+          StringReplace(Copy(stmp, p1, p2 - p1 + 8), ' SIZE="2"', '', [rfReplaceAll, rfIgnoreCase]) +
           '</td></tr></table><br>';
     end;
   end;
@@ -4348,7 +4439,7 @@ var
   s1, s2: string;
   swanted: string;
   sx, ss1, ss2, ss3: string;
-  sf1, sf2, sf3, sf4: string;
+  sf1, sf2, sf3, sf4, sf5, sf6: string;
   numbricks: integer;
   numplates: integer;
   numtiles: integer;
@@ -4523,12 +4614,17 @@ begin
   else
     sf2 := '';
   sf3 := '<a href=addsetdismantaled/' + Trim(setid) + '>+</a>';
-  if st.dismantaled > 0 then
+  if st.numdismantaled > 0 then
     sf4 := '<a href=removesetdismantaled/' + Trim(setid) + '>-</a>'
   else
     sf4 := '';
+  sf5 := '<a href=addsetwishlist/' + Trim(setid) + '>+</a>';
+  if st.numwishlist > 0 then
+    sf6 := '<a href=removesetwishlist/' + Trim(setid) + '>-</a>'
+  else
+    sf6 := '';
   year := db.SetYear(setid);
-  ss1 := Format('Inventory for %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled<br><img width=360px src=s\' + setid + '.jpg>' +
+  ss1 := Format('Inventory for %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled (%s%d%s in wish list)<br><img width=360px src=s\' + setid + '.jpg>' +
       ' <a href=DoEditSet/' + setid + '><img src="images\edit.png"></a>' +
       ' <a href=editpiecenotes/' + setid + '><img src="images\notes.png"></a>' +
       ' <a href=PreviewSetInventory/' + setid + '><img src="images\print.png"></a>' +
@@ -4536,7 +4632,7 @@ begin
 
       '[Year: <a href=ShowSetsAtYear/%d>%d</a>]<br>',
     ['<a href=spiece/' + setid + '>' + setid + '</a>', db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
-     sf2, st.num, sf1, sf4, st.dismantaled, sf3, year, year]);
+     sf2, st.num, sf1, sf4, st.numdismantaled, sf3, sf6, st.numwishlist, sf5, year, year]);
   idx := db.allsets.IndexOf(Trim(setid));
   if idx > -1 then
   begin
@@ -4632,7 +4728,7 @@ begin
 
   document.write('<br>');
   document.write('<br>');
-  if ShowInventorySets(inv, False, 3) then
+  if ShowInventorySets(inv, False, SSINV_FLAG_SETS_AND_MOCS) then
   begin
     document.write('<br>');
     document.write('<br>');
@@ -4847,7 +4943,7 @@ var
   desc: string;
   tmpsets: TStringList;
   sx, ss1, ss2, ss3: string;
-  sf1, sf2, sf3, sf4: string;
+  sf1, sf2, sf3, sf4, sf5, sf6: string;
   numbricks: integer;
   numplates: integer;
   numtiles: integer;
@@ -4941,17 +5037,22 @@ begin
   else
     sf2 := '';
   sf3 := '<a href=addsetdismantaled/' + Trim(setid) + '>+</a>';
-  if st.dismantaled > 0 then
+  if st.numdismantaled > 0 then
     sf4 := '<a href=removesetdismantaled/' + Trim(setid) + '>-</a>'
   else
     sf4 := '';
+  sf5 := '<a href=addsetwishlist/' + Trim(setid) + '>+</a>';
+  if st.numwishlist > 0 then
+    sf6 := '<a href=removesetwishlist/' + Trim(setid) + '>-</a>'
+  else
+    sf6 := '';
   year := db.SetYear(setid);
   if ppreview then
-    ss1 := Format('Storage Location for the inventory of %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled<br><img width=360px src=s\' + setid + '.jpg><br>',
+    ss1 := Format('Storage Location for the inventory of %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled (%s%d%d in wish list)<br><img width=360px src=s\' + setid + '.jpg><br>',
     ['<a href=spiece/' + setid + '>' + setid + '</a>', db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
-     sf2, st.num, sf1, sf4, st.dismantaled, sf3])
+     sf2, st.num, sf1, sf4, st.numdismantaled, sf3, sf6, st.numwishlist, sf5])
   else
-    ss1 := Format('Storage Location for the inventory of %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled<br><img width=360px src=s\' + setid + '.jpg>' +
+    ss1 := Format('Storage Location for the inventory of %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled (%s%d%d in wish list)<br><img width=360px src=s\' + setid + '.jpg>' +
       ' <a href=DoEditSet/' + setid + '><img src="images\edit.png"></a>' +
 //      ' <a href=PreviewSetInventory/' + setid + '><img src="images\print.png"></a>' +
       ' <a href=sstoragelocpv/' + setid + '><img src="images\print.png"></a>' +
@@ -4960,7 +5061,7 @@ begin
 
       '[Year: <a href=ShowSetsAtYear/%d>%d</a>]<br>',
     ['<a href=spiece/' + setid + '>' + setid + '</a>', db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
-     sf2, st.num, sf1, sf4, st.dismantaled, sf3, year, year]);
+     sf2, st.num, sf1, sf4, st.numdismantaled, sf3, sf6, st.numwishlist, sf5, year, year]);
   idx := db.allsets.IndexOf(Trim(setid));
   if idx > -1 then
   begin
@@ -5283,7 +5384,7 @@ var
       if optlocationslugbulk and (dismantaledsetsinv <> nil) then
         if dismantaledsetsinv.LoosePartCount(Apci.piece, Apci.color) > 0 then
           for ii := 0 to inventory.numsets - 1 do
-            if inventory.sets[ii].dismantaled > 0 then
+            if inventory.sets[ii].numdismantaled > 0 then
             begin
               Asid := inventory.sets[ii].setid;
               pi := db.PieceInfo(Asid);
@@ -5693,7 +5794,7 @@ begin
 
   document.write('<br>');
   document.write('<br>');
-  if ShowInventorySets(inv, False, 3) then
+  if ShowInventorySets(inv, False, SSINV_FLAG_SETS_AND_MOCS) then
   begin
     document.write('<br>');
     document.write('<br>');
@@ -12324,6 +12425,7 @@ begin
   if s1 = UpperCase('downloadsetandrefresh/') then Exit;
   if s1 = UpperCase('downloadsetandrefreshex/') then Exit;
   if s1 = UpperCase('addsetdismantaled/') then Exit;
+  if s1 = UpperCase('addsetwishlist/') then Exit;
   if s1 = UpperCase('UpdatePartInventory/') then Exit;
   if s1 = UpperCase('UpdatePartInventorynorefresh/') then Exit;
   if s1 = UpperCase('DownloadPartInventorynorefresh/') then Exit;
@@ -12331,6 +12433,7 @@ begin
   if s1 = UpperCase('UpdateSetAssetsFromBricklink/') then Exit;
   if s1 = UpperCase('UpdateSetAssetsFromBricklinknorefresh/') then Exit;
   if s1 = UpperCase('removesetdismantaled/') then Exit;
+  if s1 = UpperCase('removesetwishlist/') then Exit;
   if s1 = UpperCase('diagrampiece/') then Exit;
   if s1 = UpperCase('diagrampieceex/') then Exit;
   if s1 = UpperCase('diagramstorage/') then Exit;
@@ -13183,7 +13286,7 @@ begin
     begin
       splitstring(SRC, s1, s2, '/');
       inventory.StorePieceInventoryStatsRec(basedefault + 'out\' + s2 + '\' + s2 + '.history', s2, -1);
-      inventory.AddSet(s2, False);
+      inventory.AddSet(s2, AS_NORMAL);
       inventory.StorePieceInventoryStatsRec(basedefault + 'out\' + s2 + '\' + s2 + '.history', s2, -1);
       btn_SaveClick(nil);
       HTMLClick('refresh', Handled);
@@ -13452,8 +13555,20 @@ begin
     begin
       splitstring(SRC, s1, s2, '/');
       inventory.StorePieceInventoryStatsRec(basedefault + 'out\' + s2 + '\' + s2 + '.history', s2, -1);
-      inventory.AddSet(s2, True);
+      inventory.AddSet(s2, AS_DISMANTALED);
       inventory.StorePieceInventoryStatsRec(basedefault + 'out\' + s2 + '\' + s2 + '.history', s2, -1);
+      btn_SaveClick(nil);
+      HTMLClick('refresh', Handled);
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos1('addsetwishlist/', SRC) then
+    begin
+      splitstring(SRC, s1, s2, '/');
+//      inventory.StorePieceInventoryStatsRec(basedefault + 'out\' + s2 + '\' + s2 + '.history', s2, -1);
+      inventory.AddSet(s2, AS_WISHLIST);
+//      inventory.StorePieceInventoryStatsRec(basedefault + 'out\' + s2 + '\' + s2 + '.history', s2, -1);
       btn_SaveClick(nil);
       HTMLClick('refresh', Handled);
       Handled := True;
@@ -13496,7 +13611,7 @@ begin
     if Pos1('removeset/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
-      inventory.RemoveSet(s2, False);
+      inventory.RemoveSet(s2, AS_NORMAL);
       btn_SaveClick(nil);
       HTMLClick('refresh', Handled);
       Handled := True;
@@ -13523,7 +13638,17 @@ begin
     if Pos1('removesetdismantaled/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
-      inventory.RemoveSet(s2, True);
+      inventory.RemoveSet(s2, AS_DISMANTALED);
+      btn_SaveClick(nil);
+      HTMLClick('refresh', Handled);
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos1('removesetwishlist/', SRC) then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      inventory.RemoveSet(s2, AS_WISHLIST);
       btn_SaveClick(nil);
       HTMLClick('refresh', Handled);
       Handled := True;
@@ -14100,6 +14225,10 @@ begin
   begin
     ShowMyMocsPieces;
   end
+  else if slink = 'ShowMyWishListPieces' then
+  begin
+    ShowMyWishListPieces;
+  end
   else if slink = 'ShowMyPiecesValue' then
   begin
     ShowMyPiecesValue;
@@ -14142,6 +14271,10 @@ begin
   else if slink = 'myofficialsets' then
   begin
     ShowMyOfficialSets;
+  end
+  else if slink = 'mywishlist' then
+  begin
+    ShowMyWishList;
   end
   else if slink = 'mymocs' then
   begin
@@ -14935,7 +15068,7 @@ begin
   for i := 0 to inventory.numsets - 1 do
     if not db.IsMoc(inventory.sets[i].setid) then
       for j := 1 to inventory.sets[i].num do
-        inv.AddSet(inventory.sets[i].setid, False);
+        inv.AddSet(inventory.sets[i].setid, AS_NORMAL);
   inv.DismandalAllSets;
   SortInventory(inv);
 
@@ -14965,7 +15098,7 @@ begin
     document.NewMultiPageDocument('ShowMySetsAndMocsPieces', itoa(inventory.numsets));
 
   document.write('<body background="splash.jpg">');
-  document.title('Pieces of my sets and mocs');
+  document.title('Pieces of my builded sets and mocs');
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -14973,7 +15106,7 @@ begin
   inv := TBrickInventory.Create;
   for i := 0 to inventory.numsets - 1 do
     for j := 1 to inventory.sets[i].num do
-      inv.AddSet(inventory.sets[i].setid, False);
+      inv.AddSet(inventory.sets[i].setid, AS_NORMAL);
   inv.DismandalAllSets;
   SortInventory(inv);
 
@@ -15012,11 +15145,48 @@ begin
   for i := 0 to inventory.numsets - 1 do
     if db.IsMoc(inventory.sets[i].setid) then
       for j := 1 to inventory.sets[i].num do
-        inv.AddSet(inventory.sets[i].setid, False);
+        inv.AddSet(inventory.sets[i].setid, AS_NORMAL);
   inv.DismandalAllSets;
   SortInventory(inv);
 
   DrawHeadLine('My builded mocs Inventory');
+
+  DrawInventoryTable(inv, False);
+  document.write('<br>');
+  document.write('<br>');
+  document.write('</p>');
+  document.write('</div>');
+  document.write('</body>');
+  inv.Free;
+  document.SaveBufferToFile(diskmirror);
+  document.Flash;
+  Screen.Cursor := crDefault;
+end;
+
+procedure TMainForm.ShowMyWishListPieces;
+var
+  inv: TBrickInventory;
+  i, j: integer;
+begin
+  Screen.Cursor := crHourGlass;
+
+  if domultipagedocuments then
+    document.NewMultiPageDocument('ShowMyWishListPieces', itoa(inventory.numsets));
+
+  document.write('<body background="splash.jpg">');
+  document.title('Pieces of my wish list sets');
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+
+  inv := TBrickInventory.Create;
+  for i := 0 to inventory.numsets - 1 do
+    for j := 1 to inventory.sets[i].numwishlist do
+      inv.AddSet(inventory.sets[i].setid, AS_NORMAL);
+  inv.DismandalAllSets;
+  SortInventory(inv);
+
+  DrawHeadLine('My <a href=mywishlist>wish list</a> sets Inventory');
 
   DrawInventoryTable(inv, False);
   document.write('<br>');
@@ -15077,12 +15247,12 @@ begin
     if db.IsMoc(inventory.sets[i].setid) then
     begin
       for j := 1 to inventory.sets[i].num do
-        inv1.AddSet(inventory.sets[i].setid, False);
+        inv1.AddSet(inventory.sets[i].setid, AS_NORMAL);
     end
     else
     begin
       for j := 1 to inventory.sets[i].num do
-        inv2.AddSet(inventory.sets[i].setid, False);
+        inv2.AddSet(inventory.sets[i].setid, AS_NORMAL);
     end;
 
   inv1.DismandalAllSets;
@@ -15944,7 +16114,19 @@ begin
   lst.Free;
   if SelectSets(Missingfordismandaledsetslist) then
     HTMLClick('multymissing/' + IntToStr(Integer(Missingfordismandaledsetslist)), foo);
+end;
 
+
+procedure TMainForm.Missingforwishlist1Click(Sender: TObject);
+var
+  foo: Boolean;
+  lst: TStringList;
+begin
+  lst := inventory.GetWishList;
+  Missingforwishlist.Text := lst.Text;
+  lst.Free;
+  if SelectSets(Missingforwishlist) then
+    HTMLClick('multymissing/' + IntToStr(Integer(Missingforwishlist)), foo);
 end;
 
 procedure TMainForm.Usedsetstobuiltfromscratch1Click(Sender: TObject);
@@ -16597,7 +16779,7 @@ begin
     inv := TBrickInventory.Create;
     for i := 0 to inventory.numsets - 1 do
       for j := 1 to inventory.sets[i].num do
-        inv.AddSet(inventory.sets[i].setid, False);
+        inv.AddSet(inventory.sets[i].setid, AS_NORMAL);
     inv.DismandalAllSets;
 
     inv.SaveLoosePartsForRebrickable(SaveToRebrickableDialog1.FileName);
@@ -16634,7 +16816,7 @@ begin
     for i := 0 to inventory.numsets - 1 do
       if db.IsMoc(inventory.sets[i].setid) then
         for j := 1 to inventory.sets[i].num do
-          inv.AddSet(inventory.sets[i].setid, False);
+          inv.AddSet(inventory.sets[i].setid, AS_NORMAL);
     inv.DismandalAllSets;
 
     inv.SaveLoosePartsForRebrickable(SaveToRebrickableDialog1.FileName);
@@ -22267,6 +22449,13 @@ begin
   end;
   SplashProgress('Working...', 1);
   HideSplash;
+end;
+
+procedure TMainForm.Mywishlist1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('mywishlist', foo);
 end;
 
 end.

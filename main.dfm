@@ -1713,17 +1713,6 @@ object MainForm: TMainForm
           Caption = 'Sets by num lots'
           OnClick = Setsbynumlots1Click
         end
-        object N2: TMenuItem
-          Caption = '-'
-        end
-        object Missingformultiplesets1: TMenuItem
-          Caption = 'Missing for multiple sets'
-          OnClick = Missingformultiplesets1Click
-        end
-        object Missingfordismandaledsets1: TMenuItem
-          Caption = 'Missing for dismandaled sets'
-          OnClick = Missingfordismandaledsets1Click
-        end
       end
       object MosaicMenuItem1: TMenuItem
         Caption = 'Mosaic'
@@ -2003,6 +1992,10 @@ object MainForm: TMainForm
         Caption = 'My builted mocs'
         OnClick = Mybuiltedmocs1Click
       end
+      object Mywishlist1: TMenuItem
+        Caption = 'My wish list'
+        OnClick = Mywishlist1Click
+      end
       object N59: TMenuItem
         Caption = '-'
       end
@@ -2097,6 +2090,21 @@ object MainForm: TMainForm
       object MinifiguresIcanbuild1: TMenuItem
         Caption = 'Minifigures I can build'
         OnClick = MinifiguresIcanbuild1Click
+      end
+      object Missingtobuild1: TMenuItem
+        Caption = 'Missing to build'
+        object Missingformultiplesets1: TMenuItem
+          Caption = 'Missing for multiple sets'
+          OnClick = Missingformultiplesets1Click
+        end
+        object Missingfordismandaledsets1: TMenuItem
+          Caption = 'Missing for dismandaled sets'
+          OnClick = Missingfordismandaledsets1Click
+        end
+        object Missingforwishlist1: TMenuItem
+          Caption = 'Missing for wish list'
+          OnClick = Missingforwishlist1Click
+        end
       end
       object N47: TMenuItem
         Caption = '-'

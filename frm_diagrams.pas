@@ -806,7 +806,7 @@ begin
       if hasinv then
       begin
         inventory.GetSetInfo(part, @st);
-        f.Edit1.Text := itoa(st.num) + ' builded - ' + itoa(st.dismantaled) + ' dismantaled';
+        f.Edit1.Text := itoa(st.num) + ' builded - ' + itoa(st.numdismantaled) + ' dismantaled - ' + itoa(st.numwishlist) + ' wishlist';
         f.Label2.Caption := 'Num sets:';
         f.ColorPanel.Visible := false;
       end

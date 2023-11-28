@@ -228,7 +228,7 @@ begin
     else if (ii.ITEMTYPE = 'S') or (ii.ITEMTYPE = 'M') then
     begin
       for j := 0 to ii.QTY - 1 do
-        Result.AddSet(db.RebrickablePart(ii.ITEMID), False);
+        Result.AddSet(db.RebrickablePart(ii.ITEMID), AS_NORMAL);
     end
     else if ii.ITEMTYPE = 'C' then
       Result.AddLoosePart(db.RebrickablePart(ii.ITEMID), CATALOGCOLORINDEX, ii.QTY)

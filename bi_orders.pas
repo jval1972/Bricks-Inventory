@@ -166,6 +166,7 @@ begin
         end;
         lalt.Free;
       end;
+      dbalt.Free;
     end;
   end;
   fOnePiece.Sorted := True;

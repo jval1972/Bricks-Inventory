@@ -134,7 +134,6 @@ var
   lalt, dbalt: TStringList;
   salt, spartcolor: string;
   cc: colorinfo_p;
-  pi: TPieceInfo;
   pci: TPieceColorInfo;
 begin
   FreeList(fOnePiece);

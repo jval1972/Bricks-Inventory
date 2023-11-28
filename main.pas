@@ -2816,6 +2816,7 @@ begin
   initialized := True;
   HideSplash;
 
+  Orders.NotifyInventory(inventory);
   orders.LoadFilesDirectory(basedefault + 'orders');
 
   BI_CheckDefaultAssets(basedefault);

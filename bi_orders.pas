@@ -68,11 +68,14 @@ type
     fnumorders: integer;
     forders: orders_t;
     fpieceorderinfo: TStringList;
+    fOnePiece: TStringList;
     procedure ProssesOrder(const oo: IXMLORDERType);
     procedure ProssesItem(const oo: IXMLORDERType; const ii: IXMLITEMType);
+    function OnePiece(const op: string): string;
   public
     constructor Create; virtual;
     destructor Destroy; override;
+    procedure NotifyInventory(const inv: TBrickInventory);
     procedure LoadFilesDirectory(dir: string);
     procedure LoadFile(fname: string);
     function ItemInfo(const part: string; const color: Integer): TStringList;
@@ -105,6 +108,8 @@ begin
   ZeroMemory(@forders, SizeOf(orders_t));
   fpieceorderinfo := TStringList.Create;
   fpieceorderinfo.Sorted := True;
+  fOnePiece := TStringList.Create;
+  fOnePiece.Sorted := True;
   inherited;
 end;
 
@@ -116,9 +121,65 @@ begin
     for j := 0 to (fpieceorderinfo.Objects[i] as TStringList).Count - 1 do
       (fpieceorderinfo.Objects[i] as TStringList).Objects[j].Free;
   FreeList(fpieceorderinfo);
+  FreeList(fOnePiece);
   for i := 0 to fnumorders - 1 do
     I_ClearInterface(IInterface(forders[i]));
   inherited;
+end;
+
+procedure TOrders.NotifyInventory(const inv: TBrickInventory);
+var
+  i, j: integer;
+  brick: brickpool_p;
+  lalt, dbalt: TStringList;
+  salt, spartcolor: string;
+  cc: colorinfo_p;
+  pi: TPieceInfo;
+  pci: TPieceColorInfo;
+begin
+  FreeList(fOnePiece);
+  fOnePiece := TStringList.Create;
+
+  for i := 0 to inv.numlooseparts - 1 do
+  begin
+    brick := @inv.looseparts[i];
+    pci := db.PieceColorInfo(brick);
+    if pci <> nil then
+    begin
+      dbalt := db.GetRelatedPieces(brick.part);
+      if dbalt.Count > 0 then
+      begin
+        cc := db.Colors(pci.color);
+        lalt := TStringList.Create;
+        for j := 0 to dbalt.Count - 1 do
+        begin
+          salt := dbalt.Strings[j];
+          if salt <> brick.part then
+            if cc.knownpieces.IndexOf(salt) > 0 then
+              lalt.Add(dbalt.Strings[j]);
+        end;
+        if lalt.Count > 0 then
+        begin
+          spartcolor := brick.part + ',' + itoa(brick.color);
+          for j := 0 to lalt.Count - 1 do
+            fOnePiece.AddObject(dbalt.Strings[j] + ',' + itoa(brick.color), TStringInit.Create(spartcolor));
+        end;
+        lalt.Free;
+      end;
+    end;
+  end;
+  fOnePiece.Sorted := True;
+end;
+
+function TOrders.OnePiece(const op: string): string;
+var
+  idx: integer;
+begin
+  idx := fOnePiece.IndexOf(op);
+  if idx < 0 then
+    Result := op
+  else
+    Result := (fOnePiece.Objects[idx] as TStringInit).Text;
 end;
 
 function TOrders.order(const index: integer): IXMLORDERType;
@@ -209,7 +270,7 @@ var
 begin
   rcolor := db.BrickLinkColorToSystemColor(ii.COLOR);
   scolor := IntToStr(rcolor);
-  s := db.RebrickablePart(ii.ITEMID) + ',' + scolor;
+  s := OnePiece(db.RebrickablePart(ii.ITEMID) + ',' + scolor);
   idx := fpieceorderinfo.IndexOf(s);
   if idx < 0 then
     idx := fpieceorderinfo.AddObject(s, TStringList.Create);

@@ -166,7 +166,7 @@ const
      defaultsvalue: '0';
      defaultivalue: 0;
      defaultbvalue: False;
-     _type: tInteger),
+     _type: tBoolean),
 
     (name: 'optdefaultcurrency';
      location: @optdefaultcurrency;
@@ -232,7 +232,7 @@ const
      defaultbvalue: True;
      _type: tBoolean),
 
-    (name: 'StorageL';
+    (name: 'Notes';
      location: nil;
      setable: false;
      defaultsvalue: '';

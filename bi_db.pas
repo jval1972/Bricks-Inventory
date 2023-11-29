@@ -5301,8 +5301,7 @@ end;
 
 function TBrickInventory.RemoveSet(const setid: string; const typ: integer): boolean;
 var
-  i{, j}: integer;
-  inv: TBrickInventory;
+  i: integer;
 begin
   Result := True;
   for i := 0 to fnumsets - 1 do

@@ -22096,7 +22096,7 @@ begin
   if optshowusernotes then
   begin
     fname := PieceColorNotesFName(pcs, color);
-    if fexists(fname) then
+    if fsize(fname) > 0 then
     begin
       document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
       document.write('<tr bgcolor=' + DBGCOLOR + '>');
@@ -22134,7 +22134,7 @@ begin
   if optshowusernotes then
   begin
     fname := PieceNotesFName(pcs);
-    if fexists(fname) then
+    if fsize(fname) > 0 then
     begin
       document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
       document.write('<tr bgcolor=' + DBGCOLOR + '>');

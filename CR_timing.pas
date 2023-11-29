@@ -268,6 +268,9 @@ end;
 
 procedure TForm1.CrawlerTimerTimer(Sender: TObject);
 begin
+  if not IsValidBLTime then
+    Exit;
+    
   CrawlerStep;
   if not CheckBox3.Checked then
   begin

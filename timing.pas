@@ -57,7 +57,7 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_db, bi_globals, main;
+  bi_db, bi_globals, bi_crawler, main;
 
 procedure TTimingForm.FormCreate(Sender: TObject);
 begin
@@ -70,6 +70,8 @@ begin
 end;
 
 procedure TTimingForm.CrawlerTimerTimer(Sender: TObject);
+var
+  ret: integer;
 begin
   if not cancrowl then
     Exit;
@@ -86,15 +88,18 @@ begin
   if not MainForm.CheckBox1.Checked then
     Exit;
 
-  crawling := True;
-  MainForm.CrawlerPanel.Color := RGB(64, 255, 64);
-  MainForm.CrawlerPanel.Update;
-  try
-    db.Crawler;
-  finally
-    MainForm.CrawlerPanel.Color := clBtnFace;
+  if IsValidBLTime then
+  begin
+    crawling := True;
+    MainForm.CrawlerPanel.Color := RGB(64, 255, 64);
     MainForm.CrawlerPanel.Update;
-    crawling := False;
+    try
+      db.Crawler;
+    finally
+      MainForm.CrawlerPanel.Color := clBtnFace;
+      MainForm.CrawlerPanel.Update;
+      crawling := False;
+    end;
   end;
 end;
 

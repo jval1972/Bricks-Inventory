@@ -82,11 +82,13 @@ var
 
 function NET_ExistsCache(const id: string; const hits: string; out fname: string): boolean;
 
+function IsValidBLTime: boolean;
+
 implementation
 
 uses
-  Windows, bi_delphi, bi_script, bi_utils, bi_system, bi_globals, bi_cachefile,
-  strutils;
+  Windows, DateUtils, StrUtils, bi_delphi, bi_script, bi_utils, bi_system,
+  bi_cachefile, bi_globals;
 
 var
   hSession: HInternet;
@@ -2211,6 +2213,43 @@ begin
 
   Result := False;
   fname := '';
+end;
+
+function IsValidBLTime: boolean;
+var
+  myDate: TDateTime;
+  myYear, myMonth, myDay : Word;
+  myHour, myMin, mySec, myMilli: Word;
+begin
+  Result := True;
+  MyDate := Now;
+  DecodeDateTime(myDate, myYear, myMonth, myDay, myHour, myMin, mySec, myMilli);
+  if myHour <> 7 then
+    if myHour <> 8 then
+      Exit;
+
+  if ((myMonth = 3) and (myDay > 22)) or ((myMonth = 10) and (myDay > 22)) then
+  begin
+    if (myMin > 49) or ((myMin = 49) and (mySec > 57)) then
+      Result := False;
+      Exit;
+  end;
+
+  if (myMonth <= 3) or (myMonth > 10) then
+    if myHour = 8 then
+      if (myMin > 49) or ((myMin = 49) and (mySec > 57)) then
+      begin
+        Result := False;
+        Exit;
+      end;
+
+  if (myMonth > 3) and (myMonth <= 10) then
+    if myHour = 7 then
+      if (myMin > 49) or ((myMin = 49) and (mySec > 57)) then
+      begin
+        Result := False;
+        Exit;
+      end;
 end;
 
 const

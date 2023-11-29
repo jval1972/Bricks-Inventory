@@ -22405,8 +22405,8 @@ begin
   if color = CATALOGCOLORINDEX then
   begin
     Result := BI_AutoNotes(pcs, basedefault + 'db\catalogs\');
-      if Result <> '' then
-        Exit;
+    if Result <> '' then
+      Exit;
   end;
 
   sl := TStringList.Create;

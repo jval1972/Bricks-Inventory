@@ -748,7 +748,7 @@ type
     procedure Load;
     procedure SaveToDisk;
     procedure DoSaveToDisk;
-    procedure InternetUpdate;
+    function InternetUpdate: boolean;
     function EvaluatePriceNew: double;
     function EvaluatePriceNewAvg: double;
     function EvaluatePriceUsed: double;
@@ -1008,6 +1008,7 @@ type
     procedure InitPartReferences;
     procedure LoadAdditionalSets;
     procedure LoadCrawler;
+    procedure CreateCrawlerFile;
     procedure LoadCache;
     procedure MarkInventoriedPart(const pcs: string); overload;
     procedure MarkInventoriedPart(const pi: TPieceInfo; const pcs: string); overload;
@@ -1103,7 +1104,7 @@ type
     procedure ExportDatabase(const fname: string);
     procedure ExportPartColor(const fname: string);
     {$ENDIF}
-    procedure Crawler(const rlevel: integer = 0);
+    function Crawler(const rlevel: integer = 0): boolean;
     {$IFNDEF CRAWLER}
     procedure SaveStorage;
     procedure LoadStorage;
@@ -17901,7 +17902,7 @@ begin
   end;
 end;
 
-procedure TSetsDatabase.Crawler(const rlevel: integer = 0);
+function TSetsDatabase.Crawler(const rlevel: integer = 0): boolean;
 var
   spart, scolor: string;
   idx: integer;
@@ -17909,12 +17910,10 @@ var
   pi: TPieceInfo;
   s: string;
   inv: TBrickInventory;
-  ltmp, lsets1, lsets2, lparts1, lparts2: TStringList;
-  oldname, newname: string;
   i: integer;
-  stmp: string;
   codeok: boolean;
 begin
+  Result := False;
   if not floaded then
     Exit;
 
@@ -17925,47 +17924,7 @@ begin
 
   if fcrawlerpriority.Count = 0 then
   begin
-    ltmp := TStringList.Create;
-    lsets1 := TStringList.Create;
-    lsets2 := TStringList.Create;
-    lparts1 := TStringList.Create;
-    lparts2 := TStringList.Create;
-    try
-      ltmp.AddStrings(fcolorpieces);
-      for i := 0 to ltmp.Count - 1 do
-        if not Pos1('-1,', ltmp.Strings[i]) then
-        begin
-          oldname := secondword(ltmp.strings[i], ',');
-          newname := GetNewPieceName(oldname);
-          if (newname = oldname) or (newname = '') then
-            lparts1.Add(ltmp.Strings[i])
-          else
-            lparts2.Add(ltmp.Strings[i]);
-        end;
-      fcrawlerpriority.AddStrings(lparts1);
-      fcrawlerpriority.AddStrings(lparts2);
-      for i := 0 to ltmp.Count - 1 do
-      begin
-        stmp := ltmp.Strings[i];
-        if Pos1('-1,', stmp) then
-        begin
-          if (Pos1('-1,sw', stmp)) and (CountNumbers(stmp) = 4) then
-            lsets1.Add(stmp)
-          else if (Pos1('-1,cty', stmp)) and (CountNumbers(stmp) = 4) then
-            lsets1.Add(stmp)
-          else
-            lsets2.Add(stmp);
-        end;
-      end;
-      fcrawlerpriority.AddStrings(lsets1);
-      fcrawlerpriority.AddStrings(lsets2);
-    finally
-      ltmp.Free;
-      lsets1.Free;
-      lsets2.Free;
-      lparts1.Free;
-      lparts2.Free;
-    end;
+    CreateCrawlerFile;
     fcrawlerhistory.Clear;
 {    for i := 0 to fallbooks.Count - 1 do
       fcrawlerpriority.Add('-1,' + fallbooks.Strings[i]);}
@@ -18023,7 +17982,7 @@ begin
 
   if fcrawlerhistory.IndexOf(s) > 0 then
   begin
-    Crawler(rlevel + 1);
+    Result := Crawler(rlevel + 1);
     Exit;
   end;
 
@@ -18033,7 +17992,7 @@ begin
 
   if not codeok then
   begin
-    Crawler(rlevel + 1);
+    Result := Crawler(rlevel + 1);
     Exit;
   end;
 
@@ -18041,7 +18000,7 @@ begin
   if pci = nil then
     Exit;
 
-  pci.InternetUpdate;
+  Result := pci.InternetUpdate;
 
   {$IFNDEF CRAWLER}
   if scolor = '-1' then
@@ -19459,13 +19418,16 @@ begin
   needssave := False;
 end;
 
-procedure TPieceColorInfo.InternetUpdate;
+function TPieceColorInfo.InternetUpdate: boolean;
 var
   pg: priceguide_t;
   av: availability_t;
   fdir, fname: string;
   tmpdate: double;
 begin
+  Result := False;
+  if not IsValidBLTime then
+    Exit;
   tmpdate := Now;
   if tmpdate - flastinternetupdate < 1 / (24 * 60 * 12) then // 5 seconds
     Exit;
@@ -19480,6 +19442,7 @@ begin
     PRICEADJUST(fpiece, fcolor, pg, av, fdate);
     AssignPGAV(@pg, @av, pci_src_internal);
     SaveToDisk;
+    Result := True;
   end
   else if not fexists(PieceColorCacheFName(fpiece, fcolorstr)) then
   begin
@@ -20585,6 +20548,70 @@ begin
   end;
 end;
 
+procedure TSetsDatabase.CreateCrawlerFile;
+var
+  ltmp, lsets1, lsets2, lparts1, lparts2, lparts3, lparts4, tmplst: TStringList;
+  i: integer;
+  stmp, oldname, newname: string;
+begin
+  ltmp := TStringList.Create;
+  lsets1 := TStringList.Create;
+  lsets2 := TStringList.Create;
+  lparts1 := TStringList.Create;
+  lparts2 := TStringList.Create;
+  lparts3 := TStringList.Create;
+  lparts4 := TStringList.Create;
+  tmplst := TStringList.Create;
+  try
+    ltmp.AddStrings(fcolorpieces);
+    for i := 0 to ltmp.Count - 1 do
+      if not Pos1('-1,', ltmp.Strings[i]) then
+      begin
+        oldname := secondword(ltmp.strings[i], ',');
+        newname := GetNewPieceName(oldname);
+        if (newname = oldname) or (newname = '') then
+          lparts1.Add(ltmp.Strings[i])
+        else if tmplst.IndexOf(newname) < 0 then
+        begin
+          tmplst.Add(newname);
+          lparts2.Add(ltmp.Strings[i]);
+        end
+        else if Odd(i) then
+          lparts3.Add(ltmp.Strings[i])
+        else
+          lparts4.Add(ltmp.Strings[i])
+      end;
+    for i := 0 to ltmp.Count - 1 do
+    begin
+      stmp := ltmp.Strings[i];
+      if Pos1('-1,', stmp) then
+      begin
+        if (Pos1('-1,sw', stmp)) and (CountNumbers(stmp) = 4) then
+          lsets1.Add(stmp)
+        else if (Pos1('-1,cty', stmp)) and (CountNumbers(stmp) = 4) then
+          lsets1.Add(stmp)
+        else
+          lsets2.Add(stmp);
+      end;
+    end;
+    fcrawlerpriority.AddStrings(lparts1);
+    fcrawlerpriority.AddStrings(lparts2);
+    fcrawlerpriority.AddStrings(lsets1);
+    fcrawlerpriority.AddStrings(lparts3);
+    fcrawlerpriority.AddStrings(lsets2);
+    fcrawlerpriority.AddStrings(lparts4);
+  finally
+    ltmp.Free;
+    lsets1.Free;
+    lsets2.Free;
+    lparts1.Free;
+    lparts2.Free;
+    lparts3.Free;
+    lparts4.Free;
+    tmplst.Free;
+  end;
+end;
+
 procedure TSetsDatabase.LoadCrawler;
 var
   i, j: integer;
@@ -20594,9 +20621,6 @@ var
   sc, sp: string;
   idx: integer;
   pci: TPieceColorInfo;
-  lparts1, lparts2: TStringList;
-  lsets1, lsets2: TStringList;
-  oldname, newname: string;
   stmp: string;
 begin
   fcolorpieces.Sorted := True;
@@ -20642,49 +20666,7 @@ begin
     end;
   end
   else
-  begin
-    lparts1 := TStringList.Create;
-    lparts2 := TStringList.Create;
-    try
-      for i := 0 to fcolorpieces.Count - 1 do
-        if not Pos1('-1,', fcolorpieces.Strings[i]) then
-        begin
-          oldname := secondword(fcolorpieces.strings[i], ',');
-          newname := GetNewPieceName(oldname);
-          if (newname = oldname) or (newname = '') then
-            lparts1.Add(fcolorpieces.Strings[i])
-          else
-            lparts2.Add(fcolorpieces.Strings[i]);
-        end;
-      fcrawlerpriority.AddStrings(lparts1);
-      fcrawlerpriority.AddStrings(lparts2);
-    finally
-      lparts1.Free;
-      lparts2.Free;
-    end;
-    lsets1 := TStringList.Create;
-    lsets2 := TStringList.Create;
-    try
-      for i := 0 to fcolorpieces.Count - 1 do
-      begin
-        stmp := fcolorpieces.Strings[i];
-        if Pos1('-1,', stmp) then
-        begin
-          if Pos1('-1,sw', stmp) and (CountNumbers(stmp) = 4) then
-            lsets1.Add(stmp)
-          else if Pos1('-1,cty', stmp) and (CountNumbers(stmp) = 4) then
-            lsets1.Add(stmp)
-          else
-            lsets2.Add(stmp);
-        end;
-      end;
-      fcrawlerpriority.AddStrings(lsets1);
-      fcrawlerpriority.AddStrings(lsets2);
-    finally
-      lsets1.Free;
-      lsets2.Free;
-    end;
-  end;
+    CreateCrawlerFile;
 end;
 
 procedure TSetsDatabase.LoadCache;

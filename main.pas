@@ -712,10 +712,16 @@ type
     procedure ShowTag(const tag: string);
     procedure ShowTagInv(const tag: string);
     procedure ShowCategoryColors(const cat: integer);
-    function HtmlDrawInvImgLink(const pcs: string; const color: integer;
+    function GetInvImgLinkHtml(const pcs: string; const color: integer;
       const pi: TPieceInfo): string;
-    function HtmlDrawSetMostLink(const pci: TPieceColorInfo): string;
-    function HtmlDrawInvCode(const pci: TPieceColorInfo; const extras1, extras2: string): string;
+    function GetSetMostLinkHtml(const pci: TPieceColorInfo): string;
+    function GetInvCodeHtml(const pci: TPieceColorInfo; const extras1, extras2: string): string;
+    function GetRebrickableColorHtml(const cl: integer): string;
+    function GetEditPieceHtml(const pcs: string; const scol: string): string;
+    function GetDiagramPieceHtml(const pcs: string; const scol: string): string;
+    function GetEditSetHtml(const setid: string): string;
+    function GetEditMoldHtml(const pcs: string): string;
+    function GetPieceColorLinkHtml(const pcs: string; const col: integer): string;
     procedure ShowCategories;
     procedure ShowPiece(pcs: string; const year: integer = -1; const flags: LongWord = 0);
     procedure DoAddNewSetAsPiece(const pcs: string; const desc: string);
@@ -877,7 +883,6 @@ type
     function CanOpenInNewTab(const surl: string): boolean;
     procedure ErrorBeep;
     function DoOpenUrlInNewTable(const aUrl: string): boolean;
-    function GetRebrickableColorHtml(const cl: integer): string;
     function AutoCorrectUnknownPieceYears: boolean;
     procedure DoUpdateInstructionsFromNet(const sset: string);
     procedure DoUpdateInstructionsFromNetHost(const sset: string; const host: string);
@@ -3297,7 +3302,6 @@ var
   prnt, prut: double;
   cl: TDNumberList;
   pl: TStringList;
-  cinfo: colorinfo_p;
   num: integer;
   accurstr: string;
   totalweight: double;
@@ -3350,9 +3354,7 @@ begin
 //    document.BlancColorCell(db.colors(brick.color).RGB, 25);
 //    pci := db.PieceColorInfo(brick.part, brick.color);
     pci := db.PieceColorInfo(brick);
-    cinfo := db.colors(brick.color);
-    document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name +
-      ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(brick.color) + '</td>');
+    document.write(GetPieceColorLinkHtml(brick.part, brick.color));
     document.write('<td width=10% align=right>' + IntToStr(brick.num));
     document.write('</td>');
     pi := db.PieceInfo(pci);
@@ -3530,16 +3532,14 @@ begin
       pi := db.PieceInfo(brick.part);
     cinfo := db.colors(brick.color);
     if lite or (pci = nil) then
-      document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name +
-        ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' +
-          GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
-          HtmlDrawInvImgLink(brick.part, brick.color, pi) + '</td>')
+      document.write(
+        GetPieceColorLinkHtml(brick.part, brick.color) +
+        GetInvImgLinkHtml(brick.part, brick.color, pi) + '</td>')
     else
-      document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name +
-        ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' +
-          GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
-          HtmlDrawInvImgLink(brick.part, brick.color, pi) +
-          HtmlDrawSetMostLink(pci));
+      document.write(
+        GetPieceColorLinkHtml(brick.part, brick.color)  +
+        GetInvImgLinkHtml(brick.part, brick.color, pi) +
+        GetSetMostLinkHtml(pci));
     if not lite then
     begin
       if pci <> nil then
@@ -3554,8 +3554,8 @@ begin
     document.write('<td width=10% align=right>' + IntToStr(brick.num));
     if not lite then
     begin
-      document.write('<br><a href=editpiece/' + brick.part + '/' + scolor + '><img src="images\edit.png"></a>');
-      document.write('<br><a href=diagrampiece/' + brick.part + '/' + scolor + '><img src="images\diagram.png"></a>');
+      document.write('<br>' + GetEditPieceHtml(brick.part, scolor));
+      document.write('<br>' + GetDiagramPieceHtml(brick.part, scolor));
     end;
     document.write('</td>');
 
@@ -3759,15 +3759,14 @@ begin
     cinfo := db.colors(brick.color);
     if ppreview then
       document.write(
-          HtmlDrawInvImgLink(brick.part, brick.color, pi) + ' ' + cinfo.name)
+          GetInvImgLinkHtml(brick.part, brick.color, pi) + ' ' + cinfo.name)
     else
     begin
-      document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' +  cinfo.name +
-        ' (' + scolor + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' +
-          GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
-          HtmlDrawInvImgLink(brick.part, brick.color, pi));
-      document.write('<br><a href=editpiece/' + brick.part + '/' + scolor + '><img src="images\edit.png"></a>');
-      document.write('<br><a href=diagrampiece/' + brick.part + '/' + scolor + '><img src="images\diagram.png"></a></td>');
+      document.write(
+        GetPieceColorLinkHtml(brick.part, brick.color)  +
+        GetInvImgLinkHtml(brick.part, brick.color, pi));
+      document.write('<br>' + GetEditPieceHtml(brick.part, scolor));
+      document.write('<br>' + GetDiagramPieceHtml(brick.part, scolor));
     end;
 
     document.write('<td width=10% align=right>' + IntToStr(brick.num));
@@ -4482,7 +4481,7 @@ begin
       slink := setid
     else
       slink := '<a href="spiece/' + setid + '">' + setid + '</a>';
-    DrawHeadLine('Can not find inventory for ' + slink + ' <a href=DoEditSet/' + setid + '><img src="images\edit.png"></a><br><br>' + lnk);
+    DrawHeadLine('Can not find inventory for ' + slink + ' ' + GetEditSetHtml(setid) + '<br><br>' + lnk);
     document.write('<br>');
     document.write('</p>');
     document.write('</div>');
@@ -4625,10 +4624,10 @@ begin
     sf6 := '';
   year := db.SetYear(setid);
   ss1 := Format('Inventory for %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled (%s%d%s in wish list)<br><img width=360px src=s\' + setid + '.jpg>' +
-      ' <a href=DoEditSet/' + setid + '><img src="images\edit.png"></a>' +
+      ' ' + GetEditSetHtml(setid) +
       ' <a href=editpiecenotes/' + setid + '><img src="images\notes.png"></a>' +
       ' <a href=PreviewSetInventory/' + setid + '><img src="images\print.png"></a>' +
-      ' <a href=diagrampiece/' + setid + '/-1><img src="images\diagram.png"></a><br>' +
+      ' ' + GetDiagramPieceHtml(setid, '-1') + '<br>' +
 
       '[Year: <a href=ShowSetsAtYear/%d>%d</a>]<br>',
     ['<a href=spiece/' + setid + '>' + setid + '</a>', db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
@@ -4869,22 +4868,19 @@ begin
     pi := db.PieceInfo(pci);
     if pi = nil then
       pi := db.PieceInfo(brick.part);
-    cc := db.colors(brick.color);
     if pci = nil then
-      document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' + cc.name +
-        ' (' + scolor + ') (BL=' + IntToStr(cc.BrickLinkColor) + ')' +
-          GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
-          HtmlDrawInvImgLink(brick.part, brick.color, pi) + '</td>')
+      document.write(
+        GetPieceColorLinkHtml(brick.part, brick.color) +
+        GetInvImgLinkHtml(brick.part, brick.color, pi) + '</td>')
     else
-      document.write('<a href=spiecec/' + brick.part + '/' + scolor + '>' + cc.name +
-        ' (' + scolor + ') (BL=' + IntToStr(cc.BrickLinkColor) + ')' +
-          GetRebrickableColorHtml(brick.color) + '<img src="images\details.png"></a>' +
-          HtmlDrawInvImgLink(brick.part, brick.color, pi) +
-          HtmlDrawSetMostLink(pci));
+      document.write(
+        GetPieceColorLinkHtml(brick.part, brick.color) +
+        GetInvImgLinkHtml(brick.part, brick.color, pi) +
+        GetSetMostLinkHtml(pci));
 
     document.write('<td rowspan="' + itoa(lalt.Count) + '" width=10% align=right>' + IntToStr(brick.num));
-    document.write('<br><a href=editpiece/' + brick.part + '/' + scolor + '><img src="images\edit.png"></a>');
-    document.write('<br><a href=diagrampiece/' + brick.part + '/' + scolor + '><img src="images\diagram.png"></a>');
+    document.write('<br>' + GetEditPieceHtml(brick.part, scolor));
+    document.write('<br>' + GetDiagramPieceHtml(brick.part, scolor));
     document.write('</td>');
 
     for j := 0 to lalt.Count - 1 do
@@ -4896,8 +4892,8 @@ begin
       document.write(
         '<img width=100px src=' + scolor + '\' + salt + '.png><br><b><a href=spiece/' + salt + '>' + salt + '</a></b> - ' + db.PieceDesc(salt) + '</td>');
       document.write('<td width=10% align=right>' + itoa(inv.LoosePartCount(salt, brick.color)));
-      document.write('<br><a href=editpiece/' + salt + '/' + scolor + '><img src="images\edit.png"></a>');
-      document.write('<br><a href=diagrampiece/' + salt + '/' + scolor + '><img src="images\diagram.png"></a>');
+      document.write('<br>' + GetEditPieceHtml(salt, scolor));
+      document.write('<br>' + GetDiagramPieceHtml(salt, scolor));
       document.write('</td></tr>');
     end;
 
@@ -4974,7 +4970,7 @@ begin
       slink := setid
     else
       slink := '<a href="spiece/' + setid + '">' + setid + '</a>';
-    DrawHeadLine('Can not find inventory for ' + slink + ' <a href=DoEditSet/' + setid + '><img src="images\edit.png"></a><br><br>' + lnk);
+    DrawHeadLine('Can not find inventory for ' + slink + ' ' + GetEditSetHtml(setid) + '<br><br>' + lnk);
     document.write('<br>');
     document.write('</p>');
     document.write('</div>');
@@ -5053,11 +5049,11 @@ begin
      sf2, st.num, sf1, sf4, st.numdismantaled, sf3, sf6, st.numwishlist, sf5])
   else
     ss1 := Format('Storage Location for the inventory of %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled (%s%d%d in wish list)<br><img width=360px src=s\' + setid + '.jpg>' +
-      ' <a href=DoEditSet/' + setid + '><img src="images\edit.png"></a>' +
+      ' ' + GetEditSetHtml(setid) +
 //      ' <a href=PreviewSetInventory/' + setid + '><img src="images\print.png"></a>' +
       ' <a href=sstoragelocpv/' + setid + '><img src="images\print.png"></a>' +
 
-      ' <a href=diagrampiece/' + setid + '/-1><img src="images\diagram.png"></a><br>' +
+      ' ' + GetDiagramPieceHtml(setid, '-1') + '<br>' +
 
       '[Year: <a href=ShowSetsAtYear/%d>%d</a>]<br>',
     ['<a href=spiece/' + setid + '>' + setid + '</a>', db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
@@ -6267,7 +6263,7 @@ begin
 end;
 
 
-function TMainForm.HtmlDrawInvImgLink(const pcs: string; const color: integer;
+function TMainForm.GetInvImgLinkHtml(const pcs: string; const color: integer;
   const pi: TPieceInfo): string;
 var
   inv: TBrickInventory;
@@ -6296,7 +6292,7 @@ begin
           pci := db.PieceColorInfo(pcs, -1);
         if pci <> nil then
           if pci.ItemType = 'S' then
-            Result := ' <a href=DoEditSet/' + pcs + '><img src="images\edit.png">';
+            Result := ' ' + GetEditSetHtml(pcs);
       end;
     end;
     Exit;
@@ -6352,7 +6348,7 @@ begin
     Result := '';
 end;
 
-function TMainForm.HtmlDrawSetMostLink(const pci: TPieceColorInfo): string;
+function TMainForm.GetSetMostLinkHtml(const pci: TPieceColorInfo): string;
 begin
   if pci.setmost = '' then
   begin
@@ -6363,7 +6359,7 @@ begin
           decide(pci.setmostnum = 1, '1 time in', itoa(pci.setmostnum) + ' times') + ' in ' + pci.setmost + '</a>' + lugbulklinks(pci) + '</td>';
 end;
 
-function TMainForm.HtmlDrawInvCode(const pci: TPieceColorInfo; const extras1, extras2: string): string;
+function TMainForm.GetInvCodeHtml(const pci: TPieceColorInfo; const extras1, extras2: string): string;
 begin
   if pci = nil then
   begin
@@ -6378,6 +6374,50 @@ begin
   end;
 
   Result := extras1 + 'Code: <a href=spiece/' + pci.code + '>' + pci.code + '</a>' + extras2;
+end;
+
+function TMainForm.GetRebrickableColorHtml(const cl: integer): string;
+var
+  rcolor: integer;
+begin
+  rcolor := db.colors(cl).RebrickableColor;
+  if cl <> rcolor then
+    Result := ' (RB=' + itoa(rcolor) + ')'
+  else
+    Result := '';
+end;
+
+function TMainForm.GetEditPieceHtml(const pcs: string; const scol: string): string;
+begin
+  Result := '<a href=editpiece/' + pcs + '/' + scol + '><img src="images\edit.png"></a>';
+end;
+
+function TMainForm.GetDiagramPieceHtml(const pcs: string; const scol: string): string;
+begin
+  Result := '<a href=diagrampiece/' + pcs + '/' + scol + '><img src="images\diagram.png"></a>';
+end;
+
+function TMainForm.GetEditSetHtml(const setid: string): string;
+begin
+  Result := '<a href=DoEditSet/' + setid + '><img src="images\edit.png"></a>';
+end;
+
+function TMainForm.GetEditMoldHtml(const pcs: string): string;
+begin
+  Result := '<a href=editmold/' + Trim(pcs) + '><img src="images\edit.png"></a>';
+end;
+
+function TMainForm.GetPieceColorLinkHtml(const pcs: string; const col: integer): string;
+var
+  cinfo: colorinfo_p;
+  scolor: string;
+begin
+  cinfo := db.colors(col);
+  scolor := itoa(col);
+  Result :=
+    '<a href=spiecec/' + pcs + '/' + scolor + '>' +  cinfo.name +
+    ' (' + scolor + ') (BL=' + itoa(cinfo.BrickLinkColor) + ')' +
+    GetRebrickableColorHtml(col) + '<img src="images\details.png"></a>';
 end;
 
 procedure TMainForm.ShowCategories;
@@ -6623,7 +6663,7 @@ begin
 
     if (Pos('?', pcs) <= 0) and (Pos('*', pcs) <= 0) and (Trim(pcs) <> '') then
     begin
-      DrawHeadLine('Can not find piece ' + pcs + ' <a href=editmold/' + Trim(pcs) + '><img src="images\edit.png"></a>' +
+      DrawHeadLine('Can not find piece ' + pcs + ' ' + GetEditMoldHtml(pcs) +
                                                  ' <a href=refreshpieceorgearfrombricklink/' + Trim(pcs) + '><img src="images\refreshcolors.png"></a>');
       willmultipage := False;
     end
@@ -6750,19 +6790,15 @@ begin
              '<a href="catcolors/' + IntToStr(pi.category) + '"><img src="images\colors.png"></b></a> ' +
              '<a href="ShowCatalogList//-1/' + IntToStr(pi.category) + '"><img src="images\catalog.png"></b></a>' +
              refrcathtml;
-{  if pi.weight > 0.0 then
-    DrawHeadLine(pcs + ' - ' + db.PieceDesc(pcs) + ' (' + Format('%2.2f gr', [pi.weight]) + ')' + '<a href=editpiece/' + pcs + '/' + itoa(GetAPieceColor(pcs)) + '><img src="images\edit.png"></a>' + refrhtml + '<br>' + cathtml)
-  else
-    DrawHeadLine(pcs + ' - ' + db.PieceDesc(pcs) + '<a href=editpiece/' + pcs + '/' + itoa(GetAPieceColor(pcs)) + '><img src="images\edit.png"></a>' + refrhtml + '<br>' + cathtml);}
   if pi.weight > 0.0 then
     DrawHeadLine(pcs + ' - ' + db.PieceDesc(pi) + ' (' + Format('%2.2f gr', [pi.weight]) + ')' +
-      ' <a href=editmold/' + pcs + '><img src="images\edit.png"></a>' +
+      ' ' + GetEditMoldHtml(pcs) +
       ' <a href=editpiecenotes/' + pcs + '><img src="images\notes.png"></a>' +
       ' <a href=refreshpieceorgearfrombricklink/' + Trim(pcs) + '><img src="images\refreshcolors.png"></a>' +
       refrhtml + '<br>' + cathtml)
   else
     DrawHeadLine(pcs + ' - ' + db.PieceDesc(pi) +
-      ' <a href=editmold/' + pcs + '><img src="images\edit.png"></a>' +
+      ' ' + GetEditMoldHtml(pcs) +
       ' <a href=editpiecenotes/' + pcs + '><img src="images\notes.png"></a>' +
       ' <a href=refreshpieceorgearfrombricklink/' + Trim(pcs) + '><img src="images\refreshcolors.png"></a>' +
       refrhtml + '<br>' + cathtml);
@@ -6935,13 +6971,12 @@ begin
               DrawColorCell(i, 25);
   //            document.BlancColorCell(db.colors(i).RGB, 25);
               cinfo := db.colors(i);
-              document.write('<a href=spiecec/' + pcs + '/' + si + '>' + cinfo.name +
-                ' (' + si + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
-                  '<img src="images\details.png"></a>' +
-                  HtmlDrawInvImgLink(pcs, i, pi) + '</td>');
+              document.write(
+                GetPieceColorLinkHtml(pcs, i) +
+                GetInvImgLinkHtml(pcs, i, pi) + '</td>');
               document.write('<td width=10% align=right>' + Format('%d', [numpieces]) +
-                '<br><a href=editpiece/' + pcs + '/' + si + '><img src="images\edit.png"></a>' +
-                '<br><a href=diagrampiece/' + pcs + '/' + si + '><img src="images\diagram.png"></a>' +
+                '<br>' + GetEditPieceHtml(pcs, si) +
+                '<br>' + GetDiagramPieceHtml(pcs, si) +
                 '</td>');
               if aa mod 5 = 0 then
                 document.write('</tr>');
@@ -6996,24 +7031,23 @@ begin
             cinfo := db.colors(i);
             if pci <> nil then
             begin
-              document.write('<a href=spiecec/' + pcs + '/' + si + '>' + cinfo.name +
-                ' (' + si + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
-                '<img src="images\details.png"></a>' +
-                HtmlDrawInvImgLink(pcs, i, pi) +
-                HtmlDrawSetMostLink(pci));
+              document.write(
+                GetPieceColorLinkHtml(pcs, i) +
+                GetInvImgLinkHtml(pcs, i, pi) +
+                GetSetMostLinkHtml(pci));
               document.write('<td width=10% align=right>');
               document.write('N=%2.3f<br>U=%2.3f</td>', [pci.nDemand, pci.uDemand]);
             end
             else
             begin
-              document.write('<a href=spiecec/' + pcs + '/' + si + '>' + cinfo.name +
-                ' (' + si + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '<img src="images\details.png"></a>' +
-                HtmlDrawInvImgLink(pcs, i, pi) + '</td>');
+              document.write(
+                GetPieceColorLinkHtml(pcs, i) +
+                GetInvImgLinkHtml(pcs, i, pi) + '</td>');
               document.write('<td width=10% align=right></td>');
             end;
             document.write('<td width=15% align=right>' + Format('%d', [numpieces]) +
-              '<br><a href=editpiece/' + pcs + '/' + si + '><img src="images\edit.png"></a>' +
-              '<br><a href=diagrampiece/' + pcs + '/' + si + '><img src="images\diagram.png"></a>' +
+              '<br>' + GetEditPieceHtml(pcs, si) +
+              '<br>' + GetDiagramPieceHtml(pcs, si) +
               '</td>');
 
             if pci <> nil then
@@ -7876,7 +7910,6 @@ var
   totpieces: integer;
   mycosttot: double;
   dn: TDateTime;
-  cinfo: colorinfo_p;
   www: double;
 begin
   UpdateDismantaledsetsinv;
@@ -7950,20 +7983,19 @@ begin
     DrawColorCell(cl, 25);
 //    document.BlancColorCell(db.colors(cl).RGB, 25);
 
-    cinfo := db.colors(cl);
     if pci = nil then
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
-        HtmlDrawInvImgLink(pcs, cl, pi) + '</td>')
+      document.write(
+        GetPieceColorLinkHtml(pcs, cl) +
+        GetInvImgLinkHtml(pcs, cl, pi) + '</td>')
     else
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
-        HtmlDrawInvImgLink(pcs, cl, pi) +
-        HtmlDrawSetMostLink(pci));
+      document.write(
+        GetPieceColorLinkHtml(pcs, cl) +
+        GetInvImgLinkHtml(pcs, cl, pi) +
+        GetSetMostLinkHtml(pci));
 
     document.write('<td width=15% align=right>' + Format('%d', [numpieces]) +
-            '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
-            '<br><a href=diagrampiece/' + pcs + '/' + itoa(cl) + '><img src="images\diagram.png"></a>' +
+            '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
+            '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
             '</td>');
 
     if pci <> nil then
@@ -8049,7 +8081,6 @@ var
   cursetid: string;
   sinv: TBrickInventory;
   numpcsinset: integer;
-  cinfo: colorinfo_p;
   www: double;
 begin
   UpdateDismantaledsetsinv;
@@ -8106,22 +8137,20 @@ begin
     document.write(' - ' + db.PieceDesc(pi) + '</td>');
     document.write('<td width=20%>');
     DrawColorCell(cl, 25);
-    // document.BlancColorCell(db.colors(cl).RGB, 25);
 
-    cinfo := db.colors(cl);
     if pci = nil then
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
-        HtmlDrawInvImgLink(pcs, cl, pi) + '</td>')
+      document.write(
+        GetPieceColorLinkHtml(pcs, cl) +
+        GetInvImgLinkHtml(pcs, cl, pi) + '</td>')
     else
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
-        HtmlDrawInvImgLink(pcs, cl, pi) +
-        HtmlDrawSetMostLink(pci));
+      document.write(
+        GetPieceColorLinkHtml(pcs, cl) +
+        GetInvImgLinkHtml(pcs, cl, pi) +
+        GetSetMostLinkHtml(pci));
 
     document.write('<td width=10% align=right>' + Format('%d', [numpieces]) +
-            '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
-            '<br><a href=diagrampiece/' + pcs + '/' + itoa(cl) + '><img src="images\diagram.png"></a>' +
+            '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
+            '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
             '</td>');
 
     document.write('<td width=15%>');
@@ -8213,7 +8242,6 @@ var
   totpieces: integer;
   mycosttot: double;
   foo: string;
-  cinfo: colorinfo_p;
   www: double;
 begin
   DrawHeadLine('<p align=center>' + tit + '</p>');
@@ -8273,22 +8301,19 @@ begin
     DrawColorCell(cl, 25);
     // document.BlancColorCell(db.colors(cl).RGB, 25);
 
-    cinfo := db.colors(cl);
     if pci = nil then
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) +
-        '<img src="images\details.png"></a>' +
-        HtmlDrawInvImgLink(pcs, cl, pi) + '</td>')
+      document.write(
+        GetPieceColorLinkHtml(pcs, cl) +
+        GetInvImgLinkHtml(pcs, cl, pi) + '</td>')
     else
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) +
-        '<img src="images\details.png"></a>' +
-        HtmlDrawInvImgLink(pcs, cl, pi) +
-        HtmlDrawSetMostLink(pci));
+      document.write(
+        GetPieceColorLinkHtml(pcs, cl) +
+        GetInvImgLinkHtml(pcs, cl, pi) +
+        GetSetMostLinkHtml(pci));
 
     document.write('<td width=15% align=right>' +
-            '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
-            '<br><a href=diagrampiece/' + pcs + '/' + itoa(cl) + '><img src="images\diagram.png"></a>' +
+            '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
+            '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
             '</td>');
 
     if pci <> nil then
@@ -8344,7 +8369,6 @@ var
   bp: brickpool_t;
   totpieces: integer;
   mycosttot: double;
-  cinfo: colorinfo_p;
   www: double;
 begin
   UpdateDismantaledsetsinv;
@@ -8399,29 +8423,27 @@ begin
     document.write(' - ' + db.PieceDesc(pi) + '</td>');
     document.write('<td width=20%>');
     DrawColorCell(cl, 25);
-    
-    // document.BlancColorCell(db.colors(cl).RGB, 25);
-    cinfo := db.colors(cl);
+
     if pci = nil then
     begin
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
-        HtmlDrawInvImgLink(pcs, cl, pi) +
+      document.write(
+        GetPieceColorLinkHtml(pcs, cl) +
+        GetInvImgLinkHtml(pcs, cl, pi) +
           '</td>');
       document.write('<td width=15% align=right>' + Format('%2.3f', [0.0]) +
-              '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
-              '<br><a href=diagrampiece/' + pcs + '/' + itoa(cl) + '><img src="images\diagram.png"></a>' +
+              '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
+              '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
               '</td>');
     end
     else
     begin
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + cinfo.name +
-        ' (' + col + ') (BL=' + IntToStr(cinfo.BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) + '<img src="images\details.png"></a>' +
-        HtmlDrawInvImgLink(pcs, cl, pi) +
-        HtmlDrawSetMostLink(pci));
+      document.write(
+        GetPieceColorLinkHtml(pcs, cl) +
+        GetInvImgLinkHtml(pcs, cl, pi) +
+        GetSetMostLinkHtml(pci));
       document.write('<td width=15% align=right>' + Format('%2.3f', [pci.nDemand]) +
-              '<br><a href=editpiece/' + pcs + '/' + itoa(cl) + '><img src="images\edit.png"></a>' +
-              '<br><a href=diagrampiece/' + pcs + '/' + itoa(cl) + '><img src="images\diagram.png"></a>' +
+              '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
+              '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
               '</td>');
     end;
 
@@ -8505,10 +8527,10 @@ begin
   document.write('<p align=center>');
 
   DrawHeadLine('Inventory for <a href=spiece/' + pcs + '>' + pcs + '</a> - ' + db.Colors(color).name + ' ' + db.PieceDesc(pi) +
-    ' <a href=editpiece/' + pcs + '/' + scolor + '><img src="images\edit.png"></a>' +
+    ' ' + GetEditPieceHtml(pcs, scolor) +
     ' <a href=editpiececolornotes/' + pcs + '/' + scolor + '><img src="images\notes.png"></a>' +
     ' <a href=spiecec/' + pcs + '/' + scolor + '><img src="images\details.png"></a>' +
-    '<br><a href=diagrampiece/' + pcs + '/' + scolor + '><img src="images\diagram.png"></a>' +
+    '<br>' + GetDiagramPieceHtml(pcs, scolor) +
     '<br><br><img width=100px src=' + scolor + '\' + pcs + '.png>');
 
   DrawPieceColorNotes(pcs, scolor);
@@ -8544,7 +8566,7 @@ begin
             document.write(db.colors(i).name + ' (' + scolor + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
           else
             document.write(db.colors(i).name + ' (' + scolor + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
-                  HtmlDrawSetMostLink(pci));
+                  GetSetMostLinkHtml(pci));
           document.write('<td width=15% align=right>' + Format('%d', [numpieces]) + '</td>');
 
           if pci <> nil then
@@ -8730,10 +8752,10 @@ begin
   ylist.Free;
 
   DrawHeadLine('<a href=spiece/' + pcs + '>' + pcs + '</a> - ' + db.Colors(color).name + ' ' + db.PieceDesc(pi) +
-    ' <a href=editpiece/' + pcs + '/' + scolor + '><img src="images\edit.png"></a>' +
+    ' ' + GetEditPieceHtml(pcs, scolor) +
     ' <a href=editpiececolornotes/' + pcs + '/' + scolor + '><img src="images\notes.png"></a>' +
-    HtmlDrawInvImgLink(pcs, color, pi) +
-    '<br><a href=diagrampiece/' + pcs + '/' + scolor + '><img src="images\diagram.png"></a>' +
+    GetInvImgLinkHtml(pcs, color, pi) +
+    '<br>' + GetDiagramPieceHtml(pcs, scolor) +
     '<br><br><img width=100px src=' + scolor + '\' + pcs + '.png>' + stmp);
 
   DrawPieceColorNotes(pcs, scolor);
@@ -8795,7 +8817,7 @@ begin
             document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
           else
             document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
-              HtmlDrawSetMostLink(pci));
+              GetSetMostLinkHtml(pci));
 
           document.write('<td width=15% align=right>' + Format('%d', [numpieces]) + '</td>');
 
@@ -8894,10 +8916,10 @@ begin
       stmp := stmp + '<br>(Lego Code="' + pci.code + '")';
 
   DrawHeadLine('<a href=spiece/' + pcs + '>' + pcs + '</a> - ' + db.Colors(9997).name + ' ' + db.PieceDesc(pi) +
-    ' <a href=editpiece/' + pcs + '/9997><img src="images\edit.png"></a>' +
+    ' ' + GetEditPieceHtml(pcs, '9997') +
     ' <a href=editpiececolornotes/' + pcs + '/9997><img src="images\notes.png"></a>' +
-    HtmlDrawInvImgLink(pcs, 9997, pi) +
-    '<br><a href=diagrampiece/' + pcs + '/9997><img src="images\diagram.png"></a>' +
+    GetInvImgLinkHtml(pcs, 9997, pi) +
+    '<br>' + GetDiagramPieceHtml(pcs, '9997') +
     '<br><br><img width=360px src=9997\' + pcs + '.png>' + stmp);
 
   DrawPieceColorNotes(pcs, '9997');
@@ -10791,11 +10813,11 @@ begin
     DrawColorCell(ncolor, 25);
 //    document.BlancColorCell(db.colors(ncolor).RGB, 25);
 
-    document.write('<a href=spiecec/' + spart + '/' + scolor + '>' +  db.colors(ncolor).name +
-      ' (' + scolor + ') (BL=' + IntToStr(db.colors(ncolor).BrickLinkColor) + ')' + GetRebrickableColorHtml(ncolor) + '<img src="images\details.png"></a>' +
-      HtmlDrawInvImgLink(spart, ncolor, pi));
+    document.write(
+      GetPieceColorLinkHtml(spart, ncolor) +
+      GetInvImgLinkHtml(spart, ncolor, pi));
     if pci <> nil then
-      document.write(HtmlDrawSetMostLink(pci))
+      document.write(GetSetMostLinkHtml(pci))
     else
       document.write('</td>');
 
@@ -10809,8 +10831,8 @@ begin
 
     nnum := inventory.LoosePartCount(spart, ncolor);
     document.write('<td width=10% align=right>' + IntToStr(nnum));
-    document.write('<br><a href=editpiece/' + spart + '/' + scolor + '><img src="images\edit.png"></a>');
-    document.write('<br><a href=diagrampiece/' + spart + '/' + scolor + '><img src="images\diagram.png"></a>');
+    document.write('<br>' + GetEditPieceHtml(spart, scolor));
+    document.write('<br>' + GetDiagramPieceHtml(spart, scolor));
     document.write('</td>');
 
     document.write('<td width=55%>');
@@ -12219,11 +12241,11 @@ begin
 
       document.write(db.colors(brick.color).name + ' (' + scolor + ') (BL=' +
                      IntToStr(db.colors(brick.color).BrickLinkColor) +  ')' + GetRebrickableColorHtml(brick.color) + '</a> <a href=spiecec/' +
-                     brick.part + '/' + scolor + '><img src="images\details.png"></a>' +  HtmlDrawInvImgLink(brick.part, brick.color, pi));
+                     brick.part + '/' + scolor + '><img src="images\details.png"></a>' +  GetInvImgLinkHtml(brick.part, brick.color, pi));
 
 //      pci := db.PieceColorInfo(brick.part, brick.color);
       if pci <> nil then
-        document.write(HtmlDrawSetMostLink(pci))
+        document.write(GetSetMostLinkHtml(pci))
       else
         document.write('</td>');
 
@@ -12236,8 +12258,8 @@ begin
         document.write('<td width=10% align=right></td>');
 
       document.write('<td width=15% align=right>' + IntToStr(brick.num) +
-      '<br><a href=editpiece/' + brick.part + '/' + scolor + '><img src="images\edit.png"></a>' +
-      '<br><a href=diagrampiece/' + brick.part + '/' + scolor + '><img src="images\diagram.png"></a>' +
+      '<br>' + GetEditPieceHtml(brick.part, scolor) +
+      '<br>' + GetDiagramPieceHtml(brick.part, scolor) +
       '</td>');
       if pci <> nil then
       begin
@@ -15361,11 +15383,11 @@ begin
     document.write('<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br><b>');
     document.write('<a href=spiece/' + spart + '>' + spart + '</a></b>');
     document.write(' - ' + db.PieceDesc(pi));
-    document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + HtmlDrawInvImgLink(spart, color, pi) + '</td>');
+    document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + GetInvImgLinkHtml(spart, color, pi) + '</td>');
 
     document.write('<td width=10% align=right><b>' + IntToStr(num) + '</b>');
-    document.write('<br><a href=editpiece/' + spart + '/' + scolor + '><img src="images\edit.png"></a>');
-    document.write('<br><a href=diagrampiece/' + spart + '/' + scolor + '><img src="images\diagram.png"></a>');
+    document.write('<br>' + GetEditPieceHtml(spart, scolor));
+    document.write('<br>' + GetDiagramPieceHtml(spart, scolor));
     document.write('</td>');
 
     document.write('<td width=25% align=right><b>' + IntToStr(num * len) + '</b><br>');
@@ -15479,11 +15501,11 @@ begin
     document.write('<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br><b>');
     document.write('<a href=spiece/' + spart + '>' + spart + '</a></b>');
     document.write(' - ' + db.PieceDesc(pi));
-    document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + HtmlDrawInvImgLink(spart, color, pi) + '</td>');
+    document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + GetInvImgLinkHtml(spart, color, pi) + '</td>');
 
     document.write('<td width=10% align=right><b>' + IntToStr(num) + '</b>');
-    document.write('<br><a href=editpiece/' + spart + '/' + scolor + '><img src="images\edit.png"></a>');
-    document.write('<br><a href=diagrampiece/' + spart + '/' + scolor + '><img src="images\diagram.png"></a>');
+    document.write('<br>' + GetEditPieceHtml(spart, scolor));
+    document.write('<br>' + GetDiagramPieceHtml(spart, scolor));
     document.write('</td>');
 
     document.write('<td width=25% align=right><b>' + IntToStr(num * len) + '</b><br>');
@@ -15605,11 +15627,11 @@ begin
     document.write('<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br><b>');
     document.write('<a href=spiece/' + spart + '>' + spart + '</a></b>');
     document.write(' - ' + db.PieceDesc(pi));
-    document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + HtmlDrawInvImgLink(spart, color, pi) + '</td>');
+    document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + GetInvImgLinkHtml(spart, color, pi) + '</td>');
 
     document.write('<td width=10% align=right><b>' + IntToStr(num) + '</b>');
-    document.write('<br><a href=editpiece/' + spart + '/' + scolor + '><img src="images\edit.png"></a>');
-    document.write('<br><a href=diagrampiece/' + spart + '/' + scolor + '><img src="images\diagram.png"></a>');
+    document.write('<br>' + GetEditPieceHtml(spart, scolor));
+    document.write('<br>' + GetDiagramPieceHtml(spart, scolor));
     document.write('</td>');
 
     document.write('<td width=25% align=right><b>' + IntToStr(num * bwidth) + '</b><br>');
@@ -16454,26 +16476,23 @@ begin
 //    document.BlancColorCell(db.colors(cl).RGB, 25);
     if pci = nil then
     begin
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name +
-        ' (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) +
-        '<img src="images\details.png"></a>' + HtmlDrawInvImgLink(pcs, cl, pi) + '</td>');
+      document.write(GetPieceColorLinkHtml(pcs, cl));
       document.write(
         '<td width=15% align=right>' + Format('%2.3f', [0.0]) +
-        '<br><a href=editpiece/' + pcs + '/' + col + '><img src="images\edit.png"></a>' +
-        '<br><a href=diagrampiece/' + pcs + '/' + col + '><img src="images\diagram.png"></a></td>');
+        '<br>' + GetEditPieceHtml(pcs, col) +
+        '<br>' + GetDiagramPieceHtml(pcs, col));
     end
     else
     begin
-      document.write('<a href=spiecec/' + pcs + '/' + col + '>' + db.colors(cl).name +
-        ' (' + col + ') (BL=' + IntToStr(db.colors(cl).BrickLinkColor) + ')' + GetRebrickableColorHtml(cl) +
-        '<img src="images\details.png"></a>' +
-        HtmlDrawInvImgLink(pcs, cl, pi) +
-        HtmlDrawInvCode(pci, '<br>', '') +
-        HtmlDrawSetMostLink(pci));
+      document.write(
+        GetPieceColorLinkHtml(pcs, cl) +
+        GetInvImgLinkHtml(pcs, cl, pi) +
+        GetInvCodeHtml(pci, '<br>', '') +
+        GetSetMostLinkHtml(pci));
       document.write(
         '<td width=15% align=right>' + Format('%2.3f', [pci.nDemand]) +
-        '<br><a href=editpiece/' + pcs + '/' + col + '><img src="images\edit.png"></a>' +
-        '<br><a href=diagrampiece/' + pcs + '/' + col + '><img src="images\diagram.png"></a></td>');
+        '<br>' + GetEditPieceHtml(pcs, col) +
+        '<br>' + GetDiagramPieceHtml(pcs, col));
     end;
 
     lprice := lb.ItemCost(pcs, cl);
@@ -21340,17 +21359,6 @@ begin
   HTMLClick('figsIcanbuild/9/10', foo);
 end;
 
-function TMainForm.GetRebrickableColorHtml(const cl: integer): string;
-var
-  rcolor: integer;
-begin
-  rcolor := db.colors(cl).RebrickableColor;
-  if cl <> rcolor then
-    Result := ' (RB=' + itoa(rcolor) + ')'
-  else
-    Result := '';
-end;
-
 procedure TMainForm.OpenItemPU1Click(Sender: TObject);
 var
   pcs: string;
@@ -22316,8 +22324,6 @@ var
   ret: string;
 
   procedure _try_save(const fout: string);
-  var
-    tmp: string;
   begin
     if not DirectoryExists(ExtractFilePath(fout)) then
       MkDir(ExtractFilePath(fout));
@@ -22389,7 +22395,6 @@ function TMainForm.GatherOfflineNotes(const pcs: string; const color: integer): 
 var
   sl: TStringList;
   i: integer;
-  pt: Char;
   pci: TPieceColorInfo;
 begin
   if color = INSTRUCTIONCOLORINDEX then

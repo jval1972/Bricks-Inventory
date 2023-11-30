@@ -722,6 +722,7 @@ type
     function GetEditSetHtml(const setid: string): string;
     function GetEditMoldHtml(const pcs: string): string;
     function GetPieceColorLinkHtml(const pcs: string; const col: integer): string;
+    function GetPieceLinkHtml(const pcs: string): string;
     procedure ShowCategories;
     procedure ShowPiece(pcs: string; const year: integer = -1; const flags: LongWord = 0);
     procedure DoAddNewSetAsPiece(const pcs: string; const desc: string);
@@ -1302,23 +1303,23 @@ end;
 
 procedure TMainForm.DrawNavigateBar;
 begin
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tr>');
-
-  document.write('<td width=8%><a href="home">Home</a></td>');
-  document.write('<td width=8%><a href="cataloghome">Catalog</a></td>');
-  document.write('<td width=9%><a href="inv/0/C/-1">My loose parts</a></td>');
-  document.write('<td width=14%><a href="mysetsandmocs">My official sets and mocs</a></td>');
-  document.write('<td width=9%><a href="ShowMyMinifiguresMenu">My minifigures</a></td>');
-  document.write('<td width=9%><a href="mywishlist">My wish list</a></td>');
-  document.write('<td width=8%><a href="colors">Colors</a></td>');
-  document.write('<td width=9%><a href="categories">Categories</a></td>');
-  document.write('<td width=9%><a href="orders">Orders</a></td>');
-  document.write('<td width=9%><a href="ShowStorageBins">Storage Bins</a></td>');
-  document.write('<td width=8%><a href="tags">Tags</a></td>');
-
-  document.write('</tr></table></p></div><br><br>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '">' +
+    '<p align=center>' +
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tr>' +
+    '<td width=8%><a href="home">Home</a></td>' +
+    '<td width=8%><a href="cataloghome">Catalog</a></td>' +
+    '<td width=9%><a href="inv/0/C/-1">My loose parts</a></td>' +
+    '<td width=14%><a href="mysetsandmocs">My official sets and mocs</a></td>' +
+    '<td width=9%><a href="ShowMyMinifiguresMenu">My minifigures</a></td>' +
+    '<td width=9%><a href="mywishlist">My wish list</a></td>' +
+    '<td width=8%><a href="colors">Colors</a></td>' +
+    '<td width=9%><a href="categories">Categories</a></td>' +
+    '<td width=9%><a href="orders">Orders</a></td>' +
+    '<td width=9%><a href="ShowStorageBins">Storage Bins</a></td>' +
+    '<td width=8%><a href="tags">Tags</a></td>' +
+    '</tr></table></p></div><br><br>'
+  );
 
 end;
 
@@ -1330,26 +1331,30 @@ begin
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
   DrawHeadLine('Bricks Inventory - Catalog');
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
 
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>Quick links</b></th>');
-  document.write('</tr>');
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>Quick links</b></th>' +
+    '</tr>' +
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowCatalogList//-1/-1">All Items</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogparts">Parts</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogpartsinv">Parts with inventory</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogsets">Sets</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogsetsnoinv">Sets without inventory</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogminifigures">Minifigures</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogmocs">Mocs</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="cataloginstructions">Instructions</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogboxes">Original Boxes</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="cataloggears">Gears</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogbooks">Books</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogcatalogs">Catalogs</a></td></tr>');
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowCatalogList//-1/-1">All Items</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogparts">Parts</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogpartsinv">Parts with inventory</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogsets">Sets</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogsetsnoinv">Sets without inventory</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogminifigures">Minifigures</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogmocs">Mocs</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="cataloginstructions">Instructions</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogboxes">Original Boxes</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="cataloggears">Gears</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogbooks">Books</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogcatalogs">Catalogs</a></td></tr>' +
 
-  document.write('</table></p></div></body>');
+    '</table>'
+  );
+
+  document.write('</p></div></body>');
 
   document.SaveBufferToFile(diskmirror);
   document.Flash;
@@ -1358,33 +1363,33 @@ end;
 
 procedure TMainForm.DrawHeadLine(const s: string);
 begin
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + DBGCOLOR + '>');
-  document.write('<td width 100%>');
-  document.write('<font color=' + DFGCOLOR + '>');
-  document.write('<h3 align=center>' + s + '</h3>');
-  document.write('</font>');
-  document.write('</td></tr></table>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + DBGCOLOR + '>' +
+    '<td width 100%>' +
+    '<font color=' + DFGCOLOR + '>' +
+    '<h3 align=center>' + s + '</h3>' +
+    '</font>' +
+    '</td></tr></table>'
+  );
 end;
 
 procedure TMainForm.DrawHeadLine2(const s1, s2: string);
 begin
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + DBGCOLOR + '>');
-
-  document.write('<td width 50%>');
-  document.write('<font color=' + DFGCOLOR + '>');
-  document.write('<h3 align=center>' + s1 + '</h3>');
-  document.write('</font>');
-  document.write('</td>');
-
-  document.write('<td width 50%>');
-  document.write('<font color=' + DFGCOLOR + '>');
-  document.write('<h3 align=center>' + s2 + '</h3>');
-  document.write('</font>');
-  document.write('</td>');
-
-  document.write('</tr></table>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + DBGCOLOR + '>' +
+    '<td width 50%>' +
+    '<font color=' + DFGCOLOR + '>' +
+    '<h3 align=center>' + s1 + '</h3>' +
+    '</font>' +
+    '</td>' +
+    '<td width 50%>' +
+    '<font color=' + DFGCOLOR + '>' +
+    '<h3 align=center>' + s2 + '</h3>' +
+    '</font>' +
+    '</td></tr></table>'
+  );
 end;
 
 procedure TMainForm.DrawHeadLineN(const ll: TStringList);
@@ -3347,16 +3352,13 @@ begin
   begin
     inc(aa);
     scolor := itoa(brick.Color);
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br><b>');
-    document.write('<a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
+    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br>');
+    document.write('<b>' + GetPieceLinkHtml(brick.part) + '</b>');
     document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=20%>');
     DrawColorCell(brick.color, 25);
-//    document.BlancColorCell(db.colors(brick.color).RGB, 25);
-//    pci := db.PieceColorInfo(brick.part, brick.color);
     pci := db.PieceColorInfo(brick);
     document.write(GetPieceColorLinkHtml(brick.part, brick.color));
-    document.write('<td width=10% align=right>' + IntToStr(brick.num));
-    document.write('</td>');
+    document.write('<td width=10% align=right>%d</td>', [brick.num]);
     pi := db.PieceInfo(pci);
     if pci <> nil then
     begin
@@ -3520,8 +3522,8 @@ begin
         document.StartItemId(aa);
     scolor := itoa(brick.Color);
     document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' +
-      IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br><b>');
-    document.write('<a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
+      IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br>');
+    document.write('<b>' + GetPieceLinkHtml(brick.part) + '</b>');
     document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=20%>');
     DrawColorCell(brick.color, 25);
 //    document.BlancColorCell(db.colors(brick.color).RGB, 25);
@@ -3539,7 +3541,7 @@ begin
       document.write(
         GetPieceColorLinkHtml(brick.part, brick.color)  +
         GetInvImgLinkHtml(brick.part, brick.color, pi) +
-        GetSetMostLinkHtml(pci));
+        GetSetMostLinkHtml(pci) + '</td>');
     if not lite then
     begin
       if pci <> nil then
@@ -3748,8 +3750,8 @@ begin
     scolor := itoa(brick.Color);
     document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' +
       IntToStr(aa) + '.</td><td width=' + itoa(decide(ppreview, 55, 35)) + '%><img width=' +
-        itoa(decide(ppreview, 80, 100)) + 'px src=' + scolor + '\' + brick.part + '.png><br><b>');
-    document.write('<a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
+        itoa(decide(ppreview, 80, 100)) + 'px src=' + scolor + '\' + brick.part + '.png><br>');
+    document.write('<b>' + GetPieceLinkHtml(brick.part) + '</b>');
     document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=' + itoa(decide(ppreview, 20, 40)) + '%>');
     DrawColorCell(brick.color, 25);
     pci := db.PieceColorInfo(brick);
@@ -4630,7 +4632,7 @@ begin
       ' ' + GetDiagramPieceHtml(setid, '-1') + '<br>' +
 
       '[Year: <a href=ShowSetsAtYear/%d>%d</a>]<br>',
-    ['<a href=spiece/' + setid + '>' + setid + '</a>', db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
+    [GetPieceLinkHtml(setid), db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
      sf2, st.num, sf1, sf4, st.numdismantaled, sf3, sf6, st.numwishlist, sf5, year, year]);
   idx := db.allsets.IndexOf(Trim(setid));
   if idx > -1 then
@@ -4859,8 +4861,8 @@ begin
     num := num + brick.num;
     lalt := lst.Objects[i] as TStringList;
     document.write('<tr bgcolor=' + TBGCOLOR + '><td rowspan="' + itoa(lalt.Count) + '" width=5% align=right>' +
-      IntToStr(aa) + '.</td><td rowspan="' + itoa(lalt.Count) + '" width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br><b>');
-    document.write('<a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
+      IntToStr(aa) + '.</td><td rowspan="' + itoa(lalt.Count) + '" width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br>');
+    document.write('<b>' + GetPieceLinkHtml(brick.part) + '</b>');
     document.write(' - ' + db.PieceDesc(brick.part) + '</td><td rowspan="' + itoa(lalt.Count) + '" width=20%>');
     DrawColorCell(brick.color, 25);
 
@@ -4876,7 +4878,7 @@ begin
       document.write(
         GetPieceColorLinkHtml(brick.part, brick.color) +
         GetInvImgLinkHtml(brick.part, brick.color, pi) +
-        GetSetMostLinkHtml(pci));
+        GetSetMostLinkHtml(pci) + '</td>');
 
     document.write('<td rowspan="' + itoa(lalt.Count) + '" width=10% align=right>' + IntToStr(brick.num));
     document.write('<br>' + GetEditPieceHtml(brick.part, scolor));
@@ -4890,7 +4892,7 @@ begin
       document.write('<td width=35%>');
       salt := lalt.Strings[j];
       document.write(
-        '<img width=100px src=' + scolor + '\' + salt + '.png><br><b><a href=spiece/' + salt + '>' + salt + '</a></b> - ' + db.PieceDesc(salt) + '</td>');
+        '<img width=100px src=' + scolor + '\' + salt + '.png><br><b>' + GetPieceLinkHtml(salt) + '</b> - ' + db.PieceDesc(salt) + '</td>');
       document.write('<td width=10% align=right>' + itoa(inv.LoosePartCount(salt, brick.color)));
       document.write('<br>' + GetEditPieceHtml(salt, scolor));
       document.write('<br>' + GetDiagramPieceHtml(salt, scolor));
@@ -5045,7 +5047,7 @@ begin
   year := db.SetYear(setid);
   if ppreview then
     ss1 := Format('Storage Location for the inventory of %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled (%s%d%d in wish list)<br><img width=360px src=s\' + setid + '.jpg><br>',
-    ['<a href=spiece/' + setid + '>' + setid + '</a>', db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
+    [GetPieceLinkHtml(setid), db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
      sf2, st.num, sf1, sf4, st.numdismantaled, sf3, sf6, st.numwishlist, sf5])
   else
     ss1 := Format('Storage Location for the inventory of %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled (%s%d%d in wish list)<br><img width=360px src=s\' + setid + '.jpg>' +
@@ -5056,7 +5058,7 @@ begin
       ' ' + GetDiagramPieceHtml(setid, '-1') + '<br>' +
 
       '[Year: <a href=ShowSetsAtYear/%d>%d</a>]<br>',
-    ['<a href=spiece/' + setid + '>' + setid + '</a>', db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
+    [GetPieceLinkHtml(setid), db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
      sf2, st.num, sf1, sf4, st.numdismantaled, sf3, sf6, st.numwishlist, sf5, year, year]);
   idx := db.allsets.IndexOf(Trim(setid));
   if idx > -1 then
@@ -6352,11 +6354,11 @@ function TMainForm.GetSetMostLinkHtml(const pci: TPieceColorInfo): string;
 begin
   if pci.setmost = '' then
   begin
-    Result := lugbulklinks(pci) + '</td>';
+    Result := lugbulklinks(pci);
     Exit;
   end;
   Result := '<br><a href=sinv/' + pci.setmost +'>Appears ' +
-          decide(pci.setmostnum = 1, '1 time in', itoa(pci.setmostnum) + ' times') + ' in ' + pci.setmost + '</a>' + lugbulklinks(pci) + '</td>';
+          decide(pci.setmostnum = 1, '1 time in', itoa(pci.setmostnum) + ' times') + ' in ' + pci.setmost + '</a>' + lugbulklinks(pci);
 end;
 
 function TMainForm.GetInvCodeHtml(const pci: TPieceColorInfo; const extras1, extras2: string): string;
@@ -6373,7 +6375,7 @@ begin
     Exit;
   end;
 
-  Result := extras1 + 'Code: <a href=spiece/' + pci.code + '>' + pci.code + '</a>' + extras2;
+  Result := extras1 + 'Code: ' + GetPieceLinkHtml(pci.code) + extras2;
 end;
 
 function TMainForm.GetRebrickableColorHtml(const cl: integer): string;
@@ -6418,6 +6420,11 @@ begin
     '<a href=spiecec/' + pcs + '/' + scolor + '>' +  cinfo.name +
     ' (' + scolor + ') (BL=' + itoa(cinfo.BrickLinkColor) + ')' +
     GetRebrickableColorHtml(col) + '<img src="images\details.png"></a>';
+end;
+
+function TMainForm.GetPieceLinkHtml(const pcs: string): string;
+begin
+  Result := '<a href=spiece/' + pcs + '>' + pcs + '</a>';
 end;
 
 procedure TMainForm.ShowCategories;
@@ -6873,9 +6880,9 @@ begin
   if pi.GetAlternatesCount > 0 then
     srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td><a href=ShowPieceAlternates/' + pcs + '>Alternates</a></td></tr>';
   if pi.patternof <> '' then
-    srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td>Pattern of <a href=spiece/' + pi.patternof + '>' + pi.patternof + '</a></td></tr>';
+    srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td>Pattern of ' + GetPieceLinkHtml(pi.patternof) + '</td></tr>';
   if pi.printof <> '' then
-    srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td>Print of <a href=spiece/' + pi.printof + '>' + pi.printof + '</a></td></tr>';
+    srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td>Print of ' + GetPieceLinkHtml(pi.printof) + '</td></tr>';
   if pi.GetPatternsCount > 0 then
     srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td><a href=ShowPiecePatterns/' + pcs + '>Patterns</a></td></tr>';
   if pi.GetPrintsCount > 0 then
@@ -7034,7 +7041,7 @@ begin
               document.write(
                 GetPieceColorLinkHtml(pcs, i) +
                 GetInvImgLinkHtml(pcs, i, pi) +
-                GetSetMostLinkHtml(pci));
+                GetSetMostLinkHtml(pci) + '</td>');
               document.write('<td width=10% align=right>');
               document.write('N=%2.3f<br>U=%2.3f</td>', [pci.nDemand, pci.uDemand]);
             end
@@ -7157,7 +7164,7 @@ begin
       document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
 
       document.write('<td width=25%>');
-      document.write(MakeThumbnailImage2(pcs) + '<b><a href=spiece/' + pcs + '>' + pcs + '</a></b>');
+      document.write(MakeThumbnailImage2(pcs) + '<b>' + GetPieceLinkHtml(pcs) + '</b>');
       document.write(' - ' + db.PieceDesc(pcs) + '</td>');
 
       if donumlinks then
@@ -7977,7 +7984,7 @@ begin
     pi := db.PieceInfo(pci);
 
     document.write('<td width=35%>' + decide((cl = 9996) or (cl = 9997) or (cl = 9998), MakeThumbnailImage(pcs, cl), '<img src=' + col + '\' + pcs + '.png>'));
-    document.write('<a href=spiece/' + pcs + '>' + pcs + '</a></b>');
+    document.write('<b>' + GetPieceLinkHtml(pcs) + '</b>');
     document.write(' - ' + db.PieceDesc(pi) + '</td>');
     document.write('<td width=20%>');
     DrawColorCell(cl, 25);
@@ -7991,7 +7998,7 @@ begin
       document.write(
         GetPieceColorLinkHtml(pcs, cl) +
         GetInvImgLinkHtml(pcs, cl, pi) +
-        GetSetMostLinkHtml(pci));
+        GetSetMostLinkHtml(pci) + '</td>');
 
     document.write('<td width=15% align=right>' + Format('%d', [numpieces]) +
             '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
@@ -8133,7 +8140,7 @@ begin
     pi := db.PieceInfo(pci);
 
     document.write('<td width=35%><img width=100px src=' + col + '\' + pcs + '.png>');
-    document.write('<a href=spiece/' + pcs + '>' + pcs + '</a></b>');
+    document.write('<b>' + GetPieceLinkHtml(pcs) + '</b>');
     document.write(' - ' + db.PieceDesc(pi) + '</td>');
     document.write('<td width=20%>');
     DrawColorCell(cl, 25);
@@ -8146,7 +8153,7 @@ begin
       document.write(
         GetPieceColorLinkHtml(pcs, cl) +
         GetInvImgLinkHtml(pcs, cl, pi) +
-        GetSetMostLinkHtml(pci));
+        GetSetMostLinkHtml(pci) + '</td>');
 
     document.write('<td width=10% align=right>' + Format('%d', [numpieces]) +
             '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
@@ -8295,7 +8302,7 @@ begin
     pi := db.PieceInfo(pci);
 
     document.write('<td width=35%><img width=100px src=' + col + '\' + pcs + '.png>');
-    document.write('<a href=spiece/' + pcs + '>' + pcs + '</a></b>');
+    document.write('<b>' + GetPieceLinkHtml(pcs) + '</b>');
     document.write(' - ' + db.PieceDesc(pi) + '</td>');
     document.write('<td width=20%>');
     DrawColorCell(cl, 25);
@@ -8309,7 +8316,7 @@ begin
       document.write(
         GetPieceColorLinkHtml(pcs, cl) +
         GetInvImgLinkHtml(pcs, cl, pi) +
-        GetSetMostLinkHtml(pci));
+        GetSetMostLinkHtml(pci) + '</td>');
 
     document.write('<td width=15% align=right>' +
             '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
@@ -8419,7 +8426,7 @@ begin
     pi := db.PieceInfo(pci);
 
     document.write('<td width=35%><img width=100px src=' + col + '\' + pcs + '.png>');
-    document.write('<a href=spiece/' + pcs + '>' + pcs + '</a></b>');
+    document.write('<b>' + GetPieceLinkHtml(pcs) + '</b>');
     document.write(' - ' + db.PieceDesc(pi) + '</td>');
     document.write('<td width=20%>');
     DrawColorCell(cl, 25);
@@ -8440,7 +8447,7 @@ begin
       document.write(
         GetPieceColorLinkHtml(pcs, cl) +
         GetInvImgLinkHtml(pcs, cl, pi) +
-        GetSetMostLinkHtml(pci));
+        GetSetMostLinkHtml(pci) + '</td>');
       document.write('<td width=15% align=right>' + Format('%2.3f', [pci.nDemand]) +
               '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
               '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
@@ -8526,7 +8533,7 @@ begin
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
 
-  DrawHeadLine('Inventory for <a href=spiece/' + pcs + '>' + pcs + '</a> - ' + db.Colors(color).name + ' ' + db.PieceDesc(pi) +
+  DrawHeadLine('Inventory for ' + GetPieceLinkHtml(pcs) + ' - ' + db.Colors(color).name + ' ' + db.PieceDesc(pi) +
     ' ' + GetEditPieceHtml(pcs, scolor) +
     ' <a href=editpiececolornotes/' + pcs + '/' + scolor + '><img src="images\notes.png"></a>' +
     ' <a href=spiecec/' + pcs + '/' + scolor + '><img src="images\details.png"></a>' +
@@ -8566,7 +8573,7 @@ begin
             document.write(db.colors(i).name + ' (' + scolor + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
           else
             document.write(db.colors(i).name + ' (' + scolor + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
-                  GetSetMostLinkHtml(pci));
+                  GetSetMostLinkHtml(pci) + '</td>');
           document.write('<td width=15% align=right>' + Format('%d', [numpieces]) + '</td>');
 
           if pci <> nil then
@@ -8751,7 +8758,7 @@ begin
 
   ylist.Free;
 
-  DrawHeadLine('<a href=spiece/' + pcs + '>' + pcs + '</a> - ' + db.Colors(color).name + ' ' + db.PieceDesc(pi) +
+  DrawHeadLine(GetPieceLinkHtml(pcs) + ' - ' + db.Colors(color).name + ' ' + db.PieceDesc(pi) +
     ' ' + GetEditPieceHtml(pcs, scolor) +
     ' <a href=editpiececolornotes/' + pcs + '/' + scolor + '><img src="images\notes.png"></a>' +
     GetInvImgLinkHtml(pcs, color, pi) +
@@ -8817,7 +8824,7 @@ begin
             document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
           else
             document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) +
-              GetSetMostLinkHtml(pci));
+              GetSetMostLinkHtml(pci) + '</td>');
 
           document.write('<td width=15% align=right>' + Format('%d', [numpieces]) + '</td>');
 
@@ -8915,7 +8922,7 @@ begin
     if pci.code <> '' then
       stmp := stmp + '<br>(Lego Code="' + pci.code + '")';
 
-  DrawHeadLine('<a href=spiece/' + pcs + '>' + pcs + '</a> - ' + db.Colors(9997).name + ' ' + db.PieceDesc(pi) +
+  DrawHeadLine(GetPieceLinkHtml(pcs) + ' - ' + db.Colors(9997).name + ' ' + db.PieceDesc(pi) +
     ' ' + GetEditPieceHtml(pcs, '9997') +
     ' <a href=editpiececolornotes/' + pcs + '/9997><img src="images\notes.png"></a>' +
     GetInvImgLinkHtml(pcs, 9997, pi) +
@@ -10807,8 +10814,8 @@ begin
     pi := db.PieceInfo(pci);
 
     document.write('<tr bgcolor=' + TBGCOLOR + '>');
-    document.write('<td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + spart + '.png><br><b>');
-    document.write('<a href=spiece/' + spart + '>' + spart + '</a></b>');
+    document.write('<td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + spart + '.png><br>');
+    document.write('<b>' + GetPieceLinkHtml(spart) + '</b>');
     document.write(' - ' + db.PieceDesc(pi) + '</td><td width=20%>');
     DrawColorCell(ncolor, 25);
 //    document.BlancColorCell(db.colors(ncolor).RGB, 25);
@@ -10817,7 +10824,7 @@ begin
       GetPieceColorLinkHtml(spart, ncolor) +
       GetInvImgLinkHtml(spart, ncolor, pi));
     if pci <> nil then
-      document.write(GetSetMostLinkHtml(pci))
+      document.write(GetSetMostLinkHtml(pci) + '</td>')
     else
       document.write('</td>');
 
@@ -12232,7 +12239,7 @@ begin
       pi := db.PieceInfo(pci);
 
       document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br>');
-      document.write('<b><a href=spiece/' + brick.part + '>' + brick.part + '</a></b>');
+      document.write('<b>' + GetPieceLinkHtml(brick.part) + '</b>');
       document.write('<a href="inv/' + invs +'/P/' + decide(partmask = '', brick.part, '') + '">' + ' - ' );
       document.write(db.PieceDesc(pi) + '</a> <a href=spiece/' + brick.part + '>...</a></td><td width=25%>');
       DrawColorCell(brick.color, 20);
@@ -12245,7 +12252,7 @@ begin
 
 //      pci := db.PieceColorInfo(brick.part, brick.color);
       if pci <> nil then
-        document.write(GetSetMostLinkHtml(pci))
+        document.write(GetSetMostLinkHtml(pci) + '</td>')
       else
         document.write('</td>');
 
@@ -15380,8 +15387,8 @@ begin
     document.write('<tr bgcolor=' + THBGCOLOR + '>');
     document.write('<td><p align="right">' + itoa(aa) + '.</b></td>');
 
-    document.write('<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br><b>');
-    document.write('<a href=spiece/' + spart + '>' + spart + '</a></b>');
+    document.write('<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br>');
+    document.write('<b>' + GetPieceLinkHtml(spart) + '</b>');
     document.write(' - ' + db.PieceDesc(pi));
     document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + GetInvImgLinkHtml(spart, color, pi) + '</td>');
 
@@ -15498,8 +15505,8 @@ begin
     document.write('<tr bgcolor=' + THBGCOLOR + '>');
     document.write('<td><p align="right">' + itoa(aa) + '.</b></td>');
 
-    document.write('<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br><b>');
-    document.write('<a href=spiece/' + spart + '>' + spart + '</a></b>');
+    document.write('<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br>');
+    document.write('<b>' + GetPieceLinkHtml(spart) + '</b>');
     document.write(' - ' + db.PieceDesc(pi));
     document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + GetInvImgLinkHtml(spart, color, pi) + '</td>');
 
@@ -15624,8 +15631,8 @@ begin
     document.write('<tr bgcolor=' + THBGCOLOR + '>');
     document.write('<td><p align="right">' + itoa(aa) + '.</b></td>');
 
-    document.write('<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br><b>');
-    document.write('<a href=spiece/' + spart + '>' + spart + '</a></b>');
+    document.write('<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br>');
+    document.write('<b>' + GetPieceLinkHtml(spart) + '</b>');
     document.write(' - ' + db.PieceDesc(pi));
     document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + GetInvImgLinkHtml(spart, color, pi) + '</td>');
 
@@ -16469,7 +16476,7 @@ begin
     pi := db.PieceInfo(pci);
 
     document.write('<td width=25%><img width=100px src=' + col + '\' + pcs + '.png>');
-    document.write('<a href=spiece/' + pcs + '>' + pcs + '</a></b>');
+    document.write('<b>' + GetPieceLinkHtml(pcs) + '</b>');
     document.write(' - ' + db.PieceDesc(pi) + '</td>');
     document.write('<td width=20%>');
     DrawColorCell(cl, 25);
@@ -16488,7 +16495,7 @@ begin
         GetPieceColorLinkHtml(pcs, cl) +
         GetInvImgLinkHtml(pcs, cl, pi) +
         GetInvCodeHtml(pci, '<br>', '') +
-        GetSetMostLinkHtml(pci));
+        GetSetMostLinkHtml(pci) + '</td>');
       document.write(
         '<td width=15% align=right>' + Format('%2.3f', [pci.nDemand]) +
         '<br>' + GetEditPieceHtml(pcs, col) +
@@ -19516,7 +19523,7 @@ var
   linkstr, titstr: string;
 begin
   cmolds := db.ChildMolds(basepcs);
-  linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  linkstr := GetPieceLinkHtml(basepcs) + ' ' + MakeThumbnailImage2(basepcs);
   titstr := 'Child molds for ' + basepcs;
   if cmolds = nil then
     DrawMoldList('No child molds found for ' + linkstr, cmolds, False, False, titstr)
@@ -19530,7 +19537,7 @@ var
   linkstr, titstr: string;
 begin
   cmolds := db.FamilyMolds(basepcs);
-  linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  linkstr := GetPieceLinkHtml(basepcs) + ' ' + MakeThumbnailImage2(basepcs);
   titstr := 'Variations and/or other prints for ' + basepcs;
   if cmolds = nil then
     DrawMoldList('No variations and/or other prints for ' + linkstr, nil, False, False, titstr)
@@ -19544,7 +19551,7 @@ var
   pi: TPieceInfo;
 begin
   pi := db.PieceInfo(basepcs);
-  linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  linkstr := GetPieceLinkHtml(basepcs) + ' ' + MakeThumbnailImage2(basepcs);
   titstr := 'Mold variations for ' + basepcs;
   if pi.GetMoldVariationsCount = 0 then
     DrawMoldList('No mold variations for ' + linkstr, nil, False, False, titstr)
@@ -19558,7 +19565,7 @@ var
   pi: TPieceInfo;
 begin
   pi := db.PieceInfo(basepcs);
-  linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  linkstr := GetPieceLinkHtml(basepcs) + ' ' + MakeThumbnailImage2(basepcs);
   titstr := 'Alternates for ' + basepcs;
   if pi.GetAlternatesCount = 0 then
     DrawMoldList('No alternates for ' + linkstr, nil, False, False, titstr)
@@ -19572,7 +19579,7 @@ var
   pi: TPieceInfo;
 begin
   pi := db.PieceInfo(basepcs);
-  linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  linkstr := GetPieceLinkHtml(basepcs) + ' ' + MakeThumbnailImage2(basepcs);
   titstr := 'Patterns for ' + basepcs;
   if pi.GetPatternsCount = 0 then
     DrawMoldList('No patterns for ' + linkstr, nil, False, False, titstr)
@@ -19585,7 +19592,7 @@ var
   linkstr, titstr: string;
   srelated: TStringList;
 begin
-  linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  linkstr := GetPieceLinkHtml(basepcs) + ' ' + MakeThumbnailImage2(basepcs);
   titstr := 'Related Pieces for ' + basepcs;
   srelated := db.GetRelatedPieces(basepcs);
   srelated.Delete(0);
@@ -19602,7 +19609,7 @@ var
   pi: TPieceInfo;
 begin
   pi := db.PieceInfo(basepcs);
-  linkstr := '<a href=spiece/' + basepcs + '>' + basepcs + '</a> ' + MakeThumbnailImage2(basepcs);
+  linkstr := GetPieceLinkHtml(basepcs) + ' ' + MakeThumbnailImage2(basepcs);
   titstr := 'Prints for ' + basepcs;
   if pi.GetPrintsCount = 0 then
     DrawMoldList('No prints for ' + linkstr, nil, False, False, titstr)

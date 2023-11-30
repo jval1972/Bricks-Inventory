@@ -2878,13 +2878,13 @@ procedure TMainForm.DrawPartOutValue(inv: TBrickInventory; const setid: string =
     sy1, sy2: string;
   begin
     sp := Format('%2.3f%s', [percent * 100, '%']);
-    sy1 := Format('%2.3f', [y1]);
-    sy2 := Format('%2.3f', [y2]);
+    sy1 := Format('€ %2.3f', [y1]);
+    sy2 := Format('€ %2.3f', [y2]);
     Result := '<td width=17%><p align="center"><b>' + cont + '</b><br></p>';
     Result := Result + '<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tbody><tr align="RIGHT">';
     Result := Result + '<td width="50%">Percent:</td><td width="50%"><b>' + sp;
-    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Avg Price:</td><td><b>€ ' + sy1;
-    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Qty Avg Price:</td><td><b>€ ' + sy2;
+    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Avg Price:</td><td><b>' + sy1;
+    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Qty Avg Price:</td><td><b>' + sy2;
     Result := Result + '</b></td></tr></tbody></table></td>';
   end;
 
@@ -3813,18 +3813,18 @@ var
   begin
     sx1 := IntToStr(x1);
     sx2 := IntToStr(x2);
-    sy1 := Format('%2.3f', [y1]);
-    sy2 := Format('%2.3f', [y2]);
-    sy3 := Format('%2.3f', [y3]);
-    sy4 := Format('%2.3f', [y4]);
+    sy1 := Format('€ %2.3f', [y1]);
+    sy2 := Format('€ %2.3f', [y2]);
+    sy3 := Format('€ %2.3f', [y3]);
+    sy4 := Format('€ %2.3f', [y4]);
     Result := '<td width=25%><p align="center"><b>' + cont + '</b><br></p>';
     Result := Result + '<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tbody><tr align="RIGHT">';
     Result := Result + '<td width="50%">' + til + '</td><td width="50%"><b>' + sx1;
     Result := Result + '</b></td></tr><tr align="RIGHT"><td>Total Qty:</td><td><b>' + sx2;
-    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Min Price:</td><td><b>€ ' + sy1;
-    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Avg Price:</td><td><b>€ ' + sy2;
-    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Qty Avg Price:</td><td><b>€ ' + sy3;
-    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Max Price:</td><td><b>€ ' + sy4;
+    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Min Price:</td><td><b>' + sy1;
+    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Avg Price:</td><td><b>' + sy2;
+    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Qty Avg Price:</td><td><b>' + sy3;
+    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Max Price:</td><td><b>' + sy4;
     Result := Result + '</b></td></tr></tbody></table></td>';
   end;
 
@@ -3871,18 +3871,18 @@ var
   begin
     sx1 := IntToStr(x1);
     sx2 := IntToStr(x2);
-    sy1 := Format('%2.3f', [y1]);
-    sy2 := Format('%2.3f', [y2]);
-    sy3 := Format('%2.3f', [y3]);
-    sy4 := Format('%2.3f', [y4]);
+    sy1 := Format('€ %2.3f', [y1]);
+    sy2 := Format('€ %2.3f', [y2]);
+    sy3 := Format('€ %2.3f', [y3]);
+    sy4 := Format('€ %2.3f', [y4]);
     Result := '<td width=25%><p align="center"><b>' + cont + '</b><br></p>';
     Result := Result + '<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tbody><tr align="RIGHT">';
     Result := Result + '<td width="50%">' + til + '</td><td width="50%"><b>' + sx1 + _getdiagram(x1, x1a, chbase);
     Result := Result + '</b></td></tr><tr align="RIGHT"><td>Total Qty:</td><td><b>' + sx2 + _getdiagram(x2, x2a, chbase + 1);
-    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Min Price:</td><td><b>€ ' + sy1 + _getdiagram(y1, y1a, chbase + 2);
-    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Avg Price:</td><td><b>€ ' + sy2 + _getdiagram(y2, y2a, chbase + 3);
-    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Qty Avg Price:</td><td><b>€ ' + sy3 + _getdiagram(y3, y3a, chbase + 4);
-    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Max Price:</td><td><b>€ ' + sy4 + _getdiagram(y4, y4a, chbase + 5);
+    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Min Price:</td><td><b>' + sy1 + _getdiagram(y1, y1a, chbase + 2);
+    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Avg Price:</td><td><b>' + sy2 + _getdiagram(y2, y2a, chbase + 3);
+    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Qty Avg Price:</td><td><b>' + sy3 + _getdiagram(y3, y3a, chbase + 4);
+    Result := Result + '</b></td></tr><tr align="RIGHT"><td>Max Price:</td><td><b>' + sy4 + _getdiagram(y4, y4a, chbase + 5);
     Result := Result + '</b></td></tr></tbody></table></td>';
   end;
 

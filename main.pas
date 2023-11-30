@@ -21921,8 +21921,11 @@ begin
         if s3 = '' then
           s3 := INTERNAL_CURRENCY;
         x := atoi(s1);
-        dnum := dnum + x;
-        dcost := dcost + x * db.ConvertCurrency(s3) * (atof(s2));
+        if x > 0 then
+        begin
+          dnum := dnum + x;
+          dcost := dcost + x * db.ConvertCurrency(s3) * (atof(s2));
+        end;
       end;
     finally
       sL.Free;

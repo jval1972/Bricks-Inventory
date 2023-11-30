@@ -4482,7 +4482,7 @@ begin
     if pci = nil then
       slink := setid
     else
-      slink := '<a href="spiece/' + setid + '">' + setid + '</a>';
+      slink := GetPieceLinkHtml(setid);
     DrawHeadLine('Can not find inventory for ' + slink + ' ' + GetEditSetHtml(setid) + '<br><br>' + lnk);
     document.write('<br>');
     document.write('</p>');
@@ -4971,7 +4971,7 @@ begin
     if pci = nil then
       slink := setid
     else
-      slink := '<a href="spiece/' + setid + '">' + setid + '</a>';
+      slink := GetPieceLinkHtml(setid);
     DrawHeadLine('Can not find inventory for ' + slink + ' ' + GetEditSetHtml(setid) + '<br><br>' + lnk);
     document.write('<br>');
     document.write('</p>');

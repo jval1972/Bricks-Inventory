@@ -1320,7 +1320,6 @@ begin
     '<td width=8%><a href="tags">Tags</a></td>' +
     '</tr></table></p></div><br><br>'
   );
-
 end;
 
 procedure TMainForm.DrawNavigateCatalog;
@@ -3526,8 +3525,6 @@ begin
     document.write('<b>' + GetPieceLinkHtml(brick.part) + '</b>');
     document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=20%>');
     DrawColorCell(brick.color, 25);
-//    document.BlancColorCell(db.colors(brick.color).RGB, 25);
-//    pci := db.PieceColorInfo(brick.part, brick.color);
     pci := db.PieceColorInfo(brick);
     pi := db.PieceInfo(pci);
     if pi = nil then
@@ -5862,7 +5859,6 @@ begin
     document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
     document.write('<td width=40%>');
     DrawColorCell(i, 25);
-//    document.BlancColorCell(cp.RGB, 25);
     document.write('<a href="inv/' + IntToStr(Integer(inv)) +'/C/' + IntToStr(decide(i = -1, 9999, i)) + '">');
     document.write('<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLinkColor) +  ')' +
       GetRebrickableColorHtml(i) + '</a></td>');
@@ -6171,7 +6167,6 @@ begin
       document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
       document.write('<td width=50%>');
       DrawColorCell(i, 25);
-      // document.BlancColorCell(cp.RGB, 25);
       document.write('<a href="invex/' + IntToStr(Integer(inv)) + '/' + IntToStr(decide(i = -1, 9999, i)) + '/' + IntToStr(cat) + '">');
       document.write('<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLinkColor) +  ')' +
         GetRebrickableColorHtml(i) + '</a></td>');
@@ -6976,7 +6971,6 @@ begin
               si := IntToStr(i);
               document.write('<td width=10%><img width=100px src=' + si + '\' + pcs + '.png>');
               DrawColorCell(i, 25);
-  //            document.BlancColorCell(db.colors(i).RGB, 25);
               cinfo := db.colors(i);
               document.write(
                 GetPieceColorLinkHtml(pcs, i) +
@@ -7034,7 +7028,6 @@ begin
             document.write('<td width=35%><img width=100px src=' + si + '\' + pcs + '.png></td>');
             document.write('<td width=20%>');
             DrawColorCell(i, 25);
-            // document.BlancColorCell(db.colors(i).RGB, 25);
             cinfo := db.colors(i);
             if pci <> nil then
             begin
@@ -7988,7 +7981,6 @@ begin
     document.write(' - ' + db.PieceDesc(pi) + '</td>');
     document.write('<td width=20%>');
     DrawColorCell(cl, 25);
-//    document.BlancColorCell(db.colors(cl).RGB, 25);
 
     if pci = nil then
       document.write(
@@ -8306,7 +8298,6 @@ begin
     document.write(' - ' + db.PieceDesc(pi) + '</td>');
     document.write('<td width=20%>');
     DrawColorCell(cl, 25);
-    // document.BlancColorCell(db.colors(cl).RGB, 25);
 
     if pci = nil then
       document.write(
@@ -8568,7 +8559,6 @@ begin
           document.write('<td width=35%><a href=spiece/' + pcs + '><img width=100px src=' + IntToStr(i) + '\' + pcs + '.png></a></td>');
           document.write('<td width=20%>');
           DrawColorCell(i, 25);
-          // document.BlancColorCell(db.colors(i).RGB, 25);
           if pci = nil then
             document.write(db.colors(i).name + ' (' + scolor + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
           else
@@ -8819,7 +8809,6 @@ begin
           document.write('<td width=35%><a href=spiece/' + pcs + '><img width=100px src=' + IntToStr(i) + '\' + pcs + '.png></a></td>');
           document.write('<td width=20%>');
           DrawColorCell(i, 25);
-          // document.BlancColorCell(db.colors(i).RGB, 25);
           if pci = nil then
             document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
           else
@@ -10818,7 +10807,6 @@ begin
     document.write('<b>' + GetPieceLinkHtml(spart) + '</b>');
     document.write(' - ' + db.PieceDesc(pi) + '</td><td width=20%>');
     DrawColorCell(ncolor, 25);
-//    document.BlancColorCell(db.colors(ncolor).RGB, 25);
 
     document.write(
       GetPieceColorLinkHtml(spart, ncolor) +
@@ -12243,7 +12231,6 @@ begin
       document.write('<a href="inv/' + invs +'/P/' + decide(partmask = '', brick.part, '') + '">' + ' - ' );
       document.write(db.PieceDesc(pi) + '</a> <a href=spiece/' + brick.part + '>...</a></td><td width=25%>');
       DrawColorCell(brick.color, 20);
-  //    document.BlancColorCell(db.colors(brick.color).RGB, 20);
       document.write('<a href="inv/' + invs +'/C/' + IntToStr(decide(colormask = -1, brick.color, -1)) + '">');
 
       document.write(db.colors(brick.color).name + ' (' + scolor + ') (BL=' +
@@ -16480,7 +16467,6 @@ begin
     document.write(' - ' + db.PieceDesc(pi) + '</td>');
     document.write('<td width=20%>');
     DrawColorCell(cl, 25);
-//    document.BlancColorCell(db.colors(cl).RGB, 25);
     if pci = nil then
     begin
       document.write(GetPieceColorLinkHtml(pcs, cl));

@@ -84,7 +84,6 @@ type
     procedure InternetUpdate(const acurrency: string; const ddate: TDateTime);
     procedure UpdateAllCurrenciesAt(const ddate: TDateTime);
     function ConvertAt(const acurrency: string; const dd: TDateTime): double;
-    property basecurrencyname: string read fbasecurrencyname write fbasecurrencyname;
     property filename: string read ffilename write ffilename;
   end;
 
@@ -92,13 +91,16 @@ function stringtodate(const s: string): TDateTime;
 
 function datetostring(const dd: TDateTime): string;
 
+function moneyhtml(const money: double; const ndec: integer = 4): string;
+
 const
   INTERNAL_CURRENCY = 'EUR';
 
 implementation
 
 uses
-  bi_delphi, bi_db, bi_utils, DateUtils, StrUtils, UrlMon, bi_tmp, bi_cachefile;
+  bi_delphi, bi_db, bi_utils, bi_defs, bi_globals, DateUtils, StrUtils, UrlMon,
+  bi_tmp, bi_cachefile;
 
 const
   C_CURRENCY_NAMES =
@@ -466,7 +468,7 @@ var
   i: integer;
 begin
   check := UpperCase(acurrency);
-  if check = UpperCase(fbasecurrencyname) then
+  if check = fbasecurrencyname then
   begin
     Result := 1.0;
     Exit;
@@ -660,6 +662,58 @@ end;
 function TCurrencyConvert.IndexOf(const scurrency: string; const ddate: TDateTime): integer;
 begin
   Result := IndexOf(scurrency, datetostring(ddate));
+end;
+
+function moneyhtml(const money: double; const ndec: integer = 4): string;
+var
+  conv: double;
+  xdec: integer;
+begin
+  if optdefaultcurrency = INTERNAL_CURRENCY then
+  begin
+    if optbriefcurrencysymbol then
+      Result := Format('€%0.' + itoa(ndec) + 'n', [money])
+    else
+      Result := Format('EUR %0.' + itoa(ndec) + 'n', [money]);
+    Exit;
+  end;
+
+  xdec := ndec;
+  conv := db.ConvertCurrency(optdefaultcurrency);
+  if conv < 0.001 then
+  begin
+    dec(xdec);
+    if conv < 0.0001 then
+    begin
+      dec(xdec);
+      if conv < 0.0000000001 then
+      begin
+        Result := Format('EUR %0.' + itoa(ndec) + 'n', [money]);
+        Exit;
+      end;
+    end;
+  end;
+
+  if optbriefcurrencysymbol then
+  begin
+    if optdefaultcurrency = 'USD' then
+    begin
+      Result := Format('$%0.' + itoa(xdec) + 'n', [money / conv]);
+      Exit;
+    end;
+    if optdefaultcurrency = 'GBP' then
+    begin
+      Result := Format('£%0.' + itoa(xdec) + 'n', [money / conv]);
+      Exit;
+    end;
+    if optdefaultcurrency = 'JPY' then
+    begin
+      Result := Format('¥%0.' + itoa(xdec) + 'n', [money / conv]);
+      Exit;
+    end;
+  end;
+
+  Result := Format(optdefaultcurrency + ' %.' + itoa(xdec) + 'n', [money / conv]);
 end;
 
 initialization

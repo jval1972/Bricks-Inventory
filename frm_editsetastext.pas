@@ -526,6 +526,7 @@ begin
     if MessageDlg(Format('Add purchase %d sets at %s %2.2f each?', [nsets, scurrency, ncost]), mtConfirmation, [mbYes, mbNo], -1) = mrYes then
     begin
       DecimalSeparator := '.';
+      ThousandSeparator := ',';
       CostMemo.Lines.Add(Format('%d,%2.2f,%s', [nsets, ncost, scurrency]));
     end;
   end

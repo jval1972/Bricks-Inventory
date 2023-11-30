@@ -5,7 +5,7 @@ object OptionsForm: TOptionsForm
   BorderStyle = bsDialog
   Caption = 'Options'
   ClientHeight = 291
-  ClientWidth = 388
+  ClientWidth = 387
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -552,7 +552,7 @@ object OptionsForm: TOptionsForm
   object Panel1: TPanel
     Left = 0
     Top = 250
-    Width = 388
+    Width = 387
     Height = 41
     Align = alBottom
     BevelOuter = bvNone
@@ -565,7 +565,7 @@ object OptionsForm: TOptionsForm
     ParentFont = False
     TabOrder = 0
     object Panel2: TPanel
-      Left = 187
+      Left = 186
       Top = 0
       Width = 201
       Height = 41
@@ -815,9 +815,17 @@ object OptionsForm: TOptionsForm
         Left = 16
         Top = 8
         Width = 305
-        Height = 177
+        Height = 161
         ItemHeight = 16
         TabOrder = 0
+      end
+      object CheckBox15: TCheckBox
+        Left = 16
+        Top = 176
+        Width = 305
+        Height = 17
+        Caption = 'Use short currency symbol if possible'
+        TabOrder = 1
       end
     end
   end

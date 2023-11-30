@@ -759,14 +759,36 @@ var
   code: integer;
   i: integer;
   str: string;
+  didsep: boolean;
 begin
   val(s, Result, code);
   if code <> 0 then
   begin
-    str := s;
-    for i := 1 to Length(str) do
+    if s = '' then
+    begin
+      Result := default;
+      Exit;
+    end;
+    DecimalSeparator := '.';
+    ThousandSeparator := ',';
+    str := '';
+    didsep := False;
+    for i := Length(str) downto 1 do
+    begin
       if str[i] in ['.', ','] then
-        str[i] := DecimalSeparator;
+      begin
+        if not didsep then
+        begin
+          str := DecimalSeparator + str;
+          didsep := true;
+        end
+      end
+      else
+        str := s[i] + str;
+    end;
+    if str <> '' then
+      if str[1] = DecimalSeparator then
+        str := '0' + str;
     val(str, Result, code);
     if code <> 0 then
       Result := default;
@@ -3334,6 +3356,7 @@ end;
 
 begin
   DecimalSeparator := '.';
+  ThousandSeparator := ',';
 
 end.
 

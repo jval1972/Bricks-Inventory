@@ -944,6 +944,7 @@ begin
   cc := -1000;
   {$ENDIF}
   DecimalSeparator := '.';
+  ThousandSeparator := ',';
   if color = '-1' then
   begin
     if db.IsMoc(id) then

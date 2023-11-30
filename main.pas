@@ -1119,6 +1119,7 @@ begin
   outproc := outprocmemo;
   printf('Starting BrickInventory...'#13#10);
   BI_LoadDefaults(basedefault + 'bi4.ini');
+  optdefaultcurrency := strupper(optdefaultcurrency);
   CheckBox1.Checked := optenablecrawling;
   activebits := 0;
   storagebinsupdatetime := 0.0;
@@ -1473,18 +1474,18 @@ begin
       tot := atof(oo.ORDERTOTAL) * curconv;
       grantot := atof(oo.BASEGRANDTOTAL) * curconv;
 
-      if curconv = 1.0 then
+      if curconv = db.ConvertCurrency(optdefaultcurrency) then
       begin
-        document.write('<td width=15% align=right>' + Format('€ %2.3f', [tot]) + '</td>');
-        document.write('<td width=15% align=right>' + Format('€ %2.3f', [grantot]) + '</td>');
+        document.write('<td width=15% align=right>' + moneyhtml(tot) + '</td>');
+        document.write('<td width=15% align=right>' + moneyhtml(grantot) + '</td>');
       end
       else
       begin
-        document.write('<td width=15% align=right>' + Format('*€ %2.3f', [tot]) + '</td>');
-        document.write('<td width=15% align=right>' + Format('*€ %2.3f', [grantot]) + '</td>');
+        document.write('<td width=15% align=right>*' + moneyhtml(tot) + '</td>');
+        document.write('<td width=15% align=right>*' + moneyhtml(grantot) + '</td>');
       end;
       eval := EvaluatedPrice(oo);
-      document.write('<td width=15% align=right>' + Format('€ %2.3f', [eval]) + '</td>');
+      document.write('<td width=15% align=right>' + moneyhtml(eval) + '</td>');
       document.write('</tr></table>');
       Exit;
     end;
@@ -1590,16 +1591,16 @@ begin
 
     if curconv = 1.0 then
     begin
-      document.write('<td width=15% align=right>' + Format('€ %2.3f', [tot]) + '</td>');
-      document.write('<td width=15% align=right>' + Format('€ %2.3f', [grantot]) + '</td>');
+      document.write('<td width=15% align=right>' + moneyhtml(tot) + '</td>');
+      document.write('<td width=15% align=right>' + moneyhtml(grantot) + '</td>');
     end
     else
     begin
-      document.write('<td width=15% align=right>' + Format('*€ %2.3f', [tot]) + '</td>');
-      document.write('<td width=15% align=right>' + Format('*€ %2.3f', [grantot]) + '</td>');
+      document.write('<td width=15% align=right>*' + moneyhtml(tot) + '</td>');
+      document.write('<td width=15% align=right>*' + moneyhtml(grantot) + '</td>');
     end;
     eval := EvaluatedPrice(oo);
-    document.write('<td width=15% align=right>' + Format('€ %2.3f', [eval]) + '</td>');
+    document.write('<td width=15% align=right>' + moneyhtml(eval) + '</td>');
     evalsum := evalsum + eval;
     document.write('</tr>');
   end;
@@ -1614,9 +1615,9 @@ begin
 
   document.write('<td width=8% align=right>' + itoa(numlots) + '</td>');
   document.write('<td width=8% align=right>' + itoa(numitems) + '</td>');
-  document.write('<td width=15% align=right>' + Format('€ %2.3f', [sum]) + '</td>');
-  document.write('<td width=15% align=right>' + Format('€ %2.3f', [gransum]) + '</td>');
-  document.write('<td width=15% align=right>' + Format('€ %2.3f', [evalsum]) + '</td>');
+  document.write('<td width=15% align=right>' + moneyhtml(sum) + '</td>');
+  document.write('<td width=15% align=right>' + moneyhtml(gransum) + '</td>');
+  document.write('<td width=15% align=right>' + moneyhtml(evalsum) + '</td>');
   document.write('</tr></table>');
 
   document.MarkBottomNavigateSection;
@@ -1724,9 +1725,9 @@ begin
     tw := tw + w;
     document.write('<td width=20% align=right>' + itoa(inv.numlooseparts) + '</td>');
     document.write('<td width=20% align=right>' + itoa(inv.totallooseparts) + '</td>');
-    document.write('<td width=20% align=right>' + Format('€ %2.3f', [eval]) + '</td>');
+    document.write('<td width=20% align=right>' + moneyhtml(eval) + '</td>');
     document.write('<td width=20% align=right>' + Format('%2.3f Kgr', [w]) + '</td>');
-    document.write('<td width=20% align=right>' + Format('€ %2.3f / Kgr', [dbl_safe_div(eval, w)]) + '</td>');
+    document.write('<td width=20% align=right>' + moneyhtml(dbl_safe_div(eval, w)) + ' / Kgr</td>');
 
     if idx < 0 then
       inv.Free;
@@ -1743,9 +1744,9 @@ begin
 
   document.write('<td width=20% align=right>' + itoa(numlots) + '</td>');
   document.write('<td width=20% align=right>' + itoa(numitems) + '</td>');
-  document.write('<td width=20% align=right>' + Format('€ %2.3f', [evalsum]) + '</td>');
+  document.write('<td width=20% align=right>' + moneyhtml(evalsum) + '</td>');
   document.write('<td width=20% align=right>' + Format('%2.3f Kgr', [tw]) + '</td>');
-  document.write('<td width=20% align=right>' + Format('€ %2.3f / Kgr', [dbl_safe_div(evalsum, tw)]) + '</td>');
+  document.write('<td width=20% align=right>' + moneyhtml(dbl_safe_div(evalsum, tw)) + ' / Kgr</td>');
   document.write('</tr></table>');
 
   document.MarkBottomNavigateSection;
@@ -2887,8 +2888,8 @@ procedure TMainForm.DrawPartOutValue(inv: TBrickInventory; const setid: string =
     sy1, sy2: string;
   begin
     sp := Format('%2.3f%s', [percent * 100, '%']);
-    sy1 := Format('€ %2.3f', [y1]);
-    sy2 := Format('€ %2.3f', [y2]);
+    sy1 := moneyhtml(y1);
+    sy2 := moneyhtml(y2);
     Result := '<td width=17%><p align="center"><b>' + cont + '</b><br></p>';
     Result := Result + '<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tbody><tr align="RIGHT">';
     Result := Result + '<td width="50%">Percent:</td><td width="50%"><b>' + sp;
@@ -3037,23 +3038,25 @@ begin
       document.write('<td align="right">%d</td>',
           [oitem.num]);
 
-      document.write('<td align="right" colspan="' + sspan2 + '">(%s) %s %2.3f (%2.3f)<br>%2.3f (%2.3f)',
+      document.write('<td align="right" colspan="' + sspan2 + '">(%s) %s %2.3f (%s %2.3f)<br>%s %2.3f (%s %2.3f)',
           [oitem.condition,
            oitem.currency,
            oitem.price,
+           oitem.currency,
            oitem.pricetot,
+           oitem.currency,
            oitem.num * oitem.price,
+           oitem.currency,
            oitem.num * oitem.pricetot]);
 
       curconv := db.ConvertCurrency(oitem.currency);
-      if curconv <> 1.0 then
-        document.write('<br>(%s) %s %2.3f (%2.3f)<br>%2.3f (%2.3f)</td>',
+      if curconv <> db.ConvertCurrency(optdefaultcurrency) then
+        document.write('<br>(%s) %s (%s)<br>%s (%s)</td>',
           [oitem.condition,
-           '*€',
-           oitem.price * curconv,
-           oitem.pricetot * curconv,
-           oitem.num * oitem.price * curconv,
-           oitem.num * oitem.pricetot * curconv])
+           moneyhtml(oitem.price),
+           moneyhtml(oitem.pricetot),
+           moneyhtml(oitem.num * oitem.price),
+           moneyhtml(oitem.num * oitem.pricetot)])
       else
         document.write('</td>');
 
@@ -3307,7 +3310,6 @@ var
   cl: TDNumberList;
   pl: TStringList;
   num: integer;
-  accurstr: string;
   totalweight: double;
   totalcostwn: double;
   totalcostwu: double;
@@ -3341,7 +3343,6 @@ begin
   prnt := 0;
   prut := 0;
   num := 0;
-  accurstr := '%2.3f';
   cl := TDNumberList.Create;
   pl := TStringList.Create;
   totalweight := 0.0;
@@ -3364,8 +3365,8 @@ begin
       www := db.GetItemWeight(pci.piece, pci.color, pi);
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
-      document.write('<td width=15% align=right>' + Format('€ ' + accurstr + '<br>€ ' + accurstr + '<br>€ %2.2f / Kgr', [prn, prn * brick.num, dbl_safe_div(prn, www) * 1000]) + '</td>');
-      document.write('<td width=15% align=right>' + Format('€ ' + accurstr + '<br>€ ' + accurstr + '<br>€ %2.2f / Kgr', [pru, pru * brick.num, dbl_safe_div(pru, www) * 1000]) + '</td>');
+      document.write('<td width=15% align=right>' + Format('%s<br>%s<br>%s / Kgr', [moneyhtml(prn, 2), moneyhtml(prn * brick.num, 2), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
+      document.write('<td width=15% align=right>' + Format('%s<br>%s<br>%s / Kgr', [moneyhtml(pru, 2), moneyhtml(pru * brick.num, 2), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
       prnt := prnt + prn * brick.num;
       prut := prut + pru * brick.num;
       if www > 0.0 then
@@ -3397,8 +3398,8 @@ begin
   document.write('<td width=20%><b>' + IntToStr(cl.Count) + ' unique color' + decide(cl.Count = 1, '', 's') + '</b></td>');
 
   document.write('<td width=10% align=right><b>' + IntToStr(num) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Kgr', [prnt, dbl_safe_div(totalcostwn, totalweight) * 1000]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Kgr', [prut, dbl_safe_div(totalcostwu, totalweight) * 1000]) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + Format('%s<br>%s / Kgr', [moneyhtml(prnt, 2), moneyhtml(dbl_safe_div(totalcostwn, totalweight) * 1000, 2)]) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + Format('%s<br>%s / Kgr', [moneyhtml(prut, 2), moneyhtml(dbl_safe_div(totalcostwu, totalweight) * 1000, 2)]) + '</b></td>');
   document.write('</tr>');
   SplashProgress('Working...', 1);
 
@@ -3434,6 +3435,7 @@ var
   pl: TStringList;
   num: integer;
   accurstr: string;
+  accunum: integer;
   totalweight, totalweight_ready: double;
   totalcostwn: double;
   totalcostwt: double;
@@ -3502,9 +3504,15 @@ begin
   mycosttot := 0.0;
   mytotcostpieces := 0;
   if lite then
-    accurstr := '%2.3f'
+  begin
+    accurstr := '%2.3f';
+    accunum := 3;
+  end
   else
+  begin
     accurstr := '%2.4f';
+    accunum := 4;
+  end;
   cl := TDNumberList.Create;
   pl := TStringList.Create;
   totalweight := 0.0;
@@ -3565,7 +3573,7 @@ begin
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
       www := db.GetItemWeight(pci.piece, pci.color, pi);
-      document.write('<td width=' + decide(lite, '15%', '10%') + ' align=right>' + Format('€ ' + accurstr + '<br>€ ' + accurstr + '<br>€ %2.2f / Kgr', [prn, prn * brick.num, dbl_safe_div(prn, www) * 1000]) + '</td>');
+      document.write('<td width=' + decide(lite, '15%', '10%') + ' align=right>' + Format('%s<br>%s<br>%s / Kgr', [moneyhtml(prn, accunum), moneyhtml(prn * brick.num, accunum), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
       if (lb <> nil) and not lite then
       begin
         lcost := lb.ItemCost(pci.piece, pci.color);
@@ -3573,7 +3581,7 @@ begin
         if lcost >= 0.0 then
         begin
           lcostt := lcostt + lcost * brick.num;
-          document.write('<td width=' + decide(lite, '15%', '10%') + ' align=right>' + Format('€ ' + '<a href=' + lugcostedit + '>' + accurstr + '</a><br>€ ' + accurstr + '<br>€ %2.2f / Kgr', [lcost, lcost * brick.num, dbl_safe_div(lcost, www) * 1000]) + '</td>')
+          document.write('<td width=' + decide(lite, '15%', '10%') + ' align=right>' + Format('€ ' + '<a href=' + lugcostedit + '>' + accurstr + '</a><br>%s<br>%s / Kgr', [lcost, moneyhtml(lcost * brick.num, accunum), moneyhtml(dbl_safe_div(lcost, www) * 1000, 2)]) + '</td>')
         end
         else
         begin
@@ -3585,7 +3593,7 @@ begin
         lcost := 0.0;
 
       if not lite then
-        document.write('<td width=10% align=right>' + Format('€ ' + accurstr + '<br>€ ' + accurstr + '<br>€ %2.2f / Kgr', [pru, pru * brick.num, dbl_safe_div(pru, www) * 1000]) + '</td>');
+        document.write('<td width=10% align=right>' + Format('%s<br>%s<br>%s / Kgr', [moneyhtml(pru, accunum), moneyhtml(pru * brick.num, accunum), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
       prnt := prnt + prn * brick.num;
       prut := prut + pru * brick.num;
       if www > 0.0 then
@@ -3598,7 +3606,7 @@ begin
     end;
     mycost := GetItemCostDbl(brick.part, brick.color);
     if not lite then
-      document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * brick.num]) + '</td>');
+      document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * brick.num)]) + '</td>');
     mycosttot := mycosttot + mycost * brick.num;
     if mycost > 0.0 then
       mytotcostpieces := mytotcostpieces + brick.num;
@@ -3673,18 +3681,18 @@ begin
     document.write('<td width=10% align=right></td>');}
 
   document.write('<td width=10% align=right><b>' + IntToStr(num) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Kgr', [prnt, dbl_safe_div(totalcostwn, totalweight) * 1000]) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + Format('%s<br>%s / Kgr', [moneyhtml(prnt, 2), moneyhtml(dbl_safe_div(totalcostwn, totalweight) * 1000, 2)]) + '</b></td>');
 
   if lb <> nil then
-    document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Kgr', [lcostt, dbl_safe_div(totalcostwt, totalweight) * 1000]) + '</b></td>');
+    document.write('<td width=10% align=right><b>' + Format('%s<br>%s / Kgr', [moneyhtml(lcostt, 2), moneyhtml(dbl_safe_div(totalcostwt, totalweight) * 1000, 2)]) + '</b></td>');
 
   if not lite then
   begin
-    document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>€ %2.2f / Kgr', [prut,  dbl_safe_div(totalcostwu, totalweight) * 1000]) + '</b></td>');
+    document.write('<td width=10% align=right><b>' + Format('%s<br>%s / Kgr', [moneyhtml(prut, 2),  moneyhtml(dbl_safe_div(totalcostwu, totalweight) * 1000, 2)]) + '</b></td>');
     if num = 0 then
-      document.write('<td width=10% align=right><b>' + Format('€ %2.2f', [mycosttot]) + '</b></td>')
+      document.write('<td width=10% align=right><b>' + moneyhtml(mycosttot, 2) + '</b></td>')
     else
-      document.write('<td width=10% align=right><b>' + Format('€ %2.2f<br>%2.3f%s', [mycosttot, 100 * mytotcostpieces / num, '%']) + '</b></td>');
+      document.write('<td width=10% align=right><b>' + Format('%s<br>%s%s', [moneyhtml(mycosttot, 2), moneyhtml(100 * mytotcostpieces / num, 3), '%']) + '</b></td>');
   end;
 
   if showreadylist then
@@ -3811,10 +3819,10 @@ var
   begin
     sx1 := IntToStr(x1);
     sx2 := IntToStr(x2);
-    sy1 := Format('€ %2.3f', [y1]);
-    sy2 := Format('€ %2.3f', [y2]);
-    sy3 := Format('€ %2.3f', [y3]);
-    sy4 := Format('€ %2.3f', [y4]);
+    sy1 := moneyhtml(y1, 3);
+    sy2 := moneyhtml(y2, 3);
+    sy3 := moneyhtml(y3, 3);
+    sy4 := moneyhtml(y4, 3);
     Result := '<td width=25%><p align="center"><b>' + cont + '</b><br></p>';
     Result := Result + '<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tbody><tr align="RIGHT">';
     Result := Result + '<td width="50%">' + til + '</td><td width="50%"><b>' + sx1;
@@ -3869,10 +3877,10 @@ var
   begin
     sx1 := IntToStr(x1);
     sx2 := IntToStr(x2);
-    sy1 := Format('€ %2.3f', [y1]);
-    sy2 := Format('€ %2.3f', [y2]);
-    sy3 := Format('€ %2.3f', [y3]);
-    sy4 := Format('€ %2.3f', [y4]);
+    sy1 := moneyhtml(y1, 3);
+    sy2 := moneyhtml(y2, 3);
+    sy3 := moneyhtml(y3, 3);
+    sy4 := moneyhtml(y4, 3);
     Result := '<td width=25%><p align="center"><b>' + cont + '</b><br></p>';
     Result := Result + '<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tbody><tr align="RIGHT">';
     Result := Result + '<td width="50%">' + til + '</td><td width="50%"><b>' + sx1 + _getdiagram(x1, x1a, chbase);
@@ -7055,8 +7063,8 @@ begin
               www := db.GetItemWeight(pci.piece, pci.color);
               prn := pci.EvaluatePriceNew;
               pru := pci.EvaluatePriceUsed;
-              document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
-              document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [pru, dbl_safe_div(pru, www) * 1000]) + '</td>');
+              document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
+              document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
               prnt := prnt + prn * numpieces;
               prut := prut + pru * numpieces;
 
@@ -7067,7 +7075,7 @@ begin
               document.write('<td width=15% align=right>-</td>');
             end;
             mycost := GetItemCostDbl(pcs, i);
-            document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * numpieces]) + '</td>');
+            document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td>');
             mycosttot := mycosttot + mycost * numpieces;
             document.write('</tr>');
 
@@ -7085,8 +7093,8 @@ begin
   document.write('<td width=20%><b> </b></td>');
   document.write('<td width=20%><b> </b></td>');
   document.write('<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f', [prnt]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f', [prut]) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>');
   document.write('<td width=10% align=right><b> </b></td>');
 
   document.write('<br>');
@@ -8006,8 +8014,8 @@ begin
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
       www := db.GetItemWeight(pci.piece, pci.color, pi);
-      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
-      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [pru, dbl_safe_div(pru, www) * 1000]) + '</td>');
+      document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
+      document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
       prnt := prnt + prn * numpieces;
       prut := prut + pru * numpieces;
 
@@ -8020,7 +8028,7 @@ begin
       document.write('<td width=15% align=right>-</td>');
     end;
     mycost := GetItemCostDbl(pcs, cl);
-    document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * numpieces]) + '</td>');
+    document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td>');
     mycosttot := mycosttot + mycost * numpieces;
     document.write('</tr>');
 
@@ -8043,8 +8051,8 @@ begin
   if sortorder = SORT_DATE_UPDATE then
     document.write('<td width=15%><b> </b></td>');
   document.write('<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f', [prnt]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f', [prut]) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>');
   document.write('<td width=10% align=right><b> </b></td>');
 
   document.write('<br></table>');
@@ -8177,8 +8185,8 @@ begin
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
       www := db.GetItemWeight(pci.piece, pci.color, pi);
-      document.write('<td width=12% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
-      document.write('<td width=12% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [pru, dbl_safe_div(pru, www) * 1000]) + '</td>');
+      document.write('<td width=12% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
+      document.write('<td width=12% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
       prnt := prnt + prn * numpieces;
       prut := prut + pru * numpieces;
     end
@@ -8188,7 +8196,7 @@ begin
       document.write('<td width=12% align=right>-</td>');
     end;
     mycost := GetItemCostDbl(pcs, cl);
-    document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * numpieces]) + '</td>');
+    document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td>');
     mycosttot := mycosttot + mycost * numpieces;
     document.write('</tr>');
 
@@ -8207,8 +8215,8 @@ begin
   document.write('<td width=20%><b> </b></td>');
   document.write('<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>');
   document.write('<td width=10% align=right><b> </b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f', [prnt]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f', [prut]) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>');
   document.write('<td width=10% align=right><b> </b></td>');
 
   document.write('<br></table>');
@@ -8319,8 +8327,8 @@ begin
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
       www := db.GetItemWeight(pci.piece, pci.color, pi);
-      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
-      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [pru, dbl_safe_div(pru, www) * 1000]) + '</td>');
+      document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
+      document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
       prnt := prnt + prn * numpieces;
       prut := prut + pru * numpieces;
 
@@ -8331,7 +8339,7 @@ begin
       document.write('<td width=15% align=right>-</td>');
     end;
     mycost := GetItemCostDbl(pcs, cl);
-    document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * numpieces]) + '</td>');
+    document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td>');
     mycosttot := mycosttot + mycost * numpieces;
     document.write('</tr>');
 
@@ -8450,7 +8458,7 @@ begin
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
       www := db.GetItemWeight(pci.piece, pci.color, pi);
-      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
+      document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
       prnt := prnt + prn * numpieces;
       prut := prut + pru * numpieces;
       document.write('<td width=10% align=right>' + itoa(pci.priceguide.nTimesSold) + '</td>');
@@ -8479,8 +8487,8 @@ begin
   document.write('<td width=35%><b> </b></td>');
   document.write('<td width=20%><b> </b></td>');
   document.write('<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f', [prnt]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f', [prut]) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>');
   document.write('<td width=10% align=right><b> </b></td>');
 
   document.write('<br></table>');
@@ -8571,8 +8579,8 @@ begin
             prn := pci.EvaluatePriceNew;
             pru := pci.EvaluatePriceUsed;
             www := db.GetItemWeight(pci.piece, pci.color, pi);
-            document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
-            document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [pru, dbl_safe_div(pru, www) * 1000]) + '</td>');
+            document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
+            document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
           end
           else
           begin
@@ -8580,7 +8588,7 @@ begin
             document.write('<td width=15% align=right>-</td>');
           end;
           mycost := GetItemCostDbl(pcs, i);
-          document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * numpieces]) + '</td>');
+          document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td>');
           document.write('</tr>');
 
           bp.part := pcs;
@@ -8822,8 +8830,8 @@ begin
             prn := pci.EvaluatePriceNew;
             pru := pci.EvaluatePriceUsed;
             www := db.GetItemWeight(pci.piece, pci.color, pi);
-            document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
-            document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [pru, dbl_safe_div(pru, www) * 1000]) + '</td>');
+            document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
+            document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
           end
           else
           begin
@@ -8831,7 +8839,7 @@ begin
             document.write('<td width=15% align=right>-</td>');
           end;
           mycost := GetItemCostDbl(pcs, i);
-          document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * numpieces]) + '</td>');
+          document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td>');
           document.write('</tr>');
 
           bp.part := pcs;
@@ -9436,9 +9444,9 @@ begin
     document.write(IntToStr(cls.numparts) + ' parts <br>' + IntToStr(cls.numlots) + ' lots</td>');
 
     document.write('</td><td width=8% align=right>');
-    document.write('€ %2.2f</td>', [cls.Nsetcost]);
+    document.write('%s</td>', [moneyhtml(cls.Nsetcost, 2)]);
     document.write('</td><td width=8% align=right>');
-    document.write('€ %2.2f</td>', [cls.Ninvcost]);
+    document.write('%s</td>', [moneyhtml(cls.Ninvcost, 2)]);
     document.write('</td><td width=8% align=right>');
     document.write('%2.2f</td>', [cls.Ndemand]);
     document.write('</td><td width=8% align=right>');
@@ -9447,9 +9455,9 @@ begin
     document.write(Format('%2.3f', [dbl_safe_div(cls.Ninvcost, cls.Nsetcost) * cls.Ndemand]) + '</td>');
 
     document.write('</td><td width=8% align=right>');
-    document.write('€ %2.2f</td>', [cls.Usetcost]);
+    document.write('%s</td>', [moneyhtml(cls.Usetcost, 2)]);
     document.write('</td><td width=8% align=right>');
-    document.write('€ %2.2f</td>', [cls.Uinvcost]);
+    document.write('%s</td>', [moneyhtml(cls.Uinvcost, 2)]);
     document.write('</td><td width=8% align=right>');
     document.write('%2.2f</td>', [cls.Udemand]);
     document.write('</td><td width=8% align=right>');
@@ -9618,9 +9626,9 @@ begin
     cls := list.Objects[i] as _costclass;
     document.write(IntToStr(cls.numparts) + ' parts <br>' + IntToStr(cls.numlots) + ' lots</td>');
     document.write('</td><td width=15% align=right>');
-    document.write('€ %2.2f</td>', [cls.setcost]);
+    document.write('%s</td>', [moneyhtml(cls.setcost, 2)]);
     document.write('</td><td width=15% align=right>');
-    document.write('€ %2.2f</td>', [cls.invcost]);
+    document.write('%s</td>', [moneyhtml(cls.invcost, 2)]);
     document.write('</td><td width=15% align=right>');
     document.write('%2.2f</td>', [cls.demand]);
     document.write('</td><td width=15% align=right>');
@@ -9784,9 +9792,9 @@ begin
     document.write('</td><td width=15% align=right>');
     document.write(IntToStr(cls.numparts) + ' parts <br>' + IntToStr(cls.numlots) + ' lots</td>');
     document.write('</td><td width=15% align=right>');
-    document.write('€ %2.2f</td>', [cls.setcost]);
+    document.write('%s</td>', [moneyhtml(cls.setcost, 2)]);
     document.write('</td><td width=15% align=right>');
-    document.write('€ %2.2f</td>', [cls.invcost]);
+    document.write('%s</td>', [moneyhtml(cls.invcost, 2)]);
     document.write('</td><td width=15% align=right>');
     document.write('%2.2f</td>', [cls.demand]);
     document.write('</td><td width=15% align=right>');
@@ -9947,11 +9955,11 @@ begin
     document.write('</td><td width=15% align=right>');
     document.write(Format('%d<br>%2.2f%s', [missing, dbl_safe_div(missing, cls.numparts) * 100, '%']) + '</td>');
     document.write('</td><td width=15% align=right>');
-    document.write('€ %2.2f</td>', [cls.setcost]);
+    document.write('%s</td>', [moneyhtml(cls.setcost, 2)]);
     document.write('</td><td width=15% align=right>');
-    document.write('€ %2.2f</td>', [cls.invcost]);
+    document.write('%s</td>', [moneyhtml(cls.invcost, 2)]);
     document.write('</td><td width=15% align=right>');
-    document.write('€ %2.2f<br>%2.2f%s</td>', [mvalue, dbl_safe_div(mvalue, cls.invcost) * 100, '%']);
+    document.write('%s<br>%2.2f%s</td>', [moneyhtml(mvalue, 2), dbl_safe_div(mvalue, cls.invcost) * 100, '%']);
     document.write('</td><td width=15% align=right>');
     document.write(Format('%2.3f%s', [dbl_safe_div(cls.setcost, cls.invcost) * 100, '%']) + '</td></tr>');
 
@@ -10156,13 +10164,13 @@ begin
     cls := list.Objects[i] as _minifigpartoutclass;
     document.write(IntToStr(cls.numparts) + ' parts <br>' + IntToStr(cls.numlots) + ' lots<br>' + IntToStr(cls.numminifigs) + ' minifigs</td>');
     document.write('</td><td width=10% align=right>');
-    document.write('€ %2.2f</td>', [cls.setcost]);
+    document.write('%s</td>', [moneyhtml(cls.setcost, 2)]);
     document.write('</td><td width=10% align=right>');
-    document.write('€ %2.2f</td>', [cls.invcost]);
+    document.write('%s</td>', [moneyhtml(cls.invcost, 2)]);
     document.write('</td><td width=10% align=right>');
-    document.write('€ %2.2f<br>(%2.2f%s)</td>', [cls.partscost, dbl_safe_div(cls.partscost, cls.setcost) * 100, '%']);
+    document.write('%s<br>(%2.2f%s)</td>', [moneyhtml(cls.partscost, 2), dbl_safe_div(cls.partscost, cls.setcost) * 100, '%']);
     document.write('</td><td width=10% align=right>');
-    document.write('€ %2.2f<br>(%2.2f%s)</td>', [cls.minifigscost, dbl_safe_div(cls.minifigscost, cls.setcost) * 100, '%']);
+    document.write('%s<br>(%2.2f%s)</td>', [moneyhtml(cls.minifigscost, 2), dbl_safe_div(cls.minifigscost, cls.setcost) * 100, '%']);
     document.write('</td><td width=10% align=right>');
     document.write('%2.2f</td>', [cls.demand]);
     document.write('</td><td width=10% align=right>');
@@ -10361,13 +10369,13 @@ begin
     cls := list.Objects[i] as _minifigpartoutclass;
     document.write(IntToStr(cls.numparts) + ' parts <br>' + IntToStr(cls.numlots) + ' lots<br>' + IntToStr(cls.numminifigs) + ' minifigs</td>');
     document.write('</td><td width=10% align=right>');
-    document.write('€ %2.2f</td>', [cls.setcost]);
+    document.write('%s</td>', [moneyhtml(cls.setcost, 2)]);
     document.write('</td><td width=10% align=right>');
-    document.write('€ %2.2f</td>', [cls.invcost]);
+    document.write('%s</td>', [moneyhtml(cls.invcost, 2)]);
     document.write('</td><td width=10% align=right>');
-    document.write('€ %2.2f<br>(%2.2f%s)</td>', [cls.partscost, dbl_safe_div(cls.partscost, cls.setcost) * 100, '%']);
+    document.write('%s<br>(%2.2f%s)</td>', [moneyhtml(cls.partscost, 2), dbl_safe_div(cls.partscost, cls.setcost) * 100, '%']);
     document.write('</td><td width=10% align=right>');
-    document.write('€ %2.2f<br>(%2.2f%s)</td>', [cls.minifigscost, dbl_safe_div(cls.minifigscost, cls.setcost) * 100, '%']);
+    document.write('%s<br>(%2.2f%s)</td>', [moneyhtml(cls.minifigscost), dbl_safe_div(cls.minifigscost, cls.setcost) * 100, '%']);
     document.write('</td><td width=10% align=right>');
     document.write('%2.2f</td>', [cls.demand]);
     document.write('</td><td width=10% align=right>');
@@ -12261,9 +12269,9 @@ begin
         pru := pci.EvaluatePriceUsed;
         www := db.GetItemWeight(pci.piece, pci.color, pi);
         document.write('<td width=10% align=right>' +
-          Format('€ %2.4f<br>€ %2.4f<br>€ %2.2f / Kgr', [prn, prn * brick.num, dbl_safe_div(prn, www) * 1000]) + '</td>');
+          Format('%s<br>%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(prn * brick.num), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
         document.write('<td width=10% align=right>' +
-          Format('€ %2.4f<br>€ %2.4f<br>€ %2.2f / Kgr', [pru, pru * brick.num, dbl_safe_div(pru, www) * 1000]) + '</td>');
+          Format('%s<br>%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(pru * brick.num), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
         prnt := prnt + prn * brick.num;
         prut := prut + pru * brick.num;
         if www > 0.0 then
@@ -12275,7 +12283,7 @@ begin
       end;
 
       mycost := GetItemCostDbl(brick.part, brick.color);
-      document.write('<td width=10% align=right>' + Format('€ %2.4f<br>€ %2.4f', [mycost, mycost * brick.num]) + '</td>');
+      document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * brick.num)]) + '</td>');
       mycosttot := mycosttot + mycost * brick.num;
       if mycost > 0.0 then
         mytotcostpieces := mytotcostpieces + brick.num;
@@ -12306,15 +12314,15 @@ begin
   document.write('N=%2.3f<br>U=%2.3f</td>', [inv.nDemand.value, inv.uDemand.value]);
   document.write('<td width=10% align=right><b>' + IntToStr(num)  + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>');
   document.write('<td width=10% align=right><b>' +
-    Format('€ %2.2f<br>€ %2.2f / Kgr', [prnt, dbl_safe_div(totalcostwn, totalweight) * 1000]) + '</b></td>');
+    Format('%s<br>%s / Kgr', [moneyhtml(prnt, 2), moneyhtml(dbl_safe_div(totalcostwn, totalweight) * 1000, 2)]) + '</b></td>');
   document.write('<td width=10% align=right><b>' +
-    Format('€ %2.2f<br>€ %2.2f / Kgr', [prut, dbl_safe_div(totalcostwu, totalweight) * 1000]) + '</b></td>');
+    Format('%s<br>%s / Kgr', [moneyhtml(prut), moneyhtml(dbl_safe_div(totalcostwu, totalweight) * 1000, 2)]) + '</b></td>');
   if num = 0 then
     document.write('<td width=10% align=right><b>' +
-      Format('€ %2.2f', [mycosttot]) + '</b></td>')
+      moneyhtml(mycosttot, 2) + '</b></td>')
   else
     document.write('<td width=10% align=right><b>' +
-      Format('€ %2.2f<br>%2.3f%s', [mycosttot, 100 * mytotcostpieces / num, '%']) + '</b></td>');
+      Format('%s<br>%2.3f%s', [moneyhtml(mycosttot), 100 * mytotcostpieces / num, '%']) + '</b></td>');
   document.write('</tr>');
 
   cl.Free;
@@ -12349,6 +12357,7 @@ begin
   Screen.Cursor := crHourGlass;
   try
     DecimalSeparator := '.';
+    ThousandSeparator := ',';
     doHTMLClick(SRC1, Handled);
     Caption := Application.Title + ' - ' + HTML.DocumentTitle;
     idx := TabControl1.TabIndex;
@@ -15387,16 +15396,16 @@ begin
     document.write('<td width=25% align=right><b>' + IntToStr(num * len) + '</b><br>');
     if pci <> nil then
     begin
-      document.write(Format('(N) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceNew, len)]));
-      document.write(Format('(U) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceUsed, len)]));
+      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, len))]));
+      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, len))]));
     end;
     document.write('</td>');
 
     document.write('<td width=25% align=right><b>' + IntToStr(num * area) + '</b><br>');
     if pci <> nil then
     begin
-      document.write(Format('(N) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceNew, area)]));
-      document.write(Format('(U) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceUsed, area)]));
+      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, area))]));
+      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, area))]));
     end;
     document.write('</td>');
 
@@ -15505,23 +15514,23 @@ begin
     document.write('<td width=25% align=right><b>' + IntToStr(num * len) + '</b><br>');
     if pci <> nil then
     begin
-      document.write(Format('(N) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceNew, len)]));
-      document.write(Format('(U) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceUsed, len)]));
+      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, len))]));
+      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, len))]));
     end;
     document.write('</td>');
 
     document.write('<td width=25% align=right><b>' + IntToStr(num * area) + '</b><br>');
     if pci <> nil then
     begin
-      document.write(Format('(N) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceNew, area)]));
-      document.write(Format('(U) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceUsed, area)]));
+      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, area))]));
+      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, area))]));
     end;
 
     document.write('<td width=25% align=right><b>' + IntToStr(num * slopearea) + '</b><br>');
     if pci <> nil then
     begin
-      document.write(Format('(N) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceNew, slopearea)]));
-      document.write(Format('(U) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceUsed, slopearea)]));
+      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, slopearea))]));
+      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, slopearea))]));
     end;
     document.write('</td>');
 
@@ -15631,23 +15640,23 @@ begin
     document.write('<td width=25% align=right><b>' + IntToStr(num * bwidth) + '</b><br>');
     if pci <> nil then
     begin
-      document.write(Format('(N) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceNew, bwidth)]));
-      document.write(Format('(U) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceUsed, bwidth)]));
+      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, bwidth))]));
+      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, bwidth))]));
     end;
 
     document.write('<td width=25% align=right><b>' + IntToStr(num * len) + '</b><br>');
     if pci <> nil then
     begin
-      document.write(Format('(N) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceNew, len)]));
-      document.write(Format('(U) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceUsed, len)]));
+      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, len))]));
+      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, len))]));
     end;
     document.write('</td>');
 
     document.write('<td width=25% align=right><b>' + IntToStr(num * area) + '</b><br>');
     if pci <> nil then
     begin
-      document.write(Format('(N) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceNew, area)]));
-      document.write(Format('(U) %2.4f €/stud<br>', [dbl_safe_div(pci.EvaluatePriceUsed, area)]));
+      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, area))]));
+      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, area))]));
     end;
 
     document.write('</td>');
@@ -16493,7 +16502,7 @@ begin
     www := db.GetItemWeight(pcs, cl, pi);
     if lprice >= 0.0 then
       document.write('<td width=15% align=right>' +
-        Format('€ ' + '<a href=' + lugcostedit + '>' + '%2.4f</a><br>€ %2.2f / Kgr', [lprice, dbl_safe_div(lprice, www) * 1000]) + '</td>')
+        Format('€ ' + '<a href=' + lugcostedit + '>' + '%2.4f</a><br>%s / Kgr', [lprice, moneyhtml(dbl_safe_div(lprice, www) * 1000, 2)]) + '</td>')
     else
       document.write('<td width=15% align=right><a href=' + lugcostedit + '>-</a></td>');
 
@@ -16501,7 +16510,7 @@ begin
     begin
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
-      document.write('<td width=15% align=right>' + Format('€ %2.4f<br>€ %2.2f / Kgr', [prn, dbl_safe_div(prn, www) * 1000]) + '</td>');
+      document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
       prnt := prnt + prn * numpieces;
       prut := prut + pru * numpieces;
       document.write('<td width=5% align=right>' + itoa(pci.priceguide.nTimesSold) + '</td>');
@@ -16530,8 +16539,8 @@ begin
   document.write('<td width=20%><b> </b></td>');
   document.write('<td width=10% align=right></td>');
   document.write('<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f', [prnt]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f', [prut]) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>');
+  document.write('<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>');
   document.write('<td width=10% align=right><b> </b></td>');
   document.write('</tr></table>');
 

@@ -65,11 +65,12 @@ var
   optlocationsreadylist: boolean;
   optenablecrawling: boolean;
   optdefaultcurrency: string255;
+  optbriefcurrencysymbol: boolean;
   optshowusernotes: boolean;
   optshowautonotes: boolean;
 
 const
-  NUMDEFAULTS = 23;
+  NUMDEFAULTS = 25;
 
   defaults: array[0..NUMDEFAULTS - 1] of default_t = (
     (name: 'General';
@@ -168,6 +169,14 @@ const
      defaultbvalue: False;
      _type: tBoolean),
 
+    (name: 'Currency';
+     location: nil;
+     setable: false;
+     defaultsvalue: '';
+     defaultivalue: 0;
+     defaultbvalue: false;
+     _type: tGroup),
+
     (name: 'optdefaultcurrency';
      location: @optdefaultcurrency;
      setable: true;
@@ -175,6 +184,14 @@ const
      defaultivalue: 0;
      defaultbvalue: False;
      _type: tString255),
+
+    (name: 'optbriefcurrencysymbol';
+     location: @optbriefcurrencysymbol;
+     setable: true;
+     defaultsvalue: '0';
+     defaultivalue: 0;
+     defaultbvalue: False;
+     _type: tBoolean),
 
     (name: 'MultiPage';
      location: nil;

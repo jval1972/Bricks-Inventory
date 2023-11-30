@@ -697,7 +697,7 @@ object EditSetAsTextForm: TEditSetAsTextForm
           Width = 145
           Height = 24
           Style = csDropDownList
-          ItemHeight = 16
+          ItemHeight = 0
           TabOrder = 1
         end
         object txtNum: TEdit

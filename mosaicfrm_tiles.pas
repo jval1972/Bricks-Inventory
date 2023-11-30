@@ -167,7 +167,7 @@ implementation
 {$R *.dfm}
 
 uses
-  clipbrd, bi_utils, bi_tmp, bi_globals;
+  clipbrd, bi_utils, bi_tmp, bi_globals, bi_currency;
 
 const
   C_bricks: array[0..NUMTILES - 1] of mosaicbrick_t = (
@@ -801,10 +801,10 @@ begin
       end;
 
       EditCostNew.ReadOnly := False;
-      EditCostNew.Text := Format('€ %2.2f', [mosaic.inv.SoldPartOutValue_nQtyAvg.value]);
+      EditCostNew.Text := moneyhtml(mosaic.inv.SoldPartOutValue_nQtyAvg.value, 2);
       EditCostNew.ReadOnly := True;
       EditCostUsed.ReadOnly := False;
-      EditCostUsed.Text := Format('€ %2.2f', [mosaic.inv.SoldPartOutValue_uQtyAvg.value]);
+      EditCostUsed.Text := moneyhtml(mosaic.inv.SoldPartOutValue_uQtyAvg.value, 2);
       EditCostUsed.ReadOnly := True;
 
     end;

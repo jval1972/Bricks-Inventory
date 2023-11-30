@@ -545,6 +545,7 @@ object EditSetAsTextForm: TEditSetAsTextForm
   OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
@@ -696,7 +697,7 @@ object EditSetAsTextForm: TEditSetAsTextForm
           Width = 145
           Height = 24
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 16
           TabOrder = 1
         end
         object txtNum: TEdit
@@ -807,6 +808,29 @@ object EditSetAsTextForm: TEditSetAsTextForm
     object TabSheet3: TTabSheet
       Caption = 'Cost'
       ImageIndex = 2
+      object Label6: TLabel
+        Left = 408
+        Top = 8
+        Width = 62
+        Height = 16
+        Caption = 'Num sets: '
+        FocusControl = NumSetsEdit
+      end
+      object Label7: TLabel
+        Left = 408
+        Top = 72
+        Width = 77
+        Height = 16
+        Caption = 'Cost per set: '
+        FocusControl = CostPerSetEdit
+      end
+      object Label8: TLabel
+        Left = 408
+        Top = 128
+        Width = 59
+        Height = 16
+        Caption = 'Currency: '
+      end
       object CostMemo: TMemo
         Left = 0
         Top = 0
@@ -824,12 +848,39 @@ object EditSetAsTextForm: TEditSetAsTextForm
       end
       object AddPurchaseButton1: TButton
         Left = 416
-        Top = 8
+        Top = 216
         Width = 129
         Height = 25
         Caption = 'Add purchase...'
         TabOrder = 1
         OnClick = AddPurchaseButton1Click
+      end
+      object NumSetsEdit: TEdit
+        Left = 424
+        Top = 32
+        Width = 145
+        Height = 24
+        TabOrder = 2
+        Text = '1'
+        OnKeyPress = NumSetsEditKeyPress
+      end
+      object CostPerSetEdit: TEdit
+        Left = 424
+        Top = 96
+        Width = 145
+        Height = 24
+        TabOrder = 3
+        Text = '9.99'
+        OnKeyPress = CostPerSetEditKeyPress
+      end
+      object ComboBox1: TComboBox
+        Left = 424
+        Top = 152
+        Width = 145
+        Height = 24
+        ItemHeight = 16
+        TabOrder = 4
+        Text = 'ComboBox1'
       end
     end
   end

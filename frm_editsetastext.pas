@@ -66,6 +66,12 @@ type
     TabSheet3: TTabSheet;
     CostMemo: TMemo;
     AddPurchaseButton1: TButton;
+    Label6: TLabel;
+    NumSetsEdit: TEdit;
+    Label7: TLabel;
+    CostPerSetEdit: TEdit;
+    Label8: TLabel;
+    ComboBox1: TComboBox;
     procedure FormCreate(Sender: TObject);
     procedure SpeedButton1Click(Sender: TObject);
     procedure AddButtonClick(Sender: TObject);
@@ -78,9 +84,13 @@ type
     procedure AppendButtonClick(Sender: TObject);
     procedure RemoveButtonClick(Sender: TObject);
     procedure AddPurchaseButton1Click(Sender: TObject);
+    procedure NumSetsEditKeyPress(Sender: TObject; var Key: Char);
+    procedure CostPerSetEditKeyPress(Sender: TObject; var Key: Char);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
     procedure PopulateColors;
+    procedure PopulateCurrency;
     function GetEditLineInfo(var spart, scolor, snum: string): boolean;
   public
     { Public declarations }
@@ -96,7 +106,8 @@ implementation
 
 uses
   urlmon,
-  bi_delphi, bi_db, bi_globals, bi_utils, searchpart, ImportFileForm;
+  bi_delphi, bi_db, bi_globals, bi_utils, bi_defs, bi_currency, searchpart,
+  ImportFileForm;
 
 function EditSetAsTextForm(const setid: string; var data: string; var desc: string;
   var year: integer; var ismoc: boolean): boolean;
@@ -147,6 +158,7 @@ begin
   PageControl1.ActivePageIndex := 0;
   setid := '';
   PopulateColors;
+  PopulateCurrency;
 end;
 
 procedure TEditSetAsTextForm.PopulateColors;
@@ -163,6 +175,23 @@ begin
   end;
   if boxColor.Items.Count > 0 then
     boxColor.ItemIndex := 0;
+end;
+
+procedure TEditSetAsTextForm.PopulateCurrency;
+var
+  idx, i: integer;
+  s1, s2: string;
+begin
+  idx := 0;
+  optdefaultcurrency := strupper(optdefaultcurrency);
+  for i := 0 to currency_names.Count - 1 do
+  begin
+    splitstring(currency_names.strings[i], s1, s2, '=');
+    ComboBox1.AddItem(s1 + ' (' + s2 + ')', TStringInit.Create(s1));
+    if s1 = optdefaultcurrency then
+      idx := i;
+  end;
+  ComboBox1.ItemIndex := idx;
 end;
 
 procedure TEditSetAsTextForm.SpeedButton1Click(Sender: TObject);
@@ -483,18 +512,57 @@ var
   ncost: Double;
   ssets: string;
   scost: string;
+  scurrency: string;
 begin
-  nsets := 1;
-  ncost := 9.99;
-  ssets := itoa(nsets);
-  scost := Format('%2.2f', [ncost]);
-  if InputQuery2(Caption, 'Num sets', 'Cost per set', ssets, scost) then
+  ssets := NumSetsEdit.Text;
+  scost := CostPerSetEdit.Text;
+  nsets := atoi(ssets);
+  ncost := atof(scost);
+  scurrency := optdefaultcurrency;
+  if ComboBox1.ItemIndex >= 0 then
+    scurrency := (ComboBox1.Items.Objects[ComboBox1.ItemIndex] as TStringInit).text;
+  if nsets > 0 then
   begin
-    nsets := atoi(ssets);
-    ncost := atof(scost);
-    if nsets > 0 then
-      CostMemo.Lines.Add(Format('%d,%2.2f', [nsets, ncost]));
+    if MessageDlg(Format('Add purchase %d sets at %s %2.2f each?', [nsets, scurrency, ncost]), mtConfirmation, [mbYes, mbNo], -1) = mrYes then
+    begin
+      DecimalSeparator := '.';
+      CostMemo.Lines.Add(Format('%d,%2.2f,%s', [nsets, ncost, scurrency]));
+    end;
+  end
+  else
+  begin
+    MessageBeep(0);
+    try NumSetsEdit.SetFocus except end;
+    NumSetsEdit.SelectAll;
   end;
+end;
+
+procedure TEditSetAsTextForm.NumSetsEditKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if not (Key in [#8, '0'..'9']) then
+  begin
+    Key := #0;
+    Exit;
+  end;
+end;
+
+procedure TEditSetAsTextForm.CostPerSetEditKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if not (Key in [#8, '0'..'9', '.', ',']) then
+  begin
+    Key := #0;
+    Exit;
+  end;
+end;
+
+procedure TEditSetAsTextForm.FormDestroy(Sender: TObject);
+var
+  i: integer;
+begin
+  for i := 0 to ComboBox1.Items.Count - 1 do
+    ComboBox1.Items.Objects[i].Free;
 end;
 
 end.

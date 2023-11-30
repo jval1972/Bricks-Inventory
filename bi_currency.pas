@@ -92,6 +92,9 @@ function stringtodate(const s: string): TDateTime;
 
 function datetostring(const dd: TDateTime): string;
 
+const
+  INTERNAL_CURRENCY = 'EUR';
+
 implementation
 
 uses

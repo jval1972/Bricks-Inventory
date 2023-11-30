@@ -916,7 +916,7 @@ uses
   frm_update2, frm_update3, frm_update4, bi_cachefile, frm_editlugbulkprice,
   frm_options, bi_multithread, bi_iterators, bi_defs, bi_crawler, bi_script,
   buildinexcludes, bi_instructions, frm_pdfinstructions, bi_data, bi_notes,
-  bi_imagerotate, bi_readylist, HTMLEd1;
+  bi_imagerotate, bi_readylist, bi_currency, HTMLEd1;
 
 {$R *.dfm}
 
@@ -21885,7 +21885,7 @@ var
   costfname: string;
   sL: TStringList;
   i: integer;
-  s1, s2: string;
+  s1, s2, s3: string;
   x: integer;
   dnum: integer;
   dcost: double;
@@ -21902,10 +21902,12 @@ begin
       sL.LoadFromFile(costfname);
       for i := 0 to sL.Count - 1 do
       begin
-        splitstring(sL.Strings[i], s1, s2, ',');
+        splitstring(sL.Strings[i], s1, s2, s3, ',');
+        if s3 = '' then
+          s3 := INTERNAL_CURRENCY;
         x := atoi(s1);
         dnum := dnum + x;
-        dcost := dcost + x * atof(s2);
+        dcost := dcost + x * db.ConvertCurrency(s3) * (atof(s2));
       end;
     finally
       sL.Free;

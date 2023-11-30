@@ -20300,7 +20300,7 @@ var
   yyyy, mm, dd: string;
 begin
   fcurrencies := TCurrency.Create(basedefault + 'db\db_currency.txt');
-  fcurrencyconvert := TCurrencyConvert.Create('eur', basedefault + 'db\db_currencyconvert.txt');
+  fcurrencyconvert := TCurrencyConvert.Create(INTERNAL_CURRENCY, basedefault + 'db\db_currencyconvert.txt');
 
   if not fexists(basedefault + 'db\db_currencyconvert.txt') then
   begin

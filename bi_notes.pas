@@ -44,14 +44,22 @@ const
     'Pack. Dim.: ',
     'Item Dim.: '
   );
+
   FITS_PROPS: array[0..1] of string[24] = (
     'fits with the following ',
     'fits with and is usually'
   );
 
+  ITEMS_PROPS: array[0..2] of string[99] = (
+    '<b>This Item is a mold variant of the following Item(s):</b>',
+    '<b>This Item is similar to and has the same number as the following Item(s):</b>',
+    '<b>This Item is similar to, but has a different number than the following Item(s):</b>'
+  );
+
 function _parse_list(const s: string): string;
 const
   TYPE_SPIECE_CHARS = 'PSMCBG';
+  TYPE_SINV_CHARS = 'SMBG';
 var
   tmp: string;
   i: integer;
@@ -63,6 +71,8 @@ begin
     tmp := StringReplace(tmp, '<a href="catalogitem.page?' + TYPE_SPIECE_CHARS[i] + '=', '<a href="spiece/', [rfReplaceAll, rfIgnoreCase]);
   tmp := StringReplace(tmp, '<a href="catalogitem.page?I=', '<a href="spieceI/', [rfReplaceAll, rfIgnoreCase]);
   tmp := StringReplace(tmp, '<a href="catalogitem.page?O=', '<a href="spieceO/', [rfReplaceAll, rfIgnoreCase]);
+  for i := 1 to Length(TYPE_SINV_CHARS) do
+    tmp := StringReplace(tmp, '<a href="http://www.bricklink.com/catalogItemInv.asp?' + TYPE_SINV_CHARS[i] + '=', '<a href="sinv/', [rfReplaceAll, rfIgnoreCase]);
   Result := tmp;
 end;
 
@@ -206,30 +216,35 @@ begin
       end;
   end;
 
-  check := '<b>This Item is a mold variant of the following Item(s):</b>';
-  p := Pos(check, sdata);
-  if p > 0 then
+  for k := low(ITEMS_PROPS) to high(ITEMS_PROPS) do
   begin
-    p1 := PosEx('<UL>', sUdata, p + Length(check));
-    if p1 > 0 then
+    check := ITEMS_PROPS[k];
+    p := Pos(check, sdata);
+    if p > 0 then
     begin
-      p2 := PosEx('</UL>', sUdata, p + Length(check) + 4);
-      if p2 > p1 then
+      p1 := PosEx('<UL>', sUdata, p + Length(check));
+      if p1 > 0 then
       begin
-        tmp := '';
-        for i := p1 to p2 + 4 do
-          if not (sdata[i] in [#9, #10, #13]) then
-            tmp := tmp + sdata[i];
-        if Pos('<LI>', UpperCase(tmp)) > 0 then
+        p2 := PosEx('</UL>', sUdata, p + Length(check) + 4);
+        if p2 > p1 then
         begin
-          tmp := _parse_list(tmp);
-          if tmp <> '' then
+          tmp := '';
+          for i := p1 to p2 + 4 do
+            if not (sdata[i] in [#9, #10, #13]) then
+              tmp := tmp + sdata[i];
+          if Pos('<LI>', UpperCase(tmp)) > 0 then
           begin
-            if Result <> '' then
-              Result := Result + '<hr>'#13#10;
-            Result := Result +
-              '<p><b>This Item is a mold variant of the following Item' + decide(CountOccurences('<li>', tmp) > 1, 's', '') + ': </b><br>'#13#10 +
-                tmp + '</p>'#13#10;
+            tmp := _parse_list(tmp);
+            if tmp <> '' then
+            begin
+              if Result <> '' then
+                Result := Result + '<hr>'#13#10;
+              if CountOccurences('<li>', tmp) > 1 then
+                check := StringReplace(check, 'Item(s)', 'Items', [rfReplaceAll, rfIgnoreCase])
+              else
+                check := StringReplace(check, 'Item(s)', 'Item', [rfReplaceAll, rfIgnoreCase]);
+              Result := Result + '<p>' + check + '<br>'#13#10 + tmp + '</p>'#13#10;
+            end;
           end;
         end;
       end;

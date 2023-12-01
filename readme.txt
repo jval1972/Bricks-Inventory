@@ -3,6 +3,7 @@ Bricks Inventory is a tool that helps you to manage your bricks inventory.
 History
 -------
 
+Display prices in various currencies.
 Automated and user notes.
 Wish list for sets.
 Orders/inventory manipulation for related pieces.

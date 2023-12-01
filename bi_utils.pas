@@ -793,7 +793,7 @@ var
   P: TPNGObject;
 begin
   Result := False;
-  if not fexists(apng) then
+  if fsize(apng) <= 0 then
     Exit;
 
   J := TJpegImage.Create;

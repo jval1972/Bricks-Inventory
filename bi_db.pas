@@ -1225,6 +1225,7 @@ type
     function UpdateSetAsPartFromBricklink(const pid: string; const donet: boolean = True): boolean;
     function UpdateMinifigAsPartFromBricklink(const pid: string; const donet: boolean = True): boolean;
     function QryNewInventoriesFromBricklink(const path: string; const check: string): TStringList;
+    function QryNewInventoriesFromFile(const fname: string; const check: string): TStringList;
     function QryNewSetAsPartFromBricklink(const path: string; const check: string): TStringList;
     function QryNewSetAsPartFromFile(const fname: string; const check: string): TStringList;
     function QryNewCatalogsFromFile(const fname: string; const check: string): TStringList;
@@ -12381,6 +12382,19 @@ end;
 function TSetsDatabase.QryNewInventoriesFromBricklink(const path: string; const check: string): TStringList;
 var
   fname: string;
+begin
+  fname := I_NewTempFile(itoa(random(10000)) + '.htm');
+  if UrlDownloadToFile(nil, PChar(path), PChar(fname), 0, nil) <> 0 then
+  begin
+    Result := TStringList.Create;
+    Exit;
+  end;
+  Result := QryNewInventoriesFromFile(fname, check);
+  deletefile(fname);
+end;
+
+function TSetsDatabase.QryNewInventoriesFromFile(const fname: string; const check: string): TStringList;
+var
   stmp: string;
   p, i: integer;
   htm, htm1: string;
@@ -12388,9 +12402,6 @@ var
   idx: integer;
 begin
   Result := TStringList.Create;
-  fname := I_NewTempFile(itoa(random(10000)) + '.htm');
-  if UrlDownloadToFile(nil, PChar(path), PChar(fname), 0, nil) <> 0 then
-    Exit;
 
   sl := TStringList.Create;
   S_LoadFromFile(sl, fname);
@@ -12406,7 +12417,7 @@ begin
     idx := p + length(check);
     for i := p + length(check) to length(htm) do
     begin
-      if htm[i] in ['"', '''', '>', '<'] then
+      if htm[i] in ['"', '''', '>', '<', '&'] then
         break
       else if htm[i] <> ' ' then
         stmp := stmp + htm[i];
@@ -12418,7 +12429,6 @@ begin
     delete(htm, 1, idx);
     htm1 := UpperCase(htm);
   end;
-  deletefile(fname);
 end;
 {$ENDIF}
 
@@ -12506,7 +12516,7 @@ begin
     idx := p + length(check);
     for i := p + length(check) to length(htm) do
     begin
-      if htm[i] in ['"', '''', '>', '<'] then
+      if htm[i] in ['"', '''', '>', '<', '&'] then
         break
       else if htm[i] <> ' ' then
         stmp := stmp + htm[i];
@@ -12550,7 +12560,7 @@ begin
     idx := p + length(check);
     for i := p + length(check) to length(htm) do
     begin
-      if htm[i] in ['"', '''', '>', '<'] then
+      if htm[i] in ['"', '''', '>', '<', '&'] then
         break
       else if htm[i] <> ' ' then
         stmp := stmp + htm[i];

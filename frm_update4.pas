@@ -75,6 +75,9 @@ type
     procedure AddNewCatalogRec(const s: string);
     procedure AddNewSetRec(const s: string);
     procedure AddNewMinifigRec(const s: string);
+    procedure AddInvSetRec(const s: string);
+    procedure AddInvMinifigRec(const s: string);
+    procedure AddInvGearRec(const s: string);
     procedure UpdateFromDiskFile(const fname: string);
   public
     { Public declarations }
@@ -421,6 +424,57 @@ begin
   Label7.Update;
 end;
 
+procedure TTUpdateNewPartsFromBLForm.AddInvSetRec(const s: string);
+var
+  s1: string;
+begin
+  s1 := 'downloadsetnorefresh/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  s1 := 'sinv/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  s1 := 'spiece/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+  Label7.Update;
+end;
+
+procedure TTUpdateNewPartsFromBLForm.AddInvMinifigRec(const s: string);
+var
+  s1: string;
+begin
+  s1 := 'downloadminifignorefresh/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  s1 := 'sinv/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  s1 := 'spiece/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+  Label7.Update;
+end;
+
+procedure TTUpdateNewPartsFromBLForm.AddInvGearRec(const s: string);
+var
+  s1: string;
+begin
+  s1 := 'downloadgearnorefresh/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  s1 := 'sinv/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  s1 := 'spiece/' + s;
+  if Memo1.Lines.IndexOf(s1) = -1 then
+    Memo1.Lines.Add(s1);
+  Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+  Label7.Update;
+end;
+
 procedure TTUpdateNewPartsFromBLForm.Button5Click(Sender: TObject);
 var
   lnk: string;
@@ -718,19 +772,46 @@ begin
     AddNewSetRec(lst.Strings[j]);
   lst.Free;
 
-  // Sets as parts
+  // Minifigs as parts
   lst := db.QryNewSetAsPartFromFile(fname, '/v2/catalog/catalogitem.page?M=');
   RemoveDuplicates(lst);
   for j := 0 to lst.Count - 1 do
     AddNewMinifigRec(lst.Strings[j]);
   lst.Free;
 
+  // Set inventories
+  lst := db.QryNewInventoriesFromFile(fname, 'catalogItemInv.asp?S=');
+  RemoveDuplicates(lst);
+  for j := 0 to lst.Count - 1 do
+    AddInvSetRec(lst.Strings[j]);
+  lst.Free;
+
+  // Minifig inventories
+  lst := db.QryNewInventoriesFromFile(fname, 'catalogItemInv.asp?M=');
+  RemoveDuplicates(lst);
+  for j := 0 to lst.Count - 1 do
+    AddInvMinifigRec(lst.Strings[j]);
+  lst.Free;
+
+  // Book inventories
+  lst := db.QryNewInventoriesFromFile(fname, 'catalogItemInv.asp?B=');
+  RemoveDuplicates(lst);
+  for j := 0 to lst.Count - 1 do
+    AddInvSetRec(lst.Strings[j]);
+  lst.Free;
+
+  // Gear inventories
+  lst := db.QryNewInventoriesFromFile(fname, 'catalogItemInv.asp?G=');
+  RemoveDuplicates(lst);
+  for j := 0 to lst.Count - 1 do
+    AddInvGearRec(lst.Strings[j]);
+  lst.Free;
+
   // Gears
   tmp := TStringList.Create;
   allparts := TStringList.Create;
   try
-    newparts := db.QryNewPartsFromFile(fname,
-        'catalogitem.page?G=');
+    newparts := db.QryNewPartsFromFile(fname, 'catalogitem.page?G=');
     MergeSList(allparts, newparts);
     newparts.Free;
     dbUpieces := TStringList.Create;

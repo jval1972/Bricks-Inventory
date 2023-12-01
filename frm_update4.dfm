@@ -932,7 +932,7 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
     Filter = 
       'Html files (*.html)|*.html|Htm files (*.htm)|*.htm|Text files (*' +
       '.txt)|*.txt|All files (*.*)|*.*'
-    Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
+    Options = [ofHideReadOnly, ofAllowMultiSelect, ofPathMustExist, ofFileMustExist, ofEnableSizing]
     Left = 248
     Top = 184
   end

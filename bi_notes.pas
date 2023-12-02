@@ -50,10 +50,11 @@ const
     'fits with and is usually'
   );
 
-  ITEMS_PROPS: array[0..2] of string[99] = (
+  ITEMS_PROPS: array[0..3] of string[99] = (
     '<b>This Item is a mold variant of the following Item(s):</b>',
     '<b>This Item is similar to and has the same number as the following Item(s):</b>',
-    '<b>This Item is similar to, but has a different number than the following Item(s):</b>'
+    '<b>This Item is similar to, but has a different number than the following Item(s):</b>',
+    '<b>This Item pairs with the following Item(s):</b>'
   );
 
 function _parse_list(const s: string): string;
@@ -83,6 +84,7 @@ var
   i, j, k, p, p0, p1, p2: integer;
   check: string;
   tmp: string;
+  sprop: string;
   sid: string;
   tmpret: string;
   sl: TStringList;
@@ -279,9 +281,12 @@ begin
               begin
                 if Result <> '' then
                   Result := Result + '<hr>'#13#10;
-                Result := Result +
-                  '<p><b>' + ExtractAtDelimiters(sdata, p, '>', '<') + ' </b><br>'#13#10 +
-                    tmp + '</p>'#13#10;
+                sprop := ExtractAtDelimiters(sdata, p, '>', '<');
+                if CountOccurences('<li>', tmp) > 1 then
+                  sprop := StringReplace(sprop, 'Item(s)', 'Items', [rfReplaceAll, rfIgnoreCase])
+                else
+                  sprop := StringReplace(sprop, 'Item(s)', 'Item', [rfReplaceAll, rfIgnoreCase]);
+                Result := Result + '<p><b>' + sprop + ' </b><br>'#13#10 + tmp + '</p>'#13#10;
               end;
             end;
           end;

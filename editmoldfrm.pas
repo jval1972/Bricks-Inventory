@@ -343,7 +343,7 @@ begin
             if db.GetColorIdFromName(f.CheckListBox1.Items.Strings[i], cc) then
               db.AddMoldColor(part, cc);
         db.UpdatePartWeight(part, atof(f.WeightEdit.Text));
-        if f.Memo1.Lines.Count <= 1 then
+        if f.Memo1.Lines.Count = 0 then
           afterinv := ''
         else
         begin

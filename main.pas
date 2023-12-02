@@ -5051,19 +5051,18 @@ begin
     sf6 := '';
   year := db.SetYear(setid);
   if ppreview then
-    ss1 := Format('Storage Location for the inventory of %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled (%s%d%d in wish list)<br><img width=360px src=s\' + setid + '.jpg><br>',
-    [GetPieceLinkHtml(setid), db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
+    ss1 := Format('Storage Location for the inventory of ' + GetPieceLinkHtml(setid) + ' - ' +
+      db.SetDesc(setid) + ' <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled (%s%d%s in wish list)<br><img width=360px src=s\' + setid + '.jpg><br>',
+    [inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
      sf2, st.num, sf1, sf4, st.numdismantaled, sf3, sf6, st.numwishlist, sf5])
   else
-    ss1 := Format('Storage Location for the inventory of %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled (%s%d%d in wish list)<br><img width=360px src=s\' + setid + '.jpg>' +
+    ss1 := Format('Storage Location for the inventory of ' + GetPieceLinkHtml(setid) + ' - ' +
+      db.SetDesc(setid) + ' <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled (%s%d%s in wish list)<br><img width=360px src=s\' + setid + '.jpg>' +
       ' ' + GetEditSetHtml(setid) +
-//      ' <a href=PreviewSetInventory/' + setid + '><img src="images\print.png"></a>' +
       ' <a href=sstoragelocpv/' + setid + '><img src="images\print.png"></a>' +
-
       ' ' + GetDiagramPieceHtml(setid, '-1') + '<br>' +
-
       '[Year: <a href=ShowSetsAtYear/%d>%d</a>]<br>',
-    [GetPieceLinkHtml(setid), db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
+    [inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
      sf2, st.num, sf1, sf4, st.numdismantaled, sf3, sf6, st.numwishlist, sf5, year, year]);
   idx := db.allsets.IndexOf(Trim(setid));
   if idx > -1 then

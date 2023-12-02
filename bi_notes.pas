@@ -85,7 +85,7 @@ var
   bpcs: string;
   i, j, k, p, p0, p1, p2: integer;
   check: string;
-  tmp: string;
+  tmp, scob: string;
   sprop: string;
   sid: string;
   tmpret: string;
@@ -203,21 +203,34 @@ begin
   p := Pos('<b>Co-Branding:</', sdata);
   if p > 0 then
   begin
+    scob := '';
     check := 'promoCatID=';
-    p2 := PosEx(check, sdata, p);
-    if p2 > 0 then
-      if p2 - p < 200 then
+    for i := 1 to 10 do
+    begin
+      p2 := PosEx(check, sdata, p);
+      if (p2 > 0) and (p2 - p < 200) then
       begin
+        p := p2 + Length(check);
         sid := ExtractAfterDelimiters(sdata, p2 + Length(check) - 2, '=', '"');
         tmp := ExtractAfterDelimiters(sdata, p2 + Length(check), '>', '<');
         trimproc(tmp);
         if tmp <> '' then
         begin
-          if Result <> '' then
-            Result := Result + '<hr>'#13#10;
-          Result := Result + '<b>Co-Branding: </b>' + tmp + ' (' + sid + ')' + '<br>'#13#10;
+          if i = 1 then
+            scob := tmp + ' (' + sid + ')'
+          else
+            scob := scob + ', ' + tmp + ' (' + sid + ')'
         end;
-      end;
+      end
+      else
+        break;
+    end;
+    if scob <> '' then
+    begin
+      if Result <> '' then
+        Result := Result + '<hr>'#13#10;
+      Result := Result + '<b>Co-Branding: </b>' + scob + '<br>'#13#10;
+    end;
   end;
 
   for k := low(ITEMS_PROPS) to high(ITEMS_PROPS) do

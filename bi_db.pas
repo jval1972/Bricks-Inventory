@@ -15980,6 +15980,7 @@ begin
     begin
       fbinaryparts.DeletePart(blname);
       fpartsinventories.Delete(idx);
+      fname := basedefault + 'db\db_pieces_inventories.txt';
       S_BackupFile(fname);
       S_SaveToFile(fpartsinventories, fname);
     end;

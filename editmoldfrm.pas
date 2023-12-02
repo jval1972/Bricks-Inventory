@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2019 by Jim Valavanis
+//  Copyright (C) 2014-2023 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -121,6 +121,7 @@ var
   pi: TPieceInfo;
   pci: TPieceColorInfo;
   initialinv, afterinv: string;
+  stmp: string;
   hassetinv: boolean;
   hadinstructions: boolean;
   hadbox: boolean;
@@ -345,7 +346,12 @@ begin
         if f.Memo1.Lines.Count <= 1 then
           afterinv := ''
         else
+        begin
+          stmp := f.Memo1.Lines.Strings[0];
+          if not Pos1('Part,', stmp) then
+            f.Memo1.Lines.Insert(0, 'Part,Color,Quantity');
           afterinv := Trim(f.Memo1.Lines.Text);
+        end;
         if afterinv <> initialinv then
         begin
           if hassetinv then

@@ -18654,6 +18654,7 @@ begin
   end;
 
   slist := TStringList.Create;
+  slist.Add('Part,Color,Quantity');
   stmp := db.binaryparts.GetPartAsText(finventoryname, color);
   slist.Text := stmp;
   if slist.Count < 2 then

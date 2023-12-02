@@ -771,7 +771,7 @@ type
     procedure PiecesNewAtYearExcludingVariations(const y: integer);
     procedure PiecesNewAtYear_Minifigure(const y: integer);
     procedure MoldsYearQry(const y: integer; const firstappeared: boolean);
-    procedure ShowPieceCInventory(const pcs: string; const color: integer);
+    procedure ShowPieceCInventory(const pcs: string; const color1: integer);
     procedure ShowColorPiece(const apcs: string; const color: integer; const ayear: integer = -1; const doshowsets: boolean = True);
     procedure ShowInstructions(const apcs: string);
     procedure ShowSetsICanBuild(const pct: double; const dosets, dofigs: boolean);
@@ -8506,11 +8506,13 @@ begin
 
 end;
 
-procedure TMainForm.ShowPieceCInventory(const pcs: string; const color: integer);
+procedure TMainForm.ShowPieceCInventory(const pcs: string; const color1: integer);
 var
+  color: integer;
   pci: TPieceColorInfo;
   pi: TPieceInfo;
   inv: TBrickInventory;
+  kp: THashStringList;
   i, idx: integer;
   scolor: string;
   numpieces: integer;
@@ -8520,6 +8522,22 @@ var
 begin
   Screen.Cursor := crHourglass;
   UpdateDismantaledsetsinv;
+
+  color := color1;
+  if color = -2 then
+    for i := 0 to LASTNORMALCOLORINDEX do
+      if db.Colors(i).id = i then
+      begin
+        kp := db.Colors(i).knownpieces;
+        if kp <> nil then
+          if kp.IndexOf(pcs) >= 0 then
+          begin
+            color := i;
+            Break;
+          end;
+      end;
+  if color = -2 then
+    color := -1;
 
   pci := db.PieceColorInfo(pcs, color);
   pi := db.PieceInfo(pci);
@@ -14122,7 +14140,7 @@ begin
   else if Pos1('spiececinv/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
-    ShowPieceCInventory(s2, atoi(s3, 0));
+    ShowPieceCInventory(s2, atoi(s3, -2));
   end
   else if Pos1('buildset/', slink) then
   begin
@@ -22106,6 +22124,7 @@ end;
 procedure TMainForm.DrawPieceColorNotes(const pcs, color: string);
 var
   fname: string;
+  autoname: string;
   autonotes: string;
 begin
   if optshowusernotes then
@@ -22126,8 +22145,9 @@ begin
   if optshowautonotes then
   begin
     autonotes := GatherOfflineNotes(pcs, atoi(color));
+    autoname := PieceColorNotesFName(pcs, color) + '_auto';
     if autonotes = '' then
-      autonotes := LoadStringFromFile(PieceColorNotesFName(pcs, color) + '_auto');
+      autonotes := LoadStringFromFile(autoname);
     if autonotes <> '' then
     begin
       document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
@@ -22137,6 +22157,12 @@ begin
       document.write('<td width 100%><font color=' + DFGCOLOR + '>');
       document.write(autonotes);
       document.write('</font></td></tr></table>');
+      if fsize(autoname) < Length(autonotes) then
+      begin
+        if not DirectoryExists(basedefault + 'notes\' + pcs) then
+          MkDir(basedefault + 'notes\' + pcs);
+        SaveStringToFile(autoname, autonotes);
+      end;
     end;
   end;
 end;
@@ -22144,6 +22170,7 @@ end;
 procedure TMainForm.DrawPieceNotes(const pcs: string);
 var
   fname: string;
+  autoname: string;
   autonotes: string;
 begin
   if optshowusernotes then
@@ -22164,8 +22191,9 @@ begin
   if optshowautonotes then
   begin
     autonotes := GatherOfflineNotes(pcs);
+    autoname := PieceNotesFName(pcs) + '_auto';
     if autonotes = '' then
-      autonotes := LoadStringFromFile(PieceNotesFName(pcs) + '_auto');
+      autonotes := LoadStringFromFile(autoname);
     if autonotes <> '' then
     begin
       document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
@@ -22175,6 +22203,12 @@ begin
       document.write('<td width 100%><font color=' + DFGCOLOR + '>');
       document.write(autonotes);
       document.write('</font></td></tr></table>');
+      if fsize(autoname) < Length(autonotes) then
+      begin
+        if not DirectoryExists(basedefault + 'notes\' + pcs) then
+          MkDir(basedefault + 'notes\' + pcs);
+        SaveStringToFile(autoname, autonotes);
+      end;
     end;
   end;
 end;

@@ -50,11 +50,12 @@ const
     'fits with and is usually'
   );
 
-  ITEMS_PROPS: array[0..3] of string[99] = (
+  ITEMS_PROPS: array[0..4] of string[99] = (
     '<b>This Item is a mold variant of the following Item(s):</b>',
     '<b>This Item is similar to and has the same number as the following Item(s):</b>',
     '<b>This Item is similar to, but has a different number than the following Item(s):</b>',
-    '<b>This Item pairs with the following Item(s):</b>'
+    '<b>This Item pairs with the following Item(s):</b>',
+    '<b>This Item is similar in pattern to the following Item(s):</b>'
   );
 
 function _parse_list(const s: string): string;
@@ -74,6 +75,7 @@ begin
   tmp := StringReplace(tmp, '<a href="catalogitem.page?O=', '<a href="spieceO/', [rfReplaceAll, rfIgnoreCase]);
   for i := 1 to Length(TYPE_SINV_CHARS) do
     tmp := StringReplace(tmp, '<a href="http://www.bricklink.com/catalogItemInv.asp?' + TYPE_SINV_CHARS[i] + '=', '<a href="sinv/', [rfReplaceAll, rfIgnoreCase]);
+  tmp := StringReplace(tmp, '<a href="http://www.bricklink.com/catalogItemInv.asp?P=', '<a href="spiececinv/', [rfReplaceAll, rfIgnoreCase]);
   Result := tmp;
 end;
 

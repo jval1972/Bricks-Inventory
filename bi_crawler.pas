@@ -901,7 +901,8 @@ begin
 
     if savetyp then
       if Length(typ) = 1 then
-        db.SetPartType(pci, typ[1]);
+        if typ <> ' ' then
+          db.SetPartType(pci, typ[1]);
   end;
 end;
 

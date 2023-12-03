@@ -12493,6 +12493,8 @@ begin
   if s1 = UpperCase('pdfreader/') then Exit;
   if s1 = UpperCase('rotatejpegright/') then Exit;
   if s1 = UpperCase('rotatejpegleft/') then Exit;
+  if s1 = UpperCase('buildset/') then Exit;
+  if s1 = UpperCase('dismantleset/') then Exit;
 
   Result := True;
 end;

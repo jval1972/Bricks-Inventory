@@ -111,6 +111,7 @@ function LeftPad(PadString: string; HowMany: integer; PadValue: string): string;
 function RemoveChars(const str: string; numericOnly: boolean): string;
 function ReplaceWhiteSpace(const s: string; const c: char; const strictMode: boolean): string;
 function RemoveHTMLTags(S: string): string;
+function RemoveHTMLTagsNoBR(S: string): string;
 { Return the position of the last occurence of a substring in String. }
 function LastPos(SubStr, S: string): Integer;
 { Create URI from template replace text between two % }
@@ -1586,15 +1587,39 @@ begin
 
   while (TagBegin > 0) do
   begin  // while there is a < in S
-    TagEnd := CharPos('>', S);              // find the matching >
+    TagEnd := CharPos('>', S);  // find the matching >
     if TagEnd <= 0 then
       Break;
     TagLength := TagEnd - TagBegin + 1;
-    Delete(S, TagBegin, TagLength);     // delete the tag
-    TagBegin:= CharPos( '<', S);            // search for next <
+    Delete(S, TagBegin, TagLength); // delete the tag
+    TagBegin:= CharPos( '<', S);    // search for next <
   end;
 
-  Result := S;                   // give the Result
+  Result := S;
+end;
+
+function RemoveHTMLTagsNoBR(S: string): string;
+const
+  BR_MARK = '$$$$$$$$$$BR$$$$$$$$$$BR$$$$$$$$$$';
+var
+  TagBegin, TagEnd, TagLength: integer;
+begin
+  S := StringReplace(S, '<br>', BR_MARK, [rfReplaceAll, rfIgnoreCase]);
+  S := StringReplace(S, '<br/>', BR_MARK, [rfReplaceAll, rfIgnoreCase]);
+
+  TagBegin := CharPos( '<', S); // search position of first <
+
+  while (TagBegin > 0) do
+  begin  // while there is a < in S
+    TagEnd := CharPos('>', S);  // find the matching >
+    if TagEnd <= 0 then
+      Break;
+    TagLength := TagEnd - TagBegin + 1;
+    Delete(S, TagBegin, TagLength); // delete the tag
+    TagBegin:= CharPos( '<', S);    // search for next <
+  end;
+
+  Result := StringReplace(S, BR_MARK, '<br>', [rfReplaceAll]);
 end;
 
 function LastPos(SubStr, S: string): Integer;

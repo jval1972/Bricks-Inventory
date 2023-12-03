@@ -2793,6 +2793,8 @@ begin
     MkDir(basedefault + 'db\minifigs');
   if not DirectoryExists(basedefault + 'db\rmolds') then
     MkDir(basedefault + 'db\rmolds');
+  if not DirectoryExists(basedefault + 'db\bmolds') then
+    MkDir(basedefault + 'db\bmolds');
   if not DirectoryExists(basedefault + 'db\molds') then
     MkDir(basedefault + 'db\molds');
   if not DirectoryExists(basedefault + 'db\parts') then
@@ -12495,6 +12497,7 @@ begin
   if s1 = UpperCase('rotatejpegleft/') then Exit;
   if s1 = UpperCase('buildset/') then Exit;
   if s1 = UpperCase('dismantleset/') then Exit;
+  if s1 = UpperCase('DownloadSetPageFromBrickSet/') then Exit;
 
   Result := True;
 end;
@@ -14166,6 +14169,11 @@ begin
   begin
     splitstring(slink, s1, s2, s3, '/');
     ShowMissingToBuildSetInventory(s2, StrToIntDef(s3, 1), True);
+  end
+  else if Pos1('DownloadSetPageFromBrickSet/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    db.DownloadSetPageFromBrickSet(s2);
   end
   else if Pos1('PiecesWithDaysToUpdate/', slink) then
   begin
@@ -16238,7 +16246,7 @@ begin
             [hits, total, dbl_safe_div(hits * 100, total), '%', db.pciloadscache,
              db.pciloads, dbl_safe_div(db.pciloadscache * 100, db.pciloads), '%', db.CacheDB.GetHitLevel])
              );
-end;
+end;                    
 
 procedure TMainForm.Bricks1x1Click(Sender: TObject);
 var
@@ -22361,30 +22369,45 @@ end;
 
 procedure TMainForm.GatherAndSaveOfflineNotes(const pcs: string);
 var
-  ret: string;
+  retbl: string;
 
-  procedure _try_save(const fout: string);
+  procedure _try_save(const fout: string; const doBS: boolean);
+  var
+    ret: string;
+    retbs: string;
   begin
-    if not DirectoryExists(ExtractFilePath(fout)) then
-      MkDir(ExtractFilePath(fout));
-    SaveStringToFile(fout, ret);
+    if doBS then
+      retbs := BI_AutoNotesBS(pcs)
+    else
+      retbs := '';
+    ret := retbl;
+    if ret <> '' then
+      if retbs <> '' then
+        ret := ret + #13#10'<hr>'#13#10;
+    ret := ret + retbs;
+    if ret <> '' then
+    begin
+      if not DirectoryExists(ExtractFilePath(fout)) then
+        MkDir(ExtractFilePath(fout));
+      SaveStringToFile(fout, ret);
+    end;
   end;
 
 var
   sl: TStringList;
   i: integer;
 begin
-  ret := BI_AutoNotes(pcs, basedefault + 'db\catalogs\');
-  if ret <> '' then
-    _try_save(PieceColorNotesFName(pcs, '9996') + '_auto');
+  retbl := BI_AutoNotesBL(pcs, basedefault + 'db\catalogs\');
+  if retbl <> '' then
+    _try_save(PieceColorNotesFName(pcs, '9996') + '_auto', false);
 
-  ret := BI_AutoNotes(pcs, basedefault + 'db\instructions\');
-  if ret <> '' then
-    _try_save(PieceColorNotesFName(pcs, '9997') + '_auto');
+  retbl := BI_AutoNotesBL(pcs, basedefault + 'db\instructions\');
+  if retbl <> '' then
+    _try_save(PieceColorNotesFName(pcs, '9997') + '_auto', false);
 
-  ret := BI_AutoNotes(pcs, basedefault + 'db\boxes\');
-  if ret <> '' then
-    _try_save(PieceColorNotesFName(pcs, '9998') + '_auto');
+  retbl := BI_AutoNotesBL(pcs, basedefault + 'db\boxes\');
+  if retbl <> '' then
+    _try_save(PieceColorNotesFName(pcs, '9998') + '_auto', false);
 
   sl := TStringList.Create;
   sl.Add(basedefault + 'db\molds\');
@@ -22395,88 +22418,121 @@ begin
 
   for i := 0 to sl.Count - 1 do
   begin
-    ret := BI_AutoNotes(pcs, sl[i]);
-    if ret <> '' then
+    retbl := BI_AutoNotesBL(pcs, sl[i]);
+    if retbl <> '' then
     begin
-      _try_save(PieceNotesFName(pcs) + '_auto');
-      Break;
+      _try_save(PieceNotesFName(pcs) + '_auto', true);
+      Exit;
     end;
   end;
+   _try_save(PieceNotesFName(pcs) + '_auto', true);
   sl.Free;
 end;
 
 function TMainForm.GatherOfflineNotes(const pcs: string): string;
-var
-  sl: TStringList;
-  i: integer;
-begin
-  Result := BI_AutoNotes(pcs, basedefault + 'db\catalogs\');
-  if Result <> '' then
-    Exit;
 
-  sl := TStringList.Create;
-  sl.Add(basedefault + 'db\molds\');
-  sl.Add(basedefault + 'db\setmolds\');
-  sl.Add(basedefault + 'db\minifigs\');
-  sl.Add(basedefault + 'db\gears\');
-  sl.Add(basedefault + 'db\books\');
-  sl.Add(basedefault + 'db\boxes\');
-
-  for i := 0 to sl.Count - 1 do
+  function GatherBLNotes: string;
+  var
+    sl: TStringList;
+    i: integer;
   begin
-    Result := BI_AutoNotes(pcs, sl[i]);
+    Result := BI_AutoNotesBL(pcs, basedefault + 'db\catalogs\');
     if Result <> '' then
-      Break;
+      Exit;
+
+    sl := TStringList.Create;
+    sl.Add(basedefault + 'db\molds\');
+    sl.Add(basedefault + 'db\setmolds\');
+    sl.Add(basedefault + 'db\minifigs\');
+    sl.Add(basedefault + 'db\gears\');
+    sl.Add(basedefault + 'db\books\');
+    sl.Add(basedefault + 'db\boxes\');
+
+    for i := 0 to sl.Count - 1 do
+    begin
+      Result := BI_AutoNotesBL(pcs, sl[i]);
+      if Result <> '' then
+        Break;
+    end;
+    sl.Free;
   end;
-  sl.Free;
+
+var
+  retbs: string;
+begin
+  Result := GatherBLNotes;
+  retbs := BI_AutoNotesBS(pcs);
+  if retbs <> '' then
+  begin
+    if Result <> '' then
+      Result := Result + #13#10'<hr>'#13#10;
+    Result := Result + retbs;
+  end;
 end;
 
 function TMainForm.GatherOfflineNotes(const pcs: string; const color: integer): string;
-var
-  sl: TStringList;
-  i: integer;
-  pci: TPieceColorInfo;
-begin
-  if color = INSTRUCTIONCOLORINDEX then
-  begin
-    Result := BI_AutoNotes(pcs, basedefault + 'db\instructions\');
-    Exit;
-  end;
 
-  if color = BOXCOLORINDEX then
+  function GatherBLNotes: string;
+  var
+    sl: TStringList;
+    i: integer;
+    pci: TPieceColorInfo;
   begin
-    Result := BI_AutoNotes(pcs, basedefault + 'db\boxes\');
-    Exit;
-  end;
-
-  if color = CATALOGCOLORINDEX then
-  begin
-    Result := BI_AutoNotes(pcs, basedefault + 'db\catalogs\');
-    if Result <> '' then
+    if color = INSTRUCTIONCOLORINDEX then
+    begin
+      Result := BI_AutoNotesBL(pcs, basedefault + 'db\instructions\');
       Exit;
-  end;
-
-  sl := TStringList.Create;
-  if (color = CATALOGCOLORINDEX) or (color = -1) then
-    sl.Add(basedefault + 'db\molds\');
-
-  pci := db.PieceColorInfo(pcs, color);
-  if pci <> nil then
-    case pci.sparttype of
-      'S': sl.Add(basedefault + 'db\setmolds\');
-      'M': sl.Add(basedefault + 'db\minifigs\');
-      'G': sl.Add(basedefault + 'db\gears\');
-      'B': sl.Add(basedefault + 'db\books\');
     end;
 
-  for i := 0 to sl.Count - 1 do
-  begin
-    Result := BI_AutoNotes(pcs, sl[i]);
-    if Result <> '' then
-      Break;
-  end;
-  sl.Free;
+    if color = BOXCOLORINDEX then
+    begin
+      Result := BI_AutoNotesBL(pcs, basedefault + 'db\boxes\');
+      Exit;
+    end;
 
+    if color = CATALOGCOLORINDEX then
+    begin
+      Result := BI_AutoNotesBL(pcs, basedefault + 'db\catalogs\');
+      if Result <> '' then
+        Exit;
+    end;
+
+    sl := TStringList.Create;
+    if (color = CATALOGCOLORINDEX) or (color = -1) then
+      sl.Add(basedefault + 'db\molds\');
+
+    pci := db.PieceColorInfo(pcs, color);
+    if pci <> nil then
+      case pci.sparttype of
+        'S': sl.Add(basedefault + 'db\setmolds\');
+        'M': sl.Add(basedefault + 'db\minifigs\');
+        'G': sl.Add(basedefault + 'db\gears\');
+        'B': sl.Add(basedefault + 'db\books\');
+      end;
+
+    for i := 0 to sl.Count - 1 do
+    begin
+      Result := BI_AutoNotesBL(pcs, sl[i]);
+      if Result <> '' then
+        Break;
+    end;
+    sl.Free;
+  end;
+
+var
+  retbs: string;
+begin
+  Result := GatherBLNotes;
+  if color = -1 then
+  begin
+    retbs := BI_AutoNotesBS(pcs);
+    if retbs <> '' then
+    begin
+      if Result <> '' then
+        Result := Result + #13#10'<hr>'#13#10;
+      Result := Result + retbs;
+    end;
+  end;
 end;
 
 procedure TMainForm.RefreshAllNotesFromDisk(const limit: integer);

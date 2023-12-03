@@ -1203,6 +1203,8 @@ type
     function DownloadSetFromBricklinkNew(const s: string; const typ1: char = ' '): boolean;
     function DownloadSetAlternatesFromBricklinkNew(const s: string): boolean;
     function DownloadSetAssetsFromBricklink(const s: string; const typ: string; const def: integer): setasset_t;
+    function DownloadSetPageFromBrickSet(const s: string): boolean;
+    function IsLikeSetNumber(const pcs: string): boolean;
     function UpdatePartKnownColorsFromBricklink(const pid: string; const donet: boolean = True): boolean;
     function UpdateGearKnownColorsFromBricklink(const pid: string; const donet: boolean = True): boolean;
     function UpdateBookKnownColorsFromBricklink(const pid: string; const donet: boolean = True): boolean;
@@ -1290,6 +1292,7 @@ function PieceColorCacheDir(const piece, color: string): string;
 function PieceColorCacheFName(const piece, color: string): string;
 function PieceColorCacheFName2(const piece, color: string): string;
 function PieceColorCacheFName3(const piece, color: string): string;
+function BrickSetCachePath(const pcs: string): string;
 
 var
   basedefault: string = '';
@@ -12379,6 +12382,33 @@ end;
 {$ENDIF}
 
 {$IFNDEF CRAWLER}
+function TSetsDatabase.DownloadSetPageFromBrickSet(const s: string): boolean;
+begin
+  Result := DownLoadFile('https://brickset.com/sets/' + s, BrickSetCachePath(s));
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+function TSetsDatabase.IsLikeSetNumber(const pcs: string): boolean;
+var
+  p, i: integer;
+begin
+  p := CharPos('-', pcs);
+  Result := p = Length(pcs) - 1;
+  if not Result then
+    Exit;
+  for i := 1 to Length(pcs) do
+    if i <> p then
+      if not (pcs[i] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']) then
+      begin
+        Result := False;
+        Exit;
+      end;
+end;
+{$ENDIF}
+
+
+{$IFNDEF CRAWLER}
 function TSetsDatabase.QryNewInventoriesFromBricklink(const path: string; const check: string): TStringList;
 var
   fname: string;
@@ -21397,6 +21427,11 @@ end;
 function PieceColorCacheFName3(const piece, color: string): string;
 begin
   Result := PieceColorCacheDir(piece, color) +  piece + '.cache3';
+end;
+
+function BrickSetCachePath(const pcs: string): string;
+begin
+  Result := basedefault + 'db\bmolds\' + pcs + '.html'
 end;
 
 initialization

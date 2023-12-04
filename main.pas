@@ -1438,16 +1438,17 @@ begin
 
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
 
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>Date</b></th>');
-  document.write('<th><b>Seller</b></th>');
-  document.write('<th><b>Status</b></th>');
-  document.write('<th><b>Lots</b></th>');
-  document.write('<th><b>Items</b></th>');
-  document.write('<th><b>Total</b></th>');
-  document.write('<th><b>Gran Total</b></th>');
-  document.write('<th><b>Eval</b></th>');
-  document.write('</tr>');
+  document.write(
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>Date</b></th>' +
+    '<th><b>Seller</b></th>' +
+    '<th><b>Status</b></th>' +
+    '<th><b>Lots</b></th>' +
+    '<th><b>Items</b></th>' +
+    '<th><b>Total</b></th>' +
+    '<th><b>Gran Total</b></th>' +
+    '<th><b>Eval</b></th>' +
+    '</tr>');
 
   for i := 0 to orders.numorders - 1 do
     for j := 0 to orders.orders[i].Count - 1 do
@@ -1455,9 +1456,11 @@ begin
       oo := orders.orders[i].ORDER[j];
       if oo.ORDERID <> check then
         Continue;
-      document.write('<tr bgcolor=' + TBGCOLOR + '>');
-      document.write('<td width=10% align=right>' + oo.ORDERDATE + '</td>');
-      document.write('<td width=19%><a href=sellerorders/' + oo.SELLER + '>' + oo.SELLER + '</a></td>');
+      document.write(
+        '<tr bgcolor=' + TBGCOLOR + '>' +
+        '<td width=10% align=right>' + oo.ORDERDATE + '</td>' +
+        '<td width=19%><a href=sellerorders/' + oo.SELLER + '>' + oo.SELLER + '</a></td>'
+      );
       if oo.ORDERSTATUS = 'NSS' then
         document.write('<td width=10%><font color="red">' + oo.ORDERSTATUS + '</font></td>')
       else if (oo.ORDERSTATUS = 'Canceled') or (oo.ORDERSTATUS = 'Cancelled') then
@@ -1467,8 +1470,10 @@ begin
       else
         document.write('<td width=10%>' + oo.ORDERSTATUS + '</td>');
 
-      document.write('<td width=8% align=right>' + itoa(oo.ORDERLOTS) + '</td>');
-      document.write('<td width=8% align=right>' + itoa(oo.ORDERITEMS) + '</td>');
+      document.write(
+        '<td width=8% align=right>' + itoa(oo.ORDERLOTS) + '</td>' +
+        '<td width=8% align=right>' + itoa(oo.ORDERITEMS) + '</td>'
+      );
 
       curconv := db.ConvertCurrency(oo.BASECURRENCYCODE);
       tot := atof(oo.ORDERTOTAL) * curconv;
@@ -1476,17 +1481,21 @@ begin
 
       if curconv = db.ConvertCurrency(optdefaultcurrency) then
       begin
-        document.write('<td width=15% align=right>' + moneyhtml(tot) + '</td>');
-        document.write('<td width=15% align=right>' + moneyhtml(grantot) + '</td>');
+        document.write(
+          '<td width=15% align=right>' + moneyhtml(tot) + '</td>' +
+          '<td width=15% align=right>' + moneyhtml(grantot) + '</td>'
+        );
       end
       else
       begin
-        document.write('<td width=15% align=right>*' + moneyhtml(tot) + '</td>');
-        document.write('<td width=15% align=right>*' + moneyhtml(grantot) + '</td>');
+        document.write(
+          '<td width=15% align=right>*' + moneyhtml(tot) + '</td>' +
+          '<td width=15% align=right>*' + moneyhtml(grantot) + '</td>'
+        );
       end;
       eval := EvaluatedPrice(oo);
-      document.write('<td width=15% align=right>' + moneyhtml(eval) + '</td>');
-      document.write('</tr></table>');
+      document.write(
+        '<td width=15% align=right>' + moneyhtml(eval) + '</td></tr></table>');
       Exit;
     end;
   document.write('</table>');
@@ -1523,18 +1532,20 @@ begin
 
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
 
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>*</b></th>');
-  document.write('<th><b>OrderID</b></th>');
-  document.write('<th><b>Date</b></th>');
-  document.write('<th><b>Seller</b></th>');
-  document.write('<th><b>Status</b></th>');
-  document.write('<th><b>Lots</b></th>');
-  document.write('<th><b>Items</b></th>');
-  document.write('<th><b>Total</b></th>');
-  document.write('<th><b>Gran Total</b></th>');
-  document.write('<th><b>Eval</b></th>');
-  document.write('</tr>');
+  document.write(
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>*</b></th>' +
+    '<th><b>OrderID</b></th>' +
+    '<th><b>Date</b></th>' +
+    '<th><b>Seller</b></th>' +
+    '<th><b>Status</b></th>' +
+    '<th><b>Lots</b></th>' +
+    '<th><b>Items</b></th>' +
+    '<th><b>Total</b></th>' +
+    '<th><b>Gran Total</b></th>' +
+    '<th><b>Eval</b></th>' +
+    '</tr>'
+  );
 
   aa := 0;
   sum := 0.0;
@@ -1561,10 +1572,12 @@ begin
     sorder := itoa(orderslist.Numbers[i]);
     orders.StoreEvalHistory(basedefault + 'orders\' + sorder + '.eval', sorder);
     oo := orders.order(sorder);
-    document.write('<tr bgcolor=' + TBGCOLOR + '>');
-    document.write('<td width=5% align=right>' + IntToStr(aa) + '.</td>');
-    document.write('<td width=10%><a href=order/' + itoa(oo.ORDERID) + '>' + itoa(oo.ORDERID) + '</a></td>');
-    document.write('<td width=10% align=right>' + oo.ORDERDATE + '</td>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+      '<td width=10%><a href=order/' + itoa(oo.ORDERID) + '>' + itoa(oo.ORDERID) + '</a></td>' +
+      '<td width=10% align=right>' + oo.ORDERDATE + '</td>'
+    );
     if seller = '' then
       document.write('<td width=19%><a href=sellerorders/' + oo.SELLER + '>' + oo.SELLER + '</a></td>')
     else
@@ -1578,9 +1591,11 @@ begin
     else
       document.write('<td width=10%>' + oo.ORDERSTATUS + '</td>');
 
-    document.write('<td width=8% align=right>' + itoa(oo.ORDERLOTS) + '</td>');
+    document.write(
+      '<td width=8% align=right>' + itoa(oo.ORDERLOTS) + '</td>' +
+      '<td width=8% align=right>' + itoa(oo.ORDERITEMS) + '</td>'
+    );
     numlots := numlots + oo.ORDERLOTS;
-    document.write('<td width=8% align=right>' + itoa(oo.ORDERITEMS) + '</td>');
     numitems := numitems + oo.ORDERITEMS;
 
     curconv := db.ConvertCurrency(oo.BASECURRENCYCODE);
@@ -1591,13 +1606,17 @@ begin
 
     if curconv = 1.0 then
     begin
-      document.write('<td width=15% align=right>' + moneyhtml(tot) + '</td>');
-      document.write('<td width=15% align=right>' + moneyhtml(grantot) + '</td>');
+      document.write(
+        '<td width=15% align=right>' + moneyhtml(tot) + '</td>' +
+        '<td width=15% align=right>' + moneyhtml(grantot) + '</td>'
+      );
     end
     else
     begin
-      document.write('<td width=15% align=right>*' + moneyhtml(tot) + '</td>');
-      document.write('<td width=15% align=right>*' + moneyhtml(grantot) + '</td>');
+      document.write(
+        '<td width=15% align=right>*' + moneyhtml(tot) + '</td>' +
+        '<td width=15% align=right>*' + moneyhtml(grantot) + '</td>'
+      );
     end;
     eval := EvaluatedPrice(oo);
     document.write('<td width=15% align=right>' + moneyhtml(eval) + '</td>');
@@ -1609,16 +1628,17 @@ begin
 
   orderslist.Free;
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '>');
-  document.write('<td></td>');
-  document.write('<td colspan="4">Total</td>');
-
-  document.write('<td width=8% align=right>' + itoa(numlots) + '</td>');
-  document.write('<td width=8% align=right>' + itoa(numitems) + '</td>');
-  document.write('<td width=15% align=right>' + moneyhtml(sum) + '</td>');
-  document.write('<td width=15% align=right>' + moneyhtml(gransum) + '</td>');
-  document.write('<td width=15% align=right>' + moneyhtml(evalsum) + '</td>');
-  document.write('</tr></table>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '>' +
+    '<td></td>' +
+    '<td colspan="4">Total</td>' +
+    '<td width=8% align=right>' + itoa(numlots) + '</td>' +
+    '<td width=8% align=right>' + itoa(numitems) + '</td>' +
+    '<td width=15% align=right>' + moneyhtml(sum) + '</td>' +
+    '<td width=15% align=right>' + moneyhtml(gransum) + '</td>' +
+    '<td width=15% align=right>' + moneyhtml(evalsum) + '</td>' +
+    '</tr></table>'
+  );
 
   document.MarkBottomNavigateSection;
 
@@ -1676,17 +1696,18 @@ begin
 
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>*</b></th>');
-  document.write('<th><b>Storage</b></th>');
-  document.write('<th><b>Lots</b></th>');
-  document.write('<th><b>Items</b></th>');
-  document.write('<th><b>Eval</b></th>');
-  document.write('<th><b>Weight</b></th>');
-  document.write('<th><b>Euro/Kgr</b></th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>*</b></th>' +
+    '<th><b>Storage</b></th>' +
+    '<th><b>Lots</b></th>' +
+    '<th><b>Items</b></th>' +
+    '<th><b>Eval</b></th>' +
+    '<th><b>Weight</b></th>' +
+    '<th><b>Euro/Kgr</b></th>' +
+    '</tr>'
+  );
 
   aa := 0;
   evalsum := 0.0;
@@ -1714,40 +1735,45 @@ begin
       inv.StoreHistoryEvalRec(basedefault + 'storage\storage_' + filenamestring(st) + '.ieval');
     end;
 
-    document.write('<tr bgcolor=' + TBGCOLOR + '>');
-    document.write('<td width=5% align=right>' + IntToStr(aa) + '.</td>');
-    document.write('<td width=20%><a href=storage/' + st + '>' + st + '</a></td>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+      '<td width=20%><a href=storage/' + st + '>' + st + '</a></td>'
+    );
     numlots := numlots + inv.numlooseparts;
     numitems := numitems + inv.totallooseparts;
     eval := inv.EvaluatedPartOutValue_uQtyAvg.value;
     evalsum := evalsum + eval;
     w := inv.LoosePartsWeight / 1000;
     tw := tw + w;
-    document.write('<td width=20% align=right>' + itoa(inv.numlooseparts) + '</td>');
-    document.write('<td width=20% align=right>' + itoa(inv.totallooseparts) + '</td>');
-    document.write('<td width=20% align=right>' + moneyhtml(eval) + '</td>');
-    document.write('<td width=20% align=right>' + Format('%2.3f Kgr', [w]) + '</td>');
-    document.write('<td width=20% align=right>' + moneyhtml(dbl_safe_div(eval, w)) + ' / Kgr</td>');
+    document.write(
+      '<td width=20% align=right>' + itoa(inv.numlooseparts) + '</td>' +
+      '<td width=20% align=right>' + itoa(inv.totallooseparts) + '</td>' +
+      '<td width=20% align=right>' + moneyhtml(eval) + '</td>' +
+      '<td width=20% align=right>' + Format('%2.3f Kgr', [w]) + '</td>' +
+      '<td width=20% align=right>' + moneyhtml(dbl_safe_div(eval, w)) + ' / Kgr</td>' +
+      '</tr>'
+    );
 
     if idx < 0 then
       inv.Free;
-    document.write('</tr>');
   end;
 
   FreeList(dbstorageinvs);
 
   document.EndNavigateSection;
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '>');
-  document.write('<td>*</td>');
-  document.write('<td>Total</td>');
-
-  document.write('<td width=20% align=right>' + itoa(numlots) + '</td>');
-  document.write('<td width=20% align=right>' + itoa(numitems) + '</td>');
-  document.write('<td width=20% align=right>' + moneyhtml(evalsum) + '</td>');
-  document.write('<td width=20% align=right>' + Format('%2.3f Kgr', [tw]) + '</td>');
-  document.write('<td width=20% align=right>' + moneyhtml(dbl_safe_div(evalsum, tw)) + ' / Kgr</td>');
-  document.write('</tr></table>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '>' +
+    '<td>*</td>' +
+    '<td>Total</td>' +
+    '<td width=20% align=right>' + itoa(numlots) + '</td>' +
+    '<td width=20% align=right>' + itoa(numitems) + '</td>' +
+    '<td width=20% align=right>' + moneyhtml(evalsum) + '</td>' +
+    '<td width=20% align=right>' + Format('%2.3f Kgr', [tw]) + '</td>' +
+    '<td width=20% align=right>' + moneyhtml(dbl_safe_div(evalsum, tw)) + ' / Kgr</td>' +
+    '</tr></table>'
+  );
 
   document.MarkBottomNavigateSection;
 
@@ -1848,10 +1874,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Can not find inventory for storage bin ' + st);
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -1873,16 +1896,12 @@ begin
   SortInventory(inv);
 
   DrawInventoryTable(inv);
-  document.write('<br>');
-  document.write('<br>');
+  document.write('<br><br>');
   if ShowInventorySets(inv, False, SSINV_FLAG_SETS_AND_MOCS) then
   begin
-    document.write('<br>');
-    document.write('<br>');
+    document.write('<br><br>');
   end;
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('</p></div></body>');
   inv.Free;
   document.SaveBufferToFile(diskmirror);
   document.Flash;
@@ -1969,11 +1988,7 @@ begin
   SortInventory(inv);
 
   DrawInventoryTable(inv);
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   inv.Free;
   document.SaveBufferToFile(diskmirror);
   document.Flash;
@@ -1998,10 +2013,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Can not find inventory for order ' + orderid);
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -2017,16 +2029,12 @@ begin
 
   DrawOrderInf(orderid);
   DrawInventoryTable(inv);
-  document.write('<br>');
-  document.write('<br>');
+  document.write('<br><br>');
   if ShowInventorySets(inv, False, SSINV_FLAG_SETS_AND_MOCS) then
   begin
-    document.write('<br>');
-    document.write('<br>');
+    document.write('<br><br>');
   end;
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('</p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   inv.Free;
@@ -2044,24 +2052,22 @@ begin
   DrawHeadLine('Bricks Inventory');
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
 
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>Quick links</b></th>');
-  document.write('</tr>');
-
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="cataloghome">Catalog</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="inv/0/C/-1">My loose parts</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="mysetsandmocs">My official sets and mocs</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="myofficialsets">My official sets</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="mymocs">My mocs</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifiguresMenu">My minifigures</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="mywishlist">My wish list</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="colors">Colors</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="categories">Categories</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="orders">Orders</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowStorageBins">Storage Bins</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="tags">Tags</a></td></tr>');
-
-  document.write('</table></p></div></body>');
+  document.write(
+    '<tr bgcolor=' + THBGCOLOR + '><th><b>Quick links</b></th></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="cataloghome">Catalog</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="inv/0/C/-1">My loose parts</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="mysetsandmocs">My official sets and mocs</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="myofficialsets">My official sets</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="mymocs">My mocs</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifiguresMenu">My minifigures</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="mywishlist">My wish list</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="colors">Colors</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="categories">Categories</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="orders">Orders</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowStorageBins">Storage Bins</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="tags">Tags</a></td></tr>' +
+    '</table></p></div></body>'
+  );
 
   document.SaveBufferToFile(diskmirror);
   document.Flash;
@@ -2901,44 +2907,53 @@ procedure TMainForm.DrawPartOutValue(inv: TBrickInventory; const setid: string =
   end;
 
 begin
-  document.write('<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>');
-  document.write('<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>');
-  document.write('<th>');
+  document.write(
+    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<th>'
+  );
   document.write('<b>Inventory (Part Out) Value (%d ' +
                   decide(inv.totallooseparts = 1, 'part', 'parts') + ' in %d ' + decide(inv.numlooseparts = 1, 'lot', 'lots') + ')</b>',
                   [inv.totallooseparts, inv.numlooseparts]);
   if setid <> '' then
     document.write(' <a href=refreshset/' + setid + '><img src="images\refresh.png"></a>');
   document.write('</th></table>');
-  document.write('<tr>');
-  document.write('<td width=34% align="center"><b>Sold</b></td>');
-  document.write('<td width=34% align="center"><b>Available</b></td>');
-  document.write('<td width=34% align="center"><b>Evaluated</b></td>');
-  document.write('</tr>');
-  document.write('</table>');
-  document.write('<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>');
-  document.write('<tr>');
+  document.write(
+    '<tr>' +
+    '<td width=34% align="center"><b>Sold</b></td>' +
+    '<td width=34% align="center"><b>Available</b></td>' +
+    '<td width=34% align="center"><b>Evaluated</b></td>' +
+    '</tr>' +
+    '</table>' +
+    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<tr>'
+  );
   inv.UpdateCostValues;
-  document.write(_poutcol('New', inv.SoldPartOutValue_nAvg.percentage, inv.SoldPartOutValue_nAvg.value, inv.SoldPartOutValue_nQtyAvg.value));
-  document.write(_poutcol('Used', inv.SoldPartOutValue_uAvg.percentage, inv.SoldPartOutValue_uAvg.value, inv.SoldPartOutValue_uQtyAvg.value));
-  document.write(_poutcol('New', inv.AvailablePartOutValue_nAvg.percentage, inv.AvailablePartOutValue_nAvg.value, inv.AvailablePartOutValue_nQtyAvg.value));
-  document.write(_poutcol('Used', inv.AvailablePartOutValue_uAvg.percentage, inv.AvailablePartOutValue_uAvg.value, inv.AvailablePartOutValue_uQtyAvg.value));
-  document.write(_poutcol('New', inv.EvaluatedPartOutValue_nAvg.percentage, inv.EvaluatedPartOutValue_nAvg.value, inv.EvaluatedPartOutValue_nQtyAvg.value));
-  document.write(_poutcol('Used', inv.EvaluatedPartOutValue_uAvg.percentage, inv.EvaluatedPartOutValue_uAvg.value, inv.EvaluatedPartOutValue_uQtyAvg.value));
+  document.write(
+    _poutcol('New', inv.SoldPartOutValue_nAvg.percentage, inv.SoldPartOutValue_nAvg.value, inv.SoldPartOutValue_nQtyAvg.value) +
+    _poutcol('Used', inv.SoldPartOutValue_uAvg.percentage, inv.SoldPartOutValue_uAvg.value, inv.SoldPartOutValue_uQtyAvg.value) +
+    _poutcol('New', inv.AvailablePartOutValue_nAvg.percentage, inv.AvailablePartOutValue_nAvg.value, inv.AvailablePartOutValue_nQtyAvg.value) +
+    _poutcol('Used', inv.AvailablePartOutValue_uAvg.percentage, inv.AvailablePartOutValue_uAvg.value, inv.AvailablePartOutValue_uQtyAvg.value) +
+    _poutcol('New', inv.EvaluatedPartOutValue_nAvg.percentage, inv.EvaluatedPartOutValue_nAvg.value, inv.EvaluatedPartOutValue_nQtyAvg.value) +
+    _poutcol('Used', inv.EvaluatedPartOutValue_uAvg.percentage, inv.EvaluatedPartOutValue_uAvg.value, inv.EvaluatedPartOutValue_uQtyAvg.value)
+  );
+
   document.write('</tr></table>');
 
-  document.write('<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>');
-  document.write('<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>');
-  document.write('<th>');
-  document.write('<b>Demand</b>');
-  document.write('</th></table>');
-  document.write('<tr>');
-  document.write('<td width=50% align="center"><b>New</b></td>');
-  document.write('<td width=50% align="center"><b>Used</b></td>');
-  document.write('</tr>');
-  document.write('</table>');
-  document.write('<table  width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr align="RIGHT">');
+  document.write(
+    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<th>' +
+    '<b>Demand</b>' +
+    '</th></table>' +
+    '<tr>' +
+    '<td width=50% align="center"><b>New</b></td>' +
+    '<td width=50% align="center"><b>Used</b></td>' +
+    '</tr>' +
+    '</table>' +
+    '<table  width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr align="RIGHT">'
+  );
   document.write('<td>%2.2f</td>', [inv.nDemand.value * 100]);
   document.write('<td>%2.2f</td>', [inv.uDemand.value * 100]);
   document.write('</tr></table>');
@@ -3327,15 +3342,17 @@ begin
 
   SortInventory(inv);
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Part</b></th>');
-  document.write('<th>Color</th>');
-  document.write('<th>Num pieces</th>');
-  document.write('<th>Price New</th>');
-  document.write('<th>Price Used</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Part</b></th>' +
+    '<th>Color</th>' +
+    '<th>Num pieces</th>' +
+    '<th>Price New</th>' +
+    '<th>Price Used</th>' +
+    '</tr>'
+  );
 
   ShowSplash;
   SplashProgress('Working...', 0);
@@ -3354,21 +3371,26 @@ begin
   begin
     inc(aa);
     scolor := itoa(brick.Color);
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br>');
-    document.write('<b>' + GetPieceLinkHtml(brick.part) + '</b>');
-    document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=20%>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) +
+      '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br>' +
+      '<b>' + GetPieceLinkHtml(brick.part) + '</b>' +
+      ' - ' + db.PieceDesc(brick.part) + '</td><td width=20%>'
+    );
     DrawColorCell(brick.color, 25);
     pci := db.PieceColorInfo(brick);
-    document.write(GetPieceColorLinkHtml(brick.part, brick.color));
-    document.write('<td width=10% align=right>%d</td>', [brick.num]);
+    document.write(GetPieceColorLinkHtml(brick.part, brick.color) + '<td width=10% align=right>');
+    document.write('%d</td>', [brick.num]);
     pi := db.PieceInfo(pci);
     if pci <> nil then
     begin
       www := db.GetItemWeight(pci.piece, pci.color, pi);
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
-      document.write('<td width=15% align=right>' + Format('%s<br>%s<br>%s / Kgr', [moneyhtml(prn, 2), moneyhtml(prn * brick.num, 2), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
-      document.write('<td width=15% align=right>' + Format('%s<br>%s<br>%s / Kgr', [moneyhtml(pru, 2), moneyhtml(pru * brick.num, 2), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
+      document.write(
+        '<td width=15% align=right>' + Format('%s<br>%s<br>%s / Kgr', [moneyhtml(prn, 2), moneyhtml(prn * brick.num, 2), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>' +
+        '<td width=15% align=right>' + Format('%s<br>%s<br>%s / Kgr', [moneyhtml(pru, 2), moneyhtml(pru * brick.num, 2), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>'
+      );
       prnt := prnt + prn * brick.num;
       prut := prut + pru * brick.num;
       if www > 0.0 then
@@ -3395,14 +3417,15 @@ begin
 
   end;
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
-  document.write('<td width=35%><b>' + IntToStr(pl.Count) + ' unique mold' + decide(pl.Count = 1, '', 's') + '</b></td>');
-  document.write('<td width=20%><b>' + IntToStr(cl.Count) + ' unique color' + decide(cl.Count = 1, '', 's') + '</b></td>');
-
-  document.write('<td width=10% align=right><b>' + IntToStr(num) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('%s<br>%s / Kgr', [moneyhtml(prnt, 2), moneyhtml(dbl_safe_div(totalcostwn, totalweight) * 1000, 2)]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('%s<br>%s / Kgr', [moneyhtml(prut, 2), moneyhtml(dbl_safe_div(totalcostwu, totalweight) * 1000, 2)]) + '</b></td>');
-  document.write('</tr>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>' +
+    '<td width=35%><b>' + IntToStr(pl.Count) + ' unique mold' + decide(pl.Count = 1, '', 's') + '</b></td>' +
+    '<td width=20%><b>' + IntToStr(cl.Count) + ' unique color' + decide(cl.Count = 1, '', 's') + '</b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(num) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>' +
+    '<td width=10% align=right><b>' + Format('%s<br>%s / Kgr', [moneyhtml(prnt, 2), moneyhtml(dbl_safe_div(totalcostwn, totalweight) * 1000, 2)]) + '</b></td>' +
+    '<td width=10% align=right><b>' + Format('%s<br>%s / Kgr', [moneyhtml(prut, 2), moneyhtml(dbl_safe_div(totalcostwu, totalweight) * 1000, 2)]) + '</b></td>' +
+    '</tr>'
+  );
   SplashProgress('Working...', 1);
 
   cl.Free;
@@ -3473,11 +3496,13 @@ begin
     if not lite then
       document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Part</b></th>');
-  document.write('<th>Color</th>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Part</b></th>' +
+    '<th>Color</th>'
+  );
   if not lite then
     document.write('<th>Demand</th>');
   document.write('<th>Num pieces</th>');
@@ -3530,10 +3555,12 @@ begin
       if not lite then
         document.StartItemId(aa);
     scolor := itoa(brick.Color);
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' +
-      IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br>');
-    document.write('<b>' + GetPieceLinkHtml(brick.part) + '</b>');
-    document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=20%>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' +
+      IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br>' +
+      '<b>' + GetPieceLinkHtml(brick.part) + '</b>' +
+      ' - ' + db.PieceDesc(brick.part) + '</td><td width=20%>'
+    );
     DrawColorCell(brick.color, 25);
     pci := db.PieceColorInfo(brick);
     pi := db.PieceInfo(pci);
@@ -3563,8 +3590,10 @@ begin
     document.write('<td width=10% align=right>' + IntToStr(brick.num));
     if not lite then
     begin
-      document.write('<br>' + GetEditPieceHtml(brick.part, scolor));
-      document.write('<br>' + GetDiagramPieceHtml(brick.part, scolor));
+      document.write(
+        '<br>' + GetEditPieceHtml(brick.part, scolor) +
+        '<br>' + GetDiagramPieceHtml(brick.part, scolor)
+      );
     end;
     document.write('</td>');
 
@@ -3670,20 +3699,21 @@ begin
   if dosplash then
     SplashProgress('Working...', 1);
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
-  document.write('<td width=35%><b>' + IntToStr(pl.Count) + ' unique mold' + decide(pl.Count = 1, '', 's') + '</b></td>');
-  document.write('<td width=20%><b>' + IntToStr(cl.Count) + ' unique color' + decide(cl.Count = 1, '', 's') + '</b></td>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>' +
+    '<td width=35%><b>' + IntToStr(pl.Count) + ' unique mold' + decide(pl.Count = 1, '', 's') + '</b></td>' +
+    '<td width=20%><b>' + IntToStr(cl.Count) + ' unique color' + decide(cl.Count = 1, '', 's') + '</b></td>'
+  );
   if not lite then
   begin
     document.write('<td width=10% align=right>');
     document.write('N=%2.3f<br>U=%2.3f</td>', [inv.nDemand.value, inv.uDemand.value]);
   end;
 
-{  else
-    document.write('<td width=10% align=right></td>');}
-
-  document.write('<td width=10% align=right><b>' + IntToStr(num) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('%s<br>%s / Kgr', [moneyhtml(prnt, 2), moneyhtml(dbl_safe_div(totalcostwn, totalweight) * 1000, 2)]) + '</b></td>');
+  document.write(
+    '<td width=10% align=right><b>' + IntToStr(num) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>' +
+    '<td width=10% align=right><b>' + Format('%s<br>%s / Kgr', [moneyhtml(prnt, 2), moneyhtml(dbl_safe_div(totalcostwn, totalweight) * 1000, 2)]) + '</b></td>'
+  );
 
   if lb <> nil then
     document.write('<td width=10% align=right><b>' + Format('%s<br>%s / Kgr', [moneyhtml(lcostt, 2), moneyhtml(dbl_safe_div(totalcostwt, totalweight) * 1000, 2)]) + '</b></td>');
@@ -3734,13 +3764,15 @@ begin
 
   SortInventory(inv);
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=' + itoa(decide(ppreview, 1, 2)) + '>');
-  document.write('<tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Part</b></th>');
-  document.write('<th>Color</th>');
-  document.write('<th>Num pieces</th>');
-  document.write('<th>Needed pieces</th>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=' + itoa(decide(ppreview, 1, 2)) + '>' +
+    '<tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Part</b></th>' +
+    '<th>Color</th>' +
+    '<th>Num pieces</th>' +
+    '<th>Needed pieces</th>'
+  );
   if dodraworderinfolite then
     document.write('<th>Additional storages</th>');
 
@@ -3755,11 +3787,13 @@ begin
   begin
     inc(aa);
     scolor := itoa(brick.Color);
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' +
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' +
       IntToStr(aa) + '.</td><td width=' + itoa(decide(ppreview, 55, 35)) + '%><img width=' +
-        itoa(decide(ppreview, 80, 100)) + 'px src=' + scolor + '\' + brick.part + '.png><br>');
-    document.write('<b>' + GetPieceLinkHtml(brick.part) + '</b>');
-    document.write(' - ' + db.PieceDesc(brick.part) + '</td><td width=' + itoa(decide(ppreview, 20, 40)) + '%>');
+      itoa(decide(ppreview, 80, 100)) + 'px src=' + scolor + '\' + brick.part + '.png><br>' +
+      '<b>' + GetPieceLinkHtml(brick.part) + '</b>' +
+      ' - ' + db.PieceDesc(brick.part) + '</td><td width=' + itoa(decide(ppreview, 20, 40)) + '%>'
+    );
     DrawColorCell(brick.color, 25);
     pci := db.PieceColorInfo(brick);
     pi := db.PieceInfo(pci);
@@ -3772,17 +3806,19 @@ begin
     else
     begin
       document.write(
-        GetPieceColorLinkHtml(brick.part, brick.color)  +
-        GetInvImgLinkHtml(brick.part, brick.color, pi));
-      document.write('<br>' + GetEditPieceHtml(brick.part, scolor));
-      document.write('<br>' + GetDiagramPieceHtml(brick.part, scolor));
+        GetPieceColorLinkHtml(brick.part, brick.color) +
+        GetInvImgLinkHtml(brick.part, brick.color, pi) +
+        '<br>' + GetEditPieceHtml(brick.part, scolor) +
+        '<br>' + GetDiagramPieceHtml(brick.part, scolor)
+      );
     end;
 
-    document.write('<td width=10% align=right>' + IntToStr(brick.num));
-    document.write('</td>');
     num := qryinv.loosepartcount(brick.part, brick.color);
     num2 := num2 + num;
-    document.write('<td width=10% align=right>' + IntToStr(num) + '</td>');
+    document.write(
+      '<td width=10% align=right>' + IntToStr(brick.num) + '</td>' +
+      '<td width=10% align=right>' + IntToStr(num) + '</td>'
+    );
 
     DrawBrickOrderInfoLite(brick, brick.num, '');
 
@@ -3797,13 +3833,14 @@ begin
     Inc(brick);
   end;
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
-  document.write('<td width=35%><b>' + IntToStr(pl.Count) + ' unique mold' + decide(pl.Count = 1, '', 's') + '</b></td>');
-  document.write('<td width=40%><b>' + IntToStr(cl.Count) + ' unique color' + decide(cl.Count = 1, '', 's') + '</b></td>');
-  document.write('<td width=10% align=right><b>' + IntToStr(num1) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + IntToStr(num2) + '</b></td>');
-
-  document.write('</tr></table>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>' +
+    '<td width=35%><b>' + IntToStr(pl.Count) + ' unique mold' + decide(pl.Count = 1, '', 's') + '</b></td>' +
+    '<td width=40%><b>' + IntToStr(cl.Count) + ' unique color' + decide(cl.Count = 1, '', 's') + '</b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(num1) + '</b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(num2) + '</b></td>' +
+    '</tr></table>'
+  );
 
   cl.Free;
   pl.Free;
@@ -3839,19 +3876,21 @@ var
 begin
   pg := db.Priceguide(part, color);
   av := db.Availability(part, color);
-  document.write('<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>');
-  document.write('<tr>');
-  document.write('<td width=50% align="center"><b>Priceguide</b></td>');
-  document.write('<td width=50% align="center"><b>Availability</b></td>');
-  document.write('</tr>');
-  document.write('</table>');
-  document.write('<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>');
-  document.write('<tr>');
-  document.write(_getcol('New', 'Times Sold: ', pg.nTimesSold, pg.nTotalQty, pg.nMinPrice, pg.nAvgPrice, pg.nQtyAvgPrice, pg.nMaxPrice));
-  document.write(_getcol('Used', 'Times Sold: ', pg.uTimesSold, pg.uTotalQty, pg.uMinPrice, pg.uAvgPrice, pg.uQtyAvgPrice, pg.uMaxPrice));
-  document.write(_getcol('New', 'Total Lots: ', av.nTotalLots, av.nTotalQty, av.nMinPrice, av.nAvgPrice, av.nQtyAvgPrice, av.nMaxPrice));
-  document.write(_getcol('Used', 'Total Lots: ', av.uTotalLots, av.uTotalQty, av.uMinPrice, av.uAvgPrice, av.uQtyAvgPrice, av.uMaxPrice));
-  document.write('</tr></table>');
+  document.write(
+    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<tr>' +
+    '<td width=50% align="center"><b>Priceguide</b></td>' +
+    '<td width=50% align="center"><b>Availability</b></td>' +
+    '</tr>' +
+    '</table>' +
+    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<tr>' +
+    _getcol('New', 'Times Sold: ', pg.nTimesSold, pg.nTotalQty, pg.nMinPrice, pg.nAvgPrice, pg.nQtyAvgPrice, pg.nMaxPrice) +
+    _getcol('Used', 'Times Sold: ', pg.uTimesSold, pg.uTotalQty, pg.uMinPrice, pg.uAvgPrice, pg.uQtyAvgPrice, pg.uMaxPrice) +
+    _getcol('New', 'Total Lots: ', av.nTotalLots, av.nTotalQty, av.nMinPrice, av.nAvgPrice, av.nQtyAvgPrice, av.nMaxPrice) +
+    _getcol('Used', 'Total Lots: ', av.uTotalLots, av.uTotalQty, av.uMinPrice, av.uAvgPrice, av.uQtyAvgPrice, av.uMaxPrice) +
+    '</tr></table>'
+  );
 end;
 
 procedure TMainForm.DrawPriceguideEx(const part: string; const color: integer; const at: TDateTime);
@@ -3899,39 +3938,36 @@ begin
   av := db.Availability(part, color);
   PA := db.PArecAt(part, color, at);
 
-  document.write('<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>');
-  document.write('<tr>');
-  document.write('<td width=50% align="center"><b>Priceguide</b></td>');
-  document.write('<td width=50% align="center"><b>Availability</b></td>');
-  document.write('</tr>');
-  document.write('</table>');
-  document.write('<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>');
-  document.write('<tr>');
-  document.write(_getcolex('New', 'Times Sold: ',
-    pg.nTimesSold, pg.nTotalQty, pg.nMinPrice, pg.nAvgPrice, pg.nQtyAvgPrice, pg.nMaxPrice,
-    PA.priceguide.nTimesSold, PA.priceguide.nTotalQty, PA.priceguide.nMinPrice, PA.priceguide.nAvgPrice, PA.priceguide.nQtyAvgPrice, PA.priceguide.nMaxPrice,
-    1
-    )
-  );
-  document.write(_getcolex('Used', 'Times Sold: ',
-    pg.uTimesSold, pg.uTotalQty, pg.uMinPrice, pg.uAvgPrice, pg.uQtyAvgPrice, pg.uMaxPrice,
-    PA.priceguide.uTimesSold, PA.priceguide.uTotalQty, PA.priceguide.uMinPrice, PA.priceguide.uAvgPrice, PA.priceguide.uQtyAvgPrice, PA.priceguide.uMaxPrice,
-    7
-    )
-  );
-  document.write(_getcolex('New', 'Total Lots: ',
-    av.nTotalLots, av.nTotalQty, av.nMinPrice, av.nAvgPrice, av.nQtyAvgPrice, av.nMaxPrice,
-    PA.availability.nTotalLots, PA.availability.nTotalQty, PA.availability.nMinPrice, PA.availability.nAvgPrice, PA.availability.nQtyAvgPrice, PA.availability.nMaxPrice,
-    13
-    )
-  );
-  document.write(_getcolex('Used', 'Total Lots: ',
-    av.uTotalLots, av.uTotalQty, av.uMinPrice, av.uAvgPrice, av.uQtyAvgPrice, av.uMaxPrice,
-    PA.availability.uTotalLots, PA.availability.uTotalQty, PA.availability.uMinPrice, PA.availability.uAvgPrice, PA.availability.uQtyAvgPrice, PA.availability.uMaxPrice,
-    19
-    )
-  );
-  document.write('</tr></table>');
+  document.write(
+    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<tr>' +
+    '<td width=50% align="center"><b>Priceguide</b></td>' +
+    '<td width=50% align="center"><b>Availability</b></td>' +
+    '</tr>' +
+    '</table>' +
+    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<tr>' +
+    _getcolex('New', 'Times Sold: ',
+      pg.nTimesSold, pg.nTotalQty, pg.nMinPrice, pg.nAvgPrice, pg.nQtyAvgPrice, pg.nMaxPrice,
+      PA.priceguide.nTimesSold, PA.priceguide.nTotalQty, PA.priceguide.nMinPrice, PA.priceguide.nAvgPrice, PA.priceguide.nQtyAvgPrice, PA.priceguide.nMaxPrice,
+      1
+      ) +
+    _getcolex('Used', 'Times Sold: ',
+      pg.uTimesSold, pg.uTotalQty, pg.uMinPrice, pg.uAvgPrice, pg.uQtyAvgPrice, pg.uMaxPrice,
+      PA.priceguide.uTimesSold, PA.priceguide.uTotalQty, PA.priceguide.uMinPrice, PA.priceguide.uAvgPrice, PA.priceguide.uQtyAvgPrice, PA.priceguide.uMaxPrice,
+      7
+      ) +
+    _getcolex('New', 'Total Lots: ',
+      av.nTotalLots, av.nTotalQty, av.nMinPrice, av.nAvgPrice, av.nQtyAvgPrice, av.nMaxPrice,
+      PA.availability.nTotalLots, PA.availability.nTotalQty, PA.availability.nMinPrice, PA.availability.nAvgPrice, PA.availability.nQtyAvgPrice, PA.availability.nMaxPrice,
+      13
+      ) +
+    _getcolex('Used', 'Total Lots: ',
+      av.uTotalLots, av.uTotalQty, av.uMinPrice, av.uAvgPrice, av.uQtyAvgPrice, av.uMaxPrice,
+      PA.availability.uTotalLots, PA.availability.uTotalQty, PA.availability.uMinPrice, PA.availability.uAvgPrice, PA.availability.uQtyAvgPrice, PA.availability.uMaxPrice,
+      19
+      ) +
+    '</tr></table>');
 end;
 
 function TMainForm.ShowInventorySets(const inv: TBrickInventory; const header_flash: boolean; const mocflag: integer): boolean;
@@ -4036,9 +4072,11 @@ begin
 
   end;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>'
+  );
   if mocflag = SSINV_FLAG_MOCS then
     document.write('<th><b>Moc</b></th>')
   else if mocflag = SSINV_FLAG_SETS then
@@ -4093,15 +4131,19 @@ begin
                       MakeThumbnailImage2(set1.setid, -1) + '<br>');
       if db.GetSetInventory(set1.setid) <> nil then
       begin
-        document.write('<a href="sinv/' + set1.setid + '">');
         sdesc := db.SetDesc(set1.setid);
-        document.write('<b>' + set1.setid + '</b> - ' + sdesc)
+        document.write(
+          '<a href="sinv/' + set1.setid + '">' +
+          '<b>' + set1.setid + '</b> - ' + sdesc
+        )
       end
       else
       begin
-        document.write('<a href="spiece/' + set1.setid + '">');
         sdesc := db.PieceDesc(set1.setid);
-        document.write('<b>' + set1.setid + '</b> - ' + sdesc);
+        document.write(
+          '<a href="spiece/' + set1.setid + '">' +
+          '<b>' + set1.setid + '</b> - ' + sdesc
+        );
       end;
 
       document.write('</td>');
@@ -4121,8 +4163,10 @@ begin
               sf4 := '<a href=removesetdismantaled/' + Trim(set1.setid) + '>-</a>'
             else
               sf4 := '';
-            document.write('<td width=15% align=right>' + IntToStr(set1.num) + '<br>' + sf2 + ' ' + sf1 + '</td>');
-            document.write('<td width=15% align=right>' + IntToStr(set1.numdismantaled) + '<br>' + sf4 + ' ' + sf3 + '</td>');
+            document.write(
+              '<td width=15% align=right>' + IntToStr(set1.num) + '<br>' + sf2 + ' ' + sf1 + '</td>' +
+              '<td width=15% align=right>' + IntToStr(set1.numdismantaled) + '<br>' + sf4 + ' ' + sf3 + '</td>'
+            );
           end
           else
           begin
@@ -4138,8 +4182,10 @@ begin
         begin
           if mocflag <> SSINV_FLAG_WISH_LIST then
           begin
-            document.write('<td width=15% align=right>' + IntToStr(set1.num) + '</td>');
-            document.write('<td width=15% align=right>' + IntToStr(set1.numdismantaled) + '</td>');
+            document.write(
+              '<td width=15% align=right>' + IntToStr(set1.num) + '</td>' +
+              '<td width=15% align=right>' + IntToStr(set1.numdismantaled) + '</td>'
+            );
           end
           else
             document.write('<td width=15% align=right>' + IntToStr(set1.numwishlist) + '</td></tr>');
@@ -4167,12 +4213,7 @@ begin
   document.write('</tr></table>');
   if header_flash then
   begin
-    document.write('</p>');
-    document.write('<br>');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('</p><br><br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
   end;
@@ -4249,9 +4290,11 @@ begin
       'My builded official sets and mocs have <a href="ShowMySetsAndMocsPieces">' + IntToStr(tot) + ' parts</a><br><br>');
   end;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>'
+  );
   if mocflag = SSINV_FLAG_MOCS then
     document.write('<th><b>Moc</b></th>')
   else if mocflag = SSINV_FLAG_SETS then
@@ -4259,8 +4302,7 @@ begin
   else
     document.write('<th><b>Set/Moc</b></th>');
 
-  document.write('<th>Num</th>');
-  document.write('</tr>');
+  document.write('<th>Num</th></tr>');
 
   set1 := @inventory.sets[0];
   aa := 0;
@@ -4290,19 +4332,22 @@ begin
                       MakeThumbnailImage2(set1.setid, -1) + '<br>');
       if db.GetSetInventory(set1.setid) <> nil then
       begin
-        document.write('<a href="sinv/' + set1.setid + '">');
         sdesc := db.SetDesc(set1.setid);
-        document.write('<b>' + set1.setid + '</b> - ' + sdesc)
+        document.write(
+          '<a href="sinv/' + set1.setid + '">' +
+          '<b>' + set1.setid + '</b> - ' + sdesc
+        )
       end
       else
       begin
-        document.write('<a href="spiece/' + set1.setid + '">');
         sdesc := db.PieceDesc(set1.setid);
-        document.write('<b>' + set1.setid + '</b> - ' + sdesc);
+        document.write(
+          '<a href="spiece/' + set1.setid + '">' +
+          '<b>' + set1.setid + '</b> - ' + sdesc
+        );
       end;
 
-      document.write('</td><td width=15% align=right>');
-      document.write(IntToStr(set1.num) + '</td></tr>');
+      document.write('</td><td width=15% align=right>' + IntToStr(set1.num) + '</td></tr>');
     end;
 
     Inc(set1);
@@ -4491,9 +4536,7 @@ begin
     else
       slink := GetPieceLinkHtml(setid);
     DrawHeadLine('Can not find inventory for ' + slink + ' ' + GetEditSetHtml(setid) + '<br><br>' + lnk);
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
+    document.write('<br></p></div>');
 
     tmpsets := TStringList.Create;
     if IsValidDBMask(setid) then
@@ -4637,7 +4680,6 @@ begin
       ' <a href=editpiecenotes/' + setid + '><img src="images\notes.png"></a>' +
       ' <a href=PreviewSetInventory/' + setid + '><img src="images\print.png"></a>' +
       ' ' + GetDiagramPieceHtml(setid, '-1') + '<br>' +
-
       '[Year: <a href=ShowSetsAtYear/%d>%d</a>]<br>',
     [GetPieceLinkHtml(setid), db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
      sf2, st.num, sf1, sf4, st.numdismantaled, sf3, sf6, st.numwishlist, sf5, year, year]);
@@ -4751,9 +4793,7 @@ begin
       document.write('<p>');
       DrawHeadLine('Minifigures');
       DrawInventoryTableNoPages(minifiginv);
-      document.write('<br>');
-      document.write('<br>');
-      document.write('</p>');
+      document.write('<br><br></p>');
     end;
     minifiginv.free;
   end;
@@ -4764,14 +4804,12 @@ begin
     addinv.LoadFromFile(basedefault + 'db\sets\' + Trim(setid) + '.alternatives.txt');
     DrawSetAlternatePieceList('Alternate parts <a href=downloadsetaltparts/' + Trim(setid) + '><img src="images\refresh.png"></a>', addinv);
     addinv.Free;
-    document.write('<br>');
-    document.write('<br>');
+    document.write('<br><br>');
   end
   else if not db.IsMoc(setid) then
   begin
     DrawHeadLine('<a href=downloadsetaltparts/' + Trim(setid) + '>Try to download alternate parts from ' + s_bricklink + '.com</a>');
-    document.write('<br>');
-    document.write('<br>');
+    document.write('<br><br>');
   end;
   document.write('</div>');
   if not lite then
@@ -4847,15 +4885,17 @@ begin
 
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Part</b></th>');
-  document.write('<th>Color</th>');
-  document.write('<th>Num pieces</th>');
-  document.write('<th>Related pieces</th>');
-  document.write('<th>Num related pieces</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Part</b></th>' +
+    '<th>Color</th>' +
+    '<th>Num pieces</th>' +
+    '<th>Related pieces</th>' +
+    '<th>Num related pieces</th>' +
+    '</tr>'
+  );
 
   aa := 0;
   num := 0;
@@ -4867,10 +4907,14 @@ begin
     scolor := itoa(brick.Color);
     num := num + brick.num;
     lalt := lst.Objects[i] as TStringList;
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td rowspan="' + itoa(lalt.Count) + '" width=5% align=right>' +
-      IntToStr(aa) + '.</td><td rowspan="' + itoa(lalt.Count) + '" width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br>');
-    document.write('<b>' + GetPieceLinkHtml(brick.part) + '</b>');
-    document.write(' - ' + db.PieceDesc(brick.part) + '</td><td rowspan="' + itoa(lalt.Count) + '" width=20%>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td rowspan="' + itoa(lalt.Count) + '" width=5% align=right>' +
+      IntToStr(aa) + '.</td><td rowspan="' + itoa(lalt.Count) + '" width=35%><img width=100px src=' +
+      scolor + '\' + brick.part + '.png><br>' +
+      '<b>' + GetPieceLinkHtml(brick.part) + '</b>' +
+      ' - ' + db.PieceDesc(brick.part) + '</td><td rowspan="' + itoa(lalt.Count) + '" width=20%>'
+    );
     DrawColorCell(brick.color, 25);
 
     pci := db.PieceColorInfo(brick);
@@ -4880,30 +4924,35 @@ begin
     if pci = nil then
       document.write(
         GetPieceColorLinkHtml(brick.part, brick.color) +
-        GetInvImgLinkHtml(brick.part, brick.color, pi) + '</td>')
+        GetInvImgLinkHtml(brick.part, brick.color, pi) + '</td>'
+      )
     else
       document.write(
         GetPieceColorLinkHtml(brick.part, brick.color) +
         GetInvImgLinkHtml(brick.part, brick.color, pi) +
-        GetSetMostLinkHtml(pci) + '</td>');
+        GetSetMostLinkHtml(pci) + '</td>'
+      );
 
-    document.write('<td rowspan="' + itoa(lalt.Count) + '" width=10% align=right>' + IntToStr(brick.num));
-    document.write('<br>' + GetEditPieceHtml(brick.part, scolor));
-    document.write('<br>' + GetDiagramPieceHtml(brick.part, scolor));
-    document.write('</td>');
+    document.write(
+      '<td rowspan="' + itoa(lalt.Count) + '" width=10% align=right>' + IntToStr(brick.num) +
+      '<br>' + GetEditPieceHtml(brick.part, scolor) +
+      '<br>' + GetDiagramPieceHtml(brick.part, scolor) +
+      '</td>'
+    );
 
     for j := 0 to lalt.Count - 1 do
     begin
       if j <> 0 then
         document.write('<tr>');
-      document.write('<td width=35%>');
       salt := lalt.Strings[j];
       document.write(
-        '<img width=100px src=' + scolor + '\' + salt + '.png><br><b>' + GetPieceLinkHtml(salt) + '</b> - ' + db.PieceDesc(salt) + '</td>');
-      document.write('<td width=10% align=right>' + itoa(inv.LoosePartCount(salt, brick.color)));
-      document.write('<br>' + GetEditPieceHtml(salt, scolor));
-      document.write('<br>' + GetDiagramPieceHtml(salt, scolor));
-      document.write('</td></tr>');
+        '<td width=35%>' +
+        '<img width=100px src=' + scolor + '\' + salt + '.png><br><b>' + GetPieceLinkHtml(salt) + '</b> - ' + db.PieceDesc(salt) + '</td>' +
+        '<td width=10% align=right>' + itoa(inv.LoosePartCount(salt, brick.color)) +
+        '<br>' + GetEditPieceHtml(salt, scolor) +
+        '<br>' + GetDiagramPieceHtml(salt, scolor) +
+        '</td></tr>'
+      );
     end;
 
     DrawBrickOrderInfo(brick, '', -1, -1, false);
@@ -4980,9 +5029,7 @@ begin
     else
       slink := GetPieceLinkHtml(setid);
     DrawHeadLine('Can not find inventory for ' + slink + ' ' + GetEditSetHtml(setid) + '<br><br>' + lnk);
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
+    document.write('<br></p></div>');
 
     tmpsets := TStringList.Create;
     if IsValidDBMask(setid) then
@@ -5127,17 +5174,7 @@ begin
 
   DrawInventoryPartsStorage(inv, ppreview);
 
-  document.write('<br>');
-  document.write('<br>');
-
-  document.write('</p>');
-
-  document.write('</div>');
-
-{  if not lite then
-    document.write(BLColorPieceInfo(Trim(setid), -1));}
-
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   Screen.Cursor := crDefault;
@@ -5619,25 +5656,26 @@ begin
   olddodraworderinfo := dodraworderinfo;
   dodraworderinfo := false;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=' + itoa(decide(ppreview, 1, 2)) + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Storage Location</b></th>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=' + itoa(decide(ppreview, 1, 2)) + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Storage Location</b></th>'
+  );
 
   aa := 0;
   if readyinv <> nil then
     if neededfromreadyinv.totallooseparts > 0 then
     begin
       inc(aa);
-      document.write('<tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '>');
-      document.write('<td width=5% align=right>' + itoa(aa));
-
       stmp := Format(' (%d lots, %d parts)', [neededfromreadyinv.numlooseparts, neededfromreadyinv.totallooseparts]);
 
-      document.write('<td width=95%><b>Set <a href="sinv/' + S_READYLIST_01 + '">' + db.SetDesc(S_READYLIST_01) + '</a></b>' + stmp + '</td>');
-
-      document.write('</tr>');
-
-      document.write('<tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '><td colspan="2">');
+      document.write(
+        '<tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '>' +
+        '<td width=5% align=right>' + itoa(aa) +
+        '<td width=95%><b>Set <a href="sinv/' + S_READYLIST_01 + '">' + db.SetDesc(S_READYLIST_01) + '</a></b>' + stmp + '</td>' +
+        '</tr>' +
+        '<tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '><td colspan="2">'
+      );
 
       DrawInventoryTableForPartsStorageQuery(neededfromreadyinv, psinv, ppreview);
 
@@ -5650,8 +5688,10 @@ begin
   for i := 0 to storagelst.Count - 1 do
   begin
     inc(aa);
-    document.write('<tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '>');
-    document.write('<td width=5% align=right>' + itoa(aa));
+    document.write(
+      '<tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '>' +
+      '<td width=5% align=right>' + itoa(aa)
+    );
 
     splitstring(storagelst.Strings[i], s1, s2, ':');
     tmpinv := storagelst.Objects[i] as TBrickInventory;
@@ -5664,9 +5704,7 @@ begin
     else if s1 = 'storage' then
       document.write('<td width=95%><b>Storage <a href="storage/' + s2 + '">' + s2 + '</a></b>' + stmp + '</td>');
 
-    document.write('</tr>');
-
-    document.write('<tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '><td colspan="2">');
+    document.write('</tr><tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '><td colspan="2">');
 
     DrawInventoryTableForPartsStorageQuery(tmpinv, inv, ppreview);
 
@@ -5796,17 +5834,14 @@ begin
   DrawPartOutValue(inv);
   PreviewInventoryTable(inv);
 
-  document.write('<br>');
-  document.write('<br>');
+  document.write('<br><br>');
   if ShowInventorySets(inv, False, SSINV_FLAG_SETS_AND_MOCS) then
   begin
-    document.write('<br>');
-    document.write('<br>');
+    document.write('<br><br>');
   end;
   document.write('</p>');
 
-  document.write('</div>');
-  document.write('</body>');
+  document.write('</div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   Screen.Cursor := crDefault;
@@ -5831,10 +5866,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Inventory is null');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -5843,14 +5875,16 @@ begin
 
   DrawHeadLine('My Inventory - Colors');
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Color</b></th>');
-  document.write('<th>Lots</th>');
-  document.write('<th>Num pieces</th>');
-  document.write('<th>Weight (Kg)</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Color</b></th>' +
+    '<th>Lots</th>' +
+    '<th>Num pieces</th>' +
+    '<th>Weight (Kg)</th>' +
+    '</tr>'
+  );
 
   ShowSplash;
   SplashProgress('Working...', 0);
@@ -5865,15 +5899,20 @@ begin
     if (cp.id <> i) and (i <> -1) then
       Continue;
     inc(aa);
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
-    document.write('<td width=40%>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+      '<td width=40%>'
+    );
     DrawColorCell(i, 25);
-    document.write('<a href="inv/' + IntToStr(Integer(inv)) +'/C/' + IntToStr(decide(i = -1, 9999, i)) + '">');
-    document.write('<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLinkColor) +  ')' +
-      GetRebrickableColorHtml(i) + '</a></td>');
-    document.write('<td width=20% align=right>' + IntToStr(inv.numlotsbycolor(i)) + '</td>');
-    document.write('<td width=20% align=right>' + IntToStr(inv.totalloosepartsbycolor(i)) + '</td>');
-    document.write('<td width=20% align=right>' + Format('%2.3f', [inv.weightbycolor(i) / 1000]) + '</td>');
+    document.write(
+      '<a href="inv/' + IntToStr(Integer(inv)) +'/C/' + IntToStr(decide(i = -1, 9999, i)) + '">' +
+      '<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLinkColor) +  ')' +
+      GetRebrickableColorHtml(i) + '</a></td>' +
+      '<td width=20% align=right>' + IntToStr(inv.numlotsbycolor(i)) + '</td>' +
+      '<td width=20% align=right>' + IntToStr(inv.totalloosepartsbycolor(i)) + '</td>' +
+      '<td width=20% align=right>' + Format('%2.3f', [inv.weightbycolor(i) / 1000]) + '</td>'
+    );
 
     if i >= 0 then
     begin
@@ -5886,19 +5925,16 @@ begin
     SplashProgress('Working...', (i + 1) / (MAXINFOCOLOR + 1));
   end;
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>*</td>');
-  document.write('<td width=40%><b>Total</b></td>');
-  document.write('<td width=20% align=right>' + IntToStr(tlots) + '</td>');
-  document.write('<td width=20% align=right>' + IntToStr(tparts) + '</td>');
-  document.write('<td width=20% align=right>' + Format('%2.3f', [tweight]) + '</td>');
-  document.write('</tr>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>*</td>' +
+    '<td width=40%><b>Total</b></td>' +
+    '<td width=20% align=right>' + IntToStr(tlots) + '</td>' +
+    '<td width=20% align=right>' + IntToStr(tparts) + '</td>' +
+    '<td width=20% align=right>' + Format('%2.3f', [tweight]) + '</td>' +
+    '</tr>'
+  );
 
-  document.write('</tr></table>');
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('</tr></table><br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
 
   SplashProgress('Working...', 1);
@@ -5925,12 +5961,14 @@ begin
 
   DrawHeadLine('Tags');
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Tag</b></th>');
-  document.write('<th>Num parts</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Tag</b></th>' +
+    '<th>Num parts</th>' +
+    '</tr>'
+  );
 
   ShowSplash;
   SplashProgress('Working...', 0);
@@ -5939,20 +5977,16 @@ begin
   tags.Sort;
   for i := 0 to tags.Count - 1 do
   begin
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(i + 1) + '.</td>');
-    document.write('<td width=60%>' + taglink(tags.Strings[i]) + '</td>');
-    document.write('<td width=35% align=right>' + IntToStr((tags.Objects[i] as TStringList).Count) + '</td>');
-
-    document.write('</tr>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(i + 1) + '.</td>' +
+      '<td width=60%>' + taglink(tags.Strings[i]) + '</td>' +
+      '<td width=35% align=right>' + IntToStr((tags.Objects[i] as TStringList).Count) + '</td></tr>'
+    );
     SplashProgress('Working...', (i + 1) / (tags.Count + 1));
   end;
 
-  document.write('</table>');
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('</table><br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
 
   SplashProgress('Working...', 1);
@@ -6074,9 +6108,7 @@ begin
     document.write('<p>');
     DrawHeadLine('Minifigures');
     DrawInventoryTableNoPages(minifiginv);
-    document.write('<br>');
-    document.write('<br>');
-    document.write('</p>');
+    document.write('<br><br></p>');
   end;
   minifiginv.free;
 
@@ -6105,11 +6137,7 @@ begin
     inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
   end;
 
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
 
@@ -6137,10 +6165,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Inventory is null');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -6149,14 +6174,16 @@ begin
 
   DrawHeadLine('My Inventory - <a href="inv/' + IntToStr(Integer(inv)) +'/CAT/' + IntToStr(cat) + '"><b>' + db.categories[cat].name + '</b></a>');
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Color</b></th>');
-  document.write('<th>Lots</th>');
-  document.write('<th>Num pieces</th>');
-  document.write('<th>Weight (Kg)</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Color</b></th>' +
+    '<th>Lots</th>' +
+    '<th>Num pieces</th>' +
+    '<th>Weight (Kg)</th>' +
+    '</tr>'
+  );
 
   ShowSplash;
   SplashProgress('Working...', 0);
@@ -6173,15 +6200,20 @@ begin
     if inv.numlotsbycatcolor(i, cat) > 0 then
     begin
       inc(aa);
-      document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
-      document.write('<td width=50%>');
+      document.write(
+        '<tr bgcolor=' + TBGCOLOR + '>' +
+        '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+        '<td width=50%>'
+      );
       DrawColorCell(i, 25);
-      document.write('<a href="invex/' + IntToStr(Integer(inv)) + '/' + IntToStr(decide(i = -1, 9999, i)) + '/' + IntToStr(cat) + '">');
-      document.write('<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLinkColor) +  ')' +
-        GetRebrickableColorHtml(i) + '</a></td>');
-      document.write('<td width=25% align=right>' + IntToStr(inv.numlotsbycatcolor(i, cat)) + '</td>');
-      document.write('<td width=25% align=right>' + IntToStr(inv.totalloosepartsbycatcolor(i, cat)) + '</td>');
-      document.write('<td width=25% align=right>' + Format('%2.3f', [inv.weightbycatcolor(i, cat) / 1000]) + '</td>');
+      document.write(
+        '<a href="invex/' + IntToStr(Integer(inv)) + '/' + IntToStr(decide(i = -1, 9999, i)) + '/' + IntToStr(cat) + '">' +
+        '<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLinkColor) +  ')' +
+        GetRebrickableColorHtml(i) + '</a></td>' +
+        '<td width=25% align=right>' + IntToStr(inv.numlotsbycatcolor(i, cat)) + '</td>' +
+        '<td width=25% align=right>' + IntToStr(inv.totalloosepartsbycatcolor(i, cat)) + '</td>' +
+        '<td width=25% align=right>' + Format('%2.3f', [inv.weightbycatcolor(i, cat) / 1000]) + '</td>'
+      );
 
       if i >= 0 then
       begin
@@ -6196,19 +6228,17 @@ begin
     SplashProgress('Working...', (i + 1) / (MAXINFOCOLOR + 1));
   end;
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>*</td>');
-  document.write('<td width=50%><b>Total</b></td>');
-  document.write('<td width=25% align=right>' + IntToStr(tlots) + '</td>');
-  document.write('<td width=25% align=right>' + IntToStr(tparts) + '</td>');
-  document.write('<td width=25% align=right>' + Format('%2.3f', [tweight]) + '</td>');
-  document.write('</tr>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '>' +
+    '<td width=5% align=right>*</td>' +
+    '<td width=50%><b>Total</b></td>' +
+    '<td width=25% align=right>' + IntToStr(tlots) + '</td>' +
+    '<td width=25% align=right>' + IntToStr(tparts) + '</td>' +
+    '<td width=25% align=right>' + Format('%2.3f', [tweight]) + '</td>' +
+    '</tr></table>'
+  );
 
-  document.write('</tr></table>');
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
 
   SplashProgress('Working...', 1);
@@ -6458,10 +6488,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Inventory is null');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -6470,14 +6497,16 @@ begin
 
   DrawHeadLine('My Inventory - Categories');
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Category</b></th>');
-  document.write('<th>Lots</th>');
-  document.write('<th>Num pieces</th>');
-  document.write('<th>Weight (Kg)</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Category</b></th>' +
+    '<th>Lots</th>' +
+    '<th>Num pieces</th>' +
+    '<th>Weight (Kg)</th>' +
+    '</tr>'
+  );
 
   ShowSplash;
   SplashProgress('Working...', 0);
@@ -6509,42 +6538,39 @@ begin
     if nparts > 0 then
     begin
       inc(aa);
-      document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
-      document.write('<td width=50%>');
-      document.write('<a href="inv/' + IntToStr(Integer(inv)) +'/CAT/' + IntToStr(catid) + '">');
-      document.write('<b>' + cp.name + '</b></a> ');
-      document.write('<a href="catcolors/' + IntToStr(catid) + '"><img src="images\colors.png"></a>');
-//      document.write('<b>...</b></a>');
+      nlots := CL[catid];
+      nweight := CW[catid] / 1000;
 
-      document.write('</td>');
-      nlots := CL[catid]; // inv.numlotsbycategory(catid);
-      document.write('<td width=25% align=right>' + IntToStr(nlots) + '</td>');
-      document.write('<td width=25% align=right>' + IntToStr(nparts) + '</td>');
-      nweight := CW[catid] / 1000; // inv.weightbycategory(catid) / 1000;
-      document.write('<td width=25% align=right>' + Format('%2.3f', [nweight]) + '</td>');
+      document.write(
+        '<tr bgcolor=' + TBGCOLOR + '>' +
+        '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+        '<td width=50%>' +
+        '<a href="inv/' + IntToStr(Integer(inv)) +'/CAT/' + IntToStr(catid) + '">' +
+        '<b>' + cp.name + '</b></a> ' +
+        '<a href="catcolors/' + IntToStr(catid) + '"><img src="images\colors.png"></a></td>' +
+        '<td width=25% align=right>' + IntToStr(nlots) + '</td>' +
+        '<td width=25% align=right>' + IntToStr(nparts) + '</td>' +
+        '<td width=25% align=right>' + Format('%2.3f', [nweight]) + '</td></tr>'
+      );
 
       tlots := tlots + nlots;
       tparts := tparts + nparts;
       tweight := tweight + nweight;
-
-      document.write('</tr>');
     end;
     SplashProgress('Working...', i / numcategories);
   end;
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>*</td>');
-  document.write('<td width=50%><b>Total</b></td>');
-  document.write('<td width=25% align=right>' + IntToStr(tlots) + '</td>');
-  document.write('<td width=25% align=right>' + IntToStr(tparts) + '</td>');
-  document.write('<td width=25% align=right>' + Format('%2.3f', [tweight]) + '</td>');
-  document.write('</tr>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '>' +
+    '<td width=5% align=right>*</td>' +
+    '<td width=50%><b>Total</b></td>' +
+    '<td width=25% align=right>' + IntToStr(tlots) + '</td>' +
+    '<td width=25% align=right>' + IntToStr(tparts) + '</td>' +
+    '<td width=25% align=right>' + Format('%2.3f', [tweight]) + '</td>' +
+    '</tr>'
+  );
 
-  document.write('</tr></table>');
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('</table><br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
 
   SplashProgress('Working...', 1);
@@ -6684,9 +6710,7 @@ begin
       willmultipage := True;
     end;
 
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
+    document.write('<br></p></div>');
 
     tmpsets := TStringList.Create;
 
@@ -6960,19 +6984,21 @@ begin
             begin
               if not didmyinventoryheader then
               begin
-                document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-                document.write('<tr bgcolor=' + THBGCOLOR + '>');
-                document.write('<th>Color</th>');
-                document.write('<th>Num Pieces</th>');
-                document.write('<th>Color</th>');
-                document.write('<th>Num Pieces</th>');
-                document.write('<th>Color</th>');
-                document.write('<th>Num Pieces</th>');
-                document.write('<th>Color</th>');
-                document.write('<th>Num Pieces</th>');
-                document.write('<th>Color</th>');
-                document.write('<th>Num Pieces</th>');
-                document.write('</tr>');
+                document.write(
+                  '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+                  '<tr bgcolor=' + THBGCOLOR + '>' +
+                  '<th>Color</th>' +
+                  '<th>Num Pieces</th>' +
+                  '<th>Color</th>' +
+                  '<th>Num Pieces</th>' +
+                  '<th>Color</th>' +
+                  '<th>Num Pieces</th>' +
+                  '<th>Color</th>' +
+                  '<th>Num Pieces</th>' +
+                  '<th>Color</th>' +
+                  '<th>Num Pieces</th>' +
+                  '</tr>'
+                );
                 didmyinventoryheader := True;
               end;
 
@@ -6983,11 +7009,12 @@ begin
               cinfo := db.colors(i);
               document.write(
                 GetPieceColorLinkHtml(pcs, i) +
-                GetInvImgLinkHtml(pcs, i, pi) + '</td>');
-              document.write('<td width=10% align=right>' + Format('%d', [numpieces]) +
+                GetInvImgLinkHtml(pcs, i, pi) + '</td>' +
+                '<td width=10% align=right>' + Format('%d', [numpieces]) +
                 '<br>' + GetEditPieceHtml(pcs, si) +
                 '<br>' + GetDiagramPieceHtml(pcs, si) +
-                '</td>');
+                '</td>'
+              );
               if aa mod 5 = 0 then
                 document.write('</tr>');
             end;
@@ -7000,17 +7027,19 @@ begin
   else
     document.write('<br><br>');
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Image</b></th>');
-  document.write('<th>Color</th>');
-  document.write('<th>Demand</th>');
-  document.write('<th>Num Pieces</th>');
-  document.write('<th>N</th>');
-  document.write('<th>U</th>');
-  document.write('<th>Cost</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Image</b></th>' +
+    '<th>Color</th>' +
+    '<th>Demand</th>' +
+    '<th>Num Pieces</th>' +
+    '<th>N</th>' +
+    '<th>U</th>' +
+    '<th>Cost</th>' +
+    '</tr>'
+  );
 
   aa := 0;
   prnt := 0.0;
@@ -7033,9 +7062,12 @@ begin
             numpieces := inventory.LoosePartCount(pcs, i);
             totpieces := totpieces + numpieces;
             si := IntToStr(i);
-            document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
-            document.write('<td width=35%><img width=100px src=' + si + '\' + pcs + '.png></td>');
-            document.write('<td width=20%>');
+            document.write(
+              '<tr bgcolor=' + TBGCOLOR + '>' +
+              '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+              '<td width=35%><img width=100px src=' + si + '\' + pcs + '.png></td>' +
+              '<td width=20%>'
+            );
             DrawColorCell(i, 25);
             cinfo := db.colors(i);
             if pci <> nil then
@@ -7043,42 +7075,49 @@ begin
               document.write(
                 GetPieceColorLinkHtml(pcs, i) +
                 GetInvImgLinkHtml(pcs, i, pi) +
-                GetSetMostLinkHtml(pci) + '</td>');
-              document.write('<td width=10% align=right>');
+                GetSetMostLinkHtml(pci) + '</td>' +
+                '<td width=10% align=right>'
+              );
               document.write('N=%2.3f<br>U=%2.3f</td>', [pci.nDemand, pci.uDemand]);
             end
             else
             begin
               document.write(
                 GetPieceColorLinkHtml(pcs, i) +
-                GetInvImgLinkHtml(pcs, i, pi) + '</td>');
-              document.write('<td width=10% align=right></td>');
+                GetInvImgLinkHtml(pcs, i, pi) + '</td>' +
+                '<td width=10% align=right></td>'
+              );
             end;
-            document.write('<td width=15% align=right>' + Format('%d', [numpieces]) +
+            document.write(
+              '<td width=15% align=right>' + Format('%d', [numpieces]) +
               '<br>' + GetEditPieceHtml(pcs, si) +
               '<br>' + GetDiagramPieceHtml(pcs, si) +
-              '</td>');
+              '</td>'
+            );
 
             if pci <> nil then
             begin
               www := db.GetItemWeight(pci.piece, pci.color);
               prn := pci.EvaluatePriceNew;
               pru := pci.EvaluatePriceUsed;
-              document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
-              document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
+              document.write(
+                '<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>' +
+                '<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>'
+              );
               prnt := prnt + prn * numpieces;
               prut := prut + pru * numpieces;
 
             end
             else
             begin
-              document.write('<td width=15% align=right>-</td>');
-              document.write('<td width=15% align=right>-</td>');
+              document.write(
+                '<td width=15% align=right>-</td>' +
+                '<td width=15% align=right>-</td>'
+              );
             end;
             mycost := GetItemCostDbl(pcs, i);
-            document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td>');
+            document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td></tr>');
             mycosttot := mycosttot + mycost * numpieces;
-            document.write('</tr>');
 
             bp.part := pcs;
             bp.color := i;
@@ -7089,19 +7128,18 @@ begin
         end;
       end;
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
-  document.write('<td width=35%><b> </b></td>');
-  document.write('<td width=20%><b> </b></td>');
-  document.write('<td width=20%><b> </b></td>');
-  document.write('<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>');
-  document.write('<td width=10% align=right><b> </b></td>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>' +
+    '<td width=35%><b> </b></td>' +
+    '<td width=20%><b> </b></td>' +
+    '<td width=20%><b> </b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>' +
+    '<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>' +
+    '<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>' +
+    '<td width=10% align=right><b> </b></td>'
+  );
 
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
 
@@ -7140,13 +7178,15 @@ begin
 
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Mold</b></th>');
-  document.write('<th>Num Colors</th>');
-  document.write('<th>Colors</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Mold</b></th>' +
+    '<th>Num Colors</th>' +
+    '<th>Colors</th>' +
+    '</tr>'
+  );
 
   aa := 0;
 
@@ -7163,11 +7203,10 @@ begin
 
       inc(aa);
       document.StartItemId(aa);
-      document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
-
-      document.write('<td width=25%>');
-      document.write(MakeThumbnailImage2(pcs) + '<b>' + GetPieceLinkHtml(pcs) + '</b>');
-      document.write(' - ' + db.PieceDesc(pcs) + '</td>');
+      document.write(
+        '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+        '<td width=25%>' + MakeThumbnailImage2(pcs) + '<b>' + GetPieceLinkHtml(pcs) + '</b> - ' + db.PieceDesc(pcs) + '</td>'
+      );
 
       if donumlinks then
         document.write('<td width=10%><p align=center>' +
@@ -7193,9 +7232,7 @@ begin
 
   document.MarkBottomNavigateSection;
 
-  document.write('<br></p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
 
   SplashProgress('Working...', 1);
@@ -7239,14 +7276,16 @@ begin
 
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Mold</b></th>');
-  document.write('<th><b>' + secondmoldtit + '</b></th>');
-  document.write('<th>Num Colors</th>');
-  document.write('<th>Colors</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Mold</b></th>' +
+    '<th><b>' + secondmoldtit + '</b></th>' +
+    '<th>Num Colors</th>' +
+    '<th>Colors</th>' +
+    '</tr>'
+  );
 
   aa := 0;
 
@@ -7258,15 +7297,11 @@ begin
 
       inc(aa);
       document.StartItemId(aa);
-      document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
-
-      document.write('<td width=20%>');
-      document.write(MakeThumbnailImage2(pcs) + '<b><a href=spiecenal/' + pcs + '>' + pcs + '</a></b>');
-      document.write(' - ' + db.PieceDesc(pcs) + '</td>');
-
-      document.write('<td width=20%>');
-      document.write(MakeThumbnailImage2(pcs2) + '<b><a href=spiecenal/' + pcs2 + '>' + pcs2 + '</a></b>');
-      document.write(' - ' + db.PieceDesc(pcs2) + '</td>');
+      document.write(
+        '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+        '<td width=20%>' + MakeThumbnailImage2(pcs) + '<b><a href=spiecenal/' + pcs + '>' + pcs + '</a></b> - ' + db.PieceDesc(pcs) + '</td>' +
+        '<td width=20%>' + MakeThumbnailImage2(pcs2) + '<b><a href=spiecenal/' + pcs2 + '>' + pcs2 + '</a></b> - ' + db.PieceDesc(pcs2) + '</td>'
+      );
 
 
       if donumlinks then
@@ -7293,9 +7328,7 @@ begin
 
   document.MarkBottomNavigateSection;
 
-  document.write('<br></p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
 
   SplashProgress('Working...', 1);
@@ -7358,16 +7391,20 @@ begin
 
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Mold</b></th>');
-  document.write('<th>Num Colors/Assets</th>');
-  document.write('<th>Colors/Assets</th>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Mold</b></th>' +
+    '<th>Num Colors/Assets</th>' +
+    '<th>Colors/Assets</th>'
+  );
   if catid = CATEGORYLUGBULK then
   begin
-    document.write('<th>Num Pieces</th>');
-    document.write('<th>Weight (Kg)</th>');
+    document.write(
+      '<th>Num Pieces</th>' +
+      '<th>Weight (Kg)</th>'
+    );
   end;
   if catid < 0 then
     document.write('<th>Category</th>');
@@ -7385,14 +7422,14 @@ begin
     inc(aa);
     document.StartItemId(aa);
     pcs := lst.Strings[i];
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>');
-
-    document.write('<td width=25%>');
-    document.write(MakeThumbnailImage(pcs, (lst.Objects[i] as TCatalogInfoClass).N.Numbers[0]) + '<b><a href=spiece/' + pcs + '/' + itoa(year) + '>' + pcs + '</a></b>');
-    document.write(' - ' + db.PieceDesc(pcs) + '</td>');
-
-    document.write('<td width=10%><p align=center>' + itoa((lst.Objects[i] as TCatalogInfoClass).N.Count) + '</p></td>');
-    document.write('<td width=45%>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+      '<td width=25%>' + MakeThumbnailImage(pcs, (lst.Objects[i] as TCatalogInfoClass).N.Numbers[0]) + '<b>' +
+      '<a href=spiece/' + pcs + '/' + itoa(year) + '>' + pcs + '</a></b> - ' + db.PieceDesc(pcs) + '</td>' +
+      '<td width=10%><p align=center>' + itoa((lst.Objects[i] as TCatalogInfoClass).N.Count) + '</p></td>' +
+      '<td width=45%>'
+    );
     DrawColorCells((lst.Objects[i] as TCatalogInfoClass).N, 25);
     document.write('</td>');
 
@@ -7401,13 +7438,17 @@ begin
       sinv := db.GetSetInventory(pcs);
       if sinv <> nil then
       begin
-        document.write('<td width=10% align=right><a href=sinv/' + pcs + '>' + Format('%d', [sinv.totallooseparts]) + '</a></td>');
-        document.write('<td width=10% align=right>' + Format('%2.3f Kgr', [sinv.LoosePartsWeight / 1000]) + '</td>');
+        document.write(
+          '<td width=10% align=right><a href=sinv/' + pcs + '>' + Format('%d', [sinv.totallooseparts]) + '</a></td>' +
+          '<td width=10% align=right>' + Format('%2.3f Kgr', [sinv.LoosePartsWeight / 1000]) + '</td>'
+        );
       end
       else
       begin
-        document.write('<td width=10%>-</td>');
-        document.write('<td width=10%>-</td>');
+        document.write(
+          '<td width=10%>-</td>' +
+          '<td width=10%>-</td>'
+        );
       end;
     end;
 
@@ -7480,9 +7521,7 @@ begin
 
   document.MarkBottomNavigateSection;
 
-  document.write('<br></p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
 
   SplashProgress('Working...', 1);
@@ -7729,15 +7768,15 @@ begin
 
     document.StartNavigateSection;
 
-    document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-    document.write('<tr bgcolor=' + THBGCOLOR + '>');
-    document.write('<th><b>Categories</b></th>');
-    document.write('<th>Years</th>');
-    document.write('</tr>');
-
-    document.write('<tr valign=top>');
-
-    document.write('<td width=50%>');
+    document.write(
+      '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+      '<tr bgcolor=' + THBGCOLOR + '>' +
+      '<th><b>Categories</b></th>' +
+      '<th>Years</th>' +
+      '</tr>' +
+      '<tr valign=top>' +
+      '<td width=50%>'
+    );
 
     sdoc := TStringList.Create;
     try
@@ -7759,9 +7798,8 @@ begin
     finally
       sdoc.Free;
     end;
-    document.write('</td>');
 
-    document.write('<td width=50%>');
+    document.write('</td><td width=50%>');
 
     sdoc := TStringList.Create;
     try
@@ -7777,9 +7815,8 @@ begin
     finally
       sdoc.Free;
     end;
-    document.write('</td>');
 
-    document.write('</table></p></div></body>');
+    document.write('</td></table></p></div></body>');
     document.SaveBufferToFile(diskmirror);
 
     document.Flash;
@@ -7941,20 +7978,24 @@ begin
 
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Image</b></th>');
-  document.write('<th>Color</th>');
-  document.write('<th>Num Pieces</th>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Image</b></th>' +
+    '<th>Color</th>' +
+    '<th>Num Pieces</th>'
+  );
   if sortorder = SORT_DATE_UPDATE then
     document.write('<th>Days without update</th>')
   else if sortorder = SORT_ITEMS_CINTEGER then
     document.write('<th>' + extratit + '</th>');
-  document.write('<th>N</th>');
-  document.write('<th>U</th>');
-  document.write('<th>Cost</th>');
-  document.write('</tr>');
+  document.write(
+    '<th>N</th>' +
+    '<th>U</th>' +
+    '<th>Cost</th>' +
+    '</tr>'
+  );
 
   aa := 0;
   prnt := 0.0;
@@ -7985,26 +8026,32 @@ begin
     pci := db.PieceColorInfo(pcs, cl, lst.Objects[i]);
     pi := db.PieceInfo(pci);
 
-    document.write('<td width=35%>' + decide((cl = 9996) or (cl = 9997) or (cl = 9998), MakeThumbnailImage(pcs, cl), '<img src=' + col + '\' + pcs + '.png>'));
-    document.write('<b>' + GetPieceLinkHtml(pcs) + '</b>');
-    document.write(' - ' + db.PieceDesc(pi) + '</td>');
-    document.write('<td width=20%>');
+    document.write(
+      '<td width=35%>' + decide((cl = 9996) or (cl = 9997) or (cl = 9998), MakeThumbnailImage(pcs, cl), '<img src=' + col + '\' + pcs + '.png>') +
+      '<b>' + GetPieceLinkHtml(pcs) + '</b>' +
+      ' - ' + db.PieceDesc(pi) + '</td>' +
+      '<td width=20%>'
+    );
     DrawColorCell(cl, 25);
 
     if pci = nil then
       document.write(
         GetPieceColorLinkHtml(pcs, cl) +
-        GetInvImgLinkHtml(pcs, cl, pi) + '</td>')
+        GetInvImgLinkHtml(pcs, cl, pi) + '</td>'
+      )
     else
       document.write(
         GetPieceColorLinkHtml(pcs, cl) +
         GetInvImgLinkHtml(pcs, cl, pi) +
-        GetSetMostLinkHtml(pci) + '</td>');
+        GetSetMostLinkHtml(pci) + '</td>'
+      );
 
-    document.write('<td width=15% align=right>' + Format('%d', [numpieces]) +
-            '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
-            '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
-            '</td>');
+    document.write(
+      '<td width=15% align=right>' + Format('%d', [numpieces]) +
+      '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
+      '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
+      '</td>'
+    );
 
     if pci <> nil then
     begin
@@ -8015,8 +8062,10 @@ begin
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
       www := db.GetItemWeight(pci.piece, pci.color, pi);
-      document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
-      document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
+      document.write(
+        '<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>' +
+        '<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>'
+      );
       prnt := prnt + prn * numpieces;
       prut := prut + pru * numpieces;
 
@@ -8025,8 +8074,10 @@ begin
     begin
       if (sortorder = SORT_DATE_UPDATE) or (sortorder = SORT_ITEMS_CINTEGER) then
         document.write('<td width=15% align=right>-</td>');
-      document.write('<td width=15% align=right>-</td>');
-      document.write('<td width=15% align=right>-</td>');
+      document.write(
+        '<td width=15% align=right>-</td>' +
+        '<td width=15% align=right>-</td>'
+      );
     end;
     mycost := GetItemCostDbl(pcs, cl);
     document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td>');
@@ -8046,17 +8097,20 @@ begin
   end;
   document.EndNavigateSection;
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
-  document.write('<td width=35%><b> </b></td>');
-  document.write('<td width=20%><b> </b></td>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>' +
+    '<td width=35%><b> </b></td>' +
+    '<td width=20%><b> </b></td>'
+  );
   if sortorder = SORT_DATE_UPDATE then
     document.write('<td width=15%><b> </b></td>');
-  document.write('<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>');
-  document.write('<td width=10% align=right><b> </b></td>');
-
-  document.write('<br></table>');
+  document.write(
+    '<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>' +
+    '<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>' +
+    '<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>' +
+    '<td width=10% align=right><b> </b></td>' +
+    '<br></table>'
+  );
 
   document.MarkBottomNavigateSection;
 
@@ -8107,17 +8161,19 @@ begin
 
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Image</b></th>');
-  document.write('<th>Color</th>');
-  document.write('<th>Num Pieces</th>');
-  document.write('<th>' + settit + '</th>');
-  document.write('<th>N</th>');
-  document.write('<th>U</th>');
-  document.write('<th>Cost</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Image</b></th>' +
+    '<th>Color</th>' +
+    '<th>Num Pieces</th>' +
+    '<th>' + settit + '</th>' +
+    '<th>N</th>' +
+    '<th>U</th>' +
+    '<th>Cost</th>' +
+    '</tr>'
+  );
 
   aa := 0;
   prnt := 0.0;
@@ -8140,32 +8196,35 @@ begin
     pci := db.PieceColorInfo(pcs, cl, lst.Objects[i]);
     pi := db.PieceInfo(pci);
 
-    document.write('<td width=35%><img width=100px src=' + col + '\' + pcs + '.png>');
-    document.write('<b>' + GetPieceLinkHtml(pcs) + '</b>');
-    document.write(' - ' + db.PieceDesc(pi) + '</td>');
-    document.write('<td width=20%>');
+    document.write(
+      '<td width=35%><img width=100px src=' + col + '\' + pcs + '.png>' +
+      '<b>' + GetPieceLinkHtml(pcs) + '</b>' +
+      ' - ' + db.PieceDesc(pi) + '</td>' +
+      '<td width=20%>'
+    );
     DrawColorCell(cl, 25);
 
     if pci = nil then
       document.write(
         GetPieceColorLinkHtml(pcs, cl) +
-        GetInvImgLinkHtml(pcs, cl, pi) + '</td>')
+        GetInvImgLinkHtml(pcs, cl, pi) + '</td>'
+      )
     else
       document.write(
         GetPieceColorLinkHtml(pcs, cl) +
         GetInvImgLinkHtml(pcs, cl, pi) +
-        GetSetMostLinkHtml(pci) + '</td>');
+        GetSetMostLinkHtml(pci) + '</td>'
+      );
 
-    document.write('<td width=10% align=right>' + Format('%d', [numpieces]) +
-            '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
-            '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
-            '</td>');
-
-    document.write('<td width=15%>');
-//    document.write('<a href=sinv/' + cursetid +'><img width=56px src="s\' + cursetid + '.jpg"></a><br>');
-    document.write('<a href=sinv/' + cursetid +'>' + MakeThumbNailImage2(cursetid, -1) + '</a><br>');
-
-    document.write(' <a href=sinv/' + cursetid +'>' + cursetid + ' - ' + db.SetDesc(cursetid) + '</a>');
+    document.write(
+      '<td width=10% align=right>' + Format('%d', [numpieces]) +
+      '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
+      '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
+      '</td>' +
+      '<td width=15%>' +
+      '<a href=sinv/' + cursetid +'>' + MakeThumbNailImage2(cursetid, -1) + '</a><br>' +
+      ' <a href=sinv/' + cursetid +'>' + cursetid + ' - ' + db.SetDesc(cursetid) + '</a>'
+    );
 
     numpcsinset := 0;
     sinv := db.GetSetInventory(cursetid);
@@ -8186,15 +8245,19 @@ begin
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
       www := db.GetItemWeight(pci.piece, pci.color, pi);
-      document.write('<td width=12% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
-      document.write('<td width=12% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
+      document.write(
+        '<td width=12% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>' +
+        '<td width=12% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>'
+      );
       prnt := prnt + prn * numpieces;
       prut := prut + pru * numpieces;
     end
     else
     begin
-      document.write('<td width=12% align=right>-</td>');
-      document.write('<td width=12% align=right>-</td>');
+      document.write(
+        '<td width=12% align=right>-</td>' +
+        '<td width=12% align=right>-</td>'
+      );
     end;
     mycost := GetItemCostDbl(pcs, cl);
     document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td>');
@@ -8211,16 +8274,17 @@ begin
 
   document.EndNavigateSection;
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
-  document.write('<td width=35%><b> </b></td>');
-  document.write('<td width=20%><b> </b></td>');
-  document.write('<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>');
-  document.write('<td width=10% align=right><b> </b></td>');
-  document.write('<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>');
-  document.write('<td width=10% align=right><b> </b></td>');
-
-  document.write('<br></table>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>' +
+    '<td width=35%><b> </b></td>' +
+    '<td width=20%><b> </b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>' +
+    '<td width=10% align=right><b> </b></td>' +
+    '<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>' +
+    '<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>' +
+    '<td width=10% align=right><b> </b></td>' +
+    '<br></table>'
+  );
 
   document.MarkBottomNavigateSection;
 
@@ -8254,16 +8318,18 @@ var
 begin
   DrawHeadLine('<p align=center>' + tit + '</p>');
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Image</b></th>');
-  document.write('<th>Color</th>');
-  document.write('<th>Edit</th>');
-  document.write('<th>N</th>');
-  document.write('<th>U</th>');
-  document.write('<th>Cost</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Image</b></th>' +
+    '<th>Color</th>' +
+    '<th>Edit</th>' +
+    '<th>N</th>' +
+    '<th>U</th>' +
+    '<th>Cost</th>' +
+    '</tr>'
+  );
 
   aa := 0;
   prnt := 0.0;
@@ -8302,26 +8368,32 @@ begin
     pci := db.PieceColorInfo(pcs, cl);
     pi := db.PieceInfo(pci);
 
-    document.write('<td width=35%><img width=100px src=' + col + '\' + pcs + '.png>');
-    document.write('<b>' + GetPieceLinkHtml(pcs) + '</b>');
-    document.write(' - ' + db.PieceDesc(pi) + '</td>');
-    document.write('<td width=20%>');
+    document.write(
+      '<td width=35%><img width=100px src=' + col + '\' + pcs + '.png>' +
+      '<b>' + GetPieceLinkHtml(pcs) + '</b>' +
+      ' - ' + db.PieceDesc(pi) + '</td>' +
+      '<td width=20%>'
+    );
     DrawColorCell(cl, 25);
 
     if pci = nil then
       document.write(
         GetPieceColorLinkHtml(pcs, cl) +
-        GetInvImgLinkHtml(pcs, cl, pi) + '</td>')
+        GetInvImgLinkHtml(pcs, cl, pi) + '</td>'
+      )
     else
       document.write(
         GetPieceColorLinkHtml(pcs, cl) +
         GetInvImgLinkHtml(pcs, cl, pi) +
-        GetSetMostLinkHtml(pci) + '</td>');
+        GetSetMostLinkHtml(pci) + '</td>'
+      );
 
-    document.write('<td width=15% align=right>' +
-            '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
-            '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
-            '</td>');
+    document.write(
+      '<td width=15% align=right>' +
+      '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
+      '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
+      '</td>'
+    );
 
     if pci <> nil then
     begin
@@ -8351,15 +8423,6 @@ begin
     DrawBrickOrderInfo(@bp);
   end;
   document.write('</table>');
-
-{  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
-  document.write('<td width=35%><b> </b></td>');
-  document.write('<td width=20%><b> </b></td>');
-  document.write('<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f', [prnt]) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + Format('€ %2.2f', [prut]) + '</b></td>');
-  document.write('<td width=10% align=right><b> </b></td>');}
-
 end;
 
 procedure TMainForm.DrawPieceListLugbulk(const tit: string; const lst: TStringList);
@@ -8395,16 +8458,18 @@ begin
 
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Image</b></th>');
-  document.write('<th>Color</th>');
-  document.write('<th>Demand</th>');
-  document.write('<th>Cost (New)</th>');
-  document.write('<th>Times Sold</th>');
-  document.write('<th>Total Qty</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Image</b></th>' +
+    '<th>Color</th>' +
+    '<th>Demand</th>' +
+    '<th>Cost (New)</th>' +
+    '<th>Times Sold</th>' +
+    '<th>Total Qty</th>' +
+    '</tr>'
+  );
 
   aa := 0;
   prnt := 0.0;
@@ -8425,33 +8490,36 @@ begin
     pci := db.PieceColorInfo(pcs, cl, lst.Objects[i]);
     pi := db.PieceInfo(pci);
 
-    document.write('<td width=35%><img width=100px src=' + col + '\' + pcs + '.png>');
-    document.write('<b>' + GetPieceLinkHtml(pcs) + '</b>');
-    document.write(' - ' + db.PieceDesc(pi) + '</td>');
-    document.write('<td width=20%>');
+    document.write(
+      '<td width=35%><img width=100px src=' + col + '\' + pcs + '.png>' +
+      '<b>' + GetPieceLinkHtml(pcs) + '</b>' +
+      ' - ' + db.PieceDesc(pi) + '</td>' +
+      '<td width=20%>'
+    );
     DrawColorCell(cl, 25);
 
     if pci = nil then
     begin
       document.write(
         GetPieceColorLinkHtml(pcs, cl) +
-        GetInvImgLinkHtml(pcs, cl, pi) +
-          '</td>');
-      document.write('<td width=15% align=right>' + Format('%2.3f', [0.0]) +
-              '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
-              '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
-              '</td>');
+        GetInvImgLinkHtml(pcs, cl, pi) + '</td>' +
+        '<td width=15% align=right>' + Format('%2.3f', [0.0]) +
+        '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
+        '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
+        '</td>'
+      );
     end
     else
     begin
       document.write(
         GetPieceColorLinkHtml(pcs, cl) +
         GetInvImgLinkHtml(pcs, cl, pi) +
-        GetSetMostLinkHtml(pci) + '</td>');
-      document.write('<td width=15% align=right>' + Format('%2.3f', [pci.nDemand]) +
-              '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
-              '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
-              '</td>');
+        GetSetMostLinkHtml(pci) + '</td>' +
+        '<td width=15% align=right>' + Format('%2.3f', [pci.nDemand]) +
+        '<br>' + GetEditPieceHtml(pcs, itoa(cl)) +
+        '<br>' + GetDiagramPieceHtml(pcs, itoa(cl)) +
+        '</td>'
+      );
     end;
 
     if pci <> nil then
@@ -8462,15 +8530,19 @@ begin
       document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
       prnt := prnt + prn * numpieces;
       prut := prut + pru * numpieces;
-      document.write('<td width=10% align=right>' + itoa(pci.priceguide.nTimesSold) + '</td>');
-      document.write('<td width=10% align=right>' + itoa(pci.priceguide.nTotalQty) + '</td>');
+      document.write(
+        '<td width=10% align=right>' + itoa(pci.priceguide.nTimesSold) + '</td>' +
+        '<td width=10% align=right>' + itoa(pci.priceguide.nTotalQty) + '</td>'
+      );
 
     end
     else
     begin
-      document.write('<td width=15% align=right>-</td>');
-      document.write('<td width=15% align=right>-</td>');
-      document.write('<td width=15% align=right>-</td>');
+      document.write(
+        '<td width=15% align=right>-</td>' +
+        '<td width=15% align=right>-</td>' +
+        '<td width=15% align=right>-</td>'
+      );
     end;
     document.write('</tr>');
 
@@ -8484,15 +8556,16 @@ begin
 
   document.EndNavigateSection;
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
-  document.write('<td width=35%><b> </b></td>');
-  document.write('<td width=20%><b> </b></td>');
-  document.write('<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>');
-  document.write('<td width=10% align=right><b> </b></td>');
-
-  document.write('<br></table>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>' +
+    '<td width=35%><b> </b></td>' +
+    '<td width=20%><b> </b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>' +
+    '<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>' +
+    '<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>' +
+    '<td width=10% align=right><b> </b></td>' +
+    '<br></table>'
+  );
 
   document.MarkBottomNavigateSection;
 
@@ -8560,16 +8633,18 @@ begin
 
   DrawPieceColorNotes(pcs, scolor);
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Image</b></th>');
-  document.write('<th>Color</th>');
-  document.write('<th>Num Pieces</th>');
-  document.write('<th>N</th>');
-  document.write('<th>U</th>');
-  document.write('<th>Cost</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Image</b></th>' +
+    '<th>Color</th>' +
+    '<th>Num Pieces</th>' +
+    '<th>N</th>' +
+    '<th>U</th>' +
+    '<th>Cost</th>' +
+    '</tr>'
+  );
 
   if (color >= -1) and (color <= MAXINFOCOLOR) then
     if (color = -1) or (db.Colors(color).id = color) then
@@ -8582,9 +8657,11 @@ begin
 
           inventory.StorePieceInventoryStatsRec(basedefault + 'cache\' + IntToStr(decide(i = -1, 9999, i)) + '\' + pcs + '.history', pcs, i);
           numpieces := inventory.LoosePartCount(pcs, i);
-          document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + '1' + '.</td>');
-          document.write('<td width=35%><a href=spiece/' + pcs + '><img width=100px src=' + IntToStr(i) + '\' + pcs + '.png></a></td>');
-          document.write('<td width=20%>');
+          document.write(
+            '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + '1' + '.</td>' +
+            '<td width=35%><a href=spiece/' + pcs + '><img width=100px src=' + IntToStr(i) + '\' + pcs + '.png></a></td>' +
+            '<td width=20%>'
+          );
           DrawColorCell(i, 25);
           if pci = nil then
             document.write(db.colors(i).name + ' (' + scolor + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
@@ -8598,17 +8675,20 @@ begin
             prn := pci.EvaluatePriceNew;
             pru := pci.EvaluatePriceUsed;
             www := db.GetItemWeight(pci.piece, pci.color, pi);
-            document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
-            document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
+            document.write(
+              '<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>' +
+              '<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>'
+            );
           end
           else
           begin
-            document.write('<td width=15% align=right>-</td>');
-            document.write('<td width=15% align=right>-</td>');
+            document.write(
+              '<td width=15% align=right>-</td>' +
+              '<td width=15% align=right>-</td>'
+            );
           end;
           mycost := GetItemCostDbl(pcs, i);
-          document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td>');
-          document.write('</tr>');
+          document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td></tr>');
 
           bp.part := pcs;
           bp.color := i;
@@ -8624,10 +8704,7 @@ begin
   if (inv = nil) or (inv.numlooseparts = 0) then
   begin
     DrawHeadLine('Can not find inventory for ' + db.Colors(color).name + ' ' + db.PieceDesc(pi));
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     if inv <> nil then
@@ -8648,10 +8725,7 @@ begin
 
   inv.Free;
 
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
 end;
@@ -8775,12 +8849,14 @@ begin
 
   ylist.Free;
 
-  DrawHeadLine(GetPieceLinkHtml(pcs) + ' - ' + db.Colors(color).name + ' ' + db.PieceDesc(pi) +
+  DrawHeadLine(
+    GetPieceLinkHtml(pcs) + ' - ' + db.Colors(color).name + ' ' + db.PieceDesc(pi) +
     ' ' + GetEditPieceHtml(pcs, scolor) +
     ' <a href=editpiececolornotes/' + pcs + '/' + scolor + '><img src="images\notes.png"></a>' +
     GetInvImgLinkHtml(pcs, color, pi) +
     '<br>' + GetDiagramPieceHtml(pcs, scolor) +
-    '<br><br><img width=100px src=' + scolor + '\' + pcs + '.png>' + stmp);
+    '<br><br><img width=100px src=' + scolor + '\' + pcs + '.png>' + stmp
+  );
 
   DrawPieceColorNotes(pcs, scolor);
 
@@ -8808,16 +8884,18 @@ begin
 
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Image</b></th>');
-  document.write('<th>Color</th>');
-  document.write('<th>Num Pieces</th>');
-  document.write('<th>N</th>');
-  document.write('<th>U</th>');
-  document.write('<th>Cost</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Image</b></th>' +
+    '<th>Color</th>' +
+    '<th>Num Pieces</th>' +
+    '<th>N</th>' +
+    '<th>U</th>' +
+    '<th>Cost</th>' +
+    '</tr>'
+  );
 
   aa := 0;
 
@@ -8832,9 +8910,11 @@ begin
 
           inventory.StorePieceInventoryStatsRec(basedefault + 'cache\' + IntToStr(decide(i = -1, 9999, i)) + '\' + pcs + '.history', pcs, i);
           numpieces := inventory.LoosePartCount(pcs, i);
-          document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>1.</td>');
-          document.write('<td width=35%><a href=spiece/' + pcs + '><img width=100px src=' + IntToStr(i) + '\' + pcs + '.png></a></td>');
-          document.write('<td width=20%>');
+          document.write(
+            '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>1.</td>' +
+            '<td width=35%><a href=spiece/' + pcs + '><img width=100px src=' + IntToStr(i) + '\' + pcs + '.png></a></td>' +
+            '<td width=20%>'
+          );
           DrawColorCell(i, 25);
           if pci = nil then
             document.write(db.colors(i).name + ' (' + IntToStr(i) + ') (BL=' + IntToStr(db.colors(i).BrickLinkColor) + ')' + GetRebrickableColorHtml(i) + '</td>')
@@ -8849,17 +8929,20 @@ begin
             prn := pci.EvaluatePriceNew;
             pru := pci.EvaluatePriceUsed;
             www := db.GetItemWeight(pci.piece, pci.color, pi);
-            document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
-            document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
+            document.write(
+              '<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>' +
+              '<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>'
+            );
           end
           else
           begin
-            document.write('<td width=15% align=right>-</td>');
-            document.write('<td width=15% align=right>-</td>');
+            document.write(
+              '<td width=15% align=right>-</td>' +
+              '<td width=15% align=right>-</td>'
+            );
           end;
           mycost := GetItemCostDbl(pcs, i);
-          document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td>');
-          document.write('</tr>');
+          document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td></tr>');
 
           bp.part := pcs;
           bp.color := i;
@@ -8943,7 +9026,8 @@ begin
     ' <a href=editpiececolornotes/' + pcs + '/9997><img src="images\notes.png"></a>' +
     GetInvImgLinkHtml(pcs, 9997, pi) +
     '<br>' + GetDiagramPieceHtml(pcs, '9997') +
-    '<br><br><img width=360px src=9997\' + pcs + '.png>' + stmp);
+    '<br><br><img width=360px src=9997\' + pcs + '.png>' + stmp
+  );
 
   DrawPieceColorNotes(pcs, '9997');
 
@@ -8973,11 +9057,13 @@ begin
 
   if instructions.Count > 0 then
   begin
-    document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-    document.write('<tr bgcolor=' + THBGCOLOR + '>');
-    document.write('<th><b>#</b></th>');
-    document.write('<th><b>Image</b></th>');
-    document.write('</tr>');
+    document.write(
+      '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+      '<tr bgcolor=' + THBGCOLOR + '>' +
+      '<th><b>#</b></th>' +
+      '<th><b>Image</b></th>' +
+      '</tr>'
+    );
 
     for i := 0 to instructions.Count - 1 do
     begin
@@ -9008,8 +9094,7 @@ begin
     '<a href="updateinstructionsfromnethost/' + pcs + '/brickfactory">Update from brickfactory.info</a><br>';
   DrawHeadline(refreshstr);
 
-  document.write('<br></p></div>');
-  document.write('</body>');
+  document.write('<br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
 
@@ -9118,15 +9203,17 @@ begin
 
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Set</b></th>');
-  document.write('<th>Num Pieces</th>');
-  document.write('<th>Exists</th>');
-  document.write('<th>Missing</th>');
-  document.write('<th>%s</th>', ['%']);
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Set</b></th>' +
+    '<th>Num Pieces</th>' +
+    '<th>Exists</th>' +
+    '<th>Missing</th>' +
+    '<th>%</th>' +
+    '</tr>'
+  );
   HideSplash;
 
   ShowSplash;
@@ -9137,18 +9224,17 @@ begin
     inc(aa);
     document.StartItemId(aa);
 //    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%><img width=64px src=s\' + A[i].setid + '.jpg><br>');
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%>' +
-                    MakeThumbnailImage2(A[i].setid, -1) + '<br>');
-    document.write('<a href="sinv/' + A[i].setid + '">');
-    document.write('<b>' + A[i].setid + '</b> - ' + db.SetDesc(A[i].setid));
-    document.write('</td><td width=15% align=right>');
-    document.write(IntToStr(A[i].set_tot_pieces) + '</td>');
-    document.write('</td><td width=15% align=right>');
-    document.write(IntToStr(A[i].set_have_pieces) + '</td>');
-    document.write('</td><td width=15% align=right>');
-    document.write(IntToStr(A[i].set_tot_pieces - A[i].set_have_pieces) + '</td>');
-    document.write('</td><td width=15% align=right>');
-    document.write(Format('%2.3f%s', [A[i].set_pct * 100, '%']) + '</td>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+      '<td width=65%>' + MakeThumbnailImage2(A[i].setid, -1) + '<br>' +
+      '<a href="sinv/' + A[i].setid + '">' +
+      '<b>' + A[i].setid + '</b> - ' + db.SetDesc(A[i].setid) + '</td>' +
+      '<td width=15% align=right>' + IntToStr(A[i].set_tot_pieces) + '</td>' +
+      '<td width=15% align=right>' + IntToStr(A[i].set_have_pieces) + '</td>' +
+      '<td width=15% align=right>' + IntToStr(A[i].set_tot_pieces - A[i].set_have_pieces) + '</td>' +
+      '<td width=15% align=right>' + Format('%2.3f%s', [A[i].set_pct * 100, '%']) + '</td>'
+    );
 
     if numsets > 1 then
     begin
@@ -9211,11 +9297,13 @@ begin
   DrawHeadLine('Sets');
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Set</b></th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Set</b></th>' +
+    '</tr>'
+  );
   HideSplash;
 
   aa := 0;
@@ -9223,11 +9311,13 @@ begin
   begin
     inc(aa);
     document.StartItemId(aa);
-//    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%><img width=64px src=s\' + lsets.Strings[i] + '.jpg><br>');
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%>' +
-                    MakeThumbnailImage2(lsets.Strings[i], -1) + '<br>');
-    document.write('<a href="sinv/' + lsets.Strings[i] + '">');
-    document.write('<b>' + lsets.Strings[i] + '</b> - ' + db.SetDesc(lsets.Strings[i]));
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+      '<td width=65%>' + MakeThumbnailImage2(lsets.Strings[i], -1) + '<br>' +
+      '<a href="sinv/' + lsets.Strings[i] + '">' +
+      '<b>' + lsets.Strings[i] + '</b> - ' + db.SetDesc(lsets.Strings[i])
+    );
     if not db.IsMoc(lsets.Strings[i]) then
       document.write(' <a href=UpdateSetAssetsFromBricklink/' + lsets.Strings[i] + '><img src="images\refresh.png"></a>');
 
@@ -9239,7 +9329,7 @@ begin
         if (i mod 5) = 0 then
           SplashProgress('Working...', i / (lsets.Count - 1));
     end;
-    document.write('</tr>');
+    document.write('</td></tr>');
   end;
   document.EndNavigateSection;
   HideSplash;
@@ -9275,19 +9365,23 @@ begin
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
 
-  DrawHeadLine('<a href=ShowSetsAtYear/' + itoa(year - 1) + '>' + itoa(year - 1) + '</a> - ' +
-               '<b>' + itoa(year) + '</b>' +
-               ' - <a href=ShowSetsAtYear/' + itoa(year + 1) + '>' + itoa(year + 1) + '</a> ');
+  DrawHeadLine(
+    '<a href=ShowSetsAtYear/' + itoa(year - 1) + '>' + itoa(year - 1) + '</a> - ' +
+    '<b>' + itoa(year) + '</b>' +
+    ' - <a href=ShowSetsAtYear/' + itoa(year + 1) + '>' + itoa(year + 1) + '</a> '
+  );
 
   DrawHeadLine('Sets');
 
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Set</b></th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Set</b></th>' +
+    '</tr>'
+  );
   HideSplash;
 
   ShowSplash;
@@ -9296,11 +9390,13 @@ begin
   begin
     inc(aa);
     document.StartItemId(aa);
-//    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%><img width=64px src=s\' + lsets.Strings[i] + '.jpg><br>');
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%>' +
-                    MakeThumbnailImage2(lsets.Strings[i], -1) + '<br>');
-    document.write('<a href="sinv/' + lsets.Strings[i] + '">');
-    document.write('<b>' + lsets.Strings[i] + '</b> - ' + db.SetDesc(lsets.Strings[i]));
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+      '<td width=65%>' + MakeThumbnailImage2(lsets.Strings[i], -1) + '<br>' +
+      '<a href="sinv/' + lsets.Strings[i] + '">' +
+      '<b>' + lsets.Strings[i] + '</b> - ' + db.SetDesc(lsets.Strings[i]) + '</td></tr>'
+    );
 
     if lsets.Count > 1 then
     begin
@@ -9310,7 +9406,6 @@ begin
         if (i mod 5) = 0 then
           SplashProgress('Working...', i / (lsets.Count - 1));
     end;
-  document.write('</tr>');
   end;
   document.EndNavigateSection;
   HideSplash;
@@ -9423,24 +9518,24 @@ begin
 
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Set</b></th>');
-  document.write('<th>Year</th>');
-  document.write('<th>Num Pieces</th>');
-
-  document.write('<th>Set Cost (N)</th>');
-  document.write('<th>Part Out value (N)</th>');
-  document.write('<th>Demand (N)</th>');
-  document.write('<th>GAIN (N)</th>');
-  document.write('<th>J-value (N)</th>');
-
-  document.write('<th>Set Cost (U)</th>');
-  document.write('<th>Part Out value (U)</th>');
-  document.write('<th>Demand (U)</th>');
-  document.write('<th>GAIN (U)</th>');
-  document.write('<th>J-value (U)</th>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Set</b></th>' +
+    '<th>Year</th>' +
+    '<th>Num Pieces</th>' +
+    '<th>Set Cost (N)</th>' +
+    '<th>Part Out value (N)</th>' +
+    '<th>Demand (N)</th>' +
+    '<th>GAIN (N)</th>' +
+    '<th>J-value (N)</th>' +
+    '<th>Set Cost (U)</th>' +
+    '<th>Part Out value (U)</th>' +
+    '<th>Demand (U)</th>' +
+    '<th>GAIN (U)</th>' +
+    '<th>J-value (U)</th>'
+  );
 
   document.write('</tr>');
   HideSplash;
@@ -9451,11 +9546,14 @@ begin
   begin
     inc(aa);
     document.StartItemId(aa);
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=25%>' +
-                    MakeThumbnailImage2(list.Strings[i], -1) + '<br>');
-    document.write('<a href="sinv/' + list.Strings[i] + '">');
-    document.write('<b>' + list.Strings[i] + '</b> - ' + db.SetDesc(list.Strings[i]));
-    document.write('</td><td width=8% align=right>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+      '<td width=25%>' + MakeThumbnailImage2(list.Strings[i], -1) + '<br>' +
+      '<a href="sinv/' + list.Strings[i] + '">' +
+      '<b>' + list.Strings[i] + '</b> - ' + db.SetDesc(list.Strings[i]) +
+      '</td><td width=8% align=right>'
+    );
     yyy := db.SetYear(list.Strings[i]);
     document.write('<a href=ShowSetsAtYear/%d>%d</a>', [yyy, yyy]);
     document.write('</td><td width=8% align=right>');
@@ -9613,18 +9711,20 @@ begin
   DrawHeadLine('New sets to buy for partout');
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Set</b></th>');
-  document.write('<th>Year</th>');
-  document.write('<th>Num Pieces</th>');
-  document.write('<th>Set Cost</th>');
-  document.write('<th>Part Out value</th>');
-  document.write('<th>Demand</th>');
-  document.write('<th>GAIN</th>');
-  document.write('<th>J-value</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Set</b></th>' +
+    '<th>Year</th>' +
+    '<th>Num Pieces</th>' +
+    '<th>Set Cost</th>' +
+    '<th>Part Out value</th>' +
+    '<th>Demand</th>' +
+    '<th>GAIN</th>' +
+    '<th>J-value</th>' +
+    '</tr>'
+  );
   HideSplash;
 
   ShowSplash;
@@ -9633,12 +9733,14 @@ begin
   begin
     inc(aa);
     document.StartItemId(aa);
-//    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%><img width=64px src=s\' + list.Strings[i] + '.jpg><br>');
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%>' +
-                    MakeThumbnailImage2(list.Strings[i], -1) + '<br>');
-    document.write('<a href="sinv/' + list.Strings[i] + '">');
-    document.write('<b>' + list.Strings[i] + '</b> - ' + db.SetDesc(list.Strings[i]));
-    document.write('</td><td width=8% align=right>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+      '<td width=65%>' + MakeThumbnailImage2(list.Strings[i], -1) + '<br>' +
+      '<a href="sinv/' + list.Strings[i] + '">' +
+      '<b>' + list.Strings[i] + '</b> - ' + db.SetDesc(list.Strings[i]) +
+      '</td><td width=8% align=right>'
+    );
     yyy := db.SetYear(list.Strings[i]);
     document.write('<a href=ShowSetsAtYear/%d>%d</a>', [yyy, yyy]);
     document.write('</td><td width=15% align=right>');
@@ -9778,17 +9880,19 @@ begin
   DrawHeadLine('Used sets to buy for partout');
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Set</b></th>');
-  document.write('<th>Year</th>');
-  document.write('<th>Num Pieces</th>');
-  document.write('<th>Set Cost</th>');
-  document.write('<th>Part Out value</th>');
-  document.write('<th>Demand</th>');
-  document.write('<th>GAIN</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Set</b></th>' +
+    '<th>Year</th>' +
+    '<th>Num Pieces</th>' +
+    '<th>Set Cost</th>' +
+    '<th>Part Out value</th>' +
+    '<th>Demand</th>' +
+    '<th>GAIN</th>' +
+    '</tr>'
+  );
   HideSplash;
 
   ShowSplash;
@@ -9799,13 +9903,15 @@ begin
     inc(aa);
     document.StartItemId(aa);
     sset := list.Strings[i];
-//    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%><img width=64px src=s\' + sset + '.jpg><br>');
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%>' +
-                    MakeThumbnailImage2(sset, -1) + '<br>');
-    document.write('<a href="sinv/' + sset + '">');
-    document.write('<b>' + sset + '</b> - ' + db.SetDesc(sset));
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+      '<td width=65%>' + MakeThumbnailImage2(sset, -1) + '<br>' +
+      '<a href="sinv/' + sset + '">' +
+      '<b>' + sset + '</b> - ' + db.SetDesc(sset) +
+      '</td><td width=15% align=right>'
+    );
     cls := list.Objects[i] as _costclass;
-    document.write('</td><td width=15% align=right>');
     yyy := db.SetYear(list.Strings[i]);
     document.write('<a href=ShowSetsAtYear/%d>%d</a>', [yyy, yyy]);
     document.write('</td><td width=15% align=right>');
@@ -9937,17 +10043,19 @@ begin
   DrawHeadLine('Used sets to built from scratch');
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Set</b></th>');
-  document.write('<th>Num Pieces</th>');
-  document.write('<th>Missing</th>');
-  document.write('<th>Set Cost</th>');
-  document.write('<th>Part Out value</th>');
-  document.write('<th>Missing cost</th>');
-  document.write('<th>GAIN</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Set</b></th>' +
+    '<th>Num Pieces</th>' +
+    '<th>Missing</th>' +
+    '<th>Set Cost</th>' +
+    '<th>Part Out value</th>' +
+    '<th>Missing cost</th>' +
+    '<th>GAIN</th>' +
+    '</tr>'
+  );
   HideSplash;
 
   ShowSplash;
@@ -9963,13 +10071,15 @@ begin
     minv.Free;
     missing := inventory.MissingToBuildSet(setid);
 
-//    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%><img width=64px src=s\' + setid + '.jpg><br>');
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%>' +
-                    MakeThumbnailImage2(setid, -1) + '<br>');
-    document.write('<a href="sinv/' + setid + '">');
-    document.write('<b>' + setid + '</b> - ' + db.SetDesc(setid));
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+      '<td width=65%>' + MakeThumbnailImage2(setid, -1) + '<br>' +
+      '<a href="sinv/' + setid + '">' +
+      '<b>' + setid + '</b> - ' + db.SetDesc(setid) +
+      '</td><td width=15% align=right>'
+    );
     cls := list.Objects[i] as _costclass;
-    document.write('</td><td width=15% align=right>');
     document.write(IntToStr(cls.numparts) + '</td>');
     document.write('</td><td width=15% align=right>');
     document.write(Format('%d<br>%2.2f%s', [missing, dbl_safe_div(missing, cls.numparts) * 100, '%']) + '</td>');
@@ -10148,20 +10258,22 @@ begin
   DrawHeadLine('New sets to buy for minifigures');
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Set</b></th>');
-  document.write('<th>Year</th>');
-  document.write('<th>Num Pieces</th>');
-  document.write('<th>Set Cost</th>');
-  document.write('<th>Part Out value</th>');
-  document.write('<th>Parts cost</th>');
-  document.write('<th>Minifigures cost</th>');
-  document.write('<th>Demand</th>');
-  document.write('<th>GAIN</th>');
-  document.write('<th>J-value</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Set</b></th>' +
+    '<th>Year</th>' +
+    '<th>Num Pieces</th>' +
+    '<th>Set Cost</th>' +
+    '<th>Part Out value</th>' +
+    '<th>Parts cost</th>' +
+    '<th>Minifigures cost</th>' +
+    '<th>Demand</th>' +
+    '<th>GAIN</th>' +
+    '<th>J-value</th>' +
+    '</tr>'
+  );
   HideSplash;
 
   ShowSplash;
@@ -10171,18 +10283,22 @@ begin
   begin
     inc(aa);
     document.StartItemId(aa);
-//    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%><img width=64px src=s\' + list.Strings[i] + '.jpg><br>');
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%>' +
-                    MakeThumbnailImage2(list.Strings[i], -1) + '<br>');
-    document.write('<a href="sinv/' + list.Strings[i] + '">');
-    document.write('<b>' + list.Strings[i] + '</b> - ' + db.SetDesc(list.Strings[i]));
-    document.write('</td><td width=8% align=right>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+      '<td width=65%>' + MakeThumbnailImage2(list.Strings[i], -1) + '<br>' +
+      '<a href="sinv/' + list.Strings[i] + '">' +
+      '<b>' + list.Strings[i] + '</b> - ' + db.SetDesc(list.Strings[i]) + '</td>' +
+      '<td width=8% align=right>'
+    );
     yyy := db.SetYear(list.Strings[i]);
-    document.write('<a href=ShowSetsAtYear/%d>%d</a>', [yyy, yyy]);
-    document.write('</td><td width=15% align=right>');
     cls := list.Objects[i] as _minifigpartoutclass;
-    document.write(IntToStr(cls.numparts) + ' parts <br>' + IntToStr(cls.numlots) + ' lots<br>' + IntToStr(cls.numminifigs) + ' minifigs</td>');
-    document.write('</td><td width=10% align=right>');
+    document.write('<a href=ShowSetsAtYear/%d>%d</a>', [yyy, yyy]);
+    document.write(
+      '</td><td width=15% align=right>' + IntToStr(cls.numparts) + ' parts <br>' +
+      IntToStr(cls.numlots) + ' lots<br>' + IntToStr(cls.numminifigs) + ' minifigs</td>' +
+      '<td width=10% align=right>'
+    );
     document.write('%s</td>', [moneyhtml(cls.setcost, 2)]);
     document.write('</td><td width=10% align=right>');
     document.write('%s</td>', [moneyhtml(cls.invcost, 2)]);
@@ -10353,20 +10469,22 @@ begin
   DrawHeadLine('Used sets to buy for minifigures');
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Set</b></th>');
-  document.write('<th>Year</th>');
-  document.write('<th>Num Pieces</th>');
-  document.write('<th>Set Cost</th>');
-  document.write('<th>Part Out value</th>');
-  document.write('<th>Parts cost</th>');
-  document.write('<th>Minifigures cost</th>');
-  document.write('<th>Demand</th>');
-  document.write('<th>GAIN</th>');
-  document.write('<th>J-value</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Set</b></th>' +
+    '<th>Year</th>' +
+    '<th>Num Pieces</th>' +
+    '<th>Set Cost</th>' +
+    '<th>Part Out value</th>' +
+    '<th>Parts cost</th>' +
+    '<th>Minifigures cost</th>' +
+    '<th>Demand</th>' +
+    '<th>GAIN</th>' +
+    '<th>J-value</th>' +
+    '</tr>'
+  );
   HideSplash;
 
   ShowSplash;
@@ -10376,18 +10494,22 @@ begin
   begin
     inc(aa);
     document.StartItemId(aa);
-//    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%><img width=64px src=s\' + list.Strings[i] + '.jpg><br>');
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%>' +
-                    MakeThumbnailImage2(list.Strings[i], -1) + '<br>');
-    document.write('<a href="sinv/' + list.Strings[i] + '">');
-    document.write('<b>' + list.Strings[i] + '</b> - ' + db.SetDesc(list.Strings[i]));
-    document.write('</td><td width=8% align=right>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+      '<td width=65%>' + MakeThumbnailImage2(list.Strings[i], -1) + '<br>' +
+      '<a href="sinv/' + list.Strings[i] + '">' +
+      '<b>' + list.Strings[i] + '</b> - ' + db.SetDesc(list.Strings[i]) + '</td>' +
+      '<td width=8% align=right>'
+    );
     yyy := db.SetYear(list.Strings[i]);
-    document.write('<a href=ShowSetsAtYear/%d>%d</a>', [yyy, yyy]);
-    document.write('</td><td width=15% align=right>');
     cls := list.Objects[i] as _minifigpartoutclass;
-    document.write(IntToStr(cls.numparts) + ' parts <br>' + IntToStr(cls.numlots) + ' lots<br>' + IntToStr(cls.numminifigs) + ' minifigs</td>');
-    document.write('</td><td width=10% align=right>');
+    document.write('<a href=ShowSetsAtYear/%d>%d</a>', [yyy, yyy]);
+    document.write(
+      '</td><td width=15% align=right>' +
+      IntToStr(cls.numparts) + ' parts <br>' + IntToStr(cls.numlots) + ' lots<br>' + IntToStr(cls.numminifigs) + ' minifigs</td>' +
+      '<td width=10% align=right>'
+    );
     document.write('%s</td>', [moneyhtml(cls.setcost, 2)]);
     document.write('</td><td width=10% align=right>');
     document.write('%s</td>', [moneyhtml(cls.invcost, 2)]);
@@ -10465,31 +10587,32 @@ begin
 
   DrawHeadLine('Sets by num pieces');
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Num pieces</b></th>');
-  document.write('<th><b>Num Sets</b></th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Num pieces</b></th>' +
+    '<th><b>Num Sets</b></th>' +
+    '</tr>'
+  );
 
   for i := 0 to NUMPSTATS do
   begin
     SplashProgress('Working...', 0.5 + i / NUMPSTATS / 2);
-    document.write('<tr bgcolor=' + TBGCOLOR + '>');
-    document.write('<td width=5% align=right>' + IntToStr(i + 1) + '.</td>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(i + 1) + '.</td>'
+    );
 
     if i = NUMPSTATS then
       document.write('<td width=55% align=ceneter><a href=ShowSetsPartsBetween/' + itoa(i * NUMPSTEP) + '/' + itoa(MAXINT) + '>' + IntToStr(i * NUMPSTEP) + ' or more</a></td>')
     else
       document.write('<td width=55% align=ceneter><a href=ShowSetStatsByNumPieces2/' + IntToStr(i * NUMPSTEP) + '>' + IntToStr(i * NUMPSTEP) + ' - ' + IntToStr((i + 1) * NUMPSTEP - 1) + '</a></td>');
 
-    document.write('<td width=40% align=ceneter>' + IntToStr(A[i]) + '</td>');
-    document.write('</tr>');
+    document.write('<td width=40% align=ceneter>' + IntToStr(A[i]) + '</td></tr>');
   end;
 
-  document.write('</table></p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('</table></p></div></body>');
   document.SaveBufferToFile(diskmirror);
 
   SplashProgress('Working...', 1);
@@ -10560,37 +10683,37 @@ begin
 
   DrawHeadLine(tit + Format(' (<a href=ShowSetsPartsBetween/%d/%d>Show all</a>)', [x, b]));
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Num pieces</b></th>');
-  document.write('<th><b>Num Sets</b></th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Num pieces</b></th>' +
+    '<th><b>Num Sets</b></th>' +
+    '</tr>'
+  );
 
   tot := 0;
   for i := 0 to NUMPSTATS2 - 1 do
   begin
     SplashProgress('Working...', 0.5 + i / NUMPSTATS2 / 2);
-    document.write('<tr bgcolor=' + TBGCOLOR + '>');
-    document.write('<td width=5% align=right>' + IntToStr(i + 1) + '.</td>');
-
-    document.write('<td width=55% align=ceneter><a href=ShowSetsPartsBetween/' + itoa(A[i].start) + '/' + itoa(A[i].stop) + '>' + IntToStr(A[i].start) + ' - ' + IntToStr(A[i].stop) + '</a></td>');
-
-    document.write('<td width=40% align=ceneter>' + IntToStr(A[i].num) + '</td>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(i + 1) + '.</td>' +
+      '<td width=55% align=ceneter><a href=ShowSetsPartsBetween/' + itoa(A[i].start) + '/' + itoa(A[i].stop) + '>' + IntToStr(A[i].start) + ' - ' + IntToStr(A[i].stop) + '</a></td>' +
+      '<td width=40% align=ceneter>' + IntToStr(A[i].num) + '</td></tr>'
+    );
     tot := tot + A[i].num;
-    document.write('</tr>');
   end;
 
 // Footer
-  document.write('<tr bgcolor=' + TBGCOLOR + '>');
-  document.write('<td width=5% align=right>#</td>');
-  document.write('<td width=55% align=ceneter><a href=ShowSetsPartsBetween/' + itoa(A[0].start) + '/' + itoa(A[NUMPSTATS2 - 1].stop) + '><b>Total</b></a></td>');
-  document.write('<td width=40% align=ceneter><b>' + IntToStr(tot) + '</b></td>');
-  document.write('</tr>');
-
-  document.write('</table></p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '>' +
+    '<td width=5% align=right>#</td>' +
+    '<td width=55% align=ceneter><a href=ShowSetsPartsBetween/' + itoa(A[0].start) + '/' + itoa(A[NUMPSTATS2 - 1].stop) + '><b>Total</b></a></td>' +
+    '<td width=40% align=ceneter><b>' + IntToStr(tot) + '</b></td>' +
+    '</tr>' +
+    '</table></p></div></body>'
+  );
   document.SaveBufferToFile(diskmirror);
 
   SplashProgress('Working...', 1);
@@ -10683,31 +10806,32 @@ begin
 
   DrawHeadLine(tit);
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Num lots</b></th>');
-  document.write('<th><b>Num Sets</b></th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Num lots</b></th>' +
+    '<th><b>Num Sets</b></th>' +
+    '</tr>'
+  );
 
   for i := 0 to NUMLSTATS - 1 do
   begin
     SplashProgress('Working...', 0.5 + i / NUMLSTATS / 2);
-    document.write('<tr bgcolor=' + TBGCOLOR + '>');
-    document.write('<td width=5% align=right>' + IntToStr(i + 1) + '.</td>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(i + 1) + '.</td>'
+    );
 
     if i = NUMLSTATS - 1 then
       document.write('<td width=55% align=ceneter><a href=ShowSetsLotsBetween/' + IntToStr(A[i].start) + '/' + IntToStr(MAXINT) + '>' + IntToStr(A[i].start) + ' or more</a></td>')
     else
       document.write('<td width=55% align=ceneter><a href=ShowSetsLotsBetween/' + IntToStr(A[i].start) + '/' + IntToStr(A[i].stop) + '>' + IntToStr(A[i].start) + ' - ' + IntToStr(A[i].stop) + '</a></td>');
 
-    document.write('<td width=40% align=ceneter>' + IntToStr(A[i].num) + '</td>');
-    document.write('</tr>');
+    document.write('<td width=40% align=ceneter>' + IntToStr(A[i].num) + '</td></tr>');
   end;
 
-  document.write('</table></p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('</table></p></div></body>');
   document.SaveBufferToFile(diskmirror);
 
   SplashProgress('Working...', 1);
@@ -10741,10 +10865,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('No pieces found');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -10755,11 +10876,7 @@ begin
   DrawHeadLine(Format('Missing items from storage bins (%d parts)', [missing]));
 
   DrawInventoryTable(inv);
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   inv.Free;
@@ -10798,16 +10915,18 @@ begin
   document.write('</p>');
   document.StartNavigateSection;
 
-  document.write('<p align=center>');
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Part</b></th>');
-  document.write('<th>Color</th>');
-  document.write('<th>Demand</th>');
-  document.write('<th>Num pieces</th>');
-  document.write('<th>Storage Information</th>');
-  document.write('</tr>');
+  document.write(
+    '<p align=center>' +
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Part</b></th>' +
+    '<th>Color</th>' +
+    '<th>Demand</th>' +
+    '<th>Num pieces</th>' +
+    '<th>Storage Information</th>' +
+    '</tr>'
+  );
 
   aa := 0;
   for i := 0 to report.Count - 1 do
@@ -10829,10 +10948,12 @@ begin
     pci := db.PieceColorInfo(spart, ncolor, report.Objects[i]);
     pi := db.PieceInfo(pci);
 
-    document.write('<tr bgcolor=' + TBGCOLOR + '>');
-    document.write('<td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + spart + '.png><br>');
-    document.write('<b>' + GetPieceLinkHtml(spart) + '</b>');
-    document.write(' - ' + db.PieceDesc(pi) + '</td><td width=20%>');
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + spart + '.png><br>' +
+      '<b>' + GetPieceLinkHtml(spart) + '</b>' +
+      ' - ' + db.PieceDesc(pi) + '</td><td width=20%>'
+    );
     DrawColorCell(ncolor, 25);
 
     document.write(
@@ -10852,10 +10973,12 @@ begin
       document.write('<td width=10% align=right></td>');
 
     nnum := inventory.LoosePartCount(spart, ncolor);
-    document.write('<td width=10% align=right>' + IntToStr(nnum));
-    document.write('<br>' + GetEditPieceHtml(spart, scolor));
-    document.write('<br>' + GetDiagramPieceHtml(spart, scolor));
-    document.write('</td>');
+    document.write(
+      '<td width=10% align=right>' + IntToStr(nnum) +
+      '<br>' + GetEditPieceHtml(spart, scolor) +
+      '<br>' + GetDiagramPieceHtml(spart, scolor) +
+      '</td>'
+    );
 
     document.write('<td width=55%>');
     for j := 0 to lst.Count - 1 do
@@ -10924,10 +11047,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Can not find missing inventory for ' + setid);
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -10937,10 +11057,7 @@ begin
   if sinv = nil then
   begin
     DrawHeadLine('Can not find inventory for ' + setid);
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11014,11 +11131,7 @@ begin
     DrawHeadLine(Format('<a href="missingtobuildset/%s/%d">Check to build %d sets</a>', [setid, numsets + 1, numsets + 1]));
 
   DrawInventoryTable(inv);
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   inv.Free;
@@ -11049,10 +11162,7 @@ begin
   if sinv = nil then
   begin
     DrawHeadLine('Can not find inventory for set ' + setid);
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11066,10 +11176,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Can not find inventory for set ' + setid);
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11146,11 +11253,7 @@ begin
   DrawHeadLine(prevstr + headstr + nextstr);
 
   DrawInventoryTable(inv, False, '', False);
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   inv.Free;
@@ -11180,10 +11283,7 @@ begin
   if sinv = nil then
   begin
     DrawHeadLine('Can not find inventory for set ' + setid);
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11197,10 +11297,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Can not find inventory for set ' + setid);
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11273,11 +11370,7 @@ begin
   DrawHeadLine(prevstr + headstr + nextstr);
 
   DrawInventoryTable(inv, False, '', False);
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   inv.Free;
@@ -11307,10 +11400,7 @@ begin
   if sinv = nil then
   begin
     DrawHeadLine('Inventory is empty');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11322,10 +11412,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Inventory is empty');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11363,11 +11450,7 @@ begin
   DrawHeadLine(prevstr + headstr + nextstr);
 
   DrawInventoryTable(inv, False, '', False);
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   inv.Free;
@@ -11397,10 +11480,7 @@ begin
   if sinv = nil then
   begin
     DrawHeadLine('Inventory is empty');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11412,10 +11492,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Inventory is empty');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11453,11 +11530,7 @@ begin
   DrawHeadLine(prevstr + headstr + nextstr);
 
   DrawInventoryTable(inv, False, '', False);
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   inv.Free;
@@ -11487,10 +11560,7 @@ begin
   if sinv = nil then
   begin
     DrawHeadLine('Inventory is empty');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11502,10 +11572,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Inventory is empty');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11542,11 +11609,7 @@ begin
   DrawHeadLine(prevstr + headstr + nextstr);
 
   DrawInventoryTable(inv, False, '', False);
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   inv.Free;
@@ -11576,10 +11639,7 @@ begin
   if sinv = nil then
   begin
     DrawHeadLine('Inventory is empty');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11591,10 +11651,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Inventory is empty');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11631,11 +11688,7 @@ begin
   DrawHeadLine(prevstr + headstr + nextstr);
 
   DrawInventoryTable(inv, False, '', False);
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   inv.Free;
@@ -11667,10 +11720,7 @@ begin
   if sinv = nil then
   begin
     DrawHeadLine('Inventory is empty');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11682,10 +11732,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Inventory is empty');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11718,11 +11765,7 @@ begin
   DrawHeadLine(Trim(prevstr + headstr + nextstr));
 
   DrawInventoryTable(inv, False, '', False);
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   inv.Free;
@@ -11754,10 +11797,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Can not find missing inventory for the given sets');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     sinv.Free;
@@ -11829,11 +11869,7 @@ begin
   DrawHeadLine('<a href=multysetinv/' + IntToStr(Integer(setids)) + '>Show inventory of the above sets</a>');
 
   DrawInventoryTable(inv);
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   inv.Free;
@@ -11874,10 +11910,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Can not find inventory for the given sets');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11891,9 +11924,11 @@ begin
   DrawHeadLine(Format('Inventory for multiple sets<br>%d parts in %d lots (%d unique)<br>%s',
     [inv.totallooseparts, nlots, inv.numlooseparts, s1]));
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + DBGCOLOR + '>');
-  document.write('<td width=50%>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + DBGCOLOR + '>' +
+    '<td width=50%>'
+  );
   minv := inventory.InventoryForMissingToBuildInventory(inv);
   DrawHeadLine(Format('<a href=multymissing/' + IntToStr(Integer(setids)) +
     '>%d parts in %d lots are missing to build this list</a>', [minv.totallooseparts, minv.numlooseparts]));
@@ -11905,11 +11940,7 @@ begin
 
   DrawInventoryTable(inv, False, '', True, True, nil, True, True);
 
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   inv.Free;
@@ -11945,10 +11976,7 @@ begin
   if inv = nil then
   begin
     DrawHeadLine('Can not find inventory for the given sets');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -11967,11 +11995,7 @@ begin
 
   DrawInventoryPartsStorage(inv, ppreview);
 
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   inv.Free;
@@ -12002,10 +12026,7 @@ begin
       DrawHeadLine('Can not find inventory for set ' + set1);
     if inv2 = nil then
       DrawHeadLine('Can not find inventory for set ' + set2);
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -12061,10 +12082,7 @@ begin
 
   document.write('</td>');
 
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   Screen.Cursor := crDefault;
@@ -12091,10 +12109,7 @@ begin
       DrawHeadLine('Can not find inventory for set ' + set1);
     if inv2 = nil then
       DrawHeadLine('Can not find inventory for set ' + set2);
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
-    document.write('</body>');
+    document.write('<br></p></div></body>');
     document.SaveBufferToFile(diskmirror);
     document.Flash;
     Screen.Cursor := crDefault;
@@ -12213,17 +12228,19 @@ begin
 
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Part</b></th>');
-  document.write('<th>Color</th>');
-  document.write('<th>Demand</th>');
-  document.write('<th>Num pieces</th>');
-  document.write('<th>N</th>');
-  document.write('<th>U</th>');
-  document.write('<th>Cost</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Part</b></th>' +
+    '<th>Color</th>' +
+    '<th>Demand</th>' +
+    '<th>Num pieces</th>' +
+    '<th>N</th>' +
+    '<th>U</th>' +
+    '<th>Cost</th>' +
+    '</tr>'
+  );
 
   ShowSplash;
   SplashProgress('Working...', 0);
@@ -12253,16 +12270,19 @@ begin
       pci := db.PieceColorInfo(brick);
       pi := db.PieceInfo(pci);
 
-      document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br>');
-      document.write('<b>' + GetPieceLinkHtml(brick.part) + '</b>');
-      document.write('<a href="inv/' + invs +'/P/' + decide(partmask = '', brick.part, '') + '">' + ' - ' );
-      document.write(db.PieceDesc(pi) + '</a> <a href=spiece/' + brick.part + '>...</a></td><td width=25%>');
+      document.write(
+        '<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+        '<td width=35%><img width=100px src=' + scolor + '\' + brick.part + '.png><br>' +
+        '<b>' + GetPieceLinkHtml(brick.part) + '</b>' +
+        '<a href="inv/' + invs +'/P/' + decide(partmask = '', brick.part, '') + '">' + ' - ' +
+        db.PieceDesc(pi) + '</a> <a href=spiece/' + brick.part + '>...</a></td><td width=25%>'
+      );
       DrawColorCell(brick.color, 20);
-      document.write('<a href="inv/' + invs +'/C/' + IntToStr(decide(colormask = -1, brick.color, -1)) + '">');
-
-      document.write(db.colors(brick.color).name + ' (' + scolor + ') (BL=' +
-                     IntToStr(db.colors(brick.color).BrickLinkColor) +  ')' + GetRebrickableColorHtml(brick.color) + '</a> <a href=spiecec/' +
-                     brick.part + '/' + scolor + '><img src="images\details.png"></a>' +  GetInvImgLinkHtml(brick.part, brick.color, pi));
+      document.write(
+        '<a href="inv/' + invs +'/C/' + IntToStr(decide(colormask = -1, brick.color, -1)) + '">' +
+        db.colors(brick.color).name + ' (' + scolor + ') (BL=' + IntToStr(db.colors(brick.color).BrickLinkColor) +  ')' + GetRebrickableColorHtml(brick.color) + '</a>' +
+        ' <a href=spiecec/' + brick.part + '/' + scolor + '><img src="images\details.png"></a>' +  GetInvImgLinkHtml(brick.part, brick.color, pi)
+      );
 
 //      pci := db.PieceColorInfo(brick.part, brick.color);
       if pci <> nil then
@@ -12278,19 +12298,22 @@ begin
       else
         document.write('<td width=10% align=right></td>');
 
-      document.write('<td width=15% align=right>' + IntToStr(brick.num) +
-      '<br>' + GetEditPieceHtml(brick.part, scolor) +
-      '<br>' + GetDiagramPieceHtml(brick.part, scolor) +
-      '</td>');
+      document.write(
+        '<td width=15% align=right>' + IntToStr(brick.num) +
+        '<br>' + GetEditPieceHtml(brick.part, scolor) +
+        '<br>' + GetDiagramPieceHtml(brick.part, scolor) + '</td>'
+      );
       if pci <> nil then
       begin
         prn := pci.EvaluatePriceNew;
         pru := pci.EvaluatePriceUsed;
         www := db.GetItemWeight(pci.piece, pci.color, pi);
-        document.write('<td width=10% align=right>' +
-          Format('%s<br>%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(prn * brick.num), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
-        document.write('<td width=10% align=right>' +
-          Format('%s<br>%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(pru * brick.num), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
+        document.write(
+          '<td width=10% align=right>' +
+          Format('%s<br>%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(prn * brick.num), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>' +
+          '<td width=10% align=right>' +
+          Format('%s<br>%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(pru * brick.num), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>'
+        );
         prnt := prnt + prn * brick.num;
         prut := prut + pru * brick.num;
         if www > 0.0 then
@@ -15260,19 +15283,19 @@ begin
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
   DrawHeadLine('Bricks Inventory - My Minifigures');
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
 
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>Quick links</b></th>');
-  document.write('</tr>');
-
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifigInventory/1/1/1">All Minifigures</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifigInventory/1/0/0">My loose parts minifigures</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifigInventory/0/1/0">My official sets minifigures</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifigInventory/0/0/1">My mocs minifigures</a></td></tr>');
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifigInventory/0/1/1">My official sets and mocs minifigures</a></td></tr>');
-
-  document.write('</table></p></div></body>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>Quick links</b></th>' +
+    '</tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifigInventory/1/1/1">All Minifigures</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifigInventory/1/0/0">My loose parts minifigures</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifigInventory/0/1/0">My official sets minifigures</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifigInventory/0/0/1">My mocs minifigures</a></td></tr>' +
+    '<tr bgcolor=' + TBGCOLOR + '><td><a href="ShowMyMinifigInventory/0/1/1">My official sets and mocs minifigures</a></td></tr>' +
+    '</table></p></div></body>'
+  );
 
   document.SaveBufferToFile(diskmirror);
   document.Flash;
@@ -15328,10 +15351,7 @@ begin
   DrawHeadLine('Total');
   DrawPartOutValue(inv3);
 
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br></p></div></body>');
   
   inv1.Free;
   inv2.Free;
@@ -15373,15 +15393,16 @@ begin
     '<table border=1 width=25 bgcolor="#' + IntToHex(db.colors(color).RGB, 6) + '"><tr><td><br></td></tr></table>';
   DrawHeadLine(stmp);
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Part</b></th>');
-  document.write('<th>Qty</th>');
-  document.write('<th>Len</th>');
-  document.write('<th>Area</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Part</b></th>' +
+    '<th>Qty</th>' +
+    '<th>Len</th>' +
+    '<th>Area</th>' +
+    '</tr>'
+  );
 
 
   for i := 1 to inflst.Count - 1 do // skip 0 - header
@@ -15407,32 +15428,33 @@ begin
 
     Inc(aa);
 
-    document.write('<tr bgcolor=' + THBGCOLOR + '>');
-    document.write('<td><p align="right">' + itoa(aa) + '.</b></td>');
-
-    document.write('<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br>');
-    document.write('<b>' + GetPieceLinkHtml(spart) + '</b>');
-    document.write(' - ' + db.PieceDesc(pi));
-    document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + GetInvImgLinkHtml(spart, color, pi) + '</td>');
-
-    document.write('<td width=10% align=right><b>' + IntToStr(num) + '</b>');
-    document.write('<br>' + GetEditPieceHtml(spart, scolor));
-    document.write('<br>' + GetDiagramPieceHtml(spart, scolor));
-    document.write('</td>');
-
-    document.write('<td width=25% align=right><b>' + IntToStr(num * len) + '</b><br>');
+    document.write(
+      '<tr bgcolor=' + THBGCOLOR + '>' +
+      '<td><p align="right">' + itoa(aa) + '.</b></td>' +
+      '<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br>' +
+      '<b>' + GetPieceLinkHtml(spart) + '</b>' +
+      ' - ' + db.PieceDesc(pi) +
+      ' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + GetInvImgLinkHtml(spart, color, pi) + '</td>' +
+      '<td width=10% align=right><b>' + IntToStr(num) + '</b>' +
+      '<br>' + GetEditPieceHtml(spart, scolor) +
+      '<br>' + GetDiagramPieceHtml(spart, scolor) +
+      '</td>' +
+      '<td width=25% align=right><b>' + IntToStr(num * len) + '</b><br>'
+    );
     if pci <> nil then
     begin
-      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, len))]));
-      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, len))]));
+      document.write(
+        Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, len))]) +
+        Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, len))])
+      );
     end;
-    document.write('</td>');
-
-    document.write('<td width=25% align=right><b>' + IntToStr(num * area) + '</b><br>');
+    document.write('</td><td width=25% align=right><b>' + IntToStr(num * area) + '</b><br>');
     if pci <> nil then
     begin
-      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, area))]));
-      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, area))]));
+      document.write(
+        Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, area))]) +
+        Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, area))])
+      );
     end;
     document.write('</td>');
 
@@ -15444,15 +15466,15 @@ begin
   end;
 
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
-  document.write('<td width=35%><b>' + IntToStr(aa) + ' unique mold' + decide(aa = 1, '', 's') + '</b></td>');
-
-  document.write('<td width=10% align=right><b>' + IntToStr(totalpieces) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>');
-
-  document.write('<td width=10% align=right><b>' + IntToStr(totallen) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + IntToStr(totalarea) + '</b></td>');
-
-  document.write('</tr></table></p>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '>' +
+    '<td width=5% align=right><b>Total</b></td>' +
+    '<td width=35%><b>' + IntToStr(aa) + ' unique mold' + decide(aa = 1, '', 's') + '</b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(totalpieces) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(totallen) + '</b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(totalarea) + '</b></td>' +
+    '</tr></table></p>'
+  );
 
 end;
 
@@ -15490,14 +15512,16 @@ begin
 
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
 
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Part</b></th>');
-  document.write('<th>Qty</th>');
-  document.write('<th>Len</th>');
-  document.write('<th>Area</th>');
-  document.write('<th>Slope Area</th>');
-  document.write('</tr>');
+  document.write(
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Part</b></th>' +
+    '<th>Qty</th>' +
+    '<th>Len</th>' +
+    '<th>Area</th>' +
+    '<th>Slope Area</th>' +
+    '</tr>'
+  );
 
 
   for i := 1 to inflst.Count - 1 do // skip 0 - header
@@ -15525,60 +15549,64 @@ begin
 
     Inc(aa);
 
-    document.write('<tr bgcolor=' + THBGCOLOR + '>');
-    document.write('<td><p align="right">' + itoa(aa) + '.</b></td>');
-
-    document.write('<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br>');
-    document.write('<b>' + GetPieceLinkHtml(spart) + '</b>');
-    document.write(' - ' + db.PieceDesc(pi));
-    document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + GetInvImgLinkHtml(spart, color, pi) + '</td>');
-
-    document.write('<td width=10% align=right><b>' + IntToStr(num) + '</b>');
-    document.write('<br>' + GetEditPieceHtml(spart, scolor));
-    document.write('<br>' + GetDiagramPieceHtml(spart, scolor));
-    document.write('</td>');
+    document.write(
+      '<tr bgcolor=' + THBGCOLOR + '>' +
+      '<td><p align="right">' + itoa(aa) + '.</b></td>' +
+      '<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br>' +
+      '<b>' + GetPieceLinkHtml(spart) + '</b>' +
+      ' - ' + db.PieceDesc(pi) +
+      ' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + GetInvImgLinkHtml(spart, color, pi) + '</td>' +
+      '<td width=10% align=right><b>' + IntToStr(num) + '</b>' +
+      '<br>' + GetEditPieceHtml(spart, scolor) +
+      '<br>' + GetDiagramPieceHtml(spart, scolor) +
+      '</td>'
+    );
 
     document.write('<td width=25% align=right><b>' + IntToStr(num * len) + '</b><br>');
     if pci <> nil then
     begin
-      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, len))]));
-      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, len))]));
+      document.write(
+        Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, len))])+
+        Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, len))])
+      );
     end;
-    document.write('</td>');
 
-    document.write('<td width=25% align=right><b>' + IntToStr(num * area) + '</b><br>');
+    document.write('</td><td width=25% align=right><b>' + IntToStr(num * area) + '</b><br>');
+
     if pci <> nil then
     begin
-      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, area))]));
-      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, area))]));
+      document.write(
+        Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, area))]) +
+        Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, area))])
+      );
     end;
 
     document.write('<td width=25% align=right><b>' + IntToStr(num * slopearea) + '</b><br>');
     if pci <> nil then
     begin
-      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, slopearea))]));
-      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, slopearea))]));
+      document.write(
+        Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, slopearea))]) +
+        Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, slopearea))])
+      );
     end;
-    document.write('</td>');
+    document.write('</td></tr>');
 
     if pi <> nil then
       if pi.weight > 0.0 then
         totalweight := totalweight + pi.weight * num;
-
-    document.write('</tr>');
   end;
 
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
-  document.write('<td width=35%><b>' + IntToStr(aa) + ' unique mold' + decide(aa = 1, '', 's') + '</b></td>');
-
-  document.write('<td width=10% align=right><b>' + IntToStr(totalpieces) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>');
-
-  document.write('<td width=10% align=right><b>' + IntToStr(totallen) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + IntToStr(totalarea) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + IntToStr(totalslopearea) + '</b></td>');
-
-  document.write('</tr></table></p>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '>' +
+    '<td width=5% align=right><b>Total</b></td>' +
+    '<td width=35%><b>' + IntToStr(aa) + ' unique mold' + decide(aa = 1, '', 's') + '</b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(totalpieces) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(totallen) + '</b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(totalarea) + '</b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(totalslopearea) + '</b></td>' +
+    '</tr></table></p>'
+  );
 
 end;
 
@@ -15614,16 +15642,17 @@ begin
     '<table border=1 width=' + IntToStr(25) + ' bgcolor="#' + IntToHex(db.colors(color).RGB, 6) + '"><tr><td><br></td></tr></table>';
   DrawHeadLine(stmp);
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Part</b></th>');
-  document.write('<th>Qty</th>');
-  document.write('<th>Width</th>');
-  document.write('<th>Len</th>');
-  document.write('<th>Area</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Part</b></th>' +
+    '<th>Qty</th>' +
+    '<th>Width</th>' +
+    '<th>Len</th>' +
+    '<th>Area</th>' +
+    '</tr>'
+  );
 
 
   for i := 1 to inflst.Count - 1 do // skip 0 - header
@@ -15651,39 +15680,46 @@ begin
 
     Inc(aa);
 
-    document.write('<tr bgcolor=' + THBGCOLOR + '>');
-    document.write('<td><p align="right">' + itoa(aa) + '.</b></td>');
-
-    document.write('<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br>');
-    document.write('<b>' + GetPieceLinkHtml(spart) + '</b>');
-    document.write(' - ' + db.PieceDesc(pi));
-    document.write(' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + GetInvImgLinkHtml(spart, color, pi) + '</td>');
-
-    document.write('<td width=10% align=right><b>' + IntToStr(num) + '</b>');
-    document.write('<br>' + GetEditPieceHtml(spart, scolor));
-    document.write('<br>' + GetDiagramPieceHtml(spart, scolor));
-    document.write('</td>');
+    document.write(
+      '<tr bgcolor=' + THBGCOLOR + '>' +
+      '<td><p align="right">' + itoa(aa) + '.</b></td>' +
+      '<td width=25%><img width=100px src=' + scolor + '\' + spart + '.png><br>' +
+      '<b>' + GetPieceLinkHtml(spart) + '</b>' +
+      ' - ' + db.PieceDesc(pi) +
+      ' <a href=spiecec/' + spart + '/' + scolor + '><img src="images\details.png"></a>' + GetInvImgLinkHtml(spart, color, pi) + '</td>' +
+      '<td width=10% align=right><b>' + IntToStr(num) + '</b>' +
+      '<br>' + GetEditPieceHtml(spart, scolor) +
+      '<br>' + GetDiagramPieceHtml(spart, scolor) +
+      '</td>'
+    );
 
     document.write('<td width=25% align=right><b>' + IntToStr(num * bwidth) + '</b><br>');
     if pci <> nil then
     begin
-      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, bwidth))]));
-      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, bwidth))]));
+      document.write(
+        Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, bwidth))]) +
+        Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, bwidth))])
+      );
     end;
 
     document.write('<td width=25% align=right><b>' + IntToStr(num * len) + '</b><br>');
-    if pci <> nil then
-    begin
-      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, len))]));
-      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, len))]));
-    end;
-    document.write('</td>');
 
-    document.write('<td width=25% align=right><b>' + IntToStr(num * area) + '</b><br>');
     if pci <> nil then
     begin
-      document.write(Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, area))]));
-      document.write(Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, area))]));
+      document.write(
+        Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, len))]) +
+        Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, len))])
+      );
+    end;
+
+    document.write('</td><td width=25% align=right><b>' + IntToStr(num * area) + '</b><br>');
+
+    if pci <> nil then
+    begin
+      document.write(
+        Format('(N) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceNew, area))]) +
+        Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, area))])
+      );
     end;
 
     document.write('</td>');
@@ -15696,16 +15732,16 @@ begin
   end;
 
 
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
-  document.write('<td width=35%><b>' + IntToStr(aa) + ' unique mold' + decide(aa = 1, '', 's') + '</b></td>');
-
-  document.write('<td width=10% align=right><b>' + IntToStr(totalpieces) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>');
-
-  document.write('<td width=10% align=right><b>' + IntToStr(totalbwidth) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + IntToStr(totallen) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + IntToStr(totalarea) + '</b></td>');
-
-  document.write('</tr></table></p>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '>' +
+    '<td width=5% align=right><b>Total</b></td>' +
+    '<td width=35%><b>' + IntToStr(aa) + ' unique mold' + decide(aa = 1, '', 's') + '</b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(totalpieces) + '<br>' + Format('%2.3f Kgr', [totalweight / 1000]) + '</b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(totalbwidth) + '</b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(totallen) + '</b></td>' +
+    '<td width=10% align=right><b>' + IntToStr(totalarea) + '</b></td>' +
+    '</tr></table></p>'
+  );
 end;
 
 const
@@ -16465,17 +16501,19 @@ begin
   DrawHeadLine(tit);
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Image</b></th>');
-  document.write('<th>Color</th>');
-  document.write('<th>Demand</th>');
-  document.write('<th>Lugbulk Cost</th>');
-  document.write('<th>Bricklink Cost (New)</th>');
-  document.write('<th>Times Sold</th>');
-  document.write('<th>Total Qty</th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Image</b></th>' +
+    '<th>Color</th>' +
+    '<th>Demand</th>' +
+    '<th>Lugbulk Cost</th>' +
+    '<th>Bricklink Cost (New)</th>' +
+    '<th>Times Sold</th>' +
+    '<th>Total Qty</th>' +
+    '</tr>'
+  );
 
   aa := 0;
   prnt := 0.0;
@@ -16498,10 +16536,11 @@ begin
     pci := db.PieceColorInfo(pcs, cl);
     pi := db.PieceInfo(pci);
 
-    document.write('<td width=25%><img width=100px src=' + col + '\' + pcs + '.png>');
-    document.write('<b>' + GetPieceLinkHtml(pcs) + '</b>');
-    document.write(' - ' + db.PieceDesc(pi) + '</td>');
-    document.write('<td width=20%>');
+    document.write(
+      '<td width=25%><img width=100px src=' + col + '\' + pcs + '.png>' +
+      '<b>' + GetPieceLinkHtml(pcs) + '</b> - ' + db.PieceDesc(pi) + '</td>' +
+      '<td width=20%>'
+    );
     DrawColorCell(cl, 25);
     if pci = nil then
     begin
@@ -16509,7 +16548,8 @@ begin
       document.write(
         '<td width=15% align=right>' + Format('%2.3f', [0.0]) +
         '<br>' + GetEditPieceHtml(pcs, col) +
-        '<br>' + GetDiagramPieceHtml(pcs, col));
+        '<br>' + GetDiagramPieceHtml(pcs, col)
+      );
     end
     else
     begin
@@ -16517,8 +16557,7 @@ begin
         GetPieceColorLinkHtml(pcs, cl) +
         GetInvImgLinkHtml(pcs, cl, pi) +
         GetInvCodeHtml(pci, '<br>', '') +
-        GetSetMostLinkHtml(pci) + '</td>');
-      document.write(
+        GetSetMostLinkHtml(pci) + '</td>' +
         '<td width=15% align=right>' + Format('%2.3f', [pci.nDemand]) +
         '<br>' + GetEditPieceHtml(pcs, col) +
         '<br>' + GetDiagramPieceHtml(pcs, col));
@@ -16537,17 +16576,21 @@ begin
     begin
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
-      document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
       prnt := prnt + prn * numpieces;
       prut := prut + pru * numpieces;
-      document.write('<td width=5% align=right>' + itoa(pci.priceguide.nTimesSold) + '</td>');
-      document.write('<td width=5% align=right>' + itoa(pci.priceguide.nTotalQty) + '</td>');
+      document.write(
+        '<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>' +
+        '<td width=5% align=right>' + itoa(pci.priceguide.nTimesSold) + '</td>' +
+        '<td width=5% align=right>' + itoa(pci.priceguide.nTotalQty) + '</td>'
+      );
     end
     else
     begin
-      document.write('<td width=10% align=right>-</td>');
-      document.write('<td width=5% align=right>-</td>');
-      document.write('<td width=5% align=right>-</td>');
+      document.write(
+        '<td width=10% align=right>-</td>' +
+        '<td width=5% align=right>-</td>' +
+        '<td width=5% align=right>-</td>'
+      );
     end;
     document.write('</tr>');
 
@@ -16561,22 +16604,22 @@ begin
   end;
 
   document.EndNavigateSection;
-  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right><b>Total</b></td>');
-  document.write('<td width=25%><b> </b></td>');
-  document.write('<td width=20%><b> </b></td>');
-  document.write('<td width=10% align=right></td>');
-  document.write('<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>');
-  document.write('<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>');
-  document.write('<td width=10% align=right><b> </b></td>');
-  document.write('</tr></table>');
+  document.write(
+    '<tr bgcolor=' + TBGCOLOR + '>' +
+    '<td width=5% align=right><b>Total</b></td>' +
+    '<td width=25%><b> </b></td>' +
+    '<td width=20%><b> </b></td>' +
+    '<td width=10% align=right></td>' +
+    '<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>' +
+    '<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>' +
+    '<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>' +
+    '<td width=10% align=right><b> </b></td>' +
+    '</tr></table>'
+  );
 
   document.MarkBottomNavigateSection;
 
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
 
   SplashProgress('Working...', 1);
@@ -20369,12 +20412,14 @@ begin
 
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Set</b></th>');
-  document.write('<th><b>Num lots</b></th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Set</b></th>' +
+    '<th><b>Num lots</b></th>' +
+    '</tr>'
+  );
   HideSplash;
 
   aa := 0;
@@ -20382,12 +20427,15 @@ begin
   begin
     inc(aa);
     document.StartItemId(aa);
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%>' +
-                    MakeThumbnailImage2(lsets.Strings[i], -1) + '<br>');
-    document.write('<a href="sinv/' + lsets.Strings[i] + '">');
-    document.write('<b>' + lsets.Strings[i] + '</b> - ' + db.SetDesc(lsets.Strings[i]));
-//    if not db.IsMoc(lsets.Strings[i]) then
-//      document.write(' <a href=UpdateSetAssetsFromBricklink/' + lsets.Strings[i] + '><img src="images\refresh.png"></a>');
+
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+      '<td width=65%>' + MakeThumbnailImage2(lsets.Strings[i], -1) + '<br>' +
+      '<a href="sinv/' + lsets.Strings[i] + '">' +
+      '<b>' + lsets.Strings[i] + '</b> - ' + db.SetDesc(lsets.Strings[i]) +
+      '</td>'
+    );
 
     if lsets.Count > 1 then
     begin
@@ -20398,7 +20446,6 @@ begin
           SplashProgress('Working...', i / (lsets.Count - 1));
     end;
 
-    document.write('</td>');
 
     n := 0;
     setstr := '';
@@ -20465,12 +20512,14 @@ begin
 
   document.StartNavigateSection;
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + THBGCOLOR + '>');
-  document.write('<th><b>#</b></th>');
-  document.write('<th><b>Set</b></th>');
-  document.write('<th><b>Num parts</b></th>');
-  document.write('</tr>');
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Set</b></th>' +
+    '<th><b>Num parts</b></th>' +
+    '</tr>'
+  );
   HideSplash;
 
   aa := 0;
@@ -20478,10 +20527,13 @@ begin
   begin
     inc(aa);
     document.StartItemId(aa);
-    document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>' + IntToStr(aa) + '.</td><td width=65%>' +
-                    MakeThumbnailImage2(lsets.Strings[i], -1) + '<br>');
-    document.write('<a href="sinv/' + lsets.Strings[i] + '">');
-    document.write('<b>' + lsets.Strings[i] + '</b> - ' + db.SetDesc(lsets.Strings[i]));
+    document.write(
+      '<tr bgcolor=' + TBGCOLOR + '>' +
+      '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
+      '<td width=65%>' + MakeThumbnailImage2(lsets.Strings[i], -1) + '<br>' +
+      '<a href="sinv/' + lsets.Strings[i] + '">' +
+      '<b>' + lsets.Strings[i] + '</b> - ' + db.SetDesc(lsets.Strings[i])
+    );
 //    if not db.IsMoc(lsets.Strings[i]) then
 //      document.write(' <a href=UpdateSetAssetsFromBricklink/' + lsets.Strings[i] + '><img src="images\refresh.png"></a>');
 
@@ -22141,11 +22193,13 @@ begin
     fname := PieceColorNotesFName(pcs, color);
     if fsize(fname) > 0 then
     begin
-      document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-      document.write('<tr bgcolor=' + DBGCOLOR + '>');
-      document.write('<th><b>User Notes:</b></th></tr>');
-      document.write('<tr bgcolor=' + TBGCOLOR + '>');
-      document.write('<td width 100%><font color=' + DFGCOLOR + '>');
+      document.write(
+        '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+        '<tr bgcolor=' + DBGCOLOR + '>' +
+        '<th><b>User Notes:</b></th></tr>' +
+        '<tr bgcolor=' + TBGCOLOR + '>' +
+        '<td width 100%><font color=' + DFGCOLOR + '>'
+      );
       document.writefromfile(fname);
       document.write('</font></td></tr></table>');
     end;
@@ -22159,11 +22213,13 @@ begin
       autonotes := LoadStringFromFile(autoname);
     if autonotes <> '' then
     begin
-      document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-      document.write('<tr bgcolor=' + DBGCOLOR + '>');
-      document.write('<th><b>Notes:</b></th></tr>');
-      document.write('<tr bgcolor=' + TBGCOLOR + '>');
-      document.write('<td width 100%><font color=' + DFGCOLOR + '>');
+      document.write(
+        '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+        '<tr bgcolor=' + DBGCOLOR + '>' +
+        '<th><b>Notes:</b></th></tr>' +
+        '<tr bgcolor=' + TBGCOLOR + '>' +
+        '<td width 100%><font color=' + DFGCOLOR + '>'
+      );
       document.write(autonotes);
       document.write('</font></td></tr></table>');
       if fsize(autoname) < Length(autonotes) then
@@ -22187,11 +22243,13 @@ begin
     fname := PieceNotesFName(pcs);
     if fsize(fname) > 0 then
     begin
-      document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-      document.write('<tr bgcolor=' + DBGCOLOR + '>');
-      document.write('<th><b>User Notes:</b></th></tr>');
-      document.write('<tr bgcolor=' + TBGCOLOR + '>');
-      document.write('<td width 100%><font color=' + DFGCOLOR + '>');
+      document.write(
+        '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+        '<tr bgcolor=' + DBGCOLOR + '>' +
+        '<th><b>User Notes:</b></th></tr>' +
+        '<tr bgcolor=' + TBGCOLOR + '>' +
+        '<td width 100%><font color=' + DFGCOLOR + '>'
+      );
       document.writefromfile(fname);
       document.write('</font></td></tr></table>');
     end;
@@ -22205,11 +22263,13 @@ begin
       autonotes := LoadStringFromFile(autoname);
     if autonotes <> '' then
     begin
-      document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-      document.write('<tr bgcolor=' + DBGCOLOR + '>');
-      document.write('<th><b>Notes:</b></th></tr>');
-      document.write('<tr bgcolor=' + TBGCOLOR + '>');
-      document.write('<td width 100%><font color=' + DFGCOLOR + '>');
+      document.write(
+        '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+        '<tr bgcolor=' + DBGCOLOR + '>' +
+        '<th><b>Notes:</b></th></tr>' +
+        '<tr bgcolor=' + TBGCOLOR + '>' +
+        '<td width 100%><font color=' + DFGCOLOR + '>'
+      );
       document.write(autonotes);
       document.write('</font></td></tr></table>');
       if fsize(autoname) < Length(autonotes) then

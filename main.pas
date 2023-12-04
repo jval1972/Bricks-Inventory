@@ -686,6 +686,7 @@ type
     thumbnailfilesexist: array[0..127] of TStringList;
     newtabUrl: string;
     starttime: extended;
+    lastbricksetdownload: extended;
     function CheckAA(const AA, fromAA, toAA: integer): boolean;
     procedure Navigate(const akey: string; const pg: integer);
     procedure DrawColorCell(const cc: integer; const width: integer);
@@ -902,6 +903,7 @@ type
     function GatherOfflineNotes(const pcs: string): string; overload;
     function GatherOfflineNotes(const pcs: string; const color: integer): string; overload;
     procedure GatherAndSaveOfflineNotes(const pcs: string);
+    procedure RandomBrickSetDownload;
   public
     { Public declarations }
     activebits: integer;
@@ -1112,6 +1114,7 @@ begin
 //  I_InitTempFiles;
   I_Init;
   starttime := I_GetSysTime;
+  lastbricksetdownload := 0.0;
   MT_Init;
   SplashForm := TSplashForm.Create(nil);
   lastset := '';
@@ -19839,6 +19842,8 @@ procedure TMainForm.IdleEventHandler(Sender: TObject; var Done: Boolean);
 begin
   if activebits > 0 then
     activebits := activebits - 1000;
+  if activebits <= 0 then
+    RandomBrickSetDownload;
   Done := True;
 end;
 
@@ -22619,6 +22624,33 @@ var
   foo: Boolean;
 begin
   HTMLClick('mywishlist', foo);
+end;
+
+procedure TMainForm.RandomBrickSetDownload;
+const
+  BS_TIMEOUT = 10; // every 10 seconds
+  BS_SLEEPTIME = 60; // 1 minute
+var
+  pcs: string;
+  st: extended;
+begin
+  if not initialized then
+    Exit;
+
+  st := I_GetSysTime;
+  if st - lastbricksetdownload > BS_TIMEOUT then
+  begin
+    pcs := db.Sets.Strings[Random(db.Sets.Count)];
+    if db.IsLikeSetNumber(pcs) then
+      if db.IsSet(pcs) and not db.IsMoc(pcs) then
+        if fsize(BrickSetCachePath(pcs)) <= 0 then
+        begin
+          if db.DownloadSetPageFromBrickSet(pcs) then
+            lastbricksetdownload := st
+          else
+            lastbricksetdownload := st + BS_SLEEPTIME; // Give timeout
+        end;
+  end;
 end;
 
 end.

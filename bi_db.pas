@@ -17961,7 +17961,6 @@ var
   pi: TPieceInfo;
   s: string;
   inv: TBrickInventory;
-  i: integer;
   codeok: boolean;
 begin
   Result := False;
@@ -20673,7 +20672,6 @@ var
   sc, sp: string;
   idx: integer;
   pci: TPieceColorInfo;
-  stmp: string;
 begin
   fcolorpieces.Sorted := True;
 
@@ -20967,8 +20965,6 @@ end;
 {$IFNDEF CRAWLER}
 function TSetsDatabase.GetRelatedPieces(const pcs: string): TStringList;
 var
-  ptmp: string;
-  i: integer;
   lst: TStringList;
 
   procedure _AddRelatedPiece(const s: string);

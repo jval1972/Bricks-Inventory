@@ -18064,7 +18064,7 @@ begin
   end;
 
   lst2 := TStringList.Create;
-  randomize;
+  Randomize;
   cnt := 0;
   for i := 0 to limit - 1 do
   begin
@@ -18116,7 +18116,7 @@ begin
     kc.Free;
   end;
 
-  randomize;
+  Randomize;
   cnt := 0;
   for i := 0 to limit - 1 do
   begin
@@ -18164,7 +18164,7 @@ begin
     kc.Free;
   end;
 
-  randomize;
+  Randomize;
   cnt := 0;
   for i := 0 to limit - 1 do
   begin
@@ -18212,7 +18212,7 @@ begin
     end;
   end;
 
-  randomize;
+  Randomize;
   cnt := 0;
   for i := 0 to limit - 1 do
   begin
@@ -18260,7 +18260,7 @@ begin
     end;
   end;
 
-  randomize;
+  Randomize;
   cnt := 0;
   for i := 0 to limit - 1 do
   begin

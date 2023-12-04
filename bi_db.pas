@@ -7180,7 +7180,7 @@ end;
 //------------------------------------------------------------------------------
 constructor TSetsDatabase.Create;
 begin
-  randomize;
+  Randomize;
   db := self;
   fcrawlerrandom := 0;
   {$IFNDEF CRAWLER}

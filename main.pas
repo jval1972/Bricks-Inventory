@@ -12341,7 +12341,7 @@ begin
         '<a href="inv/' + invs +'/P/' + decide(partmask = '', brick.part, '') + '">' + ' - ' +
         db.PieceDesc(pi) + '</a> <a href=spiece/' + brick.part + '>...</a></td><td width=25%>'
       );
-      DrawColorCell(brick.color, 20);
+      DrawColorCell(brick.color, 25);
       document.write(
         '<a href="inv/' + invs +'/C/' + IntToStr(decide(colormask = -1, brick.color, -1)) + '">' +
         db.colors(brick.color).name + ' (' + scolor + ') (BL=' + IntToStr(db.colors(brick.color).BrickLinkColor) +  ')' + GetRebrickableColorHtml(brick.color) + '</a>' +

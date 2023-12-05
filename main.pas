@@ -22725,9 +22725,12 @@ procedure TMainForm.RandomBrickSetDownload;
 const
   BS_TIMEOUT = 10; // every 10 seconds
   BS_SLEEPTIME = 60; // 1 minute
+  BS_MIN_HTML_SIZE = 20000;
 var
   pcs: string;
   st: extended;
+  autoname: string;
+  autonotes: string;
 begin
   if not initialized then
     Exit;
@@ -22744,6 +22747,17 @@ begin
             lastbricksetdownload := st
           else
             lastbricksetdownload := st + BS_SLEEPTIME; // Give timeout
+          if fsize(BrickSetCachePath(pcs)) > BS_MIN_HTML_SIZE then
+          begin
+            autonotes := GatherOfflineNotes(pcs);
+            autoname := PieceNotesFName(pcs) + '_auto';
+            if fsize(autoname) < Length(autonotes) then
+            begin
+              if not DirectoryExists(basedefault + 'notes\' + pcs) then
+                MkDir(basedefault + 'notes\' + pcs);
+              SaveStringToFile(autoname, autonotes);
+            end;
+          end;
         end;
   end;
 end;

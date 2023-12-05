@@ -258,7 +258,6 @@ procedure ExtractParn(var Src: string; var Dest: array of string; var Count: int
  Dest Array.  Return Src without the extracted string}
 var
   I, J: integer;
-
 begin
   Count := 0;
   while (Count <= High(Dest)) and (Src <> '') do
@@ -479,7 +478,6 @@ procedure DoListStyle(Styles: TObject; Selectors: TStringList;
 var
   S: array[0..6] of string;
   Count, I: integer;
-
 begin
   SplitStr(Value, S, Count);
   for I := 0 to Count - 1 do
@@ -595,8 +593,8 @@ begin
           '.': C := '1';
           ':': C := '2';
           '#': C := '3';
-          else
-            C := '0';
+        else
+          C := '0';
         end;
         SS := C + Ch;
         GetCh;

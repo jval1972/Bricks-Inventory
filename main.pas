@@ -15452,6 +15452,7 @@ begin
   inv2.Free;
   inv3.Free;
   inv4.Free;
+  inv5.Free;
 
   document.SaveBufferToFile(diskmirror);
   document.Flash;

@@ -4558,7 +4558,17 @@ begin
 end;
 
 function TBrickInventory.GetHistoryEvalRec: brickevalhistory_t;
+var
+  inv: TBrickInventory;
 begin
+  if totalsetsbuilted > 0 then
+  begin
+    inv := Clone;
+    inv.DismandalAllSets;
+    Result := inv.GetHistoryEvalRec;
+    inv.Free;
+    Exit;
+  end;
   Result.Eval_nAvg := EvaluatedPartOutValue_nAvg;
   Result.Eval_nQtyAvg := EvaluatedPartOutValue_nQtyAvg;
   Result.Eval_uAvg := EvaluatedPartOutValue_uAvg;
@@ -4567,7 +4577,17 @@ begin
 end;
 
 function TBrickInventory.GetHistoryStatsRec: brickstatshistory_t;
+var
+  inv: TBrickInventory;
 begin
+  if totalsetsbuilted > 0 then
+  begin
+    inv := Clone;
+    inv.DismandalAllSets;
+    Result := inv.GetHistoryStatsRec;
+    inv.Free;
+    Exit;
+  end;
   Result.Sold_nAvg := SoldPartOutValue_nAvg;
   Result.Sold_nQtyAvg := SoldPartOutValue_nQtyAvg;
   Result.Sold_uAvg := SoldPartOutValue_uAvg;

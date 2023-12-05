@@ -680,6 +680,7 @@ type
     Missingforwishlist: TStringList;
     lastset: string;
     dismantaledsetsinv: TBrickInventory;
+    dismantaledsetslst: TStringList;
     diskmirror: string;
     storagebinsupdatetime: double;
     thumbnailcache: array[0..127] of TStringList;
@@ -1129,6 +1130,7 @@ begin
   newtabUrl := '';
 
   dismantaledsetsinv := nil;
+  dismantaledsetslst := TStringList.Create;
 
   for i := 0 to 127 do
   begin
@@ -2739,6 +2741,7 @@ begin
 
   if dismantaledsetsinv <> nil then
     dismantaledsetsinv.Free;
+  dismantaledsetslst.Free;
 
   SplashForm.Free;
   PAK_ShutDown;
@@ -2966,17 +2969,27 @@ procedure TMainForm.UpdateDismantaledsetsinv;
 var
   inv2: TBrickInventory;
   i: integer;
+  lst: TStringList;
 begin
-  if dismantaledsetsinv <> nil then
-    dismantaledsetsinv.Free;
-  dismantaledsetsinv := TBrickInventory.Create;
-
+  lst := TStringList.Create;
   for i := 0 to inventory.numsets - 1 do
     if inventory.sets[i].numdismantaled > 0 then
+      lst.Add(inventory.sets[i].setid);
+  lst.Sort;
+  if lst.Text <> dismantaledsetslst.Text then
+  begin
+    dismantaledsetslst.Text := lst.Text;
+    if dismantaledsetsinv <> nil then
+      dismantaledsetsinv.Free;
+    dismantaledsetsinv := TBrickInventory.Create;
+
+    for i := 0 to dismantaledsetslst.Count - 1 do
     begin
-      inv2 := db.GetSetInventory(inventory.sets[i].setid);
+      inv2 := db.GetSetInventory(dismantaledsetslst.Strings[i]);
       dismantaledsetsinv.MergeWith(inv2);
     end;
+  end;
+  lst.Free;
 end;
 
 procedure TMainForm.DrawBrickOrderInfo(const brick: brickpool_p; const setid: string = '';
@@ -3336,12 +3349,15 @@ var
   scolor: string;
   www: double;
 begin
+  Screen.Cursor := crHourGlass;
+
+  ShowSplash;
+  SplashProgress('Working...', 0);
+
   UpdateDismantaledsetsinv;
 
   if inv = nil then
     inv := inventory;
-
-  Screen.Cursor := crHourGlass;
 
   SortInventory(inv);
 
@@ -3356,9 +3372,6 @@ begin
     '<th>Price Used</th>' +
     '</tr>'
   );
-
-  ShowSplash;
-  SplashProgress('Working...', 0);
 
   brick := @inv.looseparts[0];
   aa := 0;
@@ -3476,7 +3489,7 @@ var
   readyinv: TBrickInventory;
   rnum, rnum_tot: integer;
 begin
-  UpdateDismantaledsetsinv;
+  Screen.Cursor := crHourGlass;
 
   if dosplash then
   begin
@@ -3484,10 +3497,10 @@ begin
     SplashProgress('Working...', 0);
   end;
 
+  UpdateDismantaledsetsinv;
+
   if inv = nil then
     inv := inventory;
-
-  Screen.Cursor := crHourGlass;
 
   if dosort then
     SortInventory(inv);
@@ -5549,12 +5562,13 @@ var
 
 begin
   Screen.Cursor := crHourGlass;
+
   ShowSplash;
   SplashProgress('Working...', 0);
 
-  inv := psinv.Clone;
-
   UpdateDismantaledsetsinv;
+
+  inv := psinv.Clone;
 
   if optlocationsreadylist then
   begin
@@ -7156,9 +7170,10 @@ var
   aa: integer;
   ncolors: TDNumberList;
 begin
-  UpdateDismantaledsetsinv;
   ShowSplash;
   SplashProgress('Working...', 0);
+
+  UpdateDismantaledsetsinv;
 
   if domultipagedocuments then
   begin
@@ -7254,10 +7269,11 @@ var
   aa: integer;
   ncolors: TDNumberList;
 begin
-  UpdateDismantaledsetsinv;
   ShowSplash;
   SplashProgress('Working...', 0);
 
+  UpdateDismantaledsetsinv;
+  
   if domultipagedocuments then
   begin
     if lst <> nil then
@@ -7377,9 +7393,10 @@ var
   sz: integer;
   sinv: TBrickInventory;
 begin
-  UpdateDismantaledsetsinv;
   ShowSplash;
   SplashProgress('Working...', 0);
+
+  UpdateDismantaledsetsinv;
 
   if domultipagedocuments then
     document.NewMultiPageDocument('DrawMoldListCatalog' + tit, lst.Text);
@@ -7961,9 +7978,10 @@ var
   dn: TDateTime;
   www: double;
 begin
-  UpdateDismantaledsetsinv;
   ShowSplash;
   SplashProgress('Working...', 0);
+
+  UpdateDismantaledsetsinv;
 
   if domultipagedocuments then
     document.NewMultiPageDocument('DrawPieceList', tit + itoa(sortorder) + itoa(lst.count));
@@ -8148,9 +8166,10 @@ var
   numpcsinset: integer;
   www: double;
 begin
-  UpdateDismantaledsetsinv;
   ShowSplash;
   SplashProgress('Working...', 0);
+
+  UpdateDismantaledsetsinv;
 
   if domultipagedocuments then
     document.NewMultiPageDocument('DrawPieceListSet', tit + settit + itoa(lst.count));
@@ -8444,9 +8463,10 @@ var
   mycosttot: double;
   www: double;
 begin
-  UpdateDismantaledsetsinv;
   ShowSplash;
   SplashProgress('Working...', 0);
+
+  UpdateDismantaledsetsinv;
 
   if domultipagedocuments then
     document.NewMultiPageDocument('DrawPieceListLugbulk', tit + itoa(lst.count));
@@ -8598,6 +8618,7 @@ var
   www: double;
 begin
   Screen.Cursor := crHourglass;
+
   UpdateDismantaledsetsinv;
 
   color := color1;
@@ -12149,6 +12170,31 @@ begin
   Result := (AA >= fromAA) and (AA <= toAA);
 end;
 
+type
+  invstatsthr_t = record
+    inv: TBrickInventory;
+    filename: string[12];
+  end;
+  invstatsthr_p = ^invstatsthr_t;
+
+function _InvStoreHistoryStatsRecThr(const p: pointer): integer; stdcall;
+var
+  inv: TBrickInventory;
+begin
+  inv := invstatsthr_p(p).inv;
+  inv.StoreHistoryStatsRec(basedefault + 'out\looseparts\' + invstatsthr_p(p).filename + '.stats');
+  Result := 0;
+end;
+
+function _InvStoreHistoryEvalRecThr(const p: pointer): integer; stdcall;
+var
+  inv: TBrickInventory;
+begin
+  inv := invstatsthr_p(p).inv;
+  inv.StoreHistoryEvalRec(basedefault + 'out\looseparts\' + invstatsthr_p(p).filename + '.ieval');
+  Result := 0;
+end;
+
 procedure TMainForm.ShowLooseParts(inv: TBrickInventory;
   colormask: Integer = -1; partmask: string = ''; cat: Integer = -1;
       const fromAA: integer = -1; const toAA: integer = MAXINT);
@@ -12160,6 +12206,7 @@ var
   prnt, prut: double;
   mycost: Double;
   mycosttot: Double;
+  mtparms: invstatsthr_t;
   mytotcostpieces: integer;
   cl: TDNumberList;
   pl: TStringList;
@@ -12173,6 +12220,11 @@ var
   looseparts: boolean;
   www: double;
 begin
+  Screen.Cursor := crHourGlass;
+
+  ShowSplash;
+  SplashProgress('Working...', 0);
+
   UpdateDismantaledsetsinv;
 
   if inv = nil then
@@ -12187,11 +12239,22 @@ begin
   begin
     if not DirectoryExists(basedefault + 'out\looseparts\') then
       ForceDirectories(basedefault + 'out\looseparts\');
-    inv.StoreHistoryStatsRec(basedefault + 'out\looseparts\looseparts.stats');
-    inv.StoreHistoryEvalRec(basedefault + 'out\looseparts\looseparts.ieval');
+    if usemultithread then
+    begin
+      mtparms.inv := inventory;
+      mtparms.filename := 'inventory';
+      MT_Execute(
+        @_InvStoreHistoryStatsRecThr, @mtparms,
+        @_InvStoreHistoryEvalRecThr, @mtparms
+      );
+    end
+    else
+    begin
+      inv.StoreHistoryStatsRec(basedefault + 'out\looseparts\inventory.stats');
+      inv.StoreHistoryEvalRec(basedefault + 'out\looseparts\inventory.ieval');
+    end;
   end;
 
-  Screen.Cursor := crHourGlass;
   SortInventory(inv);
 
   if domultipagedocuments then
@@ -12224,7 +12287,7 @@ begin
       IntToStr(inv.numlooseparts) + ' lots, ' +
       IntToStr(inv.totallooseparts) + ' parts');
     if looseparts then
-      DrawHeadLine('Inventory Statistics <a href="diagramstorage/Loose Parts"><img src="images\diagram.png"></a>');
+      DrawHeadLine('Inventory Statistics <a href="diagramstorage/Inventory"><img src="images\diagram.png"></a>');
 
     DrawPartOutValueWithOutSets(inv);
   end;
@@ -12245,8 +12308,6 @@ begin
     '</tr>'
   );
 
-  ShowSplash;
-  SplashProgress('Working...', 0);
   brick := @inv.looseparts[0];
   aa := 0;
   prnt := 0;
@@ -15306,7 +15367,8 @@ end;
 
 procedure TMainForm.ShowMyPiecesValue;
 var
-  inv1, inv2, inv3: TBrickInventory;
+  inv1, inv2, inv3, inv4, inv5: TBrickInventory;
+  mtparms1, mtparms2, mtparms3, mtparms4, mtparms5: invstatsthr_t;
   i, j: integer;
 begin
   Screen.Cursor := crHourGlass;
@@ -15320,6 +15382,9 @@ begin
   inv1 := TBrickInventory.Create;
   inv2 := TBrickInventory.Create;
   inv3 := inventory.Clone;
+  inv4 := inventory.Clone;
+  inv4.RemoveAllSets;
+  inv5 := inventory.Minifigures;
 
   for i := 0 to inventory.numsets - 1 do
     if db.IsMoc(inventory.sets[i].setid) then
@@ -15342,23 +15407,51 @@ begin
   inv3.DismandalAllSets;
   inv3.Reorganize;
 
-  DrawHeadLine('Loose Parts');
-  DrawPartOutValueWithOutSets(inventory);
+  mtparms1.inv := inv4;
+  mtparms1.filename := 'looseparts';
+  mtparms2.inv := inv1;
+  mtparms2.filename := 'mymocs';
+  mtparms3.inv := inv2;
+  mtparms3.filename := 'mysets';
+  mtparms4.inv := inv3;
+  mtparms4.filename := 'inventory';
+  mtparms5.inv := inv5;
+  mtparms5.filename := 'minifigures';
 
-  DrawHeadLine('Mocs');
+  MT_Execute(
+    @_InvStoreHistoryStatsRecThr, @mtparms1,
+    @_InvStoreHistoryEvalRecThr, @mtparms1,
+    @_InvStoreHistoryStatsRecThr, @mtparms2,
+    @_InvStoreHistoryEvalRecThr, @mtparms2,
+    @_InvStoreHistoryStatsRecThr, @mtparms3,
+    @_InvStoreHistoryEvalRecThr, @mtparms3,
+    @_InvStoreHistoryStatsRecThr, @mtparms4,
+    @_InvStoreHistoryEvalRecThr, @mtparms4,
+    @_InvStoreHistoryStatsRecThr, @mtparms5,
+    @_InvStoreHistoryEvalRecThr, @mtparms5
+  );
+
+  DrawHeadLine('Loose Parts <a href="diagramstorage/Loose Parts"><img src="images\diagram.png"></a>');
+  DrawPartOutValue(inv4);
+
+  DrawHeadLine('Mocs <a href="diagramstorage/My mocs"><img src="images\diagram.png"></a>');
   DrawPartOutValue(inv1);
 
-  DrawHeadLine('Official Sets');
+  DrawHeadLine('Official Sets <a href="diagramstorage/My official sets"><img src="images\diagram.png"></a>');
   DrawPartOutValue(inv2);
 
-  DrawHeadLine('Total');
+  DrawHeadLine('Loose Parts minifigures <a href="diagramstorage/My minifigures"><img src="images\diagram.png"></a>');
+  DrawPartOutValue(inv5);
+
+  DrawHeadLine('Total <a href="diagramstorage/Inventory"><img src="images\diagram.png"></a>');
   DrawPartOutValue(inv3);
 
   document.write('<br></p></div></body>');
-  
+
   inv1.Free;
   inv2.Free;
   inv3.Free;
+  inv4.Free;
 
   document.SaveBufferToFile(diskmirror);
   document.Flash;
@@ -15789,19 +15882,19 @@ var
   lenlst: TStringList;
   i: integer;
 begin
+  Screen.Cursor := crHourglass;
+
   ShowSplash;
   SplashProgress('Working...', 0);
+
+  UpdateDismantaledsetsinv;
 
   lenlst := TStringList.Create;
   if fexists(basedefault + 'db\db_cross_stats.txt') then
     lenlst.LoadFromFile(basedefault + 'db\db_cross_stats.txt');
 
-  UpdateDismantaledsetsinv;
-
   if inv = nil then
     inv := inventory;
-
-  Screen.Cursor := crHourglass;
 
   document.write('<body background="splash.jpg">');
   document.title(id + 'Stats');
@@ -15846,19 +15939,19 @@ var
   lenlst: TStringList;
   i: integer;
 begin
+  Screen.Cursor := crHourglass;
+
   ShowSplash;
   SplashProgress('Working...', 0);
+
+  UpdateDismantaledsetsinv;
 
   lenlst := TStringList.Create;
   if fexists(basedefault + 'db\db_cross_stats.txt') then
     lenlst.LoadFromFile(basedefault + 'db\db_cross_stats.txt');
 
-  UpdateDismantaledsetsinv;
-
   if inv = nil then
     inv := inventory;
-
-  Screen.Cursor := crHourglass;
 
   document.write('<body background="splash.jpg">');
   document.title(id + 'Stats');
@@ -15903,19 +15996,19 @@ var
   lenlst: TStringList;
   i: integer;
 begin
+  Screen.Cursor := crHourglass;
+
   ShowSplash;
   SplashProgress('Working...', 0);
+
+  UpdateDismantaledsetsinv;
 
   lenlst := TStringList.Create;
   if fexists(basedefault + 'db\db_cross_stats.txt') then
     lenlst.LoadFromFile(basedefault + 'db\db_cross_stats.txt');
 
-  UpdateDismantaledsetsinv;
-
   if inv = nil then
     inv := inventory;
-
-  Screen.Cursor := crHourglass;
 
   document.write('<body background="splash.jpg">');
   document.title(id + 'Stats');
@@ -16444,9 +16537,10 @@ var
   www: double;
   fn: string;
 begin
-  UpdateDismantaledsetsinv;
   ShowSplash;
   SplashProgress('Working...', 0);
+
+  UpdateDismantaledsetsinv;
 
   lst := TStringList.Create;
 

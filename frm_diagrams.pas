@@ -430,8 +430,16 @@ begin
 
     if piece = 'Storage Bins' then
       fname := basedefault + 'storage\storagebins.stats'
+    else if piece = 'Inventory' then
+      fname := basedefault + 'out\looseparts\inventory.stats'
     else if piece = 'Loose Parts' then
       fname := basedefault + 'out\looseparts\looseparts.stats'
+    else if piece = 'My mocs' then
+      fname := basedefault + 'out\looseparts\mymocs.stats'
+    else if piece = 'My official sets' then
+      fname := basedefault + 'out\looseparts\mysets.stats'
+    else if piece = 'My minifigures' then
+      fname := basedefault + 'out\looseparts\minifigures.stats'
     else
       fname := basedefault + 'storage\storage_' + filenamestring(piece) + '.stats';
     if fexists(fname) then

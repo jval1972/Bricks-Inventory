@@ -155,13 +155,13 @@ begin
           salt := dbalt.Strings[j];
           if salt <> brick.part then
             if cc.knownpieces.IndexOf(salt) > 0 then
-              lalt.Add(dbalt.Strings[j]);
+              lalt.Add(salt);
         end;
         if lalt.Count > 0 then
         begin
           spartcolor := brick.part + ',' + itoa(brick.color);
           for j := 0 to lalt.Count - 1 do
-            fOnePiece.AddObject(dbalt.Strings[j] + ',' + itoa(brick.color), TStringInit.Create(spartcolor));
+            fOnePiece.AddObject(lalt.Strings[j] + ',' + itoa(brick.color), TStringInit.Create(spartcolor));
         end;
         lalt.Free;
       end;
@@ -214,6 +214,8 @@ var
   i, j: integer;
   oo: IXMLORDERType;
   ii: IXMLITEMType;
+  spart, scolor: string;
+  ncolor: integer;
 begin
   Result := TBrickInventory.Create;
   oo := order(orderid);
@@ -223,19 +225,24 @@ begin
   for i := 0 to oo.ITEM.Count - 1 do
   begin
     ii := oo.ITEM.Items[i];
+    spart := db.RebrickablePart(ii.ITEMID);
+    ncolor := db.BrickLinkColorToSystemColor(ii.COLOR);
+    scolor := IntToStr(ncolor);
+    splitstring(OnePiece(spart + ',' + scolor), spart, scolor, ',');
+    ncolor := StrToIntDef(scolor, ncolor);
     if (ii.ITEMTYPE = 'P') or (ii.ITEMTYPE = 'G') or (ii.ITEMTYPE = 'B') then
-      Result.AddLoosePart(db.RebrickablePart(ii.ITEMID), db.BrickLinkColorToSystemColor(ii.COLOR), ii.QTY)
+      Result.AddLoosePart(spart, ncolor, ii.QTY)
     else if (ii.ITEMTYPE = 'S') or (ii.ITEMTYPE = 'M') then
     begin
       for j := 0 to ii.QTY - 1 do
-        Result.AddSet(db.RebrickablePart(ii.ITEMID), AS_NORMAL);
+        Result.AddSet(spart, AS_NORMAL);
     end
     else if ii.ITEMTYPE = 'C' then
-      Result.AddLoosePart(db.RebrickablePart(ii.ITEMID), CATALOGCOLORINDEX, ii.QTY)
+      Result.AddLoosePart(spart, CATALOGCOLORINDEX, ii.QTY)
     else if ii.ITEMTYPE = 'I' then
-      Result.AddLoosePart(db.RebrickablePart(ii.ITEMID), INSTRUCTIONCOLORINDEX, ii.QTY)
+      Result.AddLoosePart(spart, INSTRUCTIONCOLORINDEX, ii.QTY)
     else if ii.ITEMTYPE = 'O' then
-      Result.AddLoosePart(db.RebrickablePart(ii.ITEMID), BOXCOLORINDEX, ii.QTY)
+      Result.AddLoosePart(spart, BOXCOLORINDEX, ii.QTY)
   end;
 end;
 

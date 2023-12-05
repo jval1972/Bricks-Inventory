@@ -187,11 +187,11 @@ type
     { Public declarations }
   end;
 
-procedure DiagramPiece(const part: string; const color: integer; const chid: integer = 5);
+function DiagramPiece(const part: string; const color: integer; const chid: integer = 5): boolean;
 
-procedure DiagramStorage(const storage: string);
+function DiagramStorage(const storage: string): boolean;
 
-procedure DiagramOrder(const order: string);
+function DiagramOrder(const order: string): boolean;
 
 implementation
 
@@ -761,14 +761,16 @@ begin
   memfree(pointer(A), num * SizeOf(parecdate_t));
 end;
 
-procedure DiagramPiece(const part: string; const color: integer; const chid: integer = 5);
+function DiagramPiece(const part: string; const color: integer; const chid: integer = 5): boolean;
 var
   f: TDiagramForm;
   pci: TPieceColorInfo;
   st: set_t;
   hasinv: boolean;
   chid1: integer;
+  oldcur: string;
 begin
+  oldcur := optdefaultcurrency;
   f := TDiagramForm.Create(nil);
   try
     f.UpdateSpeedButton1.Visible := True;
@@ -845,12 +847,15 @@ begin
   finally
     f.Free;
   end;
+  Result := oldcur <> optdefaultcurrency;
 end;
 
-procedure DiagramStorage(const storage: string);
+function DiagramStorage(const storage: string): boolean;
 var
   f: TDiagramForm;
+  oldcur: string;
 begin
+  oldcur := optdefaultcurrency;
   f := TDiagramForm.Create(nil);
   try
     f.UpdateSpeedButton1.Visible := False;
@@ -869,12 +874,15 @@ begin
   finally
     f.Free;
   end;
+  Result := oldcur <> optdefaultcurrency;
 end;
 
-procedure DiagramOrder(const order: string);
+function DiagramOrder(const order: string): boolean;
 var
   f: TDiagramForm;
+  oldcur: string;
 begin
+  oldcur := optdefaultcurrency;
   f := TDiagramForm.Create(nil);
   try
     f.UpdateSpeedButton1.Visible := False;
@@ -895,6 +903,7 @@ begin
   finally
     f.Free;
   end;
+  Result := oldcur <> optdefaultcurrency;
 end;
 
 procedure TDiagramForm.Button1Click(Sender: TObject);

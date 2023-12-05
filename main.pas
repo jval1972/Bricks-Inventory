@@ -13792,7 +13792,8 @@ begin
     if Pos1('diagrampiece/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, '/');
-      DiagramPiece(s2, atoi(s3));
+      if DiagramPiece(s2, atoi(s3)) then
+        HTMLClick('refresh', Handled);
       Handled := True;
       Exit;
     end;
@@ -13800,7 +13801,8 @@ begin
     if Pos1('diagrampieceex/', SRC) then
     begin
       splitstring(SRC, s1, s2, s3, s4, '/');
-      DiagramPiece(s2, atoi(s3), atoi(s4));
+      if DiagramPiece(s2, atoi(s3), atoi(s4)) then
+        HTMLClick('refresh', Handled);
       Handled := True;
       Exit;
     end;
@@ -13817,7 +13819,8 @@ begin
         Screen.Cursor := crDefault;
       end;
       splitstring(SRC, s1, s2, '/');
-      DiagramStorage(s2);
+      if DiagramStorage(s2) then
+        HTMLClick('refresh', Handled);
       Handled := True;
       Exit;
     end;
@@ -13825,7 +13828,8 @@ begin
     if Pos1('diagramorder/', SRC) then
     begin
       splitstring(SRC, s1, s2, '/');
-      DiagramOrder(s2);
+      if DiagramOrder(s2) then
+        HTMLClick('refresh', Handled);
       Handled := True;
       Exit;
     end;

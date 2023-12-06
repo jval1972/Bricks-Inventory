@@ -22606,11 +22606,20 @@ function TMainForm.GatherOfflineNotes(const pcs: string): string;
 
     sl := TStringList.Create;
     if db.IsGear(pcs) then
-      sl.Add(basedefault + 'db\gears\')
+    begin
+      sl.Add(basedefault + 'db\gears\');
+      sl.Add(basedefault + 'db\molds\');
+    end
     else if db.IsMinifigure(pcs) then
-      sl.Add(basedefault + 'db\minifigs\')
+    begin
+      sl.Add(basedefault + 'db\minifigs\');
+      sl.Add(basedefault + 'db\molds\');
+    end
     else if db.IsBook(pcs) then
-      sl.Add(basedefault + 'db\books\')
+    begin
+      sl.Add(basedefault + 'db\books\');
+      sl.Add(basedefault + 'db\molds\');
+    end
     else if db.IsSet(pcs) then
     begin
       sl.Add(basedefault + 'db\setmolds\');

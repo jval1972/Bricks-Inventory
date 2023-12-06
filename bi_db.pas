@@ -9181,11 +9181,15 @@ begin
     s := TStringList.Create;
     try
       S_LoadFromFile(s, fname);
+      s.Sorted := True;
       for i := 0 to s.Count - 1 do
       begin
         pci := PieceColorInfo(s.Strings[i], -1);
         if pci <> nil then
+        begin
           pci.parttype := TYPE_GEAR;
+          pci.sparttype := 'G';
+        end;
       end;
     finally
       s.Free;
@@ -9293,6 +9297,7 @@ begin
               pci := TPieceColorInfo.Create(sbook, -1);
               pci.pieceinfo := pi;
               pci.parttype := TYPE_BOOK;
+              pci.sparttype := 'B';
               {$IFNDEF CRAWLER}
               yyyy := atoi(s3);
               pci.year := yyyy;
@@ -9302,7 +9307,10 @@ begin
               fColors[-1].knownpieces.AddObject(sbook, pci);
             end
             else
+            begin
               pci.parttype := TYPE_BOOK;
+              pci.sparttype := 'B';
+            end;
           end;
         end;
       end;
@@ -9361,6 +9369,7 @@ begin
               pci := TPieceColorInfo.Create(scatalog, CATALOGCOLORINDEX);
             pci.pieceinfo := pi;
             pci.parttype := TYPE_CATALOG;
+            pci.sparttype := 'C';
             {$IFNDEF CRAWLER}
             yyyy := atoi(s4);
             pci.year := yyyy;
@@ -15458,9 +15467,15 @@ begin
   if pci <> nil then
   begin
     if value then
-      pci.parttype := TYPE_GEAR
+    begin
+      pci.parttype := TYPE_GEAR;
+      pci.sparttype := 'G';
+    end
     else if IsBook(sid) then
-      pci.parttype := TYPE_BOOK
+    begin
+      pci.parttype := TYPE_BOOK;
+      pci.sparttype := 'B';
+    end
     else
       pci.parttype := TYPE_SET;
   end;
@@ -15468,14 +15483,13 @@ end;
 
 function TSetsDatabase.IsGear(const sid: string): boolean;
 var
-  s: TStringList;
-  fname: string;
+  pci: TPieceColorInfo;
 begin
-  s := S_GetStringList(fname, True);
-  if s <> nil then
-    Result := s.IndexOf(sid) >= 0
-  else
-    Result := False;
+  Result := False;
+  pci := PieceColorInfo(sid, -1);
+  if pci <> nil then
+    if (pci.sparttype = 'G') or (pci.parttype = TYPE_GEAR) then
+      Result := True;
 end;
 
 function TSetsDatabase.IsMinifigure(const mid: string): boolean;
@@ -15485,7 +15499,7 @@ begin
   Result := False;
   pci := PieceColorInfo(mid, -1);
   if pci <> nil then
-    if pci.sparttype = 'M' then
+    if (pci.sparttype = 'M') or (pci.parttype = TYPE_MINIFIGURE) then
       Result := True;
 end;
 
@@ -15496,7 +15510,7 @@ begin
   Result := False;
   pci := PieceColorInfo(pid, -1);
   if pci <> nil then
-    if pci.sparttype = 'P' then
+    if (pci.sparttype = 'P') or (pci.parttype = TYPE_PART) then
       Result := True;
 end;
 
@@ -15507,7 +15521,7 @@ begin
   Result := False;
   pci := PieceColorInfo(sid, -1);
   if pci <> nil then
-    if pci.sparttype = 'S' then
+    if (pci.sparttype = 'S') or (pci.parttype = TYPE_SET) then
       Result := True;
 end;
 
@@ -15519,6 +15533,7 @@ begin
   pci := PieceColorInfo(sid, -1);
   if pci <> nil then
     if pci.ItemType = 'G' then
+      Result := True;
 end;
 
 function TSetsDatabase.IsPossibleMinifigure(const mid: string): boolean;
@@ -15529,6 +15544,7 @@ begin
   pci := PieceColorInfo(mid, -1);
   if pci <> nil then
     if pci.ItemType = 'M' then
+      Result := True;
 end;
 
 function TSetsDatabase.IsPossiblePart(const pid: string): boolean;
@@ -15539,6 +15555,7 @@ begin
   pci := PieceColorInfo(pid, -1);
   if pci <> nil then
     if pci.ItemType = 'P' then
+      Result := True;
 end;
 
 function TSetsDatabase.IsPossibleSet(const sid: string): boolean;
@@ -15549,6 +15566,7 @@ begin
   pci := PieceColorInfo(sid, -1);
   if pci <> nil then
     if pci.ItemType = 'S' then
+      Result := True;
 end;
 
 {$IFNDEF CRAWLER}
@@ -20344,8 +20362,6 @@ begin
     Result := 'I'
   else if (fparttype = TYPE_BOX) or (fcolor = BOXCOLORINDEX) then
     Result := 'O'
-  else if CharPos('-', fpiece) > 0 then
-    Result := 'S'
   else if issticker(fpiece, self) or iscardboard(self) then
     Result := 'P'
   else if Pos1('970p', fpiece) or
@@ -20358,6 +20374,8 @@ begin
     Pos1('3626b', fpiece) or
     Pos1('3626c', fpiece) then
     Result := 'P'
+  else if CharPos('-', fpiece) > 0 then
+    Result := 'S'
   else if fcolor = -1 then
     Result := 'M'
   else

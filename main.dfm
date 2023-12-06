@@ -1772,6 +1772,10 @@ object MainForm: TMainForm
           Caption = 'Parts with case conflicts'
           OnClick = Partswithdifferentcase1Click
         end
+        object Partswithtypeconflicts1: TMenuItem
+          Caption = 'Parts with type conflicts'
+          OnClick = Partswithtypeconflicts1Click
+        end
       end
     end
     object LugBulks1: TMenuItem

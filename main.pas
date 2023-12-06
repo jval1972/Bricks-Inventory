@@ -398,6 +398,7 @@ type
     Missingtobuild1: TMenuItem;
     Missingforwishlist1: TMenuItem;
     Mywishlist1: TMenuItem;
+    Partswithtypeconflicts1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -663,6 +664,7 @@ type
     procedure RelatedAlternatepieces1Click(Sender: TObject);
     procedure Missingforwishlist1Click(Sender: TObject);
     procedure Mywishlist1Click(Sender: TObject);
+    procedure Partswithtypeconflicts1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -840,6 +842,7 @@ type
     procedure ShowDimentionsQuery(const id: string);
     procedure ShowBricklinkandRebrickablenameconflicts;
     procedure ShowPiecesCaseconflicts;
+    procedure ShowPiecesTypeconflicts;
     procedure DrawNavigateBar;
     procedure DrawNavigateCatalog;
     procedure DrawHeadLine(const s: string);
@@ -14555,6 +14558,10 @@ begin
   begin
     ShowPiecesCaseconflicts;
   end
+  else if slink = 'ShowPiecesTypeconflicts' then
+  begin
+    ShowPiecesTypeconflicts;
+  end
   else
     Handled := False;
 
@@ -22788,6 +22795,113 @@ begin
           end;
         end;
   end;
+end;
+
+procedure TMainForm.Partswithtypeconflicts1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('ShowPiecesTypeconflicts', foo);
+end;
+
+procedure TMainForm.ShowPiecesTypeconflicts;
+var
+  i, j: integer;
+  cmolds: TStringList;
+  cl: colorinfo_p;
+  kp: THashStringList;
+  pci: TPieceColorInfo;
+  spart: string;
+  styp: Char;
+  stypes: string;
+  lst: TStringList;
+  tit: string;
+  hasP, hasS, hasM, hasC, hasB, hasI, hasO, hasG: boolean;
+begin
+  Screen.Cursor := crHourglass;
+
+  lst := TStringList.Create;
+
+  for i := -1 to MAXINFOCOLOR do
+  begin
+    cl := db.Colors(i);
+    if (cl.id = i) or (i = -1) then
+    begin
+      kp := cl.knownpieces;
+      if kp <> nil then
+        lst.AddStrings(kp);
+    end;
+  end;
+  lst.Sort;
+
+  cmolds := TStringList.Create;
+
+  i := 0;
+  while i < lst.Count do
+  begin
+    stypes := '';
+    spart := strupper(lst.Strings[i]);
+    pci := lst.Objects[i] as TPieceColorInfo;
+    for j := i to lst.Count - 1 do
+    begin
+      i := j;
+      if strupper(lst.Strings[i]) = spart then
+      begin
+        pci := lst.Objects[i] as TPieceColorInfo;
+        styp := pci.sparttype;
+        if styp <> ' ' then
+          if CharPos(styp, stypes) < 1 then
+            stypes := stypes + styp;
+      end
+      else
+      begin
+        dec(i);
+        if Length(stypes) > 0 then
+        begin
+          hasP := CharPos('P', stypes) >= 1;
+          hasS := CharPos('S', stypes) >= 1;
+          hasM := CharPos('M', stypes) >= 1;
+          hasC := CharPos('C', stypes) >= 1;
+          hasB := CharPos('B', stypes) >= 1;
+          hasI := CharPos('I', stypes) >= 1;
+          hasO := CharPos('O', stypes) >= 1;
+          hasG := CharPos('G', stypes) >= 1;
+
+          if hasI or hasO then
+          begin
+            if hasP or hasC or hasM then
+              cmolds.Add(pci.piece)
+            else if not hasS and not hasG and not hasB then
+              cmolds.Add(pci.piece)
+          end
+          else if hasC and (Length(stypes) > 1) then
+            cmolds.Add(pci.piece)
+          else if hasP and hasM then
+            cmolds.Add(pci.piece)
+          else if hasP and hasG then
+            cmolds.Add(pci.piece)
+          else if hasP and hasB then
+            cmolds.Add(pci.piece)
+          else if hasM and hasG then
+            cmolds.Add(pci.piece)
+          else if hasM and hasB then
+            cmolds.Add(pci.piece)
+          else if hasG and hasB then
+            cmolds.Add(pci.piece);
+        end;
+        break;
+      end;
+    end;
+    inc(i);
+  end;
+
+  cmolds.Sort;
+  tit := 'Type conflicts';
+  DrawMoldList(tit, cmolds, False, False, tit);
+
+  cmolds.Free;
+  lst.Free;
+  Screen.Cursor := crDefault;
 end;
 
 end.

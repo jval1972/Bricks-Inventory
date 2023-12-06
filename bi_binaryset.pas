@@ -319,6 +319,8 @@ begin
         rec.data[i].piece[1] := 'm'
       else
         cache[cacheidx].data[i].piece := fixpartname(cache[cacheidx].data[i].piece);
+      if rec.data[i].color = -2 then
+        rec.data[i].color := -1;
 
       Result := Result + #13#10 + rec.data[i].piece + ',' + itoa(rec.data[i].color) + ',' + itoa(rec.data[i].num);
     end;
@@ -335,6 +337,8 @@ begin
         recSM.data[i].piece[1] := 'm'
       else
         cache[cacheidx].data[i].piece := fixpartname(cache[cacheidx].data[i].piece);
+      if rec.data[i].color = -2 then
+        rec.data[i].color := -1;
 
       Result := Result + #13#10 + recSM.data[i].piece + ',' + itoa(recSM.data[i].color) + ',' + itoa(recSM.data[i].num);
     end;
@@ -351,6 +355,8 @@ begin
         recMD.data[i].piece[1] := 'm'
       else
         cache[cacheidx].data[i].piece := fixpartname(cache[cacheidx].data[i].piece);
+      if rec.data[i].color = -2 then
+        rec.data[i].color := -1;
 
       Result := Result + #13#10 + recMD.data[i].piece + ',' + itoa(recMD.data[i].color) + ',' + itoa(recMD.data[i].num);
     end;
@@ -453,6 +459,8 @@ begin
       splitstring(str.Strings[i], spart, scolor, snum, ',');
       spart := fixpartname(spart);
       trimproc(scolor);
+      if scolor = '-2' then
+        scolor := '-1';
       if spart <> '' then
       begin
         if Pos1('BL ', spart) then
@@ -518,6 +526,8 @@ begin
       splitstring(str.Strings[i], spart, scolor, snum, sspare, ',');
       spart := fixpartname(spart);
       trimproc(scolor);
+      if scolor = '-2' then
+        scolor := '-1';
       if spart <> '' then
       begin
         if Pos1('BL ', spart) then
@@ -557,6 +567,8 @@ begin
       splitstring(str.Strings[i], spart, scolor, snum, scost, ',');
       spart := fixpartname(spart);
       trimproc(scolor);
+      if scolor = '-2' then
+        scolor := '-1';
       if spart <> '' then
       begin
         if Pos1('BL ', spart) then

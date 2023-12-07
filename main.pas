@@ -844,6 +844,7 @@ type
     procedure ShowBricklinkandRebrickablenameconflicts;
     procedure ShowPiecesCaseconflicts;
     procedure ShowPiecesTypeconflicts;
+    procedure StoreMyInventoryStats;
     procedure DrawNavigateBar;
     procedure DrawNavigateCatalog;
     procedure DrawHeadLine(const s: string);
@@ -2706,6 +2707,8 @@ begin
   inventory.SaveLooseParts(basedefault + 'myparts.txt');
   inventory.SavePartsInventoryPriceguide(basedefault + 'myparts_priceguide.txt');
   inventory.SaveSets(basedefault + 'mysets.txt');
+
+  StoreMyInventoryStats;
 
 {  ShowSplash;
   progress_string := 'Saving Priceguide...';
@@ -12248,10 +12251,12 @@ begin
     begin
       mtparms.inv := inventory;
       mtparms.filename := 'inventory';
+      AllowInternetAccess := False;
       MT_Execute(
         @_InvStoreHistoryStatsRecThr, @mtparms,
         @_InvStoreHistoryEvalRecThr, @mtparms
       );
+      AllowInternetAccess := True;
     end
     else
     begin
@@ -15378,6 +15383,73 @@ begin
   document.Flash;
 end;
 
+procedure TMainForm.StoreMyInventoryStats;
+var
+  inv1, inv2, inv3, inv4, inv5: TBrickInventory;
+  mtparms1, mtparms2, mtparms3, mtparms4, mtparms5: invstatsthr_t;
+  i, j: integer;
+begin
+  inv1 := TBrickInventory.Create;
+  inv2 := TBrickInventory.Create;
+  inv3 := inventory.Clone;
+  inv4 := inventory.Clone;
+  inv4.RemoveAllSets;
+  inv5 := inventory.Minifigures;
+
+  for i := 0 to inventory.numsets - 1 do
+    if db.IsMoc(inventory.sets[i].setid) then
+    begin
+      for j := 1 to inventory.sets[i].num do
+        inv1.AddSet(inventory.sets[i].setid, AS_NORMAL);
+    end
+    else
+    begin
+      for j := 1 to inventory.sets[i].num do
+        inv2.AddSet(inventory.sets[i].setid, AS_NORMAL);
+    end;
+
+  inv1.DismandalAllSets;
+  inv1.Reorganize;
+
+  inv2.DismandalAllSets;
+  inv2.Reorganize;
+
+  inv3.DismandalAllSets;
+  inv3.Reorganize;
+
+  mtparms1.inv := inv4;
+  mtparms1.filename := 'looseparts';
+  mtparms2.inv := inv1;
+  mtparms2.filename := 'mymocs';
+  mtparms3.inv := inv2;
+  mtparms3.filename := 'mysets';
+  mtparms4.inv := inv3;
+  mtparms4.filename := 'inventory';
+  mtparms5.inv := inv5;
+  mtparms5.filename := 'minifigures';
+
+  AllowInternetAccess := False;
+  MT_Execute(
+    @_InvStoreHistoryStatsRecThr, @mtparms1,
+    @_InvStoreHistoryEvalRecThr, @mtparms1,
+    @_InvStoreHistoryStatsRecThr, @mtparms2,
+    @_InvStoreHistoryEvalRecThr, @mtparms2,
+    @_InvStoreHistoryStatsRecThr, @mtparms3,
+    @_InvStoreHistoryEvalRecThr, @mtparms3,
+    @_InvStoreHistoryStatsRecThr, @mtparms4,
+    @_InvStoreHistoryEvalRecThr, @mtparms4,
+    @_InvStoreHistoryStatsRecThr, @mtparms5,
+    @_InvStoreHistoryEvalRecThr, @mtparms5
+  );
+  AllowInternetAccess := True;
+
+  inv1.Free;
+  inv2.Free;
+  inv3.Free;
+  inv4.Free;
+  inv5.Free;
+end;
+
 procedure TMainForm.ShowMyPiecesValue;
 var
   inv1, inv2, inv3, inv4, inv5: TBrickInventory;
@@ -15431,6 +15503,7 @@ begin
   mtparms5.inv := inv5;
   mtparms5.filename := 'minifigures';
 
+  AllowInternetAccess := False;
   MT_Execute(
     @_InvStoreHistoryStatsRecThr, @mtparms1,
     @_InvStoreHistoryEvalRecThr, @mtparms1,
@@ -15443,6 +15516,7 @@ begin
     @_InvStoreHistoryStatsRecThr, @mtparms5,
     @_InvStoreHistoryEvalRecThr, @mtparms5
   );
+  AllowInternetAccess := True;
 
   DrawHeadLine('Loose Parts <a href="diagramstorage/Loose Parts"><img src="images\diagram.png"></a>');
   DrawPartOutValue(inv4);

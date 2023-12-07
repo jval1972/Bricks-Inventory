@@ -178,6 +178,7 @@ type
     fEvaluatedPartOutValue_uQtyAvg: partout_t;
     procedure _growparts;
     procedure _growsets;
+    procedure _freememory;
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -251,7 +252,7 @@ type
     function nDemand: partout_t;
     function uDemand: partout_t;
     procedure Reorganize;
-    procedure DoReorganize;
+    function DoReorganize: Boolean;
     procedure Clear;
     procedure MergeWith(const inv: TBrickInventory);
     procedure TryToRemoveInventory(const inv: TBrickInventory);
@@ -967,6 +968,7 @@ type
     {$IFNDEF CRAWLER}
     fStorageBinsCache: TStringList;
     compressnamerover: integer;
+    organizeinvsrover: integer;
     {$ENDIF}
     fneedsidletime: boolean;
     fmaximumcolors: integer;
@@ -1601,6 +1603,29 @@ begin
   end;
 end;
 
+procedure TBrickInventory._growsets;
+begin
+  if fnumsets >= frealnumsets then
+  begin
+    frealnumsets := frealnumsets + 4;
+    ReallocMem(fsets, frealnumsets * SizeOf(set_t));
+  end;
+end;
+
+procedure TBrickInventory._freememory;
+begin
+  if fnumlooseparts < frealnumlooseparts then
+  begin
+    ReallocMem(flooseparts, fnumlooseparts * SizeOf(brickpool_t));
+    frealnumlooseparts := fnumlooseparts;
+  end;
+  if fnumsets < frealnumsets then
+  begin
+    ReallocMem(fsets, fnumsets * SizeOf(set_t));
+    frealnumsets := fnumsets;
+  end;
+end;
+
 procedure TBrickInventory.SetPartCapacity(const x: integer);
 begin
   if x > 0 then
@@ -1610,15 +1635,6 @@ begin
         frealnumlooseparts := x;
         ReallocMem(flooseparts, frealnumlooseparts * SizeOf(brickpool_t));
       end;
-end;
-
-procedure TBrickInventory._growsets;
-begin
-  if fnumsets >= frealnumsets then
-  begin
-    frealnumsets := frealnumsets + 4;
-    ReallocMem(fsets, frealnumsets * SizeOf(set_t));
-  end;
 end;
 
 destructor TBrickInventory.Destroy;
@@ -4007,7 +4023,7 @@ begin
   DoReorganize;
 end;
 
-procedure TBrickInventory.DoReorganize;
+function TBrickInventory.DoReorganize: boolean;
 var
   nparts: brickpool_pa;
   nnum: integer;
@@ -4015,6 +4031,7 @@ var
   pci: TPieceColorInfo;
   cl: integer;
 begin
+  Result := False;
   if fnumlooseparts = 0 then
     Exit;
   nnum := fnumlooseparts;
@@ -4035,12 +4052,18 @@ begin
       if db.Colors(cl).knownpieces = nil then
         db.Colors(cl).knownpieces := THashStringList.Create;
       db.Colors(cl).knownpieces.AddObject(nparts[i].part, pci);
+      Result := True;
     end;
     if nparts[i].num <> 0 then
-      AddLoosePart(nparts[i].part, cl, nparts[i].num, pci);
+      AddLoosePart(nparts[i].part, cl, nparts[i].num, pci)
+    else
+      Result := True;
   end;
   FreeMem(nparts, nnum * SizeOf(brickpool_t));
   fneedsReorganize := False;
+  Result := Result or (nnum <> fnumlooseparts);
+  if Result then
+    _freememory;
 end;
 
 procedure TBrickInventory.Clear;
@@ -7206,6 +7229,7 @@ begin
   {$IFNDEF CRAWLER}
   S_InitFileSystem;
   compressnamerover := 0;
+  organizeinvsrover := 0;
   {$ENDIF}
   inherited Create;
   fPartTypeList := TStringList.Create;
@@ -21068,14 +21092,52 @@ procedure TSetsDatabase.IdleEventHandler(Sender: TObject; var Done: Boolean);
     Result := True;
   end;
 
-begin
-  if not _handle_name_compress then
+  function _handleorganizeinvs: boolean;
+  const
+    ORGANIZE_INVS_MAX = 10;
+  var
+    start, i: integer;
+    inv: TBrickInventory;
+    fn: string;
   begin
-    Done := True;
-    fneedsidletime := False;
-  end
-  else
+    start := organizeinvsrover;
+    if start >= fallsets.Count then
+    begin
+      Result := False;
+      Exit;
+    end;
+    organizeinvsrover := start +  ORGANIZE_INVS_MAX;
+    if organizeinvsrover > fallsets.Count then
+      organizeinvsrover := fallsets.Count;
+    for i := start to organizeinvsrover - 1 do
+    begin
+      inv := fallsets.Objects[i] as TBrickInventory;
+      if inv.DoReorganize then
+      begin
+        fn := basedefault + 'db\sets\' + fallsets.Strings[i] + '.txt';
+        inv.SaveLooseParts(fn);
+        fbinarysets.UpdateSetFromTextFile(fallsets.Strings[i], fn);
+      end;
+    end;
+    Result := True;
+  end;
+
+
+begin
+  if _handle_name_compress then
+  begin
     Done := False;
+    Exit;
+  end;
+
+  if _handleorganizeinvs then
+  begin
+    Done := False;
+    Exit;
+  end;
+
+  Done := True;
+  fneedsidletime := False;
 end;
 {$ENDIF}
 

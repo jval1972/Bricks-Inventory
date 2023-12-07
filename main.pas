@@ -690,6 +690,7 @@ type
     newtabUrl: string;
     starttime: extended;
     lastbricksetdownload: extended;
+    idleindicator: integer;
     function CheckAA(const AA, fromAA, toAA: integer): boolean;
     procedure Navigate(const akey: string; const pg: integer);
     procedure DrawColorCell(const cc: integer; const width: integer);
@@ -1119,6 +1120,7 @@ begin
   I_Init;
   starttime := I_GetSysTime;
   lastbricksetdownload := 0.0;
+  idleindicator := 0;
   MT_Init;
   SplashForm := TSplashForm.Create(nil);
   lastset := '';
@@ -19935,13 +19937,26 @@ begin
 end;
 
 procedure TMainForm.IdleTimerTimer(Sender: TObject);
+const
+  IDLE_DOCUMENT = 1;
+  IDLE_DB = 2;
+  IDLE_FORM = 3;
 begin
-  if document.needsidletime then
-    Application.OnIdle := document.IdleEventHandler
-  else if db.needsidletime then
-    Application.OnIdle := db.IdleEventHandler
+  if document.needsidletime and (idleindicator <> IDLE_DOCUMENT) then
+  begin
+    Application.OnIdle := document.IdleEventHandler;
+    idleindicator := IDLE_DOCUMENT;
+  end
+  else if db.needsidletime  and (idleindicator <> IDLE_DB) then
+  begin
+    Application.OnIdle := db.IdleEventHandler;
+    idleindicator := IDLE_DB;
+  end
   else
+  begin
     Application.OnIdle := self.IdleEventHandler;
+    idleindicator := IDLE_FORM;
+  end;
 end;
 
 procedure TMainForm.IdleEventHandler(Sender: TObject; var Done: Boolean);

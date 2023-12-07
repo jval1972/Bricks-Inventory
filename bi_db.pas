@@ -208,6 +208,7 @@ type
     function BuildSetCount(const sset: string): integer;
     procedure AddSet(const setid: string; const typ: integer);
     procedure GetSetInfo(const setid: string; const s: set_p);
+    procedure GetSetInfoForDiagrams(const setid: string; const s: set_p);
     function RemoveSet(const setid: string; const typ: integer): boolean;
     function DismandalSet(const setid: string): boolean;
     function DismandalAllSets: boolean;
@@ -4708,8 +4709,9 @@ end;
 
 procedure TBrickInventory.StorePieceInventoryStatsRec(const fn: string; const piece: string; const color: integer; const pl: integer = 0);
 var
-  h: pieceinventoryhistory_t;
+  h, h1, h2: pieceinventoryhistory_t;
   f: TFileStream;
+  nrecs: integer;
 begin
   if pl > 3 then
     Exit;
@@ -4721,14 +4723,31 @@ begin
     begin
       f := TFileStream.Create(fn, fmOpenReadWrite or fmShareDenyWrite);
       f.Position := f.Size;
+      nrecs := f.Size div SizeOf(pieceinventoryhistory_t);
     end
     else
     begin
       ForceDirectories(ExtractFilePath(fn));
       f := TFileStream.Create(fn, fmCreate or fmShareDenyWrite);
+      nrecs := 0;
     end;
 
-    f.Write(h, SizeOf(h));
+    if (color >= 0) and color <= LASTNORMALCOLORINDEX) and (nrecs > 2 then
+    begin
+      f.Position := f.Size - 2 * SizeOf(pieceinventoryhistory_t);
+      f.Read(h1, SizeOf(pieceinventoryhistory_t));
+      f.Read(h2, SizeOf(pieceinventoryhistory_t));
+      if (h1.nnew = h2.nnew) and
+         (h1.nused = h2.nused) and
+         (h1.nbuilded = h2.nbuilded) and
+         (h1.ndismantaled = h1.ndismantaled) then
+        if (h.nnew = h2.nnew) and
+           (h.nused = h2.nused) and
+           (h.nbuilded = h2.nbuilded) and
+           (h.ndismantaled = h1.ndismantaled) then
+          f.Position := f.Size - SizeOf(pieceinventoryhistory_t);
+    end;
+    f.Write(h, SizeOf(pieceinventoryhistory_t));
     f.Free;
   except
     Sleep(150);
@@ -5345,6 +5364,24 @@ begin
       s.numdismantaled := s.numdismantaled + fsets[i].numdismantaled;
       s.numwishlist := s.numwishlist + fsets[i].numwishlist;
     end;
+end;
+
+procedure TBrickInventory.GetSetInfoForDiagrams(const setid: string; const s: set_p);
+var
+  i: integer;
+begin
+  s.setid := setid;
+  s.num := 0;
+  s.numdismantaled := 0;
+  s.numwishlist := 0;
+  for i := 0 to fnumsets - 1 do
+    if fsets[i].setid = setid then
+    begin
+      s.num := s.num + fsets[i].num;
+      s.numdismantaled := s.numdismantaled + fsets[i].numdismantaled;
+      s.numwishlist := s.numwishlist + fsets[i].numwishlist;
+    end;
+  s.num := s.num + loosepartcount(setid, -1);
 end;
 
 function TBrickInventory.RemoveSet(const setid: string; const typ: integer): boolean;

@@ -292,13 +292,29 @@ const
     'AV_nuQtyRatio'
   );
 
+function sortlist_inv(List: TStringList; Index1, Index2: Integer): Integer;
+var
+  date1, date2: double;
+begin
+  date1 := (List.Objects[Index1] as TDouble).value;
+  date2 := (List.Objects[Index2] as TDouble).value;
+  if date1 > date2 then
+    Result := 1
+  else if date1 < date2 then
+    Result := -1
+  else
+    Result := 0;
+end;
+
 procedure MakeChart(const c: TChart; const piece: string; const color: integer; const idx: integer);
 var
   A: parecarray_p;
   num: integer;
   fname: string;
+  fnames: TStringList;
+  fsortlst: TStringList;
   numextra: integer;
-  i, j, k: integer;
+  i, j, k, l: integer;
   f: TFileStream;
   x, y: double;
   mx: double;
@@ -322,8 +338,8 @@ var
   dd20180904: double;
   truncx: integer;
   dd20170102: double;
-  h: pieceinventoryhistory_t;
-  h2: brickstatshistory_t;
+  ph: pieceinventoryhistory_t;
+  bh: brickstatshistory_t;
   st: set_t;
   e: orderevalhistory_t;
   list40: TStringList;
@@ -454,28 +470,28 @@ begin
       j := 0;
       for i := 0 to (f.Size div SizeOf(brickstatshistory_t)) - 1 do
       begin
-        f.Read(h2, SizeOf(brickstatshistory_t));
-        x := h2.time;
+        f.Read(bh, SizeOf(brickstatshistory_t));
+        x := bh.time;
         if idx = 30 then
-          y := h2.Sold_nAvg.value
+          y := bh.Sold_nAvg.value
         else if idx = 31 then
-          y := h2.Sold_nQtyAvg.value
+          y := bh.Sold_nQtyAvg.value
         else if idx = 32 then
-          y := h2.Sold_uAvg.value
+          y := bh.Sold_uAvg.value
         else if idx = 33 then
-          y := h2.Sold_uQtyAvg.value
+          y := bh.Sold_uQtyAvg.value
         else if idx = 34 then
-          y := h2.Avail_nAvg.value
+          y := bh.Avail_nAvg.value
         else if idx = 35 then
-          y := h2.Avail_nQtyAvg.value
+          y := bh.Avail_nQtyAvg.value
         else if idx = 36 then
-          y := h2.Avail_uAvg.value
+          y := bh.Avail_uAvg.value
         else if idx = 37 then
-          y := h2.Avail_uQtyAvg.value
+          y := bh.Avail_uQtyAvg.value
         else if idx = 38 then
-          y := h2.nDemand.value
+          y := bh.nDemand.value
         else
-          y := h2.uDemand.value;
+          y := bh.uDemand.value;
         truncx := Trunc(x);
         if truncx <> date20150403 then
           if (truncx < date20190402) or (truncx > date20190405) then
@@ -521,9 +537,9 @@ begin
       ii := 0;
       for i := 0 to (f.Size div SizeOf(brickstatshistory_t)) - 1 do
       begin
-        f.Read(h2, SizeOf(brickstatshistory_t));
+        f.Read(bh, SizeOf(brickstatshistory_t));
 
-        x := h2.time;
+        x := bh.time;
         if mustexclude(piece, -1, x) then
           Continue;
         if x >= dd20160218 then
@@ -535,9 +551,9 @@ begin
             Continue;
 
         if idx = 28 then
-          y := h2.Sold_nQtyAvg.value
+          y := bh.Sold_nQtyAvg.value
         else
-          y := h2.Sold_uQtyAvg.value;
+          y := bh.Sold_uQtyAvg.value;
         if ii = 0 then
           c.Series[0].AddXY(x, 0.0);
         if y > 0.0001 then
@@ -570,105 +586,120 @@ begin
     dd20180601 := s2date1('20180601');
     dd20180904 := s2date1('20180904');
 
-    if color = -1 then
-      fname := basedefault + 'out\' + piece + '\' + piece + '.history'
-    else
-      fname := basedefault + 'cache\' + IntToStr(color) + '\' + piece + '.history';
-    if fexists(fname) then
+    fnames := TStringList.Create;
+    if (color = -1) or (color = 9999) then
     begin
-      c.Series[0].Clear;
-      c.Series[0].XValues.DateTime := True;
-      c.BottomAxis.DateTimeFormat := 'dd/mm/yyyy';
-
-      c.Title.Text.Text := C_TITLES[idx];
-      c.Series[0].AddXY(s2date1('20140401'), 0.0);
-
-      if color > -1 then
-        if fexists(basedefault + 'history\parts.txt') then
+      fnames.Add(basedefault + 'out\' + piece + '\' + piece + '.history');
+      fnames.Add(basedefault + 'cache\-1\' + piece + '.history');
+      fnames.Add(basedefault + 'cache\9999\' + piece + '.history');
+    end
+    else
+      fnames.Add(basedefault + 'cache\' + IntToStr(color) + '\' + piece + '.history');
+    for l := 0 to fnames.Count - 1 do
+    begin
+      fname := fnames.Strings[l];
+      if fexists(fname) then
+      begin
+        if l = 0 then
         begin
-          list27a := TStringList.Create;
-          list27b := TStringList.Create;
-          list27a.LoadFromFile(basedefault + 'history\parts.txt');
-          list27a.Sort;
-          check27 := piece + ',' + itoa(color) + ',';
-          len27a := length(check27);
-          for i := 0 to list27a.Count - 1 do
-            if fexists(basedefault + 'history\' + list27a.Strings[i]) then
-              if length(list27a.Strings[i]) = 20 then
-              begin
-                list27b.LoadFromFile(basedefault + 'history\' + list27a.Strings[i]);
-                num27 := 0;
-                for j := 1 to list27b.Count - 1 do
-                begin
-                  string27 := list27b.Strings[j];
-                  if Pos1(check27, string27) then
-                  begin
-                    snum27 := '';
-                    for k := len27a + 1 to length(string27) do
-                      snum27 := snum27 + string27[k];
-                    num27 := num27 + atoi(snum27);
-                  end;
-                end;
-                date27 := s2date1(
-                  list27a.Strings[i][13] + list27a.Strings[i][14] + list27a.Strings[i][15] + list27a.Strings[i][16] +
-                  list27a.Strings[i][17] + list27a.Strings[i][18] + list27a.Strings[i][19] + list27a.Strings[i][20]
-                );
-                if Trunc(date27) <> Trunc(dd20151218) then
-                  if Trunc(date27) <> Trunc(dd20160119) then
-                  begin
-                    if (piece = '2431') and (color = 71) and (Trunc(date27) = Trunc(dd20160123)) then
-                    else if (piece = '44302') and (date27 >= dd20170412) and (date27 <= dd20170426) then
-                    else if (piece = '3069b') and (date27 >= dd20170430) and (date27 <= dd20170510) then
-                    else if (piece = '3069b') and (date27 >= dd20170614) and (date27 <= dd20171220) then
-                    else if (piece = '2412b') and (date27 >= dd20170418) and (date27 <= dd20180207) then
-                    else if mustexclude(piece, color, date27) then
-                    else
-                      c.Series[0].AddXY(date27, num27);
-                  end;
-              end;
-          list27a.Free;
-          list27b.Free;
+          c.Series[0].Clear;
+          c.Series[0].XValues.DateTime := True;
+          c.BottomAxis.DateTimeFormat := 'dd/mm/yyyy';
+
+          c.Title.Text.Text := C_TITLES[idx];
+          c.Series[0].AddXY(s2date1('20140401'), 0.0);
         end;
 
-      f := TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
-      for i := 0 to (f.Size div SizeOf(pieceinventoryhistory_t)) - 1 do
-      begin
-        f.Read(h, SizeOf(pieceinventoryhistory_t));
-        x := h.time;
-        if color = -1 then
-          y := h.nbuilded
-        else
-          y := h.nnew + h.nused;
-        truncx := Trunc(x);
-        if truncx <> Trunc(dd20151218) then
-          if truncx <> Trunc(dd20160119) then
+        if (color > -1) and (l = 0) then
+          if fexists(basedefault + 'history\parts.txt') then
           begin
-            if (piece = '2431') and (color = 71) and (truncx = Trunc(dd20160123)) then
-            else if (piece = '44302') and (x >= dd20170412) and (x <= dd20170426) then
-            else if (piece = '3069b') and (x >= dd20170430) and (x <= dd20170510) then
-            else if (piece = '3069b') and (x >= dd20170614) and (x <= dd20171220) then
-            else if (piece = '3024') and (color = 320) and (truncx = Trunc(dd20160604)) then
-            else if (piece = '3023') and (color = 72) and (truncx = Trunc(dd20160604)) then
-            else if (piece = '2412b') and (truncx >= dd20170418) and (truncx <= dd20180207) then
-            else if (piece = '4073') and (truncx = Trunc(dd20170102)) then
-            else if mustexclude(piece, color, x) then
-            else if (color = -1) and (truncx >= dd20180601) and (truncx <= dd20180904) and (y = 0) then
-            else
-              c.Series[0].AddXY(x, y);
+            list27a := TStringList.Create;
+            list27b := TStringList.Create;
+            list27a.LoadFromFile(basedefault + 'history\parts.txt');
+            list27a.Sort;
+            check27 := piece + ',' + itoa(color) + ',';
+            len27a := length(check27);
+            for i := 0 to list27a.Count - 1 do
+              if fexists(basedefault + 'history\' + list27a.Strings[i]) then
+                if length(list27a.Strings[i]) = 20 then
+                begin
+                  list27b.LoadFromFile(basedefault + 'history\' + list27a.Strings[i]);
+                  num27 := 0;
+                  for j := 1 to list27b.Count - 1 do
+                  begin
+                    string27 := list27b.Strings[j];
+                    if Pos1(check27, string27) then
+                    begin
+                      snum27 := '';
+                      for k := len27a + 1 to length(string27) do
+                        snum27 := snum27 + string27[k];
+                      num27 := num27 + atoi(snum27);
+                    end;
+                  end;
+                  date27 := s2date1(
+                    list27a.Strings[i][13] + list27a.Strings[i][14] + list27a.Strings[i][15] + list27a.Strings[i][16] +
+                    list27a.Strings[i][17] + list27a.Strings[i][18] + list27a.Strings[i][19] + list27a.Strings[i][20]
+                  );
+                  if Trunc(date27) <> Trunc(dd20151218) then
+                    if Trunc(date27) <> Trunc(dd20160119) then
+                    begin
+                      if (piece = '2431') and (color = 71) and (Trunc(date27) = Trunc(dd20160123)) then
+                      else if (piece = '44302') and (date27 >= dd20170412) and (date27 <= dd20170426) then
+                      else if (piece = '3069b') and (date27 >= dd20170430) and (date27 <= dd20170510) then
+                      else if (piece = '3069b') and (date27 >= dd20170614) and (date27 <= dd20171220) then
+                      else if (piece = '2412b') and (date27 >= dd20170418) and (date27 <= dd20180207) then
+                      else if mustexclude(piece, color, date27) then
+                      else
+                        c.Series[0].AddXY(date27, num27);
+                    end;
+                end;
+            list27a.Free;
+            list27b.Free;
           end;
-      end;
-      if color = -1 then
-      begin
-        inventory.GetSetInfo(piece, @st);
-        c.Series[0].AddXY(Now, st.num);
-      end
-      else
-      begin
-        c.Series[0].AddXY(Now, inventory.LoosePartCount(piece, color));
-      end;
 
-      f.Free;
+        f := TFileStream.Create(fname, fmOpenRead or fmShareDenyWrite);
+        for i := 0 to (f.Size div SizeOf(pieceinventoryhistory_t)) - 1 do
+        begin
+          f.Read(ph, SizeOf(pieceinventoryhistory_t));
+          x := ph.time;
+          if color = -1 then
+            y := ph.nbuilded
+          else
+            y := ph.nnew + ph.nused;
+          truncx := Trunc(x);
+          if truncx <> Trunc(dd20151218) then
+            if truncx <> Trunc(dd20160119) then
+            begin
+              if (piece = '2431') and (color = 71) and (truncx = Trunc(dd20160123)) then
+              else if (piece = '44302') and (x >= dd20170412) and (x <= dd20170426) then
+              else if (piece = '3069b') and (x >= dd20170430) and (x <= dd20170510) then
+              else if (piece = '3069b') and (x >= dd20170614) and (x <= dd20171220) then
+              else if (piece = '3024') and (color = 320) and (truncx = Trunc(dd20160604)) then
+              else if (piece = '3023') and (color = 72) and (truncx = Trunc(dd20160604)) then
+              else if (piece = '2412b') and (truncx >= dd20170418) and (truncx <= dd20180207) then
+              else if (piece = '4073') and (truncx = Trunc(dd20170102)) then
+              else if mustexclude(piece, color, x) then
+              else if (color = -1) and (truncx >= dd20180601) and (truncx <= dd20180904) and (y = 0) then
+              else
+                c.Series[0].AddXY(x, y);
+            end;
+        end;
+        if l = 0 then
+        begin
+          if color = -1 then
+          begin
+            inventory.GetSetInfoForDiagrams(piece, @st);
+            c.Series[0].AddXY(Now, st.num);
+          end
+          else
+          begin
+            c.Series[0].AddXY(Now, inventory.LoosePartCount(piece, color));
+          end;
+        end;
+        f.Free;
+      end;
     end;
+    fnames.Free;
     Exit;
   end;
 
@@ -815,9 +846,12 @@ begin
       f.ColorPanel.Color := RGBInvert(db.colors(color).RGB);
       if hasinv then
       begin
-        inventory.GetSetInfo(part, @st);
+        inventory.GetSetInfoForDiagrams(part, @st);
         f.Edit1.Text := itoa(st.num) + ' builded - ' + itoa(st.numdismantaled) + ' dismantaled - ' + itoa(st.numwishlist) + ' wishlist';
-        f.Label2.Caption := 'Num sets:';
+        if pci.sparttype = 'M' then
+          f.Label2.Caption := 'Num minifigs:'
+        else
+          f.Label2.Caption := 'Num sets:';
         f.ColorPanel.Visible := false;
       end
       else

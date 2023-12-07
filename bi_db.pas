@@ -4732,7 +4732,7 @@ begin
       nrecs := 0;
     end;
 
-    if (color >= 0) and color <= LASTNORMALCOLORINDEX) and (nrecs > 2 then
+    if (color >= 0) and (color <= LASTNORMALCOLORINDEX) and (nrecs > 2) then
     begin
       f.Position := f.Size - 2 * SizeOf(pieceinventoryhistory_t);
       f.Read(h1, SizeOf(pieceinventoryhistory_t));

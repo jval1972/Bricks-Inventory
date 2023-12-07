@@ -678,6 +678,7 @@ begin
   ZeroMemory(@rec, RECNAMESIZE * SizeOf(Char));
   f.Position := (fsets.Objects[idx] as TRecordInfo).position;
   f.Write(rec, RECNAMESIZE * SizeOf(Char));
+  fsets.Objects[idx].Free;
   fsets.Delete(idx);
   fsets.RebuiltHash;
   Result := True;
@@ -698,6 +699,7 @@ begin
   ZeroMemory(@rec, RECNAMESIZE * SizeOf(Char));
   fSM.Position := (fsetsSM.Objects[idx] as TRecordInfo).position;
   fSM.Write(rec, RECNAMESIZE * SizeOf(Char));
+  fsetsSM.Objects[idx].Free;
   fsetsSM.Delete(idx);
   fsetsSM.RebuiltHash;
   Result := True;
@@ -718,6 +720,7 @@ begin
   ZeroMemory(@rec, RECNAMESIZE * SizeOf(Char));
   fMD.Position := (fsetsMD.Objects[idx] as TRecordInfo).position;
   fMD.Write(rec, RECNAMESIZE * SizeOf(Char));
+  fsetsMD.Objects[idx].Free;
   fsetsMD.Delete(idx);
   fsetsMD.RebuiltHash;
   Result := True;

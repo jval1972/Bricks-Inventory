@@ -431,6 +431,7 @@ begin
   ZeroMemory(@rec, RECPARTNAMESIZE * SizeOf(Char));
   f.Position := (fparts.Objects[idx] as TRecordInfo).position;
   f.Write(rec, RECPARTNAMESIZE * SizeOf(Char));
+  fparts.Objects[idx].Free;
   fparts.Delete(idx);
 //  fparts.RebuiltHash;
   Result := True;

@@ -18702,6 +18702,7 @@ var
   fnametmp: string;
   s_part, s_color, s_defcolor, s_num: string;
   i: integer;
+  newinvname: string;
 begin
   if not hasinventory then
   begin
@@ -18718,6 +18719,39 @@ begin
   slist := TStringList.Create;
   stmp := db.binaryparts.GetPartAsText(finventoryname, color);
   slist.Text := stmp;
+  if slist.Count < 2 then
+  begin
+    newinvname := db.GetBLNetPieceName(finventoryname);
+    stmp := db.binaryparts.GetPartAsText(newinvname, color);
+    slist.Text := stmp;
+    if slist.Count >= 2 then
+      finventoryname := newinvname
+    else
+    begin
+      newinvname := db.GetNewPieceName(finventoryname);
+      stmp := db.binaryparts.GetPartAsText(newinvname, color);
+      slist.Text := stmp;
+      if slist.Count >= 2 then
+        finventoryname := newinvname
+      else
+      begin
+        newinvname := db.BrickLinkPart(finventoryname);
+        stmp := db.binaryparts.GetPartAsText(newinvname, color);
+        slist.Text := stmp;
+        if slist.Count >= 2 then
+          finventoryname := newinvname
+        else
+        begin
+          newinvname := db.RebrickablePart(finventoryname);
+          stmp := db.binaryparts.GetPartAsText(newinvname, color);
+          slist.Text := stmp;
+          if slist.Count >= 2 then
+            finventoryname := newinvname;
+        end;
+      end;
+    end;
+  end;
+
   if slist.Count < 2 then
   begin
     fnametmp := basedefault + 'db\parts\' + finventoryname + '.txt';

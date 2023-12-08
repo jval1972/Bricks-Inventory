@@ -71,6 +71,7 @@ type
   public
     constructor Create(const aname: string); virtual;
     destructor Destroy; override;
+    function IndexOf(const partname: string): integer;
     function GetPartAsText(const partname: string; const color: integer): string;
     function UpdatePartFromTextFile(const apart, aTextFileName: string): boolean;
     function UpdatePartFromText(const apart, aText: string): boolean; overload;
@@ -127,13 +128,28 @@ begin
   inherited;
 end;
 
+function TBinaryPartCollection.IndexOf(const partname: string): integer;
+begin
+  Result := fparts.IndexOf(partname);
+  if Result < 0 then
+  begin
+    Result := fparts.IndexOf(db.GetBLNetPieceName(partname));
+    if Result < 0 then
+    begin
+      Result := fparts.IndexOf(db.GetNewPieceName(partname));
+      if Result < 0 then
+        Result := fparts.IndexOf(db.RebrickablePart(partname));
+    end;
+  end;
+end;
+
 function TBinaryPartCollection.GetPartAsText(const partname: string; const color: integer): string;
 var
   rec: TBinaryPartRecord;
   i, idx: integer;
 begin
   Result := 'Part,Color,Num';
-  idx := fparts.IndexOf(partname);
+  idx := IndexOf(partname);
   if idx < 0 then
     Exit;
 

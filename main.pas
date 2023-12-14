@@ -691,6 +691,7 @@ type
     starttime: extended;
     lastbricksetdownload: extended;
     idleindicator: integer;
+    bstmpsets: TStringList;
     function CheckAA(const AA, fromAA, toAA: integer): boolean;
     procedure Navigate(const akey: string; const pg: integer);
     procedure DrawColorCell(const cc: integer; const width: integer);
@@ -1120,6 +1121,7 @@ begin
 //  I_InitTempFiles;
   I_Init;
   starttime := I_GetSysTime;
+  bstmpsets := TStringList.Create;
   lastbricksetdownload := 0.0;
   idleindicator := 0;
   MT_Init;
@@ -2751,6 +2753,8 @@ begin
     dismantaledsetsinv.Free;
   dismantaledsetslst.Free;
 
+  bstmpsets.Free;
+
   SplashForm.Free;
   PAK_ShutDown;
   MT_ShutDown;
@@ -2872,6 +2876,8 @@ begin
   BI_CheckDefaultAssets(basedefault);
 
   document.savepath := basedefault + 'out\navigate\';
+
+  bstmpsets.AddStrings(db.Sets);
 
   AddressEdit.Text := 'home';
 
@@ -22850,40 +22856,52 @@ const
   BS_TIMEOUT = 10; // every 10 seconds
   BS_SLEEPTIME = 60; // 1 minute
   BS_MIN_HTML_SIZE = 20000;
+  TRY_BS_COUNT = 16;
 var
   pcs: string;
   st: extended;
   autoname: string;
   autonotes: string;
+  idx: integer;
+  i: integer;
 begin
   if not initialized then
     Exit;
 
   st := I_GetSysTime;
   if st - lastbricksetdownload > BS_TIMEOUT then
-  begin
-    pcs := db.Sets.Strings[Random(db.Sets.Count)];
-    if db.IsLikeSetNumber(pcs) then
-      if db.IsSet(pcs) and not db.IsMoc(pcs) then
-        if fsize(BrickSetCachePath(pcs)) <= 0 then
-        begin
-          if db.DownloadSetPageFromBrickSet(pcs) then
-            lastbricksetdownload := st
-          else
-            lastbricksetdownload := st + BS_SLEEPTIME; // Give timeout
-          if fsize(BrickSetCachePath(pcs)) > BS_MIN_HTML_SIZE then
+    for i := 0 to TRY_BS_COUNT - 1 do
+    begin
+      if bstmpsets.Count = 0 then
+        Exit;
+      if bstmpsets.Count <= TRY_BS_COUNT then
+        idx := 0
+      else
+        idx := Random(bstmpsets.Count);
+      pcs := bstmpsets.Strings[idx];
+      bstmpsets.Delete(idx);
+      if db.IsLikeSetNumber(pcs) then
+        if db.IsSet(pcs) and not db.IsMoc(pcs) then
+          if fsize(BrickSetCachePath(pcs)) <= 0 then
           begin
-            autonotes := GatherOfflineNotes(pcs);
-            autoname := PieceNotesFName(pcs) + '_auto';
-            if fsize(autoname) < Length(autonotes) then
+            if db.DownloadSetPageFromBrickSet(pcs) then
+              lastbricksetdownload := st
+            else
+              lastbricksetdownload := st + BS_SLEEPTIME; // Give timeout
+            if fsize(BrickSetCachePath(pcs)) > BS_MIN_HTML_SIZE then
             begin
-              if not DirectoryExists(basedefault + 'notes\' + pcs) then
-                MkDir(basedefault + 'notes\' + pcs);
-              SaveStringToFile(autoname, autonotes);
+              autonotes := GatherOfflineNotes(pcs);
+              autoname := PieceNotesFName(pcs) + '_auto';
+              if fsize(autoname) < Length(autonotes) then
+              begin
+                if not DirectoryExists(basedefault + 'notes\' + pcs) then
+                  MkDir(basedefault + 'notes\' + pcs);
+                SaveStringToFile(autoname, autonotes);
+              end;
             end;
+            Exit;
           end;
-        end;
-  end;
+    end;
 end;
 
 procedure TMainForm.Partswithtypeconflicts1Click(Sender: TObject);

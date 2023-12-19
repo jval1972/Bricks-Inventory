@@ -3100,10 +3100,10 @@ begin
       if curconv <> db.ConvertCurrency(optdefaultcurrency) then
         document.write('<br>(%s) %s (%s)<br>%s (%s)</td>',
           [oitem.condition,
-           moneyhtml(oitem.price),
-           moneyhtml(oitem.pricetot),
-           moneyhtml(oitem.num * oitem.price),
-           moneyhtml(oitem.num * oitem.pricetot)])
+           moneyhtml(curconv * oitem.price),
+           moneyhtml(curconv * oitem.pricetot),
+           moneyhtml(curconv * oitem.num * oitem.price),
+           moneyhtml(curconv * oitem.num * oitem.pricetot)])
       else
         document.write('</td>');
 

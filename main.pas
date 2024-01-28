@@ -15935,7 +15935,7 @@ begin
 end;
 
 const
-  NUMCROSSCOLORS = 32;
+  NUMCROSSCOLORS = 36;
   CROSSCOLOR: array[0..NUMCROSSCOLORS - 1] of integer = (
     0,
     1,
@@ -15968,7 +15968,11 @@ const
     22,
     85,
     26,
-    226
+    226,
+    118,
+    323,
+    321,
+    322
   );
 
 procedure TMainForm.doShowLengthQuery(inv: TBrickInventory; const id: string);

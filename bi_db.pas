@@ -3599,7 +3599,7 @@ begin
       else if bp.part = '3626cpb1965' then begin s.Add(Format('%s,%d,%d', ['3626cpr0933', bp.color, bp.num])); end
       else if bp.part = '3626cpb2199' then begin s.Add(Format('%s,%d,%d', ['3626cpr2522', bp.color, bp.num])); end
       else if bp.part = '3626cpb2696' then begin s.Add(Format('%s,%d,%d', ['3626cpr3269', bp.color, bp.num])); end
-      else if bp.part = '37598pb01' then begin s.Add(Format('%s,%d,%d', ['37598pr0001', bp.color, bp.num])); end
+      else if bp.part = '37598pb01' then begin s.Add(Format('%s,%d,%d', ['36454pr0001', bp.color, bp.num])); end
       else if (bp.part = '970c00pb901') and (bp.color = 28) then begin s.Add(Format('%s,%d,%d', ['970c11pr1609', bp.color, bp.num])); end
       else if (bp.part = '970c00pb0901') and (bp.color = 28) then begin s.Add(Format('%s,%d,%d', ['970c11pr1609', bp.color, bp.num])); end
       else if (bp.part = '970c00pb901') and (bp.color = 191) then begin s.Add(Format('%s,%d,%d', ['970c38pr1598', bp.color, bp.num])); end

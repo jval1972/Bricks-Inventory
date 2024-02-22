@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //
 //  BrickInventory: A tool for managing your brick collection
-//  Copyright (C) 2014-2023 by Jim Valavanis
+//  Copyright (C) 2014-2024 by Jim Valavanis
 //
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
@@ -97,11 +97,43 @@ function EvaluatedPrice(const order: IXMLORDERType): Double;
 var
   orders: TOrders;
 
+type
+  orderalias_t = record
+    part: string[16];
+    bipart: string[16];
+  end;
+
+const
+  NUMORDERALIAS = 4;
+
+const
+  orderalias: array[0..NUMORDERALIAS - 1] of orderalias_t = (
+    (part: '3068'; bipart: '3068b'),
+    (part: '3069'; bipart: '3069b'),
+    (part: '3070'; bipart: '3070b'),
+    (part: '3062'; bipart: '3062b')
+  );
+
+function BI_ChangeOrderPartToBIAlias(var pt: string): boolean;
+
 implementation
 
 uses
   bi_delphi, bi_utils, bi_io, bi_system, bi_globals;
 
+function BI_ChangeOrderPartToBIAlias(var pt: string): boolean;
+var
+  i: integer;
+begin
+  for i := 0 to NUMORDERALIAS - 1 do
+    if pt = orderalias[i].part then
+    begin
+      pt := orderalias[i].bipart;
+      Result := True;
+      Exit;
+    end;
+  Result := False;
+end;
 constructor TOrders.Create;
 begin
   fnumorders := 0;
@@ -225,7 +257,9 @@ begin
   for i := 0 to oo.ITEM.Count - 1 do
   begin
     ii := oo.ITEM.Items[i];
-    spart := db.RebrickablePart(ii.ITEMID);
+    spart := ii.ITEMID;
+    if not BI_ChangeOrderPartToBIAlias(spart) then
+      spart := db.RebrickablePart(ii.ITEMID);
     ncolor := db.BrickLinkColorToSystemColor(ii.COLOR);
     scolor := IntToStr(ncolor);
     splitstring(OnePiece(spart + ',' + scolor), spart, scolor, ',');
@@ -264,7 +298,7 @@ end;
 
 procedure TOrders.ProssesItem(const oo: IXMLORDERType; const ii: IXMLITEMType);
 var
-  s, scolor: string;
+  s, spart, scolor: string;
   price: Double;
   pricetot: Double;
   idx: integer;
@@ -277,7 +311,10 @@ var
 begin
   rcolor := db.BrickLinkColorToSystemColor(ii.COLOR);
   scolor := IntToStr(rcolor);
-  s := OnePiece(db.RebrickablePart(ii.ITEMID) + ',' + scolor);
+  spart := ii.ITEMID;
+  if not BI_ChangeOrderPartToBIAlias(spart) then
+    spart := db.RebrickablePart(ii.ITEMID);
+  s := OnePiece(spart + ',' + scolor);
   idx := fpieceorderinfo.IndexOf(s);
   if idx < 0 then
     idx := fpieceorderinfo.AddObject(s, TStringList.Create);
@@ -354,14 +391,17 @@ end;
 
 function TOrders.ItemInfo(const part: string; const color: Integer): TStringList;
 var
-  s: string;
+  s, spart: string;
   idx: integer;
 begin
   s := part + ',' + IntToStr(color);
   idx := fpieceorderinfo.IndexOf(s);
   if idx < 0 then
   begin
-    s := db.RebrickablePart(part) + ',' + IntToStr(color);
+    spart := part;
+    if not BI_ChangeOrderPartToBIAlias(spart) then
+      spart := db.RebrickablePart(part);
+    s := spart + ',' + IntToStr(color);
     idx := fpieceorderinfo.IndexOf(s);
     if idx < 0 then
     begin

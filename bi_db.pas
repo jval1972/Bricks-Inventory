@@ -20466,6 +20466,7 @@ begin
     Pos1('3068b', fpiece) or
     Pos1('3069b', fpiece) or
     Pos1('3070b', fpiece) or
+    Pos1('3068pb', fpiece) or
     Pos1('3069pb', fpiece) or
     Pos1('3070pb', fpiece) or
     Pos1('3626b', fpiece) or

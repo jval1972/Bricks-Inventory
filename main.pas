@@ -16254,7 +16254,7 @@ begin
     orderstmp.Free;
     Screen.Cursor := crDefault;
     btn_SaveClick(nil);
-    HTMLClick('refresh', foo);
+    HTMLClick('orders', foo);
   end;
   ChDir(basedefault);
 end;

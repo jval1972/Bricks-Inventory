@@ -878,12 +878,17 @@ begin
     end;
   end;
 
-  aliasSL := TStringList.Create;
-  aliasSL.Add(piece);
-  aliaspiece := db.GetBLNetPieceName(piece);
-  hasalias := (UpperCase(aliaspiece) <> UpperCase(piece)) and (Trim(aliaspiece) <> '');
-  if hasalias then
-    aliasSL.Add(aliaspiece);
+  if piece <> '3068b' then
+    if piece <> '3069b' then
+      if piece <> '3070b' then
+      begin
+        aliasSL := TStringList.Create;
+        aliasSL.Add(piece);
+        aliaspiece := db.GetBLNetPieceName(piece);
+        hasalias := (UpperCase(aliaspiece) <> UpperCase(piece)) and (Trim(aliaspiece) <> '');
+        if hasalias then
+          aliasSL.Add(aliaspiece);
+      end;
 
   Asize := 0;
 

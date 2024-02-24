@@ -1430,6 +1430,11 @@ begin
     else if Result = 'dupupn0008pr0004' then Result := 'dupupn08pr04'
     else if Result = 'dupupn0008pr0005' then Result := 'dupupn08pr05'
     else if Result = 'dupupn0008pr0007' then Result := 'dupupn08pr07';
+  end
+  else if Pos1('100662pat0', Result) then
+  begin
+    if Result = '100662pat0001pr0001' then Result := '100662pat01pr01'
+    else if Result = '100662pat0001pr0002' then Result := '100662pat01pr02';
   end;
   trimproc(Result);
 end;
@@ -3640,6 +3645,9 @@ begin
       else if (bp.part = '3069bpb847') or (bp.part = '3069bpb0847') then begin s.Add(Format('%s,%d,%d', ['3069bpr0307', bp.color, bp.num])); end
       // 20231022 Additions
       else if bp.part = '4623b' then begin s.Add(Format('%s,%d,%d', ['4623a', bp.color, bp.num])); end
+      // 20240224
+      else if bp.part = '100662pat01pr01' then begin s.Add(Format('%s,%d,%d', ['100662pat0001pr0001', bp.color, bp.num])); end
+      else if bp.part = '100662pat01pr02' then begin s.Add(Format('%s,%d,%d', ['100662pat0001pr0002', bp.color, bp.num])); end
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;

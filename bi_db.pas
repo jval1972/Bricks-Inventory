@@ -3786,7 +3786,7 @@ begin
         if not db.IsMoc(fsets[i].setid) then
         begin
           if fsets[i].setid = 'col09-2' then
-            s.Add(Format('%s,%d', [71000-2, fsets[i].num]))
+            s.Add(Format('%s,%d', ['71000-2', fsets[i].num]))
           else
             s.Add(Format('%s,%d', [fsets[i].setid, fsets[i].num]));
         end;

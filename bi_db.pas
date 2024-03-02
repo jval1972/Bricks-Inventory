@@ -3648,6 +3648,9 @@ begin
       // 20240224
       else if bp.part = '100662pat01pr01' then begin s.Add(Format('%s,%d,%d', ['100662pat0001pr0001', bp.color, bp.num])); end
       else if bp.part = '100662pat01pr02' then begin s.Add(Format('%s,%d,%d', ['100662pat0001pr0002', bp.color, bp.num])); end
+      // 20240302
+      else if bp.part = '30086' then begin s.Add(Format('%s,%d,%d', ['30086c01', bp.color, bp.num])); end
+      else if bp.part = '77499' then begin s.Add(Format('%s,%d,%d', ['92198pr0267', bp.color, bp.num])); end
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;
@@ -3781,8 +3784,12 @@ begin
     for i := 0 to fnumsets - 1 do
       if fsets[i].num > 0 then
         if not db.IsMoc(fsets[i].setid) then
-          s.Add(Format('%s,%d', [fsets[i].setid, fsets[i].num]));
-
+        begin
+          if fsets[i].setid = 'col09-2' then
+            s.Add(Format('%s,%d', [71000-2, fsets[i].num]))
+          else
+            s.Add(Format('%s,%d', [fsets[i].setid, fsets[i].num]));
+        end;
     try
       S_BackupFile(fname);
       S_SaveToFile(s, fname);

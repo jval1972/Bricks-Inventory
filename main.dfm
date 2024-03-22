@@ -2013,6 +2013,13 @@ object MainForm: TMainForm
           Caption = 'Check storage bins for errors'
           OnClick = Checkstoragebinsreport1Click
         end
+        object N2: TMenuItem
+          Caption = '-'
+        end
+        object Partswithunknownlocation1: TMenuItem
+          Caption = 'Parts with unknown location'
+          OnClick = Partswithunknownlocation1Click
+        end
       end
       object N24: TMenuItem
         Caption = '-'

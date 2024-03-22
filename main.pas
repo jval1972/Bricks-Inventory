@@ -399,6 +399,8 @@ type
     Missingforwishlist1: TMenuItem;
     Mywishlist1: TMenuItem;
     Partswithtypeconflicts1: TMenuItem;
+    N2: TMenuItem;
+    Partswithunknownlocation1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -665,6 +667,7 @@ type
     procedure Missingforwishlist1Click(Sender: TObject);
     procedure Mywishlist1Click(Sender: TObject);
     procedure Partswithtypeconflicts1Click(Sender: TObject);
+    procedure Partswithunknownlocation1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -802,6 +805,7 @@ type
     procedure ShowSetStatsByNumPieces2(const x: integer);
     procedure ShowSetStatsByNumLots;
     procedure ShowMissingFromStorageBins;
+    procedure ShowPartsWithUnknownLocation;
     procedure ShowCheckStorageReport;
     procedure ShowMissingToBuildSetInventory(const setid: string; const numsets: integer; legacyignore: boolean);
     procedure ShowExpensiveSetLotsNew(const setid: string; const numlots: integer);
@@ -2982,13 +2986,14 @@ end;
 procedure TMainForm.UpdateDismantaledsetsinv;
 var
   inv2: TBrickInventory;
-  i: integer;
+  i, j: integer;
   lst: TStringList;
 begin
   lst := TStringList.Create;
   for i := 0 to inventory.numsets - 1 do
     if inventory.sets[i].numdismantaled > 0 then
-      lst.Add(inventory.sets[i].setid);
+      for j := 0 to inventory.sets[i].numdismantaled - 1 do
+        lst.Add(inventory.sets[i].setid);
   lst.Sort;
   if lst.Text <> dismantaledsetslst.Text then
   begin
@@ -10921,6 +10926,76 @@ begin
   Screen.Cursor := crDefault;
 end;
 
+procedure TMainForm.ShowPartsWithUnknownLocation;
+var
+  inv, inv2, knownlocationinv: TBrickInventory;
+  missing: integer;
+  oinf: TStringList;
+  oitem: TOrderItemInfo;
+  i, j: integer;
+  spart: string;
+  color: integer;
+begin
+  Screen.Cursor := crHourGlass;
+
+  if domultipagedocuments then
+    document.NewMultiPageDocument('ShowPartsWithUnknownLocation', '');
+
+  document.write('<body background="splash.jpg">');
+  document.title('Parts with unknown location');
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+  knownlocationinv := TBrickInventory.Create;
+  inv2 := db.InventoryForAllStorageBins;
+  knownlocationinv.MergeWith(inv2);
+  inv2.Free;
+  UpdateDismantaledsetsinv;
+  if dismantaledsetsinv <> nil then
+  begin
+    inv2 := dismantaledsetsinv.Clone;
+    knownlocationinv.MergeWith(inv2);
+    inv2.Free;
+  end;
+  inventory.DoReorganize;
+  for j := 0 to inventory.numlooseparts - 1 do
+  begin
+    spart := inventory.looseparts[j].part;
+    color := inventory.looseparts[j].color;
+    oinf := orders.ItemInfo(spart, color);
+    if oinf <> nil then
+    begin
+      for i := 0 to oinf.Count - 1 do
+      begin
+        oitem := oinf.Objects[i] as TOrderItemInfo;
+        knownlocationinv.AddLoosePart(spart, color, oitem.num);
+      end;
+    end;
+  end;
+
+  inv := knownlocationinv.InventoryForMissingToBuildInventory(inventory);
+  knownlocationinv.Free;
+  if inv = nil then
+  begin
+    DrawHeadLine('No pieces found');
+    document.write('<br></p></div></body>');
+    document.SaveBufferToFile(diskmirror);
+    document.Flash;
+    Screen.Cursor := crDefault;
+    Exit;
+  end;
+  missing := inv.totallooseparts;
+
+  DrawHeadLine(Format('Parts with unknown location (%d parts)', [missing]));
+
+  DrawInventoryTable(inv);
+  document.write('<br><br></p></div></body>');
+  document.SaveBufferToFile(diskmirror);
+  document.Flash;
+  inv.Free;
+  Screen.Cursor := crDefault;
+end;
+
 procedure TMainForm.ShowCheckStorageReport;
 var
   report: TStringList;
@@ -14558,6 +14633,10 @@ begin
   else if slink = 'ShowMissingFromStorageBins' then
   begin
    ShowMissingFromStorageBins;
+  end
+  else if slink = 'ShowPartsWithUnknownLocation' then
+  begin
+    ShowPartsWithUnknownLocation;
   end
   else if slink = 'ShowCheckStorageReport' then
   begin
@@ -23013,6 +23092,13 @@ begin
   cmolds.Free;
   lst.Free;
   Screen.Cursor := crDefault;
+end;
+
+procedure TMainForm.Partswithunknownlocation1Click(Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('ShowPartsWithUnknownLocation', foo);
 end;
 
 end.

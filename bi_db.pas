@@ -3651,6 +3651,8 @@ begin
       // 20240302
       else if bp.part = '30086' then begin s.Add(Format('%s,%d,%d', ['30086c01', bp.color, bp.num])); end
       else if bp.part = '77499' then begin s.Add(Format('%s,%d,%d', ['92198pr0267', bp.color, bp.num])); end
+      // 20240324
+      else if bp.part = '69901pb08' then begin s.Add(Format('%s,%d,%d', ['69901pr0036', bp.color, bp.num])); end
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;

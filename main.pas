@@ -16014,7 +16014,7 @@ begin
 end;
 
 const
-  NUMCROSSCOLORS = 38;
+  NUMCROSSCOLORS = 40;
   CROSSCOLOR: array[0..NUMCROSSCOLORS - 1] of integer = (
     0,
     1,
@@ -16050,6 +16050,8 @@ const
     226,
     118,
     323,
+    29,
+    30,
     3,
     31,
     321,

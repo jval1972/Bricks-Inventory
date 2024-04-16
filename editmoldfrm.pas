@@ -401,9 +401,23 @@ begin
     if s = '' then
     begin
       if Trim(AliasEdit.Text) <> '' then
-        s := NET_GetBricklinkAliasBL(AliasEdit.Text);
-      if s = '' then
-        s := NET_GetBricklinkAliasBL(Edit2.Text);
+        s := NET_GetBricklinkAliasBL(Trim(AliasEdit.Text));
+      if Pos('pr', Edit2.Text) > 0 then
+      begin
+        if s = '' then
+          if Trim(NewNameEdit.Text) <> '' then
+            s := NET_GetBricklinkAliasBL(Trim(NewNameEdit.Text));
+        if s = '' then
+          s := NET_GetBricklinkAliasBL(Edit2.Text);
+      end
+      else
+      begin
+        if s = '' then
+          s := NET_GetBricklinkAliasBL(Edit2.Text);
+        if s = '' then
+          if Trim(NewNameEdit.Text) <> '' then
+            s := NET_GetBricklinkAliasBL(Trim(NewNameEdit.Text));
+      end;
     end;
   finally
     Screen.Cursor := crDefault;

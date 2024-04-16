@@ -1785,7 +1785,7 @@ begin
     Exit;
 
   s2 := s1 + id1 + '</B>} to {<B>';
-  p2 := Pos(s2, s);
+  p2 := Pos(UpperCase(s2), UpperCase(s));
   if p2 <> p1 then
     Exit;
 

@@ -1,10 +1,10 @@
 object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
-  Left = 693
-  Top = 182
+  Left = 637
+  Top = 101
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Update New Parts (bricklink.com)'
-  ClientHeight = 590
+  ClientHeight = 612
   ClientWidth = 315
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -550,7 +550,7 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 522
+    Top = 544
     Width = 315
     Height = 68
     Align = alBottom
@@ -588,7 +588,7 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
     Left = 0
     Top = 0
     Width = 315
-    Height = 225
+    Height = 273
     Align = alTop
     BevelOuter = bvNone
     Caption = ' '
@@ -725,7 +725,7 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
     end
     object Panel5: TPanel
       Left = 0
-      Top = 200
+      Top = 248
       Width = 315
       Height = 25
       Align = alBottom
@@ -868,12 +868,34 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
       TabOrder = 11
       OnClick = Button8Click
     end
+    object Button9: TButton
+      Left = 32
+      Top = 208
+      Width = 177
+      Height = 25
+      Caption = 'Rebrickable Search'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 12
+      OnClick = Button9Click
+    end
+    object RBQryEdit: TEdit
+      Left = 224
+      Top = 208
+      Width = 73
+      Height = 21
+      TabOrder = 13
+    end
   end
   object Panel3: TPanel
     Left = 0
-    Top = 225
+    Top = 273
     Width = 315
-    Height = 297
+    Height = 271
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 8
@@ -883,7 +905,7 @@ object TUpdateNewPartsFromBLForm: TTUpdateNewPartsFromBLForm
       Left = 8
       Top = 33
       Width = 299
-      Height = 256
+      Height = 230
       Align = alClient
       ScrollBars = ssBoth
       TabOrder = 0

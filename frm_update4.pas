@@ -62,6 +62,8 @@ type
     Edit5: TEdit;
     Button8: TButton;
     OpenDialog1: TOpenDialog;
+    Button9: TButton;
+    RBQryEdit: TEdit;
     procedure Button3Click(Sender: TObject);
     procedure EditKeyPress(Sender: TObject; var Key: Char);
     procedure Button4Click(Sender: TObject);
@@ -70,6 +72,7 @@ type
     procedure Button6Click(Sender: TObject);
     procedure Button7Click(Sender: TObject);
     procedure Button8Click(Sender: TObject);
+    procedure Button9Click(Sender: TObject);
   private
     { Private declarations }
     procedure AddNewCatalogRec(const s: string);
@@ -930,6 +933,96 @@ begin
   finally
     tmp.Free;
     allparts.Free;
+  end;
+end;
+
+procedure TTUpdateNewPartsFromBLForm.Button9Click(Sender: TObject);
+var
+  i: integer;
+  b: boolean;
+  tmp: TStringList;
+  stmp: string;
+  newparts: TStringList;
+  allparts: TStringList;
+  dbUpieces: TStringList;
+begin
+  if Trim(RBQryEdit.Text) = '' then
+  begin
+    try
+      RBQryEdit.SetFocus;
+    finally
+      MessageBeep(0);
+    end;
+    Exit;
+  end;
+  
+  Screen.Cursor := crHourGlass;
+  tmp := TStringList.Create;
+  allparts := TStringList.Create;
+  try
+    b := CheckBox1.Checked;
+
+    newparts := db.QryPartsFromRebrickable(
+        'https://rebrickable.com/parts/?q=' + Trim(RBQryEdit.Text) + '&get_drill_downs=drill_down_filters',
+        '<a href="/parts/');
+    MergeSList(allparts, newparts);
+    newparts.Free;
+
+    dbUpieces := TStringList.Create;
+    dbUpieces.AddStrings(db.AllPieces);
+    dbUpieces.Text := UpperCase(dbUpieces.Text);
+    allparts.Sorted := false;
+    for i := allparts.Count - 1 downto 0 do
+    begin
+      if db.AllPieces.IndexOf(allparts.Strings[i]) >= 0 then
+        allparts.Delete(i)
+      else if db.AllPieces.IndexOf(db.RebrickablePart(allparts.Strings[i])) >= 0 then
+        allparts.Delete(i)
+      else if dbUpieces.IndexOf(UpperCase(allparts.Strings[i])) >= 0 then
+        allparts.Delete(i)
+      else if dbUpieces.IndexOf(UpperCase(db.RebrickablePart(allparts.Strings[i]))) >= 0 then
+        allparts.Delete(i)
+    end;
+    dbUpieces.Free;
+
+    for i := 0 to allparts.Count - 1 do
+    begin
+      tmp.Add('refreshpiecefromrebrickablenorefresh/' + allparts.Strings[i]);
+      if b then
+        tmp.Add('spiece/' + allparts.Strings[i]);
+      if (tmp.Count > 200) or ((tmp.Count > 30) and (random > 0.6)) then
+      begin
+        stmp := tmp.Strings[tmp.Count - 1];
+        tmp.Delete(tmp.Count - 1);
+        Memo1.Lines.AddStrings(tmp);
+        Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+        Label7.Update;
+        Memo1.Lines.Add(stmp);
+        Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+        Label7.Update;
+        tmp.Clear;
+      end;
+    end;
+    if tmp.Count > 0 then
+    begin
+      stmp := tmp.Strings[tmp.Count - 1];
+      tmp.Delete(tmp.Count - 1);
+      if tmp.Count > 0 then
+        Memo1.Lines.AddStrings(tmp);
+      Memo1.Lines.Add(stmp);
+      Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+      Label7.Update;
+    end;
+    if allparts.Count > 0 then
+    begin
+      Memo1.Lines.Add('AutoCorrectUnknownPieceYears');
+      Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
+      Label7.Update;
+    end;
+  finally
+    tmp.Free;
+    allparts.Free;
+    Screen.Cursor := crDefault;
   end;
 end;
 

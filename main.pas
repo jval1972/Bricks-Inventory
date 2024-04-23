@@ -12608,6 +12608,7 @@ begin
   if s1 = UpperCase('refreshpiecefrombricklinkalias/') then Exit;
   if s1 = UpperCase('tryrefreshpiecefrombricklinkalias/') then Exit;
   if s1 = UpperCase('refreshpiecefrombricklinknorefresh/') then Exit;
+  if s1 = UpperCase('refreshpiecefromrebrickablenorefresh/') then Exit;
   if s1 = UpperCase('refreshgearfrombricklinknorefresh/') then Exit;
   if s1 = UpperCase('refreshbookfrombricklinknorefresh/') then Exit;
   if s1 = UpperCase('refreshpiecefrombricklinkaliasnorefresh/') then Exit;
@@ -13121,7 +13122,12 @@ begin
       if db.UpdatePartKnownColorsFromBricklink(s2) then
         HTMLClick('refresh', Handled)
       else if db.UpdateGearKnownColorsFromBricklink(s2) then
+        HTMLClick('refresh', Handled)
+      else if db.UpdateMinifigAsPartFromBricklink(s2, true) then
+        HTMLClick('refresh', Handled)
+      else if db.UpdateBookKnownColorsFromBricklink(s2, true) then
         HTMLClick('refresh', Handled);
+
       HideSplash;
       Screen.Cursor := crDefault;
       Handled := True;
@@ -13219,6 +13225,19 @@ begin
       Screen.Cursor := crHourglass;
       ShowSplash;
       if not db.UpdatePartKnownColorsFromBricklink(s2) then
+        ErrorBeep;
+      HideSplash;
+      Screen.Cursor := crDefault;
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos1('refreshpiecefromrebrickablenorefresh/', SRC) then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      Screen.Cursor := crHourglass;
+      ShowSplash;
+      if not db.UpdatePartKnownColorsFromRebrickable(s2) then
         ErrorBeep;
       HideSplash;
       Screen.Cursor := crDefault;

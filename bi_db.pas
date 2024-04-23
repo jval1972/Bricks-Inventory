@@ -1209,6 +1209,7 @@ type
     function DownloadSetPageFromBrickSet(const s: string): boolean;
     function IsLikeSetNumber(const pcs: string): boolean;
     function UpdatePartKnownColorsFromBricklink(const pid: string; const donet: boolean = True): boolean;
+    function UpdatePartKnownColorsFromRebrickable(const pid: string; const donet: boolean = True): boolean;
     function UpdateGearKnownColorsFromBricklink(const pid: string; const donet: boolean = True): boolean;
     function UpdateBookKnownColorsFromBricklink(const pid: string; const donet: boolean = True): boolean;
     function UpdateItemYearFromDiskCache(const pid: string): boolean;
@@ -1238,6 +1239,7 @@ type
     function QryNewPartsFromBricklink(const path: string; const check: string; const savelink: string = ''): TStringList;
     function QryNewPartsFromFile(const fname: string; const check: string): TStringList;
     function QryPartsFromBricklink(const path: string; const check: string): TStringList;
+    function QryPartsFromRebrickable(const path: string; const check: string): TStringList;
     function UpdateSetAssetsFromBricklink(const s: string): boolean;
     function DownloadSetFromBricklink(const s: string; const typ: string = ''): boolean;
     function UpdateSet(const s: string; const data: string = ''): boolean;
@@ -12759,6 +12761,51 @@ begin
   end;
   deletefile(fname);
 end;
+
+function TSetsDatabase.QryPartsFromRebrickable(const path: string; const check: string): TStringList;
+var
+  fname: string;
+  stmp: string;
+  p, i: integer;
+  htm, htm1: string;
+  sl: TStringList;
+  idx: integer;
+begin
+  Result := TStringList.Create;
+  fname := I_NewTempFile('qnpfr' + itoa(random(10000)) + '.htm');
+  if UrlDownloadToFile(nil, PChar(path), PChar(fname), 0, nil) <> 0 then
+    Exit;
+
+  sl := TStringList.Create;
+  S_LoadFromFile(sl, fname);
+  stmp := StringReplace(sl.Text, '&nbsp;', ' ', [rfReplaceAll, rfIgnoreCase]);
+  htm := StringReplace(stmp, '&amp;', '&', [rfReplaceAll, rfIgnoreCase]);
+  htm1 := UpperCase(htm);
+  sl.Free;
+  while True do
+  begin
+    p := Pos(UpperCase(check), htm1);
+    if p <= 1 then
+      break;
+    stmp := '';
+    idx := p + length(check);
+    for i := p + length(check) to length(htm) do
+    begin
+      if htm[i] in ['"', '''', '>', '<', '&', '/', '\'] then
+        break
+      else if htm[i] <> ' ' then
+        stmp := stmp + htm[i];
+      idx := i;
+    end;
+    if stmp <> '' then
+      if Result.IndexOf(stmp) < 0 then
+        Result.Add(stmp);
+    delete(htm, 1, idx);
+    htm1 := UpperCase(htm);
+  end;
+  deletefile(fname);
+end;
+
 {$ENDIF}
 
 {$IFNDEF CRAWLER}
@@ -12995,6 +13042,7 @@ begin
       UpdateMinifigYearFromDiskCache(spart, fname);
 
     RefreshPartCategory(spart);
+    UpdateMinifigYearFromDiskCache(spart, fname);
 
     Result := True;
   end;
@@ -13199,13 +13247,41 @@ begin
     begin
       ret1 := UpdateSetAsPartFromBricklink(pid);
       ret2 := UpdateSetAssetsFromBricklink(pid);
-      Result := ret1 or ret2;
+      Result := ret1;
       if not Result then
         Result := UpdateMinifigAsPartFromBricklink(pid);
     end;
 
   if salternates <> nil then
     salternates.Free;
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+function TSetsDatabase.UpdatePartKnownColorsFromRebrickable(const pid: string; const donet: boolean = True): boolean;
+var
+  pidb: string;
+  typ: char;
+begin
+  Result := False;
+  pidb := NET_GetBricklinkAliasRBEx(pid, typ);
+  if pidb = '' then
+    Exit;
+  SetNewPieceName(pid, pidb);
+  if typ = 'P' then
+    Result := UpdatePartKnownColorsFromBricklink(pid, donet)
+  else if typ = 'G' then
+    Result := UpdateGearKnownColorsFromBricklink(pid, donet)
+  else if typ = 'B' then
+    Result := UpdateBookKnownColorsFromBricklink(pid, donet)
+  else if typ = 'M' then
+    Result := UpdateMinifigAsPartFromBricklink(pid, donet)
+  else if typ = 'S' then
+  begin
+    Result := UpdateSetAsPartFromBricklink(pid, donet);
+    if Result then
+      UpdateSetAssetsFromBricklink(pid);
+  end;
 end;
 {$ENDIF}
 

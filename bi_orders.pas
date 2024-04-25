@@ -188,7 +188,7 @@ begin
         begin
           salt := dbalt.Strings[j];
           if salt <> brick.part then
-            if cc.knownpieces.IndexOf(salt) > 0 then
+            if cc.knownpieces.IndexOf(salt) >= 0 then
               lalt.Add(salt);
         end;
         if lalt.Count > 0 then

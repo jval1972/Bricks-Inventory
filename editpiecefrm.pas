@@ -310,8 +310,8 @@ begin
       f.PartTypeLabel.Caption := PartTypeToPartTypeName(pci.sparttype);
       if Trim(f.PartTypeLabel.Caption) = '' then
         f.PartTypeLabel.Caption := '(Default)';
-      initialstorage := pci.storage.Text;
-      f.Memo1.Lines.Text := initialstorage;
+      f.Memo1.Lines.Text := pci.storage.Text;
+      initialstorage := f.Memo1.Lines.Text;
       num := inventory.LoosePartCount(part, color);
       if islikeset then
         num2 := inventory.BuildSetCount(part)
@@ -381,13 +381,15 @@ begin
             end;
           db.AddCrawlerLink(part, color, f.LinkEdit.Text);
 
-          s := TStringList.Create;
-          try
-            s.Text := f.Memo1.Lines.Text;
-            if s.Text <> initialstorage then
+          if f.Memo1.Lines.Text <> initialstorage then
+          begin
+            s := TStringList.Create;
+            try
+              s.Text := f.Memo1.Lines.Text;
               db.SetPieceStorage(part, color, s);
-          finally
-            s.Free;
+            finally
+              s.Free;
+            end;
           end;
 
           f.PartCodeEdit.Text := Trim(f.PartCodeEdit.Text);

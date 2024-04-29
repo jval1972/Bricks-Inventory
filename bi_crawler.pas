@@ -2357,7 +2357,7 @@ begin
   end;
 
   if (myMonth <= 3) or (myMonth > 10) then
-    if myHour = 8 then
+    if myHour = 7 then
       if (myMin > 49) or ((myMin = 49) and (mySec > 57)) then
       begin
         Result := False;
@@ -2365,7 +2365,7 @@ begin
       end;
 
   if (myMonth > 3) and (myMonth <= 10) then
-    if myHour = 7 then
+    if myHour = 8 then
       if (myMin > 49) or ((myMin = 49) and (mySec > 57)) then
       begin
         Result := False;

@@ -33,6 +33,9 @@ interface
 uses
   Windows, SysUtils, Classes, bi_hash, Graphics, ExtCtrls, Consts;
 
+const
+  DEF_PNG_COMPRESSION_LEVEL = 9;
+
 {$IFNDEF CRAWLER}
 function findsimilarimagestring(const hash: THashTable; const s: string): string;
 {$ENDIF}
@@ -744,6 +747,8 @@ begin
   J := TJpegImage.Create;
   B := TBitmap.Create;
   P := TPNGObject.Create;
+  P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
+  P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
   try
     J.LoadFromFile('tmp1.jpg');
     B.Assign(J);
@@ -773,6 +778,7 @@ begin
   J := TJpegImage.Create;
   B := TBitmap.Create;
   P := TPNGObject.Create;
+  P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
   try
     J.LoadFromFile(ajpg);
     B.Assign(J);
@@ -800,6 +806,7 @@ begin
   J := TJpegImage.Create;
   B := TBitmap.Create;
   P := TPNGObject.Create;
+  P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
   try
     P.LoadFromFile(apng);
     B.Assign(J);
@@ -929,6 +936,7 @@ begin
     J := TGIFImage.Create;
     B := TBitmap.Create;
     P := TPNGObject.Create;
+    P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
     try
       J.LoadFromFile('tmp1.gif');
       B.Assign(J);
@@ -1838,6 +1846,7 @@ begin
   J := TJpegImage.Create;
   B := TBitmap.Create;
   P := TPNGObject.Create;
+  P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
   try
     loadok := True;
     try
@@ -1918,6 +1927,7 @@ begin
   J := TPNGObject.Create;
   B := TBitmap.Create;
   P := TPNGObject.Create;
+  P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
   try
     loadok := True;
     try

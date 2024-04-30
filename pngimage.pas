@@ -5422,7 +5422,9 @@ begin
         {A TRNS chunk must be present, otherwise it won't support transparency}
         if TRNS <> nil then
           if TRNS.BitTransparency then
-            Result := ptmBit else Result := ptmPartial
+            Result := ptmBit
+          else
+            Result := ptmPartial
     end {case}
 
   end {with Header}
@@ -5469,7 +5471,8 @@ begin
         {Transform into the appropriate color type}
         if ColorType = COLOR_GRAYSCALEALPHA then
           ColorType := COLOR_GRAYSCALE
-        else ColorType := COLOR_RGB;
+        else
+          ColorType := COLOR_RGB;
         {Free the pointer data}
         if ImageAlpha <> nil then FreeMem(ImageAlpha);
         ImageAlpha := nil
@@ -5492,7 +5495,8 @@ begin
         {Transform into the appropriate color type}
         if ColorType = COLOR_GRAYSCALE then
           ColorType := COLOR_GRAYSCALEALPHA
-        else ColorType := COLOR_RGBALPHA;
+        else
+          ColorType := COLOR_RGBALPHA;
         {Allocates memory to hold alpha information}
         GetMem(ImageAlpha, Integer(Width) * Integer(Height));
         FillChar(ImageAlpha^, Integer(Width) * Integer(Height), #255);
@@ -5506,15 +5510,15 @@ begin
         else
           TRNS := Chunks.ItemFromClass(TChunkTRNS) as TChunkTRNS;
 
-          {Prepares the TRNS chunk}
-          with TRNS do
-          begin
-            ResizeData(256);
-            Fillchar(PaletteValues[0], 256, 255);
-            fDataSize := 1 shl Header.BitDepth;
-            fBitTransparency := False
-          end {with Chunks.Add};
-        end;
+        {Prepares the TRNS chunk}
+        with TRNS do
+        begin
+          ResizeData(256);
+          Fillchar(PaletteValues[0], 256, 255);
+          fDataSize := 1 shl Header.BitDepth;
+          fBitTransparency := False
+        end {with Chunks.Add};
+      end;
     end {case Header.ColorType}
 
 end;
@@ -5526,8 +5530,10 @@ var
 begin
   TRNS := Chunks.ItemFromClass(TChunkTRNS) as TChunkTRNS;
   {Reads the transparency chunk to get this info}
-  if Assigned(TRNS) then Result := TRNS.TransparentColor
-    else Result := 0
+  if Assigned(TRNS) then
+    Result := TRNS.TransparentColor
+  else
+    Result := 0
 end;
 
 {$OPTIMIZATION OFF}
@@ -5587,15 +5593,15 @@ begin
           Result := rgb(GammaTable[rgbRed], GammaTable[rgbGreen],
             GammaTable[rgbBlue]);
       COLOR_GRAYSCALE:
-      begin
-        if BitDepth = 1 then
-          ByteData := GammaTable[Byte(ByteData * 255)]
-        else
-          ByteData := GammaTable[Byte(ByteData * ((1 shl DataDepth) + 1))];
-        Result := rgb(ByteData, ByteData, ByteData);
-      end;
-      else
-        Result := 0;
+        begin
+          if BitDepth = 1 then
+            ByteData := GammaTable[Byte(ByteData * 255)]
+          else
+            ByteData := GammaTable[Byte(ByteData * ((1 shl DataDepth) + 1))];
+          Result := rgb(ByteData, ByteData, ByteData);
+        end;
+    else
+      Result := 0;
     end {case};
   end {with}
 end;

@@ -3659,6 +3659,13 @@ begin
       else if bp.part = '98138pb183' then begin s.Add(Format('%s,%d,%d', ['98138pr0082', bp.color, bp.num])); end
       // 20240428
       else if bp.part = '88291' then begin s.Add(Format('%s,%d,%d', ['88291c01pb01', bp.color, bp.num])); end
+      // 20240503
+      else if bp.part = '7287stk01' then begin s.Add(Format('%s,%d,%d', ['93163', 0, bp.num])); end
+      else if bp.part = '973pr1164c01' then begin s.Add(Format('%s,%d,%d', ['973c05h01pr1164', bp.color, bp.num])); end
+      else if bp.part = '973pr1188c01' then begin s.Add(Format('%s,%d,%d', ['973c03h01pr1188', bp.color, bp.num])); end
+      else if bp.part = '973pr1694c01' then begin s.Add(Format('%s,%d,%d', ['973c14h01pr1694', bp.color, bp.num])); end
+      else if bp.part = '3004pb007' then begin s.Add(Format('%s,%d,%d', ['3004pr9968', bp.color, bp.num])); end
+      else if bp.part = '973pr1693c01' then begin s.Add(Format('%s,%d,%d', ['973c03h12pr1693', bp.color, bp.num])); end
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;

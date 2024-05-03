@@ -748,7 +748,6 @@ begin
   B := TBitmap.Create;
   P := TPNGObject.Create;
   P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
-  P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
   try
     J.LoadFromFile('tmp1.jpg');
     B.Assign(J);

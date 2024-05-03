@@ -150,13 +150,14 @@ begin
 
   Result := 0;
 
-  InternetReadFile(
-        hURL,                  // File URL
-        @Buffer,               // Buffer that receives data
-        SizeOf(Buffer),        // bytes to read
-        BufferLen);            // bytes read
-  if BufferLen > 0 then
-    Result := Buffer;
+  if InternetReadFile(
+      hURL,                  // File URL
+      @Buffer,               // Buffer that receives data
+      SizeOf(Buffer),        // bytes to read
+      BufferLen              // bytes read
+    ) then
+    if BufferLen > 0 then
+      Result := Buffer;
 end;
 
 function GetURLString(const URL: string; XXX: integer = 0): string;
@@ -203,18 +204,24 @@ begin
   Result := '';
 
   repeat
-    InternetReadFile(
+    BufferLen := 0;
+    if InternetReadFile(
         hURL,                  // File URL
         @Buffer,               // Buffer that receives data
         SizeOf(Buffer),        // bytes to read
-        BufferLen);            // bytes read
-    if BufferLen > 0 then
+        BufferLen              // bytes read
+    ) then
     begin
-      len := Length(Result);
-      SetLength(Result, Length(Result) + BufferLen);
-      for i := 1 to BufferLen do
-        Result[len + i] := Buffer[i];
-    end;
+      if BufferLen > 0 then
+      begin
+        len := Length(Result);
+        SetLength(Result, Length(Result) + BufferLen);
+        for i := 1 to BufferLen do
+          Result[len + i] := Buffer[i];
+      end;
+    end
+    else
+      Break;
   until BufferLen = 0;
 end;
 
@@ -242,18 +249,23 @@ begin
   Result := '';
 
   repeat
-    InternetReadFile(
+    if InternetReadFile(
         hURL,                  // File URL
         @Buffer,               // Buffer that receives data
         SizeOf(Buffer),        // bytes to read
-        BufferLen);            // bytes read
-    if BufferLen > 0 then
+        BufferLen              // bytes read
+    ) then
     begin
-      len := Length(Result);
-      SetLength(Result, Length(Result) + BufferLen);
-      for i := 1 to BufferLen do
-        Result[len + i] := Buffer[i];
-    end;
+      if BufferLen > 0 then
+      begin
+        len := Length(Result);
+        SetLength(Result, Length(Result) + BufferLen);
+        for i := 1 to BufferLen do
+          Result[len + i] := Buffer[i];
+      end
+    end
+    else
+      break;
   until BufferLen = 0;
 end;
 
@@ -281,17 +293,22 @@ begin
   path := ExtractFilePath(fname);
   if not DirectoryExists(path) then
     ForceDirectories(path);
-    
+
   f := TFileStream.Create(fname, fmCreate);
 
   repeat
-    InternetReadFile(
+    if InternetReadFile(
         hURL,                  // File URL
         @Buffer,               // Buffer that receives data
         SizeOf(Buffer),        // bytes to read
-        BufferLen);            // bytes read
-    if BufferLen > 0 then
-      f.Write(Buffer, BufferLen);
+        BufferLen              // bytes read
+      ) then
+    begin
+      if BufferLen > 0 then
+        f.Write(Buffer, BufferLen);
+    end
+    else
+      break;
   until BufferLen = 0;
 
   Result := f.Size > 0;

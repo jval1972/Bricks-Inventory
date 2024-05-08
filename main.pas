@@ -401,6 +401,14 @@ type
     Partswithtypeconflicts1: TMenuItem;
     N2: TMenuItem;
     Partswithunknownlocation1: TMenuItem;
+    N62: TMenuItem;
+    InventoryPieceswithoutupdatethelast10days1: TMenuItem;
+    InventoryPieceswithoutupdatethelast30days1: TMenuItem;
+    InventoryPieceswithoutupdatethelast90days1: TMenuItem;
+    InventoryPieceswithoutupdatethelast365days1: TMenuItem;
+    InventoryPieceswithoutupdatethelast3years1: TMenuItem;
+    N63: TMenuItem;
+    InventiryPieceswithoutupdateinrange1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -668,6 +676,17 @@ type
     procedure Mywishlist1Click(Sender: TObject);
     procedure Partswithtypeconflicts1Click(Sender: TObject);
     procedure Partswithunknownlocation1Click(Sender: TObject);
+    procedure InventoryPieceswithoutupdatethelast10days1Click(
+      Sender: TObject);
+    procedure InventoryPieceswithoutupdatethelast30days1Click(
+      Sender: TObject);
+    procedure InventoryPieceswithoutupdatethelast90days1Click(
+      Sender: TObject);
+    procedure InventoryPieceswithoutupdatethelast365days1Click(
+      Sender: TObject);
+    procedure InventoryPieceswithoutupdatethelast3years1Click(
+      Sender: TObject);
+    procedure InventiryPieceswithoutupdateinrange1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -758,7 +777,9 @@ type
       const over: double; const dobrickorederinfo: boolean; const catid: Integer = -1);
     procedure DrawSetAlternatePieceList(const tit: string; const lst: TStringList);
     procedure PiecesWithDaysToUpdate(const x: integer);
+    procedure InvPiecesWithDaysToUpdate(const x: integer);
     procedure PiecesWithDaysToUpdateRange(const ax1, ax2: integer);
+    procedure InvPiecesWithDaysToUpdateRange(const ax1, ax2: integer);
     procedure PiecesUnknownWeight;
     procedure InstructionsUnknownWeight;
     procedure BoxesUnknownWeight;
@@ -14381,10 +14402,20 @@ begin
     splitstring(slink, s1, s2, '/');
     PiecesWithDaysToUpdate(atoi(s2));
   end
+  else if Pos1('InvPiecesWithDaysToUpdate/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    InvPiecesWithDaysToUpdate(atoi(s2));
+  end
   else if Pos1('PiecesWithDaysToUpdateRange/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
     PiecesWithDaysToUpdateRange(atoi(s2), atoi(s3));
+  end
+  else if Pos1('InvPiecesWithDaysToUpdateRange/', slink) then
+  begin
+    splitstring(slink, s1, s2, s3, '/');
+    InvPiecesWithDaysToUpdateRange(atoi(s2), atoi(s3));
   end
   else if slink = 'PiecesUnknownWeight' then
   begin
@@ -20978,6 +21009,92 @@ begin
 
 end;
 
+procedure TMainForm.InvPiecesWithDaysToUpdate(const x: integer);
+var
+  i: integer;
+  lst: TStringList;
+  pci: TPieceColorInfo;
+  inv: TBrickInventory;
+  s1: string;
+  nextstr, prevstr: string;
+  nextx, prevx: integer;
+  dn: TDateTime;
+  ddays: integer;
+  titstr: string;
+begin
+  lst := TStringList.Create;
+
+  inv := TBrickInventory.Create;
+  dn := Now();
+
+  for i := 0 to inventory.numlooseparts - 1  do
+  begin
+    pci := db.PieceColorInfo(@inventory.looseparts[i]);
+    if pci <> nil then
+    begin
+      ddays := DaysBetween(dn, pci.Date);
+      if ddays >= x then
+      begin
+        lst.Add(pci.piece + ',' + itoa(pci.color));
+        inv.AddLoosePartFast(pci.piece, pci.color, 1, pci);
+      end;
+    end;
+  end;
+
+  if x > 1 then
+  begin
+    if x <= 10 then
+      prevx := x - 1
+    else
+      prevx := round(x * 0.8);
+    prevstr := '<a href=InvPiecesWithDaysToUpdate/' + itoa(prevx) + '>Inventory Pieces without update the last ' + itoa(prevx) + ' days</a><br>';
+  end
+  else
+    prevstr := '';
+  if x < 5000 then
+  begin
+    nextx := round(x * 1.25);
+    if nextx > 5000 then
+      nextx := 5000;
+    nextstr := '<br><a href=InvPiecesWithDaysToUpdate/' + itoa(nextx) + '>Inventory Pieces without update the last ' + itoa(nextx) + ' days</a>';
+  end
+  else
+    nextstr := '';
+
+  lst.Sort;
+  titstr := 'Inventory Pieces without update the last ' + itoa(x) + ' days';
+  DrawPieceList(prevstr + titstr + nextstr, lst, SORT_DATE_UPDATE, '', titstr);
+  lst.Free;
+
+  s1 := basedefault + 'out\PiecesWithDaysToUpdate' + IntToStrzFill(4, x) + '\';
+  if not DirectoryExists(s1) then
+    ForceDirectories(s1);
+  s1 := s1 + 'InvPiecesWithDaysToUpdate' + IntToStrzFill(4, x);
+  inv.SaveLooseParts(s1 + '.txt');
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+  end;
+
+  inv.Free;
+
+end;
+
 procedure TMainForm.PiecesWithDaysToUpdateRange(const ax1, ax2: integer);
 var
   i, j: integer;
@@ -21057,6 +21174,101 @@ begin
   if not DirectoryExists(s1) then
     ForceDirectories(s1);
   s1 := s1 + 'PiecesWithDaysToUpdateRange_' + IntToStrzFill(4, x) + '_' + IntToStrzFill(4, x2);
+  inv.SaveLooseParts(s1 + '.txt');
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListUsed(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+  end;
+
+  inv.Free;
+
+end;
+
+procedure TMainForm.InvPiecesWithDaysToUpdateRange(const ax1, ax2: integer);
+var
+  i: integer;
+  lst: TStringList;
+  pci: TPieceColorInfo;
+  inv: TBrickInventory;
+  s1: string;
+  nextstr, prevstr: string;
+  nextx, prevx: integer;
+  dn: TDateTime;
+  ddays: integer;
+  x, x2: integer;
+  diff: integer;
+  titstr: string;
+begin
+  lst := TStringList.Create;
+
+  inv := TBrickInventory.Create;
+  dn := Now();
+
+  if ax1 < ax2 then
+  begin
+    x := ax1;
+    x2 := ax2;
+  end
+  else
+  begin
+    x := ax2;
+    x2 := ax1;
+  end;
+  for i := 0 to inventory.numlooseparts - 1  do
+  begin
+    pci := db.PieceColorInfo(@inventory.looseparts[i]);
+    if pci <> nil then
+    begin
+      ddays := DaysBetween(dn, pci.Date);
+      if ddays >= x then
+        if ddays <= x2 then
+        begin
+          lst.Add(pci.piece + ',' + itoa(pci.color));
+          inv.AddLoosePartFast(pci.piece, pci.color, 1, pci);
+        end;
+      end;
+  end;
+
+  diff := x2 - x;
+  if x >= diff then
+  begin
+    prevx := x - diff;
+    prevstr := '<a href=InvPiecesWithDaysToUpdateRange/' + itoa(prevx) + '/' + itoa(x) + '>Inventory Pieces without update between ' + itoa(prevx) + ' and ' + itoa(x) + ' days</a><br>';
+  end
+  else
+    prevstr := '';
+  if (x2 < 1000 * diff) and (int64(int64(x) + int64(diff)) < int64(MAXINT)) then
+  begin
+    nextx := x2 + diff;
+    nextstr := '<br><a href=InvPiecesWithDaysToUpdateRange/' + itoa(x2) + '/' + itoa(nextx) + '>Inventory Pieces without update between ' + itoa(x2) + ' and ' + itoa(nextx) + ' days</a>';
+  end
+  else
+    nextstr := '';
+
+  lst.Sort;
+  titstr := 'Inventory Pieces without update between ' + itoa(x) + ' and ' + itoa(x2) + ' days';
+  DrawPieceList(prevstr + titstr + nextstr, lst, SORT_DATE_UPDATE, '', titstr);
+  lst.Free;
+
+  s1 := basedefault + 'out\InvPiecesWithDaysToUpdateRange_' + IntToStrzFill(4, x) + '_' + IntToStrzFill(4, x2) + '\';
+  if not DirectoryExists(s1) then
+    ForceDirectories(s1);
+  s1 := s1 + 'InvPiecesWithDaysToUpdateRange_' + IntToStrzFill(4, x) + '_' + IntToStrzFill(4, x2);
   inv.SaveLooseParts(s1 + '.txt');
 
   if savealwayswantedlists then
@@ -23122,6 +23334,55 @@ var
   foo: Boolean;
 begin
   HTMLClick('ShowPartsWithUnknownLocation', foo);
+end;
+
+procedure TMainForm.InventoryPieceswithoutupdatethelast10days1Click(
+  Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('InvPiecesWithDaysToUpdate/10', foo);
+end;
+
+procedure TMainForm.InventoryPieceswithoutupdatethelast30days1Click(
+  Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('InvPiecesWithDaysToUpdate/30', foo);
+end;
+
+procedure TMainForm.InventoryPieceswithoutupdatethelast90days1Click(
+  Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('InvPiecesWithDaysToUpdate/90', foo);
+end;
+
+procedure TMainForm.InventoryPieceswithoutupdatethelast365days1Click(
+  Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('InvPiecesWithDaysToUpdate/365', foo);
+end;
+
+procedure TMainForm.InventoryPieceswithoutupdatethelast3years1Click(
+  Sender: TObject);
+var
+  foo: Boolean;
+begin
+  HTMLClick('InvPiecesWithDaysToUpdate/' + itoa(365 * 3), foo);
+end;
+
+procedure TMainForm.InventiryPieceswithoutupdateinrange1Click(
+  Sender: TObject);
+var
+  foo: Boolean;
+begin
+  if InputTwoIntegers('Inventory Pieces without update in range', 'From days: ', 'To days: ', dnu1, dnu2) then
+    HTMLClick('InvPiecesWithDaysToUpdateRange/' + itoa(dnu1) + '/' + itoa(dnu2), foo);
 end;
 
 end.

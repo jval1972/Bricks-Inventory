@@ -1555,6 +1555,36 @@ object MainForm: TMainForm
           Caption = 'Pieces without update in range'
           OnClick = Pieceswithoutupdateinrange1Click
         end
+        object N62: TMenuItem
+          Caption = '-'
+        end
+        object InventoryPieceswithoutupdatethelast10days1: TMenuItem
+          Caption = 'Inventory Pieces without update the last 10 days'
+          OnClick = InventoryPieceswithoutupdatethelast10days1Click
+        end
+        object InventoryPieceswithoutupdatethelast30days1: TMenuItem
+          Caption = 'Inventory Pieces without update the last 30 days'
+          OnClick = InventoryPieceswithoutupdatethelast30days1Click
+        end
+        object InventoryPieceswithoutupdatethelast90days1: TMenuItem
+          Caption = 'Inventory Pieces without update the last 90 days'
+          OnClick = InventoryPieceswithoutupdatethelast90days1Click
+        end
+        object InventoryPieceswithoutupdatethelast365days1: TMenuItem
+          Caption = 'Inventory Pieces without update the last 365 days '
+          OnClick = InventoryPieceswithoutupdatethelast365days1Click
+        end
+        object InventoryPieceswithoutupdatethelast3years1: TMenuItem
+          Caption = 'Inventory Pieces without update the last 3 years'
+          OnClick = InventoryPieceswithoutupdatethelast3years1Click
+        end
+        object N63: TMenuItem
+          Caption = '-'
+        end
+        object InventiryPieceswithoutupdateinrange1: TMenuItem
+          Caption = 'Inventiry Pieces without update in range'
+          OnClick = InventiryPieceswithoutupdateinrange1Click
+        end
       end
       object Marketqueries2: TMenuItem
         Caption = 'Market queries'

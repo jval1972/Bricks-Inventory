@@ -2012,7 +2012,7 @@ begin
       end
       else if bp.part = '4465c02' then
       begin
-        s.Add(Format('%s,%d,%d', ['4465body', bp.color, bp.num]));
+        s.Add(Format('%s,%d,%d', ['30461', bp.color, bp.num])); // body
         s.Add(Format('%s,%d,%d', ['30456', bp.color, bp.num]));
         s.Add(Format('%s,%d,%d', ['30460', bp.color, bp.num]));
         s.Add(Format('%s,%d,%d', ['30462', 484, bp.num]));

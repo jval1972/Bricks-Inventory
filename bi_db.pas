@@ -20881,6 +20881,13 @@ begin
           lsets1.Add(stmp)
         else if (Pos1('-1,cty', stmp)) and (CountNumbers(stmp) = 4) then
           lsets1.Add(stmp)
+        else if Pos1('-1,3068bpb', stmp) or Pos1('-1,3069bpb', stmp) or Pos1('-1,3070bpb', stmp) then
+        begin
+          if CountNumbers(stmp) = 8 then
+            lparts3.Add(stmp)
+          else
+            lparts4.Add(stmp)
+        end
         else
           lsets2.Add(stmp);
       end;

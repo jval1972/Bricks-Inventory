@@ -32,7 +32,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, Buttons, ComCtrls, Consts;
+  Dialogs, StdCtrls, ExtCtrls, Buttons, ComCtrls, Consts, Menus, Clipbrd,
+  pngimage;
 
 type
   TEditPieceForm = class(TForm)
@@ -90,6 +91,8 @@ type
     PrefLocationEdit: TEdit;
     ClearPrefSpeedButton: TSpeedButton;
     AliasNameChangeButton1: TSpeedButton;
+    PopupMenu1: TPopupMenu;
+    Paste1: TMenuItem;
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -116,12 +119,15 @@ type
     procedure AliasNameChangeButton1Click(Sender: TObject);
     procedure AliasEditChange(Sender: TObject);
     procedure NewNameEditChange(Sender: TObject);
+    procedure PopupMenu1Popup(Sender: TObject);
+    procedure Paste1Click(Sender: TObject);
   private
     { Private declarations }
   protected
     parttype: char;
     partcolor: integer;
     partname: string;
+    imgchanged: boolean;
     procedure AliasUpdate;
   public
     { Public declarations }
@@ -166,6 +172,7 @@ var
   editingset: boolean;
   oinf: TStringList;
   oitem: TOrderItemInfo;
+  P: TPNGObject;
 begin
   Result := False;
   if Trim(apart) = '' then
@@ -433,6 +440,17 @@ begin
 
           newtags.Free;
 
+          if f.imgchanged then
+          begin
+            P := TPNGObject.Create;
+            try
+              P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
+              P.Assign(f.Image1.Picture.Bitmap);
+              P.SaveToFile(itoa(color) + '\' + part + '.png');
+            finally
+              P.Free;
+            end;
+          end;
         finally
           Screen.Cursor := crDefault;
         end;
@@ -754,6 +772,7 @@ begin
   partcolor := 0;
   partname := '';
   YearEdit.Text := '0';
+  imgchanged := false;
   PageControl1.ActivePageIndex := 0;
   TagsListBox.Clear;
 end;
@@ -905,6 +924,27 @@ end;
 procedure TEditPieceForm.NewNameEditChange(Sender: TObject);
 begin
   AliasUpdate;
+end;
+
+procedure TEditPieceForm.PopupMenu1Popup(Sender: TObject);
+begin
+  Paste1.Enabled := Clipboard.HasFormat(CF_PICTURE);
+end;
+
+procedure TEditPieceForm.Paste1Click(Sender: TObject);
+var
+  b: boolean;
+begin
+  if Clipboard.HasFormat(CF_PICTURE) then
+  begin
+    try
+      Image1.Picture.Bitmap.Assign(Clipboard);
+      b := true;
+    except
+      b := false;
+    end;
+    imgchanged := imgchanged or b;
+  end;
 end;
 
 end.

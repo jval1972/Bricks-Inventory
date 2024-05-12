@@ -70,8 +70,6 @@ begin
 end;
 
 procedure TTimingForm.CrawlerTimerTimer(Sender: TObject);
-var
-  ret: integer;
 begin
   if not cancrowl then
     Exit;

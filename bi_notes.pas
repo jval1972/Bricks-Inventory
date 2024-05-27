@@ -52,12 +52,13 @@ const
     'fits with and is usually'
   );
 
-  ITEMS_PROPS: array[0..4] of string[99] = (
+  ITEMS_PROPS: array[0..5] of string[120] = (
     '<b>This Item is a mold variant of the following Item(s):</b>',
     '<b>This Item is similar to and has the same number as the following Item(s):</b>',
     '<b>This Item is similar to, but has a different number than the following Item(s):</b>',
     '<b>This Item pairs with the following Item(s):</b>',
-    '<b>This Item is similar in pattern to the following Item(s):</b>'
+    '<b>This Item is similar in pattern to the following Item(s):</b>',
+    '<b>This Item has the same or similar content, but was published in a different language than the following Item(s):</b>'
   );
 
 type

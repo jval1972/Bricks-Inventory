@@ -15653,8 +15653,12 @@ begin
   Result := False;
   pci := PieceColorInfo(sid, -1);
   if pci <> nil then
+  begin
+    if pci.sparttype in ['M', 'P', 'B', 'S', 'O', 'I'] then
+      Exit;
     if (pci.sparttype = 'G') or (pci.parttype = TYPE_GEAR) then
       Result := True;
+  end;
 end;
 
 function TSetsDatabase.IsMinifigure(const mid: string): boolean;
@@ -15664,8 +15668,12 @@ begin
   Result := False;
   pci := PieceColorInfo(mid, -1);
   if pci <> nil then
+  begin
+    if pci.sparttype in ['S', 'P', 'B', 'G', 'O', 'I'] then
+      Exit;
     if (pci.sparttype = 'M') or (pci.parttype = TYPE_MINIFIGURE) then
       Result := True;
+  end;
 end;
 
 function TSetsDatabase.IsPart(const pid: string): boolean;
@@ -15675,8 +15683,12 @@ begin
   Result := False;
   pci := PieceColorInfo(pid, -1);
   if pci <> nil then
+  begin
+    if pci.sparttype in ['S', 'M', 'B', 'G', 'O', 'I'] then
+      Exit;
     if (pci.sparttype = 'P') or (pci.parttype = TYPE_PART) then
       Result := True;
+  end;
 end;
 
 function TSetsDatabase.IsSet(const sid: string): boolean;
@@ -15686,8 +15698,12 @@ begin
   Result := False;
   pci := PieceColorInfo(sid, -1);
   if pci <> nil then
+  begin
+    if pci.sparttype in ['M', 'P', 'B', 'G', 'O', 'I'] then
+      Exit;
     if (pci.sparttype = 'S') or (pci.parttype = TYPE_SET) then
       Result := True;
+  end;
 end;
 
 function TSetsDatabase.IsPossibleGear(const sid: string): boolean;

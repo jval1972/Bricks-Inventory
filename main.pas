@@ -22303,6 +22303,21 @@ begin
               pci.InternetUpdate;
           end
         end;
+      end
+      else if itoa(atoi(s1)) = s1 then
+      begin
+        pci := db.PieceColorInfo(s2, atoi(s1));
+        if pci <> nil then
+          for i := 0 to s.Count - 1 do
+          begin
+            splitstring(s.Strings[i], s1, s2, s3, ',');
+            pci := db.PieceColorInfo(s2, atoi(s1));
+            if pci <> nil then
+            begin
+              if DaysBetween(Now(), pci.date) >= days then
+                pci.InternetUpdate;
+            end
+          end;
       end;
     end;
   finally

@@ -13118,6 +13118,7 @@ begin
 
     // Find alternates
     txt := SL.Text;
+
     alcheck := 'Alternate Item No: <span style="color: #2C6EA5; font-weight: bold;">';
     p := Pos(alcheck, txt);
     if p > 0 then
@@ -13245,6 +13246,7 @@ begin
         end;
 
       end;
+
       Result := True;
     end;
   finally
@@ -13304,17 +13306,23 @@ var
   SL: TStringList;
   desc: string;
   i, j, k: integer;
-  s, check: string;
+  s, check, txt: string;
   urlstr, spart: string;
+  blname: string;
   sCheck: TStringList;
   snum: string;
+  yyyy: integer;
   N: TDNumberList;
   p, num: integer;
   checkyear: string;
   yearnum: integer;
-  pci: TPieceColorInfo;
+  pci, pci2: TPieceColorInfo;
+  pi, pi2: TPieceInfo;
   cl: integer;
   hasinstructions: boolean;
+  salternates: TStringList;
+  salternate: string;
+  alcheck: string;
 begin
   Result := False;
   spart := Trim(pid);
@@ -13322,6 +13330,9 @@ begin
     Exit;
   fname := basedefault + 'db\molds\' + spart + '.htm';
 
+  salternates := nil;
+
+  blname := GetBLNetPieceName(spart);
   if donet then
   begin
     urlstr := sbricklink + 'v2/catalog/catalogitem.page?G=' + GetBLNetPieceName(spart);
@@ -13344,7 +13355,34 @@ begin
     sCheck.Add('//img.' + s_bricklink + '.com/ItemImage/GL/');
     checkyear := 'catType=G&itemYear=';
     S_LoadFromFile(SL, fname);
-    SL.Text := RemoveSpecialTagsFromString(SL.Text);
+
+    // Find alternates
+    txt := SL.Text;
+
+    alcheck := 'Alternate Item No: <span style="color: #2C6EA5; font-weight: bold;">';
+    p := Pos(alcheck, txt);
+    if p > 0 then
+    begin
+      salternate := '';
+      for i := p + Length(alcheck) to Length(txt) do
+      begin
+        if txt[i] = '<' then
+          break;
+        if txt[i] = '&' then
+        begin
+          salternate := '';
+          break;
+        end;
+        if txt[i] <> ' ' then
+          salternate := salternate + txt[i];
+      end;
+      salternates := string2stringlist(salternate, ',');
+      for i := salternates.Count - 1 downto 0 do
+        if not IsPathString(salternates.Strings[i]) then
+          salternates.Delete(i);
+    end;
+
+    SL.Text := RemoveSpecialTagsFromString(txt);
     hasinstructions := False;
     for i := 0 to SL.Count - 1 do
     begin
@@ -13383,10 +13421,13 @@ begin
             else
               break;
           end;
-          num := atoi(snum);
-          if num >= 0 then
-            if N.IndexOf(num) < 0 then
-              N.Add(num);
+          if snum <> '' then
+          begin
+            num := atoi(snum);
+            if num >= 0 then
+              if N.IndexOf(num) < 0 then
+                N.Add(num);
+          end;
         end;
       end;
     end;
@@ -13399,44 +13440,75 @@ begin
         s := SL.Text;
         p := Pos(check, s);
         desc := '';
-        for i := p + length(check) to length(s) do
-        begin
-          if s[i] = '<' then
-            break
-          else
+        if p > 0 then
+          for i := p + length(check) to length(s) do
           begin
-            if s[i] = ',' then
-              s[i] := ' ';
-            desc := desc + s[i];
+            if s[i] = '<' then
+              break
+            else
+            begin
+              if s[i] = ',' then
+                s[i] := ' ';
+              desc := desc + s[i];
+            end;
           end;
-        end;
         if desc <> '' then
           SetMoldName(spart, desc);
       end;
-      if N.Count > 0 then
+      for i := 0 to N.Count - 1 do
       begin
-        for i := 0 to N.Count - 1 do
-        begin
-          pci := nil;
-          cl := BrickLinkColorToSystemColor(N.Numbers[i]);
-          AddKnownPiece(spart, cl, desc, pci);
-          if pci <> nil then
-            if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
-              SetItemYear(pci, yearnum);
-          SetPartType(spart, BrickLinkColorToSystemColor(N.Numbers[i]), 'G');
-        end;
-        if hasinstructions then
-        begin
-          AddKnownPiece(spart, INSTRUCTIONCOLORINDEX, desc, pci);
-          if pci <> nil then
-          begin
-            if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
-              SetItemYear(pci, yearnum);
-            SetPartType(pci, 'I');
-          end;
-        end;
-        Result := True;
+        pci := nil;
+        cl := BrickLinkColorToSystemColor(N.Numbers[i]);
+        AddKnownPiece(spart, cl, desc, pci);
+        if pci <> nil then
+          if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
+            SetItemYear(pci, yearnum);
+        SetPartType(spart, BrickLinkColorToSystemColor(N.Numbers[i]), 'G');
       end;
+      if hasinstructions then
+      begin
+        AddKnownPiece(spart, INSTRUCTIONCOLORINDEX, desc, pci);
+        if pci <> nil then
+        begin
+          if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
+            SetItemYear(pci, yearnum);
+          SetPartType(pci, 'I');
+        end;
+      end;
+
+      pi := PieceInfo(blname);
+
+      // Update alternates from base part (spart)
+      if salternates <> nil then
+      begin
+        for k := 0 to salternates.Count - 1 do
+        begin
+          for i := 0 to N.Count - 1 do
+          begin
+            SetNewPieceName(salternates.Strings[k], blname);
+            cl := BrickLinkColorToSystemColor(N.Numbers[i]);
+            pci2 := nil;
+            if AddKnownPiece(salternates.Strings[k], cl, desc, pci2) then
+            begin
+              pci := PieceColorInfo(spart, cl);
+              if pci <> nil then
+              begin
+                if pci2 <> nil then
+                begin
+                  yyyy := pci.year;
+                  if yyyy > 0 then
+                    SetItemYear(pci2, yyyy);
+                end;
+              end;
+            end;
+          end;
+          pi2 := PieceInfo(salternates.Strings[k]);
+          UpdatePartWeight(pi2, pi.weight);
+        end;
+
+      end;
+
+      Result := True;
     end;
   finally
     SL.Free;
@@ -13456,17 +13528,23 @@ var
   SL: TStringList;
   desc: string;
   i, j, k: integer;
-  s, check: string;
+  s, check, txt: string;
   urlstr, spart: string;
+  blname: string;
   sCheck: TStringList;
   snum: string;
+  yyyy: integer;
   N: TDNumberList;
   p, num: integer;
   checkyear: string;
   yearnum: integer;
-  pci: TPieceColorInfo;
+  pci, pci2: TPieceColorInfo;
+  pi2: TPieceInfo;
   cl: integer;
   tmpweight, oldweight: double;
+  salternates: TStringList;
+  salternate: string;
+  alcheck: string;
 begin
   Result := False;
   spart := Trim(pid);
@@ -13474,6 +13552,9 @@ begin
     Exit;
   fname := basedefault + 'db\books\' + spart + '.htm';
 
+  salternates := nil;
+
+  blname := GetBLNetPieceName(spart);
   if donet then
   begin
     urlstr := sbricklink + 'v2/catalog/catalogitem.page?B=' + GetBLNetPieceName(spart);
@@ -13496,7 +13577,34 @@ begin
     sCheck.Add('//img.' + s_bricklink + '.com/ItemImage/BN/');
     checkyear := 'catType=B&itemYear=';
     S_LoadFromFile(SL, fname);
-    SL.Text := RemoveSpecialTagsFromString(SL.Text);
+
+    // Find alternates
+    txt := SL.Text;
+
+    alcheck := 'Alternate Item No: <span style="color: #2C6EA5; font-weight: bold;">';
+    p := Pos(alcheck, txt);
+    if p > 0 then
+    begin
+      salternate := '';
+      for i := p + Length(alcheck) to Length(txt) do
+      begin
+        if txt[i] = '<' then
+          break;
+        if txt[i] = '&' then
+        begin
+          salternate := '';
+          break;
+        end;
+        if txt[i] <> ' ' then
+          salternate := salternate + txt[i];
+      end;
+      salternates := string2stringlist(salternate, ',');
+      for i := salternates.Count - 1 downto 0 do
+        if not IsPathString(salternates.Strings[i]) then
+          salternates.Delete(i);
+    end;
+
+    SL.Text := RemoveSpecialTagsFromString(txt);
     for i := 0 to SL.Count - 1 do
     begin
       s := Trim(SL.Strings[i]);
@@ -13532,10 +13640,13 @@ begin
             else
               break;
           end;
-          num := atoi(snum);
-          if num >= 0 then
-            if N.IndexOf(num) < 0 then
-              N.Add(num);
+          if snum <> '' then
+          begin
+            num := atoi(snum);
+            if num >= 0 then
+              if N.IndexOf(num) < 0 then
+                N.Add(num);
+          end;
         end;
       end;
     end;
@@ -13548,45 +13659,77 @@ begin
         s := SL.Text;
         p := Pos(check, s);
         desc := '';
-        for i := p + length(check) to length(s) do
-        begin
-          if s[i] = '<' then
-            break
-          else
+        if p > 0 then
+          for i := p + length(check) to length(s) do
           begin
-            if s[i] = ',' then
-              s[i] := ' ';
-            desc := desc + s[i];
+            if s[i] = '<' then
+              break
+            else
+            begin
+              if s[i] = ',' then
+                s[i] := ' ';
+              desc := desc + s[i];
+            end;
           end;
-        end;
         if desc <> '' then
           SetMoldName(spart, desc);
       end;
-      if N.Count > 0 then
+      for i := 0 to N.Count - 1 do
       begin
-        for i := 0 to N.Count - 1 do
+        pci := nil;
+        cl := BrickLinkColorToSystemColor(N.Numbers[i]);
+        AddKnownPiece(spart, cl, desc, pci);
+        if pci <> nil then
+          if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
+            SetItemYear(pci, yearnum);
+        SetPartType(spart, BrickLinkColorToSystemColor(N.Numbers[i]), 'B');
+      end;
+
+      tmpweight := -1.0;
+      oldweight := -2.0;
+      if pci.pieceinfo <> nil then
+        oldweight := (pci.pieceinfo as TPieceInfo).weight;
+
+      if NET_GetItemWeightFromText(SL.Text, tmpweight) then
+        if tmpweight > 0.0 then
+          if tmpweight <> oldweight then
+            UpdatePartWeight(spart, tmpweight);
+
+
+      // Update alternates from base part (spart)
+      if salternates <> nil then
+      begin
+        for k := 0 to salternates.Count - 1 do
         begin
-          pci := nil;
-          cl := BrickLinkColorToSystemColor(N.Numbers[i]);
-          AddKnownPiece(spart, cl, desc, pci);
-          if pci <> nil then
-            if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
-              SetItemYear(pci, yearnum);
-          SetPartType(spart, BrickLinkColorToSystemColor(N.Numbers[i]), 'B');
-        end;
-
-        tmpweight := -1.0;
-        oldweight := -2.0;
-        if pci.pieceinfo <> nil then
-          oldweight := (pci.pieceinfo as TPieceInfo).weight;
-
-        if NET_GetItemWeightFromText(SL.Text, tmpweight) then
+          for i := 0 to N.Count - 1 do
+          begin
+            SetNewPieceName(salternates.Strings[k], blname);
+            cl := BrickLinkColorToSystemColor(N.Numbers[i]);
+            pci2 := nil;
+            if AddKnownPiece(salternates.Strings[k], cl, desc, pci2) then
+            begin
+              pci := PieceColorInfo(spart, cl);
+              if pci <> nil then
+              begin
+                if pci2 <> nil then
+                begin
+                  yyyy := pci.year;
+                  if yyyy > 0 then
+                    SetItemYear(pci2, yyyy);
+                end;
+              end;
+            end;
+          end;
+          SetPartType(salternates.Strings[k], BrickLinkColorToSystemColor(N.Numbers[i]), 'B');
+          pi2 := PieceInfo(salternates.Strings[k]);
           if tmpweight > 0.0 then
             if tmpweight <> oldweight then
-              UpdatePartWeight(spart, tmpweight);
+              UpdatePartWeight(pi2, tmpweight);
+        end;
 
-        Result := True;
       end;
+
+      Result := True;
     end;
   finally
     SL.Free;

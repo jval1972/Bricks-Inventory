@@ -13468,7 +13468,7 @@ begin
         if pci <> nil then
           if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
             SetItemYear(pci, yearnum);
-        SetPartType(spart, BrickLinkColorToSystemColor(N.Numbers[i]), 'G');
+        SetPartType(spart, cl, 'G');
       end;
       if hasinstructions then
       begin

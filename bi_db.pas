@@ -13203,7 +13203,11 @@ begin
           SetMoldName(spart, desc);
       end;
       for i := 0 to N.Count - 1 do
-        AddKnownPiece(spart, BrickLinkColorToSystemColor(N.Numbers[i]), desc);
+      begin
+        cl := BrickLinkColorToSystemColor(N.Numbers[i]);
+        if AddKnownPiece(spart, cl, desc) then
+          SetPartType(spart, cl, 'P');
+      end;
       UpdateItemYearFromDiskCache(spart);
 
       pi := PieceInfo(spart);
@@ -13229,6 +13233,7 @@ begin
             pci2 := nil;
             if AddKnownPiece(salternates.Strings[k], cl, desc, pci2) then
             begin
+              SetPartType(salternates.Strings[k], cl, 'P');
               pci := PieceColorInfo(spart, cl);
               if pci <> nil then
               begin

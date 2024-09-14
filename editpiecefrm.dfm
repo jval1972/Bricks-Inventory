@@ -1365,6 +1365,10 @@ object EditPieceForm: TEditPieceForm
     OnPopup = PopupMenu1Popup
     Left = 120
     Top = 88
+    object Copy1: TMenuItem
+      Caption = 'Copy'
+      OnClick = Copy1Click
+    end
     object Paste1: TMenuItem
       Caption = 'Paste'
       OnClick = Paste1Click

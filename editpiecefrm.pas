@@ -93,6 +93,7 @@ type
     AliasNameChangeButton1: TSpeedButton;
     PopupMenu1: TPopupMenu;
     Paste1: TMenuItem;
+    Copy1: TMenuItem;
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -121,6 +122,7 @@ type
     procedure NewNameEditChange(Sender: TObject);
     procedure PopupMenu1Popup(Sender: TObject);
     procedure Paste1Click(Sender: TObject);
+    procedure Copy1Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -929,6 +931,7 @@ end;
 procedure TEditPieceForm.PopupMenu1Popup(Sender: TObject);
 begin
   Paste1.Enabled := Clipboard.HasFormat(CF_PICTURE);
+  Copy1.Enabled := Image1.Picture.Bitmap.Width > 0;
 end;
 
 procedure TEditPieceForm.Paste1Click(Sender: TObject);
@@ -944,6 +947,15 @@ begin
       b := false;
     end;
     imgchanged := imgchanged or b;
+  end;
+end;
+
+procedure TEditPieceForm.Copy1Click(Sender: TObject);
+begin
+  if Image1.Picture.Bitmap.Width > 0 then
+  try
+    Clipboard.Assign(Image1.Picture.Bitmap);
+  finally
   end;
 end;
 

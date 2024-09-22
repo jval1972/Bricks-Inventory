@@ -12684,6 +12684,8 @@ begin
   if s1 = UpperCase('diagramorder/') then Exit;
   if s1 = UpperCase('autofixsticker/') then Exit;
   if s1 = UpperCase('autofixstickernorefresh/') then Exit;
+  if s1 = UpperCase('autofixgearsyear/') then Exit;
+  if s1 = UpperCase('autofixgearsyearnorefresh/') then Exit;
   if s1 = UpperCase('AutoCorrectUnknownPieceYears/') then Exit;
   if s1 = UpperCase('updateinstructionweight/') then Exit;
   if s1 = UpperCase('updateinstructionweightnorefresh/') then Exit;
@@ -13757,6 +13759,28 @@ begin
       if db.AutoFixSticker(s2) then
         HTMLClick('refresh', Handled)
       else
+        ErrorBeep;
+      Handled := True;
+      Screen.Cursor := crDefault;
+      Exit;
+    end;
+
+    if SRC = 'autofixgearsyear' then
+    begin
+      Screen.Cursor := crHourglass;
+      if db.AutoFixGearsYear then
+        HTMLClick('refresh', Handled)
+      else
+        ErrorBeep;
+      Handled := True;
+      Screen.Cursor := crDefault;
+      Exit;
+    end;
+
+    if SRC = 'autofixgearsyearnorefresh' then
+    begin
+      Screen.Cursor := crHourglass;
+      if not db.AutoFixGearsYear then
         ErrorBeep;
       Handled := True;
       Screen.Cursor := crDefault;

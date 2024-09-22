@@ -568,6 +568,8 @@ begin
         tmp.Clear;
       end;
     end;
+    if allparts.Count > 0 then
+      Memo1.Lines.Add('autofixgearsyear');
     if tmp.Count > 0 then
     begin
       stmp := tmp.Strings[tmp.Count - 1];

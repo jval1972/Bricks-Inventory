@@ -6755,7 +6755,7 @@ begin
     document.write('<div style="color:' + DFGCOLOR + '">');
     document.write('<p align=center>');
 
-    if (Pos('?', pcs) <= 0) and (Pos('*', pcs) <= 0) and (Trim(pcs) <> '') then
+    if (CharPos('?', pcs) <= 0) and (CharPos('*', pcs) <= 0) and (Trim(pcs) <> '') then
     begin
       DrawHeadLine('Can not find piece ' + pcs + ' ' + GetEditMoldHtml(pcs) +
                                                  ' <a href=refreshpieceorgearfrombricklink/' + Trim(pcs) + '><img src="images\refreshcolors.png"></a>');

@@ -1342,7 +1342,7 @@ begin
   if link = '' then
   begin
     id := db.BrickLinkPart(id);
-    if (color = '89') or (color = '') or ((color = '-1') and (Pos('-', id) > 0))  then // set
+    if (color = '89') or (color = '') or ((color = '-1') and (CharPos('-', id) > 0))  then // set
     begin
       link := 'http://' + BL_NET + '/' + 'catalogPG.asp' + '?S=' + db.GetBLNetPieceName(id) + '--&colorID=0&v=D&viewExclude=Y&cID=Y&prDec=4';
       tryparttype := 'S';

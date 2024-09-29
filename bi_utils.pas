@@ -680,7 +680,7 @@ begin
   begin
     if IsNumericC(s[i]) then
       Result := Result + s[i]
-    else if Pos(toupper(s[i]), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ-') > 0 then
+    else if CharPos(toupper(s[i]), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ-') > 0 then
       Result := Result + s[i];
   end;
 end;

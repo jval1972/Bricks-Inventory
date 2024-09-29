@@ -250,7 +250,7 @@ begin
     if Integer(ScriptEndPtr) - Integer(ScriptPtr) > 4 then
     begin
       aa := PCharArray(ScriptPtr);
-      if (aa[0] = ',') and (Pos(',', str) = 0) and (Pos('.', str) = 0) then
+      if (aa[0] = ',') and (CharPos(',', str) = 0) and (CharPos('.', str) = 0) then
         if IsNumericC(aa[1]) and IsNumericC(aa[2]) and IsNumericC(aa[3]) then
           if aa[4] = '.' then
           begin

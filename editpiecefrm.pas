@@ -180,6 +180,8 @@ begin
   if Trim(apart) = '' then
     Exit;
 
+  P := nil;
+
   f := TEditPieceForm.Create(nil);
   try
     part := db.RebrickablePart(apart);
@@ -448,9 +450,7 @@ begin
             try
               P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
               P.Assign(f.Image1.Picture.Bitmap);
-              P.SaveToFile(itoa(color) + '\' + part + '.png');
             finally
-              P.Free;
             end;
           end;
         finally
@@ -461,6 +461,12 @@ begin
     end;
   finally
     f.Free;
+  end;
+  if P <> nil then
+  try
+    P.SaveToFile(basedefault + itoa(color) + '\' + part + '.png');
+  finally
+    P.Free;
   end;
 end;
 

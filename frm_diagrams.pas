@@ -33,7 +33,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, TeeProcs, TeEngine, Chart, StdCtrls, Series, Menus,
-  Buttons, Grids, ValEdit, ComCtrls, clipbrd;
+  Buttons, Grids, ValEdit, ComCtrls, clipbrd, pngimage;
 
 type
   TDiagramForm = class(TForm)
@@ -118,6 +118,9 @@ type
     CurrencyButton7: TSpeedButton;
     CurrencyButton8: TSpeedButton;
     CurrencyButton9: TSpeedButton;
+    PopupMenu2: TPopupMenu;
+    Copy1: TMenuItem;
+    Paste1: TMenuItem;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -175,6 +178,9 @@ type
     procedure CurrencyButtonClick(Sender: TObject);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure FormDestroy(Sender: TObject);
+    procedure Copy1Click(Sender: TObject);
+    procedure Paste1Click(Sender: TObject);
+    procedure PopupMenu2Popup(Sender: TObject);
   private
     { Private declarations }
     fcurrency: string;
@@ -182,6 +188,7 @@ type
     piece: string;
     color: integer;
     lastdown: TSpeedButton;
+    imgchanged: boolean;
     procedure DoMakeChart(const idx: integer);
   public
     { Public declarations }
@@ -800,8 +807,10 @@ var
   hasinv: boolean;
   chid1: integer;
   oldcur: string;
+  P: TPNGObject;
 begin
   oldcur := optdefaultcurrency;
+  P := nil;
   f := TDiagramForm.Create(nil);
   try
     f.UpdateSpeedButton1.Visible := True;
@@ -877,9 +886,25 @@ begin
       f.DoMakeChart(chid1);
       Screen.Cursor := crDefault;
       f.ShowModal;
+
+      if f.imgchanged then
+      begin
+        P := TPNGObject.Create;
+        try
+          P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
+          P.Assign(f.Image1.Picture.Bitmap);
+        finally
+        end;
+      end;
     end;
   finally
     f.Free;
+  end;
+  if P <> nil then
+  try
+    P.SaveToFile(basedefault + itoa(color) + '\' + part + '.png');
+  finally
+    P.Free;
   end;
   Result := oldcur <> optdefaultcurrency;
 end;
@@ -888,8 +913,11 @@ function DiagramStorage(const storage: string): boolean;
 var
   f: TDiagramForm;
   oldcur: string;
+  P: TPNGObject;
+  imgpath: string;
 begin
   oldcur := optdefaultcurrency;
+  P := nil;
   f := TDiagramForm.Create(nil);
   try
     f.UpdateSpeedButton1.Visible := False;
@@ -904,9 +932,30 @@ begin
     Screen.Cursor := crHourglass;
     f.DoMakeChart(33);
     Screen.Cursor := crDefault;
+    imgpath := basedefault + 'storage\' + storage + '.png';
+    if fexists(imgpath) then
+    try
+      f.Image1.Picture.LoadFromFile(imgpath);
+    except
+    end;
     f.ShowModal;
+    if f.imgchanged then
+    begin
+      P := TPNGObject.Create;
+      try
+        P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
+        P.Assign(f.Image1.Picture.Bitmap);
+      finally
+      end;
+    end;
   finally
     f.Free;
+  end;
+  if P <> nil then
+  try
+    P.SaveToFile(basedefault + 'storage\' + storage + '.png');
+  finally
+    P.Free;
   end;
   Result := oldcur <> optdefaultcurrency;
 end;
@@ -915,8 +964,11 @@ function DiagramOrder(const order: string): boolean;
 var
   f: TDiagramForm;
   oldcur: string;
+  P: TPNGObject;
+  imgpath: string;
 begin
   oldcur := optdefaultcurrency;
+  P := nil;
   f := TDiagramForm.Create(nil);
   try
     f.UpdateSpeedButton1.Visible := False;
@@ -933,9 +985,30 @@ begin
     Screen.Cursor := crHourglass;
     f.DoMakeChart(40);
     Screen.Cursor := crDefault;
+    imgpath := basedefault + 'orders\' + order + '.png';
+    if fexists(imgpath) then
+    try
+      f.Image1.Picture.LoadFromFile(imgpath);
+    except
+    end;
     f.ShowModal;
+    if f.imgchanged then
+    begin
+      P := TPNGObject.Create;
+      try
+        P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
+        P.Assign(f.Image1.Picture.Bitmap);
+      finally
+      end;
+    end;
   finally
     f.Free;
+  end;
+  if P <> nil then
+  try
+    P.SaveToFile(basedefault + 'orders\' + order + '.png');
+  finally
+    P.Free;
   end;
   Result := oldcur <> optdefaultcurrency;
 end;
@@ -1437,6 +1510,7 @@ end;
 procedure TDiagramForm.FormCreate(Sender: TObject);
 begin
   PageControl1.ActivePageIndex := 0;
+  imgchanged := false;
   fcurrency := strupper(optdefaultcurrency);
   KeyPreview := True; // Needed to close with ESC
   CurrencyButton1.Hint := currency_names.Values[UpperCase(CurrencyButton1.Caption)];
@@ -1545,6 +1619,37 @@ end;
 procedure TDiagramForm.FormDestroy(Sender: TObject);
 begin
   optdefaultcurrency := fcurrency
+end;
+
+procedure TDiagramForm.Copy1Click(Sender: TObject);
+begin
+  if Image1.Picture.Bitmap.Width > 0 then
+  try
+    Clipboard.Assign(Image1.Picture.Bitmap);
+  finally
+  end;
+end;
+
+procedure TDiagramForm.Paste1Click(Sender: TObject);
+var
+  b: boolean;
+begin
+  if Clipboard.HasFormat(CF_PICTURE) then
+  begin
+    try
+      Image1.Picture.Bitmap.Assign(Clipboard);
+      b := true;
+    except
+      b := false;
+    end;
+    imgchanged := imgchanged or b;
+  end;
+end;
+
+procedure TDiagramForm.PopupMenu2Popup(Sender: TObject);
+begin
+  Paste1.Enabled := Clipboard.HasFormat(CF_PICTURE);
+  Copy1.Enabled := Image1.Picture.Bitmap.Width > 0;
 end;
 
 end.

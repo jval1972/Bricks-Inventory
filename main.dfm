@@ -2279,6 +2279,10 @@ object MainForm: TMainForm
       Caption = 'Open item'
       OnClick = OpenItemPU1Click
     end
+    object OpenItemPU2: TMenuItem
+      Caption = 'Open Item'
+      OnClick = OpenItemPU2Click
+    end
     object N35: TMenuItem
       Caption = '-'
     end

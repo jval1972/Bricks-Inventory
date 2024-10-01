@@ -409,6 +409,7 @@ type
     InventoryPieceswithoutupdatethelast3years1: TMenuItem;
     N63: TMenuItem;
     InventiryPieceswithoutupdateinrange1: TMenuItem;
+    OpenItemPU2: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -687,6 +688,7 @@ type
     procedure InventoryPieceswithoutupdatethelast3years1Click(
       Sender: TObject);
     procedure InventiryPieceswithoutupdateinrange1Click(Sender: TObject);
+    procedure OpenItemPU2Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -20583,17 +20585,28 @@ begin
 end;
 
 procedure TMainForm.PopupMenu1Popup(Sender: TObject);
+var
+  stxt: string;
 begin
   HtmlCopy2.Enabled := HTML.SelLength <> 0;
   CloseTab1.Enabled := TabControl1.Tabs.Count > 1;
   Openlinkinnewtab1.Enabled := (newtabUrl <> '') and (TabControl1.Tabs.Count <= MAXNUMTABS) and (CanOpenInNewTab(newtabUrl));
   Openlink1.Enabled := newtabUrl <> '';
 
+  stxt := Trim(HTML.SelText);
+
   OpenItemPU1.Visible := False;
-  if db.AllPiecesIndex(Trim(HTML.SelText)) >= 0 then
+  if db.AllPiecesIndex(stxt) >= 0 then
   begin
     OpenItemPU1.Visible := True;
-    OpenItemPU1.Caption := 'Open item "' + Trim(HTML.SelText) + '"';
+    OpenItemPU1.Caption := 'Open item "' + stxt + '"';
+  end;
+
+  OpenItemPU2.Visible := False;
+  if db.AllPiecesIndex(stxt + '-1') >= 0 then
+  begin
+    OpenItemPU2.Visible := True;
+    OpenItemPU2.Caption := 'Open item "' + stxt + '-1' + '"';
   end;
 end;
 
@@ -23422,6 +23435,16 @@ var
 begin
   if InputTwoIntegers('Inventory Pieces without update in range', 'From days: ', 'To days: ', dnu1, dnu2) then
     HTMLClick('InvPiecesWithDaysToUpdateRange/' + itoa(dnu1) + '/' + itoa(dnu2), foo);
+end;
+
+procedure TMainForm.OpenItemPU2Click(Sender: TObject);
+var
+  pcs: string;
+  foo: boolean;
+begin
+  pcs := Trim(HTML.SelText) + '-1';
+  if db.AllPiecesIndex(pcs) >= 0 then
+    HTMLClick('spiece/' + pcs, foo);
 end;
 
 end.

@@ -1200,6 +1200,7 @@ type
     {$IFNDEF CRAWLER}
     function AutoFixSticker(const stk: string): boolean;
     function AutoFixGearsYear: boolean;
+    function AutoFixPartsYear: boolean;
     function DownloadPartInventory(const s: string): boolean;
     function UpdatePartInventory(const s: string; const forcedownload: boolean): boolean;
     function SetPartInventory(const s: string; const stext: string): boolean; overload;
@@ -15980,6 +15981,62 @@ begin
           SetItemYear(pci, yyyy);
           Result := True;
         end;
+      end;
+    end;
+    N.Free;
+  end;
+  sL.Free;
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+function TSetsDatabase.AutoFixPartsYear: boolean;
+var
+  sL: TStringList;
+  i: integer;
+  pci, pci2: TPieceColorInfo;
+  spart: string;
+  N: TDNumberList;
+  cl, yyyy: integer;
+  pp: string;
+begin
+  sL := TStringList.Create;
+  Result := False;
+
+  for i := 0 to fcolors[-1].knownpieces.Count - 1 do
+  begin
+    spart := fcolors[-1].knownpieces.Strings[i];
+    pci := PieceColorInfo(spart, -1);
+    if pci <> nil then
+      if pci.sparttype in [' ', 'P'] then
+        if pci.year = 0 then
+          sL.AddObject(spart, pci);
+  end;
+
+  for i := 0 to sL.Count - 1 do
+  begin
+    pci := sL.Objects[i] as TPieceColorInfo;
+    N := GetMoldKnownColors(sL.Strings[i]);
+    if N.Count = 2 then
+    begin
+      if N.Numbers[0] = -1 then
+        cl := N.Numbers[1]
+      else
+        cl := N.Numbers[0];
+      pci2 := PieceColorInfo(sL.Strings[i], cl);
+      pp := pci.sparttype + pci2.sparttype;
+      if (pp = 'PP') or (pp = ' P') or (pp = 'P ') then
+      begin
+        yyyy := pci2.year;
+        if (yyyy >= MIN_ACCEPRABLE_YEAR) and (yyyy <= MAX_ACCEPTABLE_YEAR) then
+        begin
+          SetItemYear(pci, yyyy);
+          Result := True;
+        end;
+        if pci.sparttype = ' ' then
+          db.SetPartType(pci, 'P');
+        if pci2.sparttype = ' ' then
+          db.SetPartType(pci2, 'P');
       end;
     end;
     N.Free;

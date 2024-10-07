@@ -12688,6 +12688,8 @@ begin
   if s1 = UpperCase('autofixstickernorefresh/') then Exit;
   if s1 = UpperCase('autofixgearsyear/') then Exit;
   if s1 = UpperCase('autofixgearsyearnorefresh/') then Exit;
+  if s1 = UpperCase('autofixpartsyear/') then Exit;
+  if s1 = UpperCase('autofixpartsyearnorefresh/') then Exit;
   if s1 = UpperCase('AutoCorrectUnknownPieceYears/') then Exit;
   if s1 = UpperCase('updateinstructionweight/') then Exit;
   if s1 = UpperCase('updateinstructionweightnorefresh/') then Exit;
@@ -13783,6 +13785,28 @@ begin
     begin
       Screen.Cursor := crHourglass;
       if not db.AutoFixGearsYear then
+        ErrorBeep;
+      Handled := True;
+      Screen.Cursor := crDefault;
+      Exit;
+    end;
+
+    if SRC = 'autofixpartsyear' then
+    begin
+      Screen.Cursor := crHourglass;
+      if db.AutoFixPartsYear then
+        HTMLClick('refresh', Handled)
+      else
+        ErrorBeep;
+      Handled := True;
+      Screen.Cursor := crDefault;
+      Exit;
+    end;
+
+    if SRC = 'autofixpartsyearnorefresh' then
+    begin
+      Screen.Cursor := crHourglass;
+      if not db.AutoFixPartsYear then
         ErrorBeep;
       Handled := True;
       Screen.Cursor := crDefault;

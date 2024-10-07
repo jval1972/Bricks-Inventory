@@ -361,6 +361,7 @@ begin
     if allparts.Count > 0 then
     begin
       Memo1.Lines.Add('AutoCorrectUnknownPieceYears');
+      Memo1.Lines.Add('autofixpartsyear');
       Label7.Caption := Format('(%d actions)', [Memo1.Lines.Count]);
       Label7.Update;
     end;

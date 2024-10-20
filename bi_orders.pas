@@ -311,7 +311,15 @@ var
   tq1, tq2, tq3: integer;
   oname: string;
 begin
-  rcolor := db.BrickLinkColorToSystemColor(ii.COLOR);
+  if ii.ITEMTYPE = 'C' then
+    rcolor := CATALOGCOLORINDEX
+  else if ii.ITEMTYPE = 'I' then
+    rcolor := INSTRUCTIONCOLORINDEX
+  else if ii.ITEMTYPE = 'O' then
+    rcolor := BOXCOLORINDEX
+  else
+    rcolor := db.BrickLinkColorToSystemColor(ii.COLOR);
+
   scolor := IntToStr(rcolor);
   spart := ii.ITEMID;
   if not BI_ChangeOrderPartToBIAlias(spart) then
@@ -507,6 +515,7 @@ var
   i: integer;
   it: IXMLITEMType;
   pci: TPieceColorInfo;
+  cl: integer;
 begin
   Result := 0.0;
   if order = nil then
@@ -515,7 +524,17 @@ begin
   for i := 0 to order.ITEM.Count - 1 do
   begin
     it := order.ITEM.Items[i];
-    pci := db.piececolorinfo(db.RebrickablePart(it.ITEMID), db.BrickLinkColorToSystemColor(it.COLOR));
+
+    if it.ITEMTYPE = 'C' then
+      cl := CATALOGCOLORINDEX
+    else if it.ITEMTYPE = 'I' then
+      cl := INSTRUCTIONCOLORINDEX
+    else if it.ITEMTYPE = 'O' then
+      cl := BOXCOLORINDEX
+    else
+      cl := db.BrickLinkColorToSystemColor(it.COLOR);
+
+    pci := db.piececolorinfo(db.RebrickablePart(it.ITEMID), cl);
     if pci <> nil then
     begin
       if it.CONDITION = 'N' then

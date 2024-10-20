@@ -3672,6 +3672,9 @@ begin
       else if bp.part = '4073' then begin s.Add(Format('%s,%d,%d', ['6141', bp.color, bp.num])); end
       else if bp.part = '89352' then begin s.Add(Format('%s,%d,%d', ['88291pr0001', bp.color, bp.num])); end
       else if bp.part = '3068pb1105' then begin s.Add(Format('%s,%d,%d', ['3068bpr0364', bp.color, bp.num])); end
+      // 20241016
+      else if bp.part = '3081cc01' then begin s.Add(Format('%s,%d,%d', ['3081c01', bp.color, bp.num])); end
+      else if bp.part = '264' then begin s.Add(Format('%s,%d,%d', ['4463', bp.color, bp.num])); end
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;
@@ -3806,8 +3809,10 @@ begin
       if fsets[i].num > 0 then
         if not db.IsMoc(fsets[i].setid) then
         begin
-          if fsets[i].setid = 'col09-2' then
-            s.Add(Format('%s,%d', ['71000-2', fsets[i].num]))
+          if fsets[i].setid = 'col09-2' then s.Add(Format('%s,%d', ['71000-2', fsets[i].num]))
+          else if fsets[i].setid = 'col22-6' then s.Add(Format('%s,%d', ['71032-6', fsets[i].num]))
+          else if fsets[i].setid = 'col22-12' then s.Add(Format('%s,%d', ['71032-12', fsets[i].num]))
+          else if fsets[i].setid = 'col25-12' then s.Add(Format('%s,%d', ['71045-12', fsets[i].num]))
           else
             s.Add(Format('%s,%d', [fsets[i].setid, fsets[i].num]));
         end;

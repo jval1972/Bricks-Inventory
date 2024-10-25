@@ -337,6 +337,9 @@ const
   INSTRUCTIONCOLORINDEX = 9997;
   BOXCOLORINDEX = 9998;
   MAXINFOCOLOR = 9999;
+  // Brickarms color indexes
+  FIRSTBACOLOR = 2167;
+  LASTBACOLOR = 2209;
 
 type
   colorinfoarray_t = array[-1..MAXINFOCOLOR] of colorinfo_t;

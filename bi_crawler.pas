@@ -935,6 +935,7 @@ var
   link: string;
   cc: integer;
   htm, s1: string;
+  icolor: integer;
   i, p: integer;
   lvl: Integer;
   instr: boolean;
@@ -976,6 +977,15 @@ begin
     end;
   end;
   if db.pieceinfo(pci).category = CATEGORYCUSTOMMINIFIGS then
+  begin
+    {$IFDEF CRAWLER}
+    FAILwarning := True;
+    {$ENDIF}
+    Exit;
+  end;
+
+  icolor := atoi(color);
+  if IsIntegerInRange(icolor, FIRSTBACOLOR, LASTBACOLOR) then
   begin
     {$IFDEF CRAWLER}
     FAILwarning := True;

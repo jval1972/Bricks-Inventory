@@ -3678,6 +3678,11 @@ begin
       // 20241016
       else if bp.part = '3081cc01' then begin s.Add(Format('%s,%d,%d', ['3081c01', bp.color, bp.num])); end
       else if bp.part = '264' then begin s.Add(Format('%s,%d,%d', ['4463', bp.color, bp.num])); end
+      //20241027
+      else if bp.part = '76116' then begin s.Add(Format('%s,%d,%d', ['98313', bp.color, bp.num])); end
+      else if bp.part = '81294' then begin s.Add(Format('%s,%d,%d', ['649pr0016', bp.color, bp.num])); end
+      else if bp.part = 'fabeh5' then begin s.Add(Format('%s,%d,%d', ['4430', bp.color, bp.num])); end
+      else if (bp.part = 'upn0119') or (bp.part = 'bb68') or (bp.part = 'bb068') or (bp.part = 'bb068') then begin s.Add(Format('%s,%d,%d', ['22854', bp.color, bp.num])); end
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;

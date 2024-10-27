@@ -3148,9 +3148,6 @@ begin
       else if bp.part = '973pb3302c01' then begin s.Add(Format('%s,%d,%d', ['973c03h27pr4210', bp.color, bp.num])); end
       else if bp.part = '973pb4155c01' then begin s.Add(Format('%s,%d,%d', ['973c21h21pr0001', bp.color, bp.num])); end
       else if bp.part = '98138pb042' then begin s.Add(Format('%s,%d,%d', ['98138pr0048', bp.color, bp.num])); end
-      else if bp.part = 'bb68' then begin s.Add(Format('%s,%d,%d', ['upn0119', bp.color, bp.num])); end
-      else if bp.part = 'bb068' then begin s.Add(Format('%s,%d,%d', ['upn0119', bp.color, bp.num])); end
-      else if bp.part = 'bb0068' then begin s.Add(Format('%s,%d,%d', ['upn0119', bp.color, bp.num])); end
       else if bp.part = '973pr1623c01' then begin s.Add(Format('%s,%d,%d', ['973c22h01pr1623', bp.color, bp.num])); end
       else if bp.part = '973pb0680c01' then begin s.Add(Format('%s,%d,%d', ['973c22h01pr1623', bp.color, bp.num])); end
       else if bp.part = '2446pb28' then begin s.Add(Format('%s,%d,%d', ['2446pr0007', bp.color, bp.num])); end
@@ -3470,7 +3467,6 @@ begin
       else if bp.part = 'fabaj1' then begin s.Add(Format('%s,%d,%d', ['fabupn0038', bp.color, bp.num])); end
       else if bp.part = 'fabaj3' then begin s.Add(Format('%s,%d,%d', ['fabupn0039', bp.color, bp.num])); end
       else if bp.part = 'fabef1' then begin s.Add(Format('%s,%d,%d', ['fabupn0040pr0001', bp.color, bp.num])); end
-      else if bp.part = 'fabeh5' then begin s.Add(Format('%s,%d,%d', ['fabupn0028', bp.color, bp.num])); end
       else if bp.part = 'u1125' then begin s.Add(Format('%s,%d,%d', ['upn0344', bp.color, bp.num])); end
       else if bp.part = 'hngpltS' then begin s.Add(Format('%s,%d,%d', ['upn0344', bp.color, bp.num])); end
       else if bp.part = 'u1126' then begin s.Add(Format('%s,%d,%d', ['upn0343', bp.color, bp.num])); end

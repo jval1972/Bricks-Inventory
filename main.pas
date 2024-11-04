@@ -20038,11 +20038,14 @@ begin
   linkstr := GetPieceLinkHtml(basepcs) + ' ' + MakeThumbnailImage2(basepcs);
   titstr := 'Related Pieces for ' + basepcs;
   srelated := db.GetRelatedPieces(basepcs);
-  srelated.Delete(0);
-  if srelated.Count > 0 then
-    DrawMoldList('Related Pieces for ' + linkstr, srelated, False, False, titstr)
-  else
-    DrawMoldList('No Related Pieces for ' + linkstr, nil, False, False, titstr);
+  if srelated.Count > 1 then
+  begin
+    srelated.Delete(0);
+    if srelated.Count > 0 then
+      DrawMoldList('Related Pieces for ' + linkstr, srelated, False, False, titstr)
+    else
+      DrawMoldList('No Related Pieces for ' + linkstr, nil, False, False, titstr);
+  end;
   srelated.Free;
 end;
 

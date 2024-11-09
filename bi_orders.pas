@@ -104,7 +104,7 @@ type
   end;
 
 const
-  NUMORDERALIAS = 5;
+  NUMORDERALIAS = 6;
 
 const
   orderalias: array[0..NUMORDERALIAS - 1] of orderalias_t = (
@@ -112,7 +112,9 @@ const
     (part: '3069'; bipart: '3069b'),
     (part: '3070'; bipart: '3070b'),
     (part: '3062'; bipart: '3062b'),
-    (part: '3049'; bipart: '3049c')
+    (part: '3049'; bipart: '3049c'),
+    (part: '4032'; bipart: '4032a')
+
   );
 
 function BI_ChangeOrderPartToBIAlias(var pt: string): boolean;

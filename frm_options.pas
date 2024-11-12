@@ -68,6 +68,7 @@ type
     Label2: TLabel;
     ListBox1: TListBox;
     CheckBox15: TCheckBox;
+    CheckBoxCacheThumbnails: TCheckBox;
     procedure Edit1KeyPress(Sender: TObject; var Key: Char);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -115,6 +116,7 @@ begin
     f.CheckBox7.Checked := optshowusernotes;
     f.CheckBox14.Checked := optshowautonotes;
     f.CheckBox15.Checked := optbriefcurrencysymbol;
+    f.CheckBoxCacheThumbnails.Checked := cachethumbnails;
 
     idx := 0;
     optdefaultcurrency := strupper(optdefaultcurrency);
@@ -151,6 +153,8 @@ begin
       optshowusernotes := f.CheckBox7.Checked;
       optshowautonotes := f.CheckBox14.Checked;
       optbriefcurrencysymbol := f.CheckBox15.Checked;
+      cachethumbnails := f.CheckBoxCacheThumbnails.Checked;
+
       idx := f.ListBox1.ItemIndex;
       if idx >= 0 then
         optdefaultcurrency := (f.ListBox1.Items.Objects[idx] as TStringInit).text;

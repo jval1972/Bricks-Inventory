@@ -57,6 +57,7 @@ var
   savealwayspartinvinfo: boolean;
   savealwayswantedlists: boolean;
   generatethumbnailsondemand: boolean;
+  cachethumbnails: boolean;
   silentwarnings: boolean;
   searchdownloadimg: integer;
   inventorysortmethod: integer;
@@ -70,7 +71,7 @@ var
   optshowautonotes: boolean;
 
 const
-  NUMDEFAULTS = 25;
+  NUMDEFAULTS = 26;
 
   defaults: array[0..NUMDEFAULTS - 1] of default_t = (
     (name: 'General';
@@ -131,6 +132,14 @@ const
 
     (name: 'generatethumbnailsondemand';
      location: @generatethumbnailsondemand;
+     setable: true;
+     defaultsvalue: '0';
+     defaultivalue: 0;
+     defaultbvalue: True;
+     _type: tBoolean),
+
+    (name: 'cachethumbnails';
+     location: @cachethumbnails;
      setable: true;
      defaultsvalue: '0';
      defaultivalue: 0;

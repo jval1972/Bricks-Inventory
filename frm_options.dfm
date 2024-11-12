@@ -612,7 +612,7 @@ object OptionsForm: TOptionsForm
     Top = 8
     Width = 345
     Height = 233
-    ActivePage = TabSheet1
+    ActivePage = TabSheet4
     Font.Charset = GREEK_CHARSET
     Font.Color = clBlack
     Font.Height = -13
@@ -719,6 +719,14 @@ object OptionsForm: TOptionsForm
         Height = 17
         Caption = 'Generate thumbnails on demand'
         TabOrder = 2
+      end
+      object CheckBoxCacheThumbnails: TCheckBox
+        Left = 8
+        Top = 96
+        Width = 273
+        Height = 17
+        Caption = 'Cache thumbnails'
+        TabOrder = 3
       end
     end
     object TabSheet2: TTabSheet

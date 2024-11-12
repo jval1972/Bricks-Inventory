@@ -2225,23 +2225,28 @@ begin
   if Pos1('//static.bricklink', SRC) then
     Exit;
 
-  if IsThumbImageLink(scheck) then
+  if cachethumbnails then
   begin
-    if thumbrequests.IndexOf(basedefault + scheck) < 0 then
+    if IsThumbImageLink(scheck) then
     begin
-      if thumbrequests.Count > 1100 then
+      if thumbrequests.IndexOf(basedefault + scheck) < 0 then
       begin
-        thumbrequests.Sorted := False;
-        for i := 0 to 100 do
-          thumbrequests.Delete(Random(thumbrequests.Count));
-        thumbrequests.Sorted := True;
+        if thumbrequests.Count > 1100 then
+        begin
+          thumbrequests.Sorted := False;
+          for i := 0 to 100 do
+            thumbrequests.Delete(Random(thumbrequests.Count));
+          thumbrequests.Sorted := True;
+        end;
+        thumbrequests.Add(basedefault + scheck);
+        if not fexists(basedefault + scheck) then
+          ConvertThumbnailImageExCache(scheck);
       end;
-      thumbrequests.Add(basedefault + scheck);
-      if not fexists(basedefault + scheck) then
-        ConvertThumbnailImageExCache(scheck);
+      Exit;
     end;
-    Exit;
-  end;
+  end
+  else
+    thumbrequests.Clear;
 
   SRCfn := ExtractFileName(SRC);
 
@@ -13098,7 +13103,7 @@ begin
       HTMLClick('refresh', Handled);
       Handled := True;
       Exit;
-    end;
+     end;
 
     if SRC = 'UpdateGearsWithUnknownYearFromDisk' then
     begin

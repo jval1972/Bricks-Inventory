@@ -20046,11 +20046,10 @@ begin
   if srelated.Count > 1 then
   begin
     srelated.Delete(0);
-    if srelated.Count > 0 then
-      DrawMoldList('Related Pieces for ' + linkstr, srelated, False, False, titstr)
-    else
-      DrawMoldList('No Related Pieces for ' + linkstr, nil, False, False, titstr);
-  end;
+    DrawMoldList('Related Pieces for ' + linkstr, srelated, False, False, titstr);
+  end
+  else
+    DrawMoldList('No Related Pieces for ' + linkstr, nil, False, False, titstr);
   srelated.Free;
 end;
 

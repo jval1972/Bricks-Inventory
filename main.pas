@@ -793,6 +793,7 @@ type
     procedure UsedPiecesPriceAbove(const x: double);
     procedure NewPiecesPriceAboveEvaluated(const x: double);
     procedure UsedPiecesPriceAboveEvaluated(const x: double);
+    procedure ShowCatalogColorItems(const cc: integer);
     procedure PriceGuideQry(const n: integer; const typ: string; const dosoldnew, dosoldused, doavailnew, doavailused: boolean);
     procedure NewPiecesCheaperUsed;
     procedure NewPiecesMuchMoreExpensiveThanUsed(const factor: double);
@@ -5948,6 +5949,7 @@ begin
     '<tr bgcolor=' + THBGCOLOR + '>' +
     '<th><b>#</b></th>' +
     '<th><b>Color</b></th>' +
+    '<th><b>Catalog Items</b></th>' +
     '<th>Lots</th>' +
     '<th>Num pieces</th>' +
     '<th>Weight (Kg)</th>' +
@@ -5970,16 +5972,17 @@ begin
     document.write(
       '<tr bgcolor=' + TBGCOLOR + '>' +
       '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
-      '<td width=40%>'
+      '<td width=30%>'
     );
     DrawColorCell(i, 25);
     document.write(
       '<a href="inv/' + IntToStr(Integer(inv)) +'/C/' + IntToStr(decide(i = -1, 9999, i)) + '">' +
       '<b>' + cp.name + '</b> (' + IntToStr(cp.id) + ') (BL=' + IntToStr(cp.BrickLinkColor) +  ')' +
       GetRebrickableColorHtml(i) + '</a></td>' +
-      '<td width=20% align=right>' + IntToStr(inv.numlotsbycolor(i)) + '</td>' +
-      '<td width=20% align=right>' + IntToStr(inv.totalloosepartsbycolor(i)) + '</td>' +
-      '<td width=20% align=right>' + Format('%2.3f', [inv.weightbycolor(i) / 1000]) + '</td>'
+      '<td width=20% align=right> <a href="CatalogColorItems/' + itoa(i) + '">' + itoa(db.Colors(i).knownpieces.Count) + '</a></td>' +
+      '<td width=18% align=right>' + IntToStr(inv.numlotsbycolor(i)) + '</td>' +
+      '<td width=18% align=right>' + IntToStr(inv.totalloosepartsbycolor(i)) + '</td>' +
+      '<td width=18% align=right>' + Format('%2.3f', [inv.weightbycolor(i) / 1000]) + '</td>'
     );
 
     if i >= 0 then
@@ -14528,6 +14531,11 @@ begin
     splitstring(slink, s1, s2, '/');
     UsedPiecesPriceAboveEvaluated(atof(s2));
   end
+  else if Pos1('CatalogColorItems/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowCatalogColorItems(atoi(s2));
+  end
   else if Pos1('PriceGuideQry/', slink) then
   begin
     splitstring(slink, s1, s2, s3, s4, s5, s6, s7, '/');
@@ -18257,6 +18265,92 @@ begin
     inv.SaveLoosePartsWantedListUsed(s1 + '_050%.xml', 0.5);
     inv.SaveLoosePartsWantedListUsed(s1 + '_040%.xml', 0.4);
     inv.SaveLoosePartsWantedListUsed(s1 + '_030%.xml', 0.3);
+  end;
+
+  inv.Free;
+end;
+
+procedure TMainForm.ShowCatalogColorItems(const cc: integer);
+var
+  i, j: integer;
+  scolor: string;
+  lst: TStringList;
+  pcs: string;
+  pci: TPieceColorInfo;
+  cost: double;
+  inv: TBrickInventory;
+  s1: string;
+  kp: THashStringList;
+  titstr, titcolor: string;
+begin
+  lst := TStringList.Create;
+
+  inv := TBrickInventory.Create;
+
+  i := cc;
+  scolor := itoa(i);
+
+  if (i >= -1) and (i <= MAXINFOCOLOR) then
+    if (db.Colors(i).id = i) or (i = -1) then
+    begin
+      kp := db.Colors(i).knownpieces;
+      if kp <> nil then
+        for j := 0 to kp.Count - 1 do
+        begin
+          pcs := kp.Strings[j];
+          lst.Add(pcs + ',' + scolor);
+          inv.AddLoosePartFast(pcs, i, 1, pci);
+        end;
+    end;
+
+  if lst.Count > 0 then
+  begin
+    lst.Sort;
+
+    case cc of
+      -1, 9999:
+        titcolor := 'Items without color <table border=1 width=25 bgcolor="#' + IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#FFFFFF><b>-</b></font></p></td></tr></table>';
+      9996:
+        titcolor := 'Catalogs <table border=1 width=25 bgcolor="#' + IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#FFFFFF><b>C</b></font></p></td></tr></table>';
+      9997:
+        titcolor := 'Instructions <table border=1 width=25 bgcolor="#' + IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#FFFFFF><b>I</b></font></p></td></tr></table>';
+      9998:
+        titcolor := 'Original Boxes <table border=1 width=25 bgcolor="#' + IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#FFFFFF><b>O</b></font></p></td></tr></table>';
+      else
+        titcolor := 'Items in color <b>' + db.Colors(cc).name + '</b> (' + scolor + ') (BL=' + IntToStr(db.Colors(cc).BrickLinkColor) +  ')' + GetRebrickableColorHtml(cc) + '<table border=1 width=25 bgcolor="#' + IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center>' + scolor + '</p></td></tr></table>' ;
+    end;
+  end
+  else
+    titcolor := 'No items found in color (' + scolor + ')';
+
+  titstr := 'Color #' + scolor;
+  DrawPieceList(titcolor, lst, SORT_NONE, '', titstr);
+
+  lst.Free;
+
+  s1 := basedefault + 'out\CatalogColorItems\';
+  if not DirectoryExists(s1) then
+    ForceDirectories(s1);
+  s1 := s1 + 'CatalogColorItems_' + scolor;
+  inv.SaveLooseParts(s1 + '.txt');
+
+  if savealwayswantedlists then
+  begin
+    s1 := s1 + '_wantedlist';
+    inv.SaveLoosePartsWantedListNew(s1 + '_200%.xml', 2.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_150%.xml', 1.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_140%.xml', 1.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_130%.xml', 1.3);
+    inv.SaveLoosePartsWantedListNew(s1 + '_120%.xml', 1.2);
+    inv.SaveLoosePartsWantedListNew(s1 + '_110%.xml', 1.1);
+    inv.SaveLoosePartsWantedListNew(s1 + '_100%.xml', 1.0);
+    inv.SaveLoosePartsWantedListNew(s1 + '_090%.xml', 0.9);
+    inv.SaveLoosePartsWantedListNew(s1 + '_080%.xml', 0.8);
+    inv.SaveLoosePartsWantedListNew(s1 + '_070%.xml', 0.7);
+    inv.SaveLoosePartsWantedListNew(s1 + '_060%.xml', 0.6);
+    inv.SaveLoosePartsWantedListNew(s1 + '_050%.xml', 0.5);
+    inv.SaveLoosePartsWantedListNew(s1 + '_040%.xml', 0.4);
+    inv.SaveLoosePartsWantedListNew(s1 + '_030%.xml', 0.3);
   end;
 
   inv.Free;

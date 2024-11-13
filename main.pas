@@ -2225,9 +2225,9 @@ begin
   if Pos1('//static.bricklink', SRC) then
     Exit;
 
-  if cachethumbnails then
+  if IsThumbImageLink(scheck) then
   begin
-    if IsThumbImageLink(scheck) then
+    if cachethumbnails then
     begin
       if thumbrequests.IndexOf(basedefault + scheck) < 0 then
       begin
@@ -2242,11 +2242,15 @@ begin
         if not fexists(basedefault + scheck) then
           ConvertThumbnailImageExCache(scheck);
       end;
-      Exit;
+    end
+    else
+    begin
+      thumbrequests.Clear;
+      if not fexists(basedefault + scheck) then
+        ConvertThumbnailImageExCache(scheck);
     end;
-  end
-  else
-    thumbrequests.Clear;
+    Exit;
+  end;
 
   SRCfn := ExtractFileName(SRC);
 

@@ -772,7 +772,7 @@ type
     procedure DrawMoldListCatalog(const tit: string; const lst: TStringList; const year: integer; const catid: integer; const typ: string);
     procedure ShowCatalogList(const ltyp: string; const year: integer; const catid1: integer; const doall: boolean);
     procedure DrawPieceList(const tit: string; const lst: TStringList; const sortorder: integer = 0;
-      const extratit: string = ''; const doctit: string = '');
+      const extratit: string = ''; const doctit: string = ''; const options: integer = 0);
     procedure DrawPieceListSet(const tit: string; const settit: string; const lst: TStringList);
     procedure DrawPieceListLugbulk(const tit: string; const lst: TStringList);
     procedure DrawPieceListLugbulkKnownCost(const tit: string; const lb: TLugBulk2017; const year: integer;
@@ -975,6 +975,9 @@ const
   SSINV_FLAG_MOCS = 2;
   SSINV_FLAG_SETS_AND_MOCS = 3;
   SSINV_FLAG_WISH_LIST = 4;
+
+const
+  DPL_USETHUMBS = 1;
 
 const
   FLG_SP_NO_ALIAS = 1;  // .ShowPiece
@@ -8014,7 +8017,7 @@ begin
 end;
 
 procedure TMainForm.DrawPieceList(const tit: string; const lst: TStringList; const sortorder: integer = 0;
-  const extratit: string = ''; const doctit: string = '');
+  const extratit: string = ''; const doctit: string = ''; const options: integer = 0);
 var
   i, cl: integer;
   col: string;
@@ -8102,7 +8105,7 @@ begin
     pi := db.PieceInfo(pci);
 
     document.write(
-      '<td width=35%>' + decide((cl = 9996) or (cl = 9997) or (cl = 9998), MakeThumbnailImage(pcs, cl), '<img src=' + col + '\' + pcs + '.png>') +
+      '<td width=35%>' + decide((cl = 9996) or (cl = 9997) or (cl = 9998) or (options and DPL_USETHUMBS <> 0), MakeThumbnailImage(pcs, cl), '<img src=' + col + '\' + pcs + '.png>') +
       '<b>' + GetPieceLinkHtml(pcs) + '</b>' +
       ' - ' + db.PieceDesc(pi) + '</td>' +
       '<td width=20%>'
@@ -18324,7 +18327,7 @@ begin
     titcolor := 'No items found in color (' + scolor + ')';
 
   titstr := 'Color #' + scolor;
-  DrawPieceList(titcolor, lst, SORT_NONE, '', titstr);
+  DrawPieceList(titcolor, lst, SORT_NONE, '', titstr, DPL_USETHUMBS);
 
   lst.Free;
 

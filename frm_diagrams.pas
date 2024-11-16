@@ -932,7 +932,7 @@ begin
     Screen.Cursor := crHourglass;
     f.DoMakeChart(33);
     Screen.Cursor := crDefault;
-    imgpath := basedefault + 'storage\' + storage + '.png';
+    imgpath := basedefault + 'storage\' + filenamestring(storage) + '.png';
     if fexists(imgpath) then
     try
       f.Image1.Picture.LoadFromFile(imgpath);
@@ -953,7 +953,7 @@ begin
   end;
   if P <> nil then
   try
-    P.SaveToFile(basedefault + 'storage\' + storage + '.png');
+    P.SaveToFile(basedefault + 'storage\' + filenamestring(storage) + '.png');
   finally
     P.Free;
   end;

@@ -914,6 +914,7 @@ type
     function MakeThumbnailImage(const pcs: string; const ncolor: integer = -1000): string;
     function MakeThumbnailImage2(const pcs: string; const ncolor: integer = -1000): string;
     function MakeThumbnailOrder(const orderid: string; const px: integer): string;
+    function MakeThumbnailStorage(const st: string; const px: integer): string;
     function FindThumbnailImageFileName(const SRC: string): string;
     function FindThumbnailImageFileNameForHtmlReq(const SRC: string): string;
     procedure StoreTab;
@@ -1715,6 +1716,7 @@ var
   dbstorageinvs: TStringList;
   w, tw: double;
   storestats: boolean;
+  sthumb: string;
 begin
   Screen.Cursor := crHourglass;
 
@@ -1784,10 +1786,14 @@ begin
       inv.StoreHistoryEvalRec(basedefault + 'storage\storage_' + filenamestring(st) + '.ieval');
     end;
 
+    sthumb := MakeThumbnailStorage(st, 64);
+    if sthumb <> '' then
+      sthumb := sthumb + '<br>';
+
     document.write(
       '<tr bgcolor=' + TBGCOLOR + '>' +
       '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
-      '<td width=20%><a href=storage/' + st + '>' + st + '</a></td>'
+      '<td width=20%>' + sthumb + '<a href=storage/' + st + '>' + st + '</a></td>'
     );
     numlots := numlots + inv.numlooseparts;
     numitems := numitems + inv.totallooseparts;
@@ -1846,6 +1852,7 @@ var
   inv_next, inv_prev: TBrickInventory;
   snext, sprev: string;
   html_next, html_prev: string;
+  sthumb: string;
 begin
   Screen.Cursor := crHourGlass;
 
@@ -1932,9 +1939,13 @@ begin
 
   if st <> '' then
   begin
+    sthumb := MakeThumbnailStorage(st, 256);
+    if sthumb <> '' then
+      sthumb := sthumb + '<br><br>';
+
     inv.SaveLooseParts(basedefault + 'storage\storage_' + filenamestring(st) + '_parts.txt');
     inv.SaveSets(basedefault + 'storage\storage_' + filenamestring(st) + '_sets.txt');
-    DrawHeadLine(html_prev + ' Storage Bin #' + st + ' ' + html_next + ' <a href="diagramstorage/' + filenamestring(st) + '"><img src="images\diagram.png"></a>');
+    DrawHeadLine(sthumb + html_prev + ' Storage Bin #' + st + ' ' + html_next + ' <a href="diagramstorage/' + filenamestring(st) + '"><img src="images\diagram.png"></a>');
   end
   else
   begin
@@ -3293,8 +3304,10 @@ begin
           stmp3 := stmp3 + ':' + sqty2;
       end;
 
-      document.write('<td colspan="' + sspan3 + '">%s</td></tr>',
-                ['<b><a href=storage/' + stor + '>' + stor + '</a></b>:' + stmp3 + removeforbuildsetstr]);
+      sthumb := MakeThumbnailStorage(stor, 64);
+
+      document.write('<td colspan="' + sspan3 + '">%s %s</td></tr>',
+                ['<b><a href=storage/' + stor + '>' + stor + '</a></b>:' + stmp3 + removeforbuildsetstr, sthumb]);
     end;
   end;
 
@@ -5792,7 +5805,10 @@ begin
     else if s1 = 'set' then
       document.write('<td width=95%><b>Set <a href="sinv/' + s2 + '">' + s2 + '</a></b>' + stmp + '</td>')
     else if s1 = 'storage' then
-      document.write('<td width=95%><b>Storage <a href="storage/' + s2 + '">' + s2 + '</a></b>' + stmp + '</td>');
+    begin
+      sthumb := ' ' + MakeThumbnailStorage(s2, 128);
+      document.write('<td width=95%><b>Storage <a href="storage/' + s2 + '">' + s2 + '</a></b>' + stmp + sthumb + '</td>');
+    end;
 
     document.write('</tr><tr bgcolor=' + decide(ppreview, TBGCOLOR, THBGCOLOR) + '><td colspan="2">');
 
@@ -20637,6 +20653,24 @@ begin
   spx := itoa(px);
   fninput := 'orders\' + orderid + '.png';
   fnoutput := 'orders\' + orderid + '.th' + spx + '.png';
+  if not fexists(fnoutput) then
+    if fexists(fninput) then
+      ResizePng2Png(fninput, fnoutput, false, px, px);
+  if fexists(fnoutput) then
+    Result := '<img src="' + fnoutput + '">'
+  else
+    Result := '';
+end;
+
+function TMainForm.MakeThumbnailStorage(const st: string; const px: integer): string;
+var
+  spx, stfixed: string;
+  fninput, fnoutput: string;
+begin
+  spx := itoa(px);
+  stfixed := filenamestring(st);
+  fninput := 'storage\' + stfixed + '.png';
+  fnoutput := 'storage\' + stfixed + '.th' + spx + '.png';
   if not fexists(fnoutput) then
     if fexists(fninput) then
       ResizePng2Png(fninput, fnoutput, false, px, px);

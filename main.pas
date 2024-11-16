@@ -913,6 +913,7 @@ type
     function ConvertThumbnailImageExCache(const imgfile: string): boolean;
     function MakeThumbnailImage(const pcs: string; const ncolor: integer = -1000): string;
     function MakeThumbnailImage2(const pcs: string; const ncolor: integer = -1000): string;
+    function MakeThumbnailOrder(const orderid: string; const px: integer): string;
     function FindThumbnailImageFileName(const SRC: string): string;
     function FindThumbnailImageFileNameForHtmlReq(const SRC: string): string;
     procedure StoreTab;
@@ -1555,7 +1556,7 @@ var
   numitems, numlots: integer;
   oo: IXMLORDERType;
   orderslist: TDNumberList;
-  sorder: string;
+  sorder, orderid, sthumb: string;
 begin
   Screen.Cursor := crHourglass;
 
@@ -1616,10 +1617,14 @@ begin
     sorder := itoa(orderslist.Numbers[i]);
     orders.StoreEvalHistory(basedefault + 'orders\' + sorder + '.eval', sorder);
     oo := orders.order(sorder);
+    orderid := itoa(oo.ORDERID);
+    sthumb := MakeThumbnailOrder(orderid, 64);
+    if sthumb <> '' then
+      sthumb := sthumb + '<br>';
     document.write(
       '<tr bgcolor=' + TBGCOLOR + '>' +
       '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
-      '<td width=10%><a href=order/' + itoa(oo.ORDERID) + '>' + itoa(oo.ORDERID) + '</a></td>' +
+      '<td width=10%>' + sthumb + '<a href=order/' + orderid + '>#' + orderid + '</a></td>' +
       '<td width=10% align=right>' + oo.ORDERDATE + '</td>'
     );
     if seller = '' then
@@ -2042,6 +2047,7 @@ end;
 procedure TMainForm.ShowOrder(const orderid: string);
 var
   inv: TBrickInventory;
+  sthumb: string;
 begin
   Screen.Cursor := crHourGlass;
 
@@ -2069,7 +2075,10 @@ begin
   inv.SaveLooseParts(basedefault + 'orders\order_' + orderid + '_parts.txt');
   inv.SaveSets(basedefault + 'orders\order_' + orderid + '_sets.txt');
   SortInventory(inv);
-  DrawHeadLine('Order #' + orderid + '<a href="diagramorder/' + orderid + '"><img src="images\diagram.png"></a>');
+  sthumb := MakeThumbnailOrder(orderid, 256);
+  if sthumb <> '' then
+    sthumb := sthumb + '<br><br>';
+  DrawHeadLine(sthumb + 'Order #' + orderid + ' <a href="diagramorder/' + orderid + '"><img src="images\diagram.png"></a>');
 
   DrawOrderInf(orderid);
   DrawInventoryTable(inv);
@@ -3073,6 +3082,7 @@ var
   lcost: double;
   snumstor, sdescstor: string;
   numstor: integer;
+  sthumb: string;
 begin
   if not dodraworderinfo then
     Exit;
@@ -3114,14 +3124,18 @@ begin
       else
         ss2 := '</font>';
 
-      document.write('<td colspan="' + sspan1 + '">%s<b><a href="order/%d">%d</a></b> %s %s [%s] %s</td>',
+      sthumb := MakeThumbnailOrder(itoa(oitem.orderid), 64);
+
+      document.write('<td colspan="' + sspan1 + '">%s<b><a href="order/%d">%d</a></b> %s %s [%s] %s %s</td>',
           [ss1,
            oitem.orderid,
            oitem.orderid,
            oitem.orderdate,
            '<a href=sellerorders/' + oitem.orderseller + '>' + oitem.orderseller + '</a>',
            oitem.orderstatus,
-           ss2]);
+           ss2,
+           sthumb
+          ]);
 
       document.write('<td align="right">%d</td>',
           [oitem.num]);
@@ -5261,6 +5275,7 @@ var
   olddodraworderinfo: boolean;
   dbstorageinvs: TStringList;
   tmpinv, missinginv, inv, readyinv, neededfromreadyinv: TBrickInventory;
+  sthumb: string;
 
   function _numfoundatstorage(const Apart: string; const Acolor: Integer): integer;
   var
@@ -5770,7 +5785,10 @@ begin
     stmp := Format(' (%d lots, %d parts)', [tmpinv.numlooseparts, tmpinv.totallooseparts]);
 
     if s1 = 'order' then
-      document.write('<td width=95%><b>Order <a href="order/' + s2 + '">' + s2 + '</a></b>' + stmp + '</td>')
+    begin
+      sthumb := ' ' + MakeThumbnailOrder(s2, 128);
+      document.write('<td width=95%><b>Order <a href="order/' + s2 + '">' + s2 + '</a></b>' + stmp + sthumb + '</td>')
+    end
     else if s1 = 'set' then
       document.write('<td width=95%><b>Set <a href="sinv/' + s2 + '">' + s2 + '</a></b>' + stmp + '</td>')
     else if s1 = 'storage' then
@@ -20609,6 +20627,23 @@ begin
     else if ncolor <> -1000 then
       Result := '<img width=64px src=' + itoa(color) + '\' + pcs + '.png>';
   end;
+end;
+
+function TMainForm.MakeThumbnailOrder(const orderid: string; const px: integer): string;
+var
+  spx: string;
+  fninput, fnoutput: string;
+begin
+  spx := itoa(px);
+  fninput := 'orders\' + orderid + '.png';
+  fnoutput := 'orders\' + orderid + '.th' + spx + '.png';
+  if not fexists(fnoutput) then
+    if fexists(fninput) then
+      ResizePng2Png(fninput, fnoutput, false, px, px);
+  if fexists(fnoutput) then
+    Result := '<img src="' + fnoutput + '">'
+  else
+    Result := '';
 end;
 
 function TMainForm.FindThumbnailImageFileName(const SRC: string): string;

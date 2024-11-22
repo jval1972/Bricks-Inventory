@@ -730,7 +730,7 @@ type
     procedure dbloadprogress(const s: string; d : Double);
     procedure ShowLooseParts(inv: TBrickInventory; colormask: Integer = -1; partmask: string = ''; cat: Integer = -1;
       const fromAA: integer = -1; const toAA: integer = MAXINT);
-    procedure ShowSetInventory(const setid: string; const lite: Boolean = False);
+    procedure ShowSetInventory(const setid: string; const lite: Boolean = False; const filter: integer = 0);
     procedure ShowInventoryRelatedPieces(const inv: TBrickInventory; const tit, headline: string);
     procedure ShowMyInventoryRelatedPieces;
     procedure ShowSetPartsStorage(const setid: string; const ppreview: boolean);
@@ -977,6 +977,15 @@ const
   SSINV_FLAG_MOCS = 2;
   SSINV_FLAG_SETS_AND_MOCS = 3;
   SSINV_FLAG_WISH_LIST = 4;
+
+// ShowSetInventory() filter
+const
+  SSI_ALL = 0;
+  SSI_BRICKS = 1;
+  SSI_SLOPES = 2;
+  SSI_PLATES = 3;
+  SSI_TILES = 4;
+  SSI_OTHER = 5;
 
 const
   DPL_USETHUMBS = 1;
@@ -4578,7 +4587,7 @@ begin
   end;
 end;
 
-procedure TMainForm.ShowSetInventory(const setid: string; const lite: Boolean = False);
+procedure TMainForm.ShowSetInventory(const setid: string; const lite: Boolean = False; const filter: integer = 0);
 var
   inv: TBrickInventory;
   missing: integer;
@@ -4599,7 +4608,9 @@ var
   lnk: string;
   expensizestr: string;
   addinv: TStringList;
-  minifiginv: TBrickInventory;
+  minifiginv, newinv: TBrickInventory;
+  basefname, titpart: string;
+  cat: integer;
   dolugbulk: boolean;
   lb: TLugBulk2017;
   pi: TPieceInfo;
@@ -4687,73 +4698,137 @@ begin
     Exit;
   end;
 
+  case filter of
+    SSI_BRICKS:
+      begin
+        basefname := Trim(setid) + '_bricks';
+        titpart := 'Bricks';
+        newinv := TBrickInventory.Create;
+        for i := 0 to inv.numlooseparts - 1 do
+          if db.PieceInfo(@inv.looseparts[i]).category = 5 then
+            newinv.AddLoosePartFast(inv.looseparts[i].part, inv.looseparts[i].color, inv.looseparts[i].num, inv.looseparts[i].pci);
+      end;
+    SSI_SLOPES:
+      begin
+        basefname := Trim(setid) + '_slopes';
+        titpart := 'Slopes';
+        newinv := TBrickInventory.Create;
+        for i := 0 to inv.numlooseparts - 1 do
+        begin
+          cat := db.PieceInfo(@inv.looseparts[i]).category;
+          if (cat = 31) or (cat = 32) or (cat = 33) then
+            newinv.AddLoosePartFast(inv.looseparts[i].part, inv.looseparts[i].color, inv.looseparts[i].num, inv.looseparts[i].pci);
+        end;
+      end;
+    SSI_PLATES:
+      begin
+        basefname := Trim(setid) + '_plates';
+        titpart := 'Plates';
+        newinv := TBrickInventory.Create;
+        for i := 0 to inv.numlooseparts - 1 do
+          if db.PieceInfo(@inv.looseparts[i]).category = 26 then
+            newinv.AddLoosePartFast(inv.looseparts[i].part, inv.looseparts[i].color, inv.looseparts[i].num, inv.looseparts[i].pci);
+      end;
+    SSI_TILES:
+      begin
+        basefname := Trim(setid) + '_tiles';
+        titpart := 'Tiles';
+        newinv := TBrickInventory.Create;
+        for i := 0 to inv.numlooseparts - 1 do
+        begin
+          cat := db.PieceInfo(@inv.looseparts[i]).category;
+          if (cat = 37) or (cat = 39) then
+            newinv.AddLoosePartFast(inv.looseparts[i].part, inv.looseparts[i].color, inv.looseparts[i].num, inv.looseparts[i].pci);
+        end;
+      end;
+    SSI_OTHER:
+      begin
+        basefname := Trim(setid) + '_other';
+        titpart := 'Other parts';
+        newinv := TBrickInventory.Create;
+        for i := 0 to inv.numlooseparts - 1 do
+        begin
+          cat := db.PieceInfo(@inv.looseparts[i]).category;
+          if (cat <> 5) and (cat <> 26) and (cat <> 31) and (cat <> 32) and (cat <> 33) and (cat <> 37) and (cat <> 39) then
+            newinv.AddLoosePartFast(inv.looseparts[i].part, inv.looseparts[i].color, inv.looseparts[i].num, inv.looseparts[i].pci);
+        end;
+      end;
+  else
+    basefname := Trim(setid);
+    titpart := 'Inventory';
+    newinv := inv.Clone;
+  end;
+
   if not db.IsMoc(setid) then
   begin
     lnk := '<a href=downloadsetandrefresh/' + setid + '>Refresh set inventory from ' + s_bricklink + '.com</a>';
     DrawHeadLine(lnk);
   end;
-  inv.DoUpdateCostValues;
-  SortInventory(inv);
+  newinv.DoUpdateCostValues;
+  SortInventory(newinv);
 
   s1 := basedefault + 'out\' + Trim(setid) + '\';
   if not DirectoryExists(s1) then
     ForceDirectories(s1);
-  s2 := s1 + Trim(setid) + '.txt';
-  inv.SaveLoosePartsAndSets(s2);
+  s2 := s1 + basefname + '.txt';
+  newinv.SaveLoosePartsAndSets(s2);
 
   s2 := s1 + setid + '_priceguide.txt';
-  inv.SavePartsInventoryPriceguide(s2);
+  newinv.SavePartsInventoryPriceguide(s2);
 
-  inv.StoreHistoryStatsRec(basedefault + 'out\' + Trim(setid) + '\' + Trim(setid) + '.stats');
-  inv.StoreHistoryEvalRec(basedefault + 'out\' + Trim(setid) + '\' + Trim(setid) + '.ieval');
-  inventory.StorePieceInventoryStatsRec(basedefault + 'out\' + Trim(setid) + '\' + Trim(setid) + '.history', Trim(setid), -1);
+  if filter = 0 then
+  begin
+    newinv.StoreHistoryStatsRec(basedefault + 'out\' + Trim(setid) + '\' + Trim(setid) + '.stats');
+    newinv.StoreHistoryEvalRec(basedefault + 'out\' + Trim(setid) + '\' + Trim(setid) + '.ieval');
+    inventory.StorePieceInventoryStatsRec(basedefault + 'out\' + Trim(setid) + '\' + Trim(setid) + '.history', Trim(setid), -1);
+  end;
 
-  swanted := s1 + setid + '_wantedlist';
+  swanted := s1 + basefname + '_wantedlist';
 
   if savealwayswantedlists then
   begin
-    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_200%.xml', 2.0);
-    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_150%.xml', 1.5);
-    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_140%.xml', 1.4);
-    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_130%.xml', 1.3);
-    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_120%.xml', 1.2);
-    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_110%.xml', 1.1);
-    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_100%.xml', 1.0);
-    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_090%.xml', 0.9);
-    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_080%.xml', 0.8);
-    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_070%.xml', 0.7);
-    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_060%.xml', 0.6);
-    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_050%.xml', 0.5);
-    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_040%.xml', 0.4);
-    inv.SaveLoosePartsWantedListNew(swanted + '_NEW_030%.xml', 0.3);
+    newinv.SaveLoosePartsWantedListNew(swanted + '_NEW_200%.xml', 2.0);
+    newinv.SaveLoosePartsWantedListNew(swanted + '_NEW_150%.xml', 1.5);
+    newinv.SaveLoosePartsWantedListNew(swanted + '_NEW_140%.xml', 1.4);
+    newinv.SaveLoosePartsWantedListNew(swanted + '_NEW_130%.xml', 1.3);
+    newinv.SaveLoosePartsWantedListNew(swanted + '_NEW_120%.xml', 1.2);
+    newinv.SaveLoosePartsWantedListNew(swanted + '_NEW_110%.xml', 1.1);
+    newinv.SaveLoosePartsWantedListNew(swanted + '_NEW_100%.xml', 1.0);
+    newinv.SaveLoosePartsWantedListNew(swanted + '_NEW_090%.xml', 0.9);
+    newinv.SaveLoosePartsWantedListNew(swanted + '_NEW_080%.xml', 0.8);
+    newinv.SaveLoosePartsWantedListNew(swanted + '_NEW_070%.xml', 0.7);
+    newinv.SaveLoosePartsWantedListNew(swanted + '_NEW_060%.xml', 0.6);
+    newinv.SaveLoosePartsWantedListNew(swanted + '_NEW_050%.xml', 0.5);
+    newinv.SaveLoosePartsWantedListNew(swanted + '_NEW_040%.xml', 0.4);
+    newinv.SaveLoosePartsWantedListNew(swanted + '_NEW_030%.xml', 0.3);
 
-    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_200%.xml', 2.0);
-    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_150%.xml', 1.5);
-    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_140%.xml', 1.4);
-    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_130%.xml', 1.3);
-    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_120%.xml', 1.2);
-    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_110%.xml', 1.1);
-    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_100%.xml', 1.0);
-    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_090%.xml', 0.9);
-    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_080%.xml', 0.8);
-    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_070%.xml', 0.7);
-    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_060%.xml', 0.6);
-    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_050%.xml', 0.5);
-    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_040%.xml', 0.4);
-    inv.SaveLoosePartsWantedListUsed(swanted + '_USED_030%.xml', 0.3);
+    newinv.SaveLoosePartsWantedListUsed(swanted + '_USED_200%.xml', 2.0);
+    newinv.SaveLoosePartsWantedListUsed(swanted + '_USED_150%.xml', 1.5);
+    newinv.SaveLoosePartsWantedListUsed(swanted + '_USED_140%.xml', 1.4);
+    newinv.SaveLoosePartsWantedListUsed(swanted + '_USED_130%.xml', 1.3);
+    newinv.SaveLoosePartsWantedListUsed(swanted + '_USED_120%.xml', 1.2);
+    newinv.SaveLoosePartsWantedListUsed(swanted + '_USED_110%.xml', 1.1);
+    newinv.SaveLoosePartsWantedListUsed(swanted + '_USED_100%.xml', 1.0);
+    newinv.SaveLoosePartsWantedListUsed(swanted + '_USED_090%.xml', 0.9);
+    newinv.SaveLoosePartsWantedListUsed(swanted + '_USED_080%.xml', 0.8);
+    newinv.SaveLoosePartsWantedListUsed(swanted + '_USED_070%.xml', 0.7);
+    newinv.SaveLoosePartsWantedListUsed(swanted + '_USED_060%.xml', 0.6);
+    newinv.SaveLoosePartsWantedListUsed(swanted + '_USED_050%.xml', 0.5);
+    newinv.SaveLoosePartsWantedListUsed(swanted + '_USED_040%.xml', 0.4);
+    newinv.SaveLoosePartsWantedListUsed(swanted + '_USED_030%.xml', 0.3);
   end;
 
 
-  for j := 0 to inv.numlooseparts - 1 do
+  for j := 0 to newinv.numlooseparts - 1 do
     inventory.StorePieceInventoryStatsRec(
-      basedefault + 'cache\' + itoa(decide(inv.looseparts[j].color = -1, 9999, inv.looseparts[j].color)) + '\' + inv.looseparts[j].part + '.history',
-      inv.looseparts[j].part,
-      inv.looseparts[j].color
+      basedefault + 'cache\' + itoa(decide(newinv.looseparts[j].color = -1, 9999, newinv.looseparts[j].color)) + '\' + newinv.looseparts[j].part + '.history',
+      newinv.looseparts[j].part,
+      newinv.looseparts[j].color
     );
-  for j := 0 to inv.numsets - 1 do
+  for j := 0 to newinv.numsets - 1 do
     inventory.StorePieceInventoryStatsRec(
-      basedefault + 'out\' + Trim(inv.sets[j].setid) + '\' + Trim(inv.sets[j].setid) + '.history',
-      Trim(inv.sets[j].setid), -1
+      basedefault + 'out\' + Trim(newinv.sets[j].setid) + '\' + Trim(newinv.sets[j].setid) + '.history',
+      Trim(newinv.sets[j].setid), -1
     );
 
   inventory.GetSetInfo(setid, @st);
@@ -4773,13 +4848,14 @@ begin
   else
     sf6 := '';
   year := db.SetYear(setid);
-  ss1 := Format('Inventory for %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled (%s%d%s in wish list)<br><img width=360px src=s\' + setid + '.jpg>' +
+  ss1 := Format('%s for %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled (%s%d%s in wish list)<br><img width=360px src=s\' + setid + '.jpg>' +
       ' ' + GetEditSetHtml(setid) +
       ' <a href=editpiecenotes/' + setid + '><img src="images\notes.png"></a>' +
       ' <a href=PreviewSetInventory/' + setid + '><img src="images\print.png"></a>' +
       ' ' + GetDiagramPieceHtml(setid, '-1') + '<br>' +
       '[Year: <a href=ShowSetsAtYear/%d>%d</a>]<br>',
-    [GetPieceLinkHtml(setid), db.SetDesc(setid), inv.numlooseparts, inv.totallooseparts, inv.totalsetsbuilted + inv.totalsetsdismantaled,
+    [titpart, GetPieceLinkHtml(setid), db.SetDesc(setid),
+     newinv.numlooseparts, newinv.totallooseparts, newinv.totalsetsbuilted + newinv.totalsetsdismantaled,
      sf2, st.num, sf1, sf4, st.numdismantaled, sf3, sf6, st.numwishlist, sf5, year, year]);
   idx := db.allsets.IndexOf(Trim(setid));
   if idx > -1 then
@@ -4810,41 +4886,62 @@ begin
   if st.num > 0 then
     DrawHeadLine('You can dismantle this set to your loose parts! <a href=dismantleset/' + Trim(setid) + '>(dismantle it!)</a>');
 
-  document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-  document.write('<tr bgcolor=' + DBGCOLOR + '>');
-  document.write('<td width 25%>');
+  if filter = 0 then
+  begin
+    document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
+    document.write('<tr bgcolor=' + DBGCOLOR + '>');
 
-  if missing = 0 then
-    DrawHeadLine('You can built this set! <a href=buildset/' + Trim(setid) + '>(Built it!)</a>')
+    document.write('<td width 25%>');
+    if missing = 0 then
+      DrawHeadLine('You can built this set! <a href=buildset/' + Trim(setid) + '>(Built it!)</a>')
+    else
+      DrawHeadLine(Format('%d part' + decide(missing = 1, ' is', 's are') + ' missing to build a copy of this set (%2.2f%s) (<a href="missingtobuildset/%s">show</a>)',
+        [missing, dbl_safe_div(missing * 100, newinv.totallooseparts), '%', Trim(setid)]));
+    document.write('</td>');
+
+    document.write('<td width 25%>');
+
+    missing2 := inventory.MissingToBuildSetLegacyIgnore(Trim(setid));
+    DrawHeadLine(Format('%d part' + decide(missing2 <= 1, ' is', 's are') + ' missing to build a copy of this set ignoring legacy colors (%2.2f%s) (<a href="missingtobuildsetLI/%s">show</a>)',
+      [missing2, dbl_safe_div(missing2 * 100, newinv.totallooseparts), '%', Trim(setid)]));
+
+    document.write('</td><td width 25%>');
+
+    DrawHeadLine(Format('<a href="missingtobuildset/%s/2">Check to build 2 sets</a>', [Trim(setid)]));
+
+    document.write('</td><td width 25%>');
+
+    DrawHeadLine('<a href=sstorageloc/' + setid + '>Inventory storage locations</a>');
+
+    document.write('</td></tr></table>');
+  end;
+
+  if filter = 0 then
+  begin
+    numbricks := newinv.totalloosepartsbycategory(5);
+    numplates := newinv.totalloosepartsbycategory(26);
+    numtiles := newinv.totalloosepartsbycategory(37) + newinv.totalloosepartsbycategory(39);
+    numslopes := newinv.totalloosepartsbycategory(31) + newinv.totalloosepartsbycategory(32) + newinv.totalloosepartsbycategory(33);
+    expensizestr := 'Most expensive lots: <a href="ShowExpensiveSetLotsNew/' + Trim(setid) + '/10">New</a> - <a href="ShowExpensiveSetLotsUsed/' + Trim(setid) + '/10">Used</a>';
+
+    DrawHeadLine(
+      Format(
+        '<a href="sinvcat/' + setid + '/1">Bricks</a>' + ': %d<br>' + 
+        '<a href="sinvcat/' + setid + '/2">Slopes</a>' + ': %d<br>' + 
+        '<a href="sinvcat/' + setid + '/3">Plates</a>' + ': %d<br>' + 
+        '<a href="sinvcat/' + setid + '/4">Tiles</a>' + ': %d<br>' + 
+        '<a href="sinvcat/' + setid + '/5">Other</a>' + ': %d<br>' + 
+        expensizestr, 
+        [numbricks, numslopes, numplates, numtiles, newinv.totallooseparts - numbricks - numplates - numslopes - numtiles]
+      )
+    );
+
+    DrawPriceguide(setid);
+  end
   else
-    DrawHeadLine(Format('%d part' + decide(missing = 1, ' is', 's are') + ' missing to build a copy of this set (%2.2f%s) (<a href="missingtobuildset/%s">show</a>)',
-      [missing, dbl_safe_div(missing * 100, inv.totallooseparts), '%', Trim(setid)]));
-
-  document.write('</td><td width 25%>');
-
-  missing2 := inventory.MissingToBuildSetLegacyIgnore(Trim(setid));
-  DrawHeadLine(Format('%d part' + decide(missing2 <= 1, ' is', 's are') + ' missing to build a copy of this set ignoring legacy colors (%2.2f%s) (<a href="missingtobuildsetLI/%s">show</a>)',
-    [missing2, dbl_safe_div(missing2 * 100, inv.totallooseparts), '%', Trim(setid)]));
-
-  document.write('</td><td width 25%>');
-
-  DrawHeadLine(Format('<a href="missingtobuildset/%s/2">Check to build 2 sets</a>', [Trim(setid)]));
-
-  document.write('</td><td width 25%>');
-
-  DrawHeadLine('<a href=sstorageloc/' + setid + '>Inventory storage locations</a>');
-
-  document.write('</td></tr></table>');
-
-  numbricks := inv.totalloosepartsbycategory(5);
-  numplates := inv.totalloosepartsbycategory(26);
-  numtiles := inv.totalloosepartsbycategory(37) + inv.totalloosepartsbycategory(39);
-  numslopes := inv.totalloosepartsbycategory(31) + inv.totalloosepartsbycategory(32) + inv.totalloosepartsbycategory(33);
-  expensizestr := 'Most expensive lots: <a href="ShowExpensiveSetLotsNew/' + Trim(setid) + '/10">New</a> - <a href="ShowExpensiveSetLotsUsed/' + Trim(setid) + '/10">Used</a>';
-
-  DrawHeadLine(Format('Bricks: %d<br>Slopes: %d<br>Plates: %d<br>Tiles: %d<br>Other: %d<br>' + expensizestr, [numbricks, numslopes, numplates, numtiles, inv.totallooseparts - numbricks - numplates - numslopes - numtiles]));
-
-  DrawPriceguide(setid);
+  begin
+    DrawHeadLine('Back to set <a href="sinv/' + setid + '">' + setid + '</a>');
+  end;
 
   dolugbulk := False;
   lb := nil;
@@ -4868,15 +4965,15 @@ begin
 
   if dolugbulk then
   begin
-    DrawInventoryTable(inv, lite, setid, True, True, lb);
+    DrawInventoryTable(newinv, lite, setid, True, True, lb);
     lb.Free;
   end
   else
-    DrawInventoryTable(inv, lite, setid);
+    DrawInventoryTable(newinv, lite, setid);
 
   document.write('<br>');
   document.write('<br>');
-  if ShowInventorySets(inv, False, SSINV_FLAG_SETS_AND_MOCS) then
+  if ShowInventorySets(newinv, False, SSINV_FLAG_SETS_AND_MOCS) then
   begin
     document.write('<br>');
     document.write('<br>');
@@ -4885,7 +4982,7 @@ begin
 
   if not lite then
   begin
-    minifiginv := inv.Minifigures;
+    minifiginv := newinv.Minifigures;
     if minifiginv.numlooseparts > 0 then
     begin
       document.write('<p>');
@@ -4896,7 +4993,7 @@ begin
     minifiginv.free;
   end;
 
-  if fexists(basedefault + 'db\sets\' + Trim(setid) + '.alternatives.txt') then
+  if fexists(basedefault + 'db\sets\' + Trim(setid) + '.alternatives.txt') and (filter = 0) then
   begin
     addinv := TStringList.Create;
     addinv.LoadFromFile(basedefault + 'db\sets\' + Trim(setid) + '.alternatives.txt');
@@ -4904,7 +5001,7 @@ begin
     addinv.Free;
     document.write('<br><br>');
   end
-  else if not db.IsMoc(setid) then
+  else if not db.IsMoc(setid) and (filter = 0) then
   begin
     DrawHeadLine('<a href=downloadsetaltparts/' + Trim(setid) + '>Try to download alternate parts from ' + s_bricklink + '.com</a>');
     document.write('<br><br>');
@@ -4913,6 +5010,7 @@ begin
   if not lite then
     document.write(BLColorPieceInfo(Trim(setid), -1));
   document.write('</body>');
+  newinv.Free;
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   Screen.Cursor := crDefault;
@@ -14219,6 +14317,11 @@ begin
   begin
     splitstring(slink, s1, s2, '/');
     ShowSetInventory(s2);
+  end
+  else if Pos1('sinvcat/', slink) then
+  begin
+    splitstring(slink, s1, s2, s3, '/');
+    ShowSetInventory(s2, False, atoi(s3));
   end
   else if slink = 'ShowMyInventoryRelatedPieces' then
   begin

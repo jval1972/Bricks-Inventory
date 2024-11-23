@@ -43,6 +43,7 @@ type
   private
     { Private declarations }
  //   tr: TThreadComponent;
+    fails: integer;
     cancrowl: boolean;
   public
     { Public declarations }
@@ -57,12 +58,13 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_db, bi_globals, bi_crawler, main;
+  bi_db, bi_globals, bi_crawler, bi_utils, main;
 
 procedure TTimingForm.FormCreate(Sender: TObject);
 begin
   crawling := False;
   cancrowl := True;
+  fails := 0;
  { tr := TThreadComponent.Create(nil);
   tr.Sleep := CrawlerTimer.Interval;
   tr.OnExecute := CrawlerTimerTimer;
@@ -89,15 +91,22 @@ begin
   if IsValidBLTime then
   begin
     crawling := True;
-    MainForm.CrawlerPanel.Color := RGB(64, 255, 64);
+    MainForm.CrawlerPanel.Color := RGB(GetIntInRange(64 + 2 * fails, 64, 255), GetIntInRange(255 - 2 * fails, 64, 255), 64);
     MainForm.CrawlerPanel.Update;
     try
-      db.Crawler;
+      if db.Crawler then
+        fails := 0
+      else
+        inc(fails);
     finally
       MainForm.CrawlerPanel.Color := clBtnFace;
       MainForm.CrawlerPanel.Update;
       crawling := False;
     end;
+    if fails = 1 then
+      MainForm.CrawlerPanel.Hint := '1 continuous fail'
+    else
+      MainForm.CrawlerPanel.Hint := Format('%d continuous fails', [fails]);
   end;
 end;
 

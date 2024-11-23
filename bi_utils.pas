@@ -233,6 +233,8 @@ function ExtractAtDelimiters(const s: string; const p: integer; const d1, d2: Ch
 
 function CountOccurences(const SubText: string; const Text: string): Integer;
 
+function GetIntInRange(const x: Integer; const a, b: integer): Integer;
+
 implementation
 
 uses
@@ -2780,6 +2782,28 @@ begin
     Result := 0
   else
     Result := (Length(Text) - Length(StringReplace(Text, SubText, '', [rfReplaceAll]))) div  Length(subtext);
+end;
+
+function GetIntInRange(const x: Integer; const a, b: integer): Integer;
+var
+  aa, bb: integer;
+begin
+  if a < b then
+  begin
+    aa := a;
+    bb := b;
+  end
+  else
+  begin
+    aa := b;
+    bb := a;
+  end;
+  if x < aa then
+    Result := aa
+  else if x > bb then
+    Result := bb
+  else
+    Result := x;
 end;
 
 end.

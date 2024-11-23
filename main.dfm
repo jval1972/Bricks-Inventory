@@ -940,6 +940,8 @@ object MainForm: TMainForm
         Align = alClient
         BevelOuter = bvNone
         Caption = ' '
+        ParentShowHint = False
+        ShowHint = True
         TabOrder = 0
       end
     end

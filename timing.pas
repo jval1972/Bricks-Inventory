@@ -44,6 +44,7 @@ type
     { Private declarations }
  //   tr: TThreadComponent;
     fails: integer;
+    hits: integer;
     cancrowl: boolean;
   public
     { Public declarations }
@@ -65,6 +66,7 @@ begin
   crawling := False;
   cancrowl := True;
   fails := 0;
+  hits := 0;
  { tr := TThreadComponent.Create(nil);
   tr.Sleep := CrawlerTimer.Interval;
   tr.OnExecute := CrawlerTimerTimer;
@@ -95,15 +97,28 @@ begin
     MainForm.CrawlerPanel.Update;
     try
       if db.Crawler then
+      begin
+        inc(hits);
         fails := 0
+      end
       else
+      begin
         inc(fails);
+        hits := 0;
+      end;
     finally
       MainForm.CrawlerPanel.Color := clBtnFace;
       MainForm.CrawlerPanel.Update;
       crawling := False;
     end;
-    if fails = 1 then
+    if fails = 0 then
+    begin
+      if hits = 1 then
+        MainForm.CrawlerPanel.Hint := '1 continuous hit'
+      else
+        MainForm.CrawlerPanel.Hint := Format('%d continuous hits', [hits])
+    end
+    else if fails = 1 then
       MainForm.CrawlerPanel.Hint := '1 continuous fail'
     else
       MainForm.CrawlerPanel.Hint := Format('%d continuous fails', [fails]);

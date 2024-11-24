@@ -3435,7 +3435,7 @@ begin
       end;
     end;
 
-    tmpstor.Free;
+    FreeList(tmpstor);
   end;
 
   document.write('</td>');

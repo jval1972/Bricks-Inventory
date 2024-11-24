@@ -3330,6 +3330,8 @@ var
   i, j: integer;
   inv, inv2: TBrickInventory;
   num: integer;
+  idx: integer;
+  tmpstor: TStringList;
   pci: TPieceColorInfo;
   stor, stmp: string;
   sfont: string;
@@ -3396,6 +3398,8 @@ begin
   pci := db.PieceColorInfo(brick);
   if pci <> nil then
   begin
+    tmpstor := TStringList.Create;
+
     for i := 0 to pci.storage.Count - 1 do
     begin
       splitstring(pci.storage.Strings[i], stor, stmp, ':');
@@ -3404,8 +3408,20 @@ begin
       numstor := atoi(snumstor);
       splitstring(stmp, sqty1, sqty2, ':');
       num := atoi(sqty1);
+
+      idx := tmpstor.IndexOf(stor);
+      if idx < 0 then
+        idx := tmpstor.AddObject(stor, TCInteger.Create(0));
+
+      (tmpstor.Objects[idx] as TCInteger).Add(num);
+    end;
+
+    for i := 0 to tmpstor.Count - 1 do
+    begin
+      num := (tmpstor.Objects[i] as TCInteger).value;
       if num > 0 then
       begin
+        stor := tmpstor.Strings[i];
         if num >= needed then
           sfont := '<font color="green">'
         else
@@ -3418,6 +3434,8 @@ begin
                    num]);
       end;
     end;
+
+    tmpstor.Free;
   end;
 
   document.write('</td>');

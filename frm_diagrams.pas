@@ -361,6 +361,9 @@ var
   num27: integer;
   snum27: string;
   date20150403: integer;
+  date20170509: integer;
+  date20170511: integer;
+  date20171219: integer;
   date20190402: integer;
   date20190405: integer;
   ii: integer;
@@ -371,6 +374,9 @@ begin
   // Order
   if idx = 40 then
   begin
+    date20170509 := round(s2date1('20170509'));
+    date20170511 := round(s2date1('20170511'));
+    date20171219 := round(s2date1('20171219'));
     date20190402 := round(s2date1('20190402'));
     date20190405 := round(s2date1('20190405'));
     fname := basedefault + 'orders\' + piece + '.eval';
@@ -404,6 +410,9 @@ begin
           truncx := Trunc(x);
           if truncx >= date20190402 then
             if truncx <= date20190405 then
+              Continue;
+          if piece = '4311422' then
+            if (truncx = date20170509) or (truncx = date20170511) or (truncx = date20171219) then
               Continue;
           y := atof(e40);
           if not zz then

@@ -345,6 +345,9 @@ type
   colorinfoarray_t = array[-1..MAXINFOCOLOR] of colorinfo_t;
   colorinfoarray_p = ^colorinfoarray_t;
 
+  intcolorarray_t = array[-1..MAXINFOCOLOR] of integer;
+  intcolorarray_p = ^intcolorarray_t;
+
 type
   categoryinfo_t = record
     name: string[48];
@@ -3679,6 +3682,9 @@ begin
       else if bp.part = '81294' then begin s.Add(Format('%s,%d,%d', ['649pr0016', bp.color, bp.num])); end
       else if bp.part = 'fabeh5' then begin s.Add(Format('%s,%d,%d', ['4430', bp.color, bp.num])); end
       else if (bp.part = 'upn0119') or (bp.part = 'bb68') or (bp.part = 'bb068') or (bp.part = 'bb068') then begin s.Add(Format('%s,%d,%d', ['22854', bp.color, bp.num])); end
+      //20241125
+      else if bp.part = '553a' then begin s.Add(Format('%s,%d,%d', ['30367a', bp.color, bp.num])); end
+      else if (bp.part = '553') or (bp.part = '553b') or (bp.part = '553c') or (bp.part = '3262') or (bp.part = '18841') then begin s.Add(Format('%s,%d,%d', ['30367b', bp.color, bp.num])); end
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;

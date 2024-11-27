@@ -941,6 +941,10 @@ type
     function GatherOfflineNotes(const pcs: string; const color: integer): string; overload;
     procedure GatherAndSaveOfflineNotes(const pcs: string);
     procedure RandomBrickSetDownload;
+    procedure _GatherSetAreaStat(const setid: string; const pt: string; const stid: integer; const pl: intcolorarray_p);
+    procedure doCompareSetParts(const set1, set2: string);
+    procedure doDrawStats1(const p1: intcolorarray_p; const tit1: string);
+    procedure doDrawStats2(const p1, p2: intcolorarray_p; const tit1, tit2: string);
     procedure _load2setsqry(var set1, set2: string);
     procedure _save2setsqry(const set1, set2: string);
   public
@@ -979,6 +983,12 @@ const
   SSINV_FLAG_MOCS = 2;
   SSINV_FLAG_SETS_AND_MOCS = 3;
   SSINV_FLAG_WISH_LIST = 4;
+
+// Set stats flags
+const
+  ST_NUMPIECES = 0;
+  ST_LEN = 1;
+  ST_AREA = 2;
 
 // ShowSetInventory() filter
 const
@@ -1136,6 +1146,7 @@ const
   TFGCOLOR = '#202020'; // Table font color
   DBGCOLOR = '#F7E967'; // Div (HEADER) background color
   DFGCOLOR = '#000080'; // Div (HEADER) font color
+  HICOLOR = '#F8CE68';  // Highlight color
 
 const
   MAXOUTPUTMEMOLINES = 200;
@@ -12383,7 +12394,11 @@ begin
   DrawInventoryTableNoPages(commoninv, True);
   commoninv.Free;
 
-  document.write('</td>');
+  document.write('</td></tr></table>');
+
+  document.write('<br>');
+
+  doCompareSetParts(set1, set2);
 
   document.write('<br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
@@ -23820,6 +23835,178 @@ begin
   pcs := Trim(HTML.SelText) + '-1';
   if db.AllPiecesIndex(pcs) >= 0 then
     HTMLClick('spiece/' + pcs, foo);
+end;
+
+procedure TMainForm._GatherSetAreaStat(const setid: string; const pt: string; const stid: integer; const pl: intcolorarray_p);
+var
+  scode, spart, sbwidth, slen, sarea: string;
+  lenlst, lstparts: TStringList;
+  ci: TCInteger;
+  i, idx: integer;
+  sinv, inv: TBrickInventory;
+  stwhat: string;
+begin
+  ZeroMemory(pl, SizeOf(intcolorarray_t));
+
+  sinv := db.GetSetInventory(setid);
+  if sinv = nil then
+    Exit;
+
+  lstparts := TStringList.Create;
+
+  lenlst := TStringList.Create;
+  if fexists(basedefault + 'db\db_cross_stats.txt') then
+    lenlst.LoadFromFile(basedefault + 'db\db_cross_stats.txt');
+
+  for i := 1 to lenlst.Count - 1 do // skip 0 - header
+  begin
+    splitstring(lenlst.Strings[i], scode, spart, sbwidth, slen, sarea, ',');
+
+    if scode = pt then
+    begin
+      case stid of
+        ST_LEN: lstparts.AddObject(spart, TCInteger.Create(atoi(slen)));
+        ST_AREA: lstparts.AddObject(spart, TCInteger.Create(atoi(sarea)));
+      else
+        lstparts.AddObject(spart, TCInteger.Create(1))
+      end;
+    end;
+
+  end;
+
+  lstparts.Sorted := True;
+
+  inv := sinv.Clone;
+  inv.DismandalAllSets;
+
+  for i := 0 to inv.numlooseparts - 1 do
+  begin
+    idx := lstparts.IndexOf(inv.looseparts[i].part);
+    if idx > 0 then
+    begin
+      ci := (lstparts.Objects[idx] as TCInteger);
+      inc(pl[inv.looseparts[i].color], inv.looseparts[i].num * ci.value);
+    end;
+  end;
+
+  inv.Free;
+
+  FreeList(lstparts);
+
+  lenlst.Free;
+end;
+
+procedure TMainForm.doCompareSetParts(const set1, set2: string);
+var
+  i: integer;
+  parts_p: array[0..1] of intcolorarray_p;
+begin
+  for i := 0 to 1 do
+    parts_p[i] := malloc(SizeOf(intcolorarray_t));
+
+  _GatherSetAreaStat(set1, 'bricksx', ST_AREA, parts_p[0]);
+  _GatherSetAreaStat(set2, 'bricksx', ST_AREA, parts_p[1]);
+
+  document.write('<table width=100% bgcolor=' + TBGCOLOR + ' border=1>');
+  document.write('<th><b>Bricks Area (studs)</b></th>');
+  document.write('<tr><td>');
+  doDrawStats2(parts_p[0], parts_p[1], set1, set2);
+  document.write('</td></tr></table>');
+
+  _GatherSetAreaStat(set1, 'platesx', ST_AREA, parts_p[0]);
+  _GatherSetAreaStat(set2, 'platesx', ST_AREA, parts_p[1]);
+
+  document.write('<table width=100% bgcolor=' + TBGCOLOR + ' border=1>');
+  document.write('<th><b>Plates Area (studs)</b></th>');
+  document.write('<tr><td>');
+  doDrawStats2(parts_p[0], parts_p[1], set1, set2);
+  document.write('</td></tr></table>');
+
+  _GatherSetAreaStat(set1, 'tilesx', ST_AREA, parts_p[0]);
+  _GatherSetAreaStat(set2, 'tilesx', ST_AREA, parts_p[1]);
+
+  document.write('<table width=100% bgcolor=' + TBGCOLOR + ' border=1>');
+  document.write('<th><b>Tiles Area (studs)</b></th>');
+  document.write('<tr><td>');
+  doDrawStats2(parts_p[0], parts_p[1], set1, set2);
+  document.write('</td></tr></table>');
+
+
+  for i := 0 to 1 do
+    memfree(pointer(parts_p[i]), SizeOf(intcolorarray_t));
+end;
+
+procedure TMainForm.doDrawStats1(const p1: intcolorarray_p; const tit1: string);
+var
+  cc: integer;
+  cp: colorinfo_p;
+  aa: integer;
+begin
+  aa := 0;
+
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Color</b></th>' +
+    '<th><b>' + tit1 + '</b></th>' +
+    '</tr>'
+  );
+
+  for cc := -1 to MAXINFOCOLOR do
+    if p1[cc] > 0 then
+    begin
+      cp := db.Colors(cc);
+      if (cp.id <> cc) and (cc <> -1) then
+        Continue;
+      inc(aa);
+      document.write('<tr bgcolor=' + TBGCOLOR + '>');
+      document.write('<td width=10% align=right>' + itoa(aa) + '.</td>');
+      document.write('<td width=40%  align=left>');
+      DrawColorCell(cc, 25);
+      document.write('(' + itoa(cp.id) + ') (BL=' + itoa(cp.BrickLinkColor) +  ')' + GetRebrickableColorHtml(cc) + '</td>');
+      document.write('<td width=40% align=right>' + itoa(p1[cc]) + '</td></tr>');
+    end;
+  document.write('</table>');
+end;
+
+procedure TMainForm.doDrawStats2(const p1, p2: intcolorarray_p; const tit1, tit2: string);
+var
+  cc: integer;
+  cp: colorinfo_p;
+  aa: integer;
+begin
+  aa := 0;
+
+  document.write(
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Color</b></th>' +
+    '<th><b>' + tit1 + '</b></th>' +
+    '<th><b>' + tit2 + '</b></th>' +
+    '</tr>'
+  );
+
+  for cc := -1 to MAXINFOCOLOR do
+    if (p1[cc] > 0) or (p2[cc] > 0) then
+    begin
+      cp := db.Colors(cc);
+      if (cp.id <> cc) and (cc <> -1) then
+        Continue;
+      inc(aa);
+      if p1[cc] = p2[cc] then
+        document.write('<tr bgcolor=' + TBGCOLOR + '>')
+      else
+        document.write('<tr bgcolor=' + HICOLOR + '>');
+      document.write('<td width=10% align=right>' + itoa(aa) + '.</td>');
+      document.write('<td width=30%  align=left>');
+      DrawColorCell(cc, 25);
+      document.write(cp.name + ' (' + itoa(cp.id) + ') (BL=' + itoa(cp.BrickLinkColor) +  ')' + GetRebrickableColorHtml(cc) + '</td>');
+      document.write('<td width=30% align=right>' + itoa(p1[cc]) + '</td>');
+      document.write('<td width=30% align=right>' + itoa(p2[cc]) + '</td>');
+    end;
+  document.write('</table>');
 end;
 
 end.

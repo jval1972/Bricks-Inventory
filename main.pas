@@ -941,6 +941,8 @@ type
     function GatherOfflineNotes(const pcs: string; const color: integer): string; overload;
     procedure GatherAndSaveOfflineNotes(const pcs: string);
     procedure RandomBrickSetDownload;
+    procedure _load2setsqry(var set1, set2: string);
+    procedure _save2setsqry(const set1, set2: string);
   public
     { Public declarations }
     activebits: integer;
@@ -15017,13 +15019,60 @@ begin
   HTMLClick('home', foo);
 end;
 
+procedure TMainForm._load2setsqry(var set1, set2: string);
+var
+  fn: string;
+  lst: TStringList;
+begin
+  set1 := '';
+  set2 := '';
+
+  fn := basedefault + 'out\Compare2sets\Compare2setslist.txt';
+  if fexists(fn) then
+  begin
+    lst := TStringList.Create;
+    lst.LoadFromFile(fn);
+    if lst.Count >= 2 then
+    begin
+      set1 := lst.Strings[0];
+      set2 := lst.Strings[1];
+    end;
+    lst.Free;
+  end;
+end;
+
+procedure TMainForm._save2setsqry(const set1, set2: string);
+var
+  fn: string;
+  lst: TStringList;
+begin
+  fn := basedefault + 'out\';
+  ForceDirectories(fn);
+  fn := fn + 'Compare2sets\';
+  ForceDirectories(fn);
+  fn := fn + 'Compare2setslist.txt';
+
+  lst := TStringList.Create;
+  try
+    lst.Add(set1);
+    lst.Add(set2);
+    lst.SaveToFile(fn);
+  finally
+    lst.Free;
+  end;
+end;
+
 procedure TMainForm.Compare2sets1Click(Sender: TObject);
 var
   set1, set2: string;
   foo: Boolean;
 begin
+  _load2setsqry(set1, set2);
   if Compare2SetsQuery('Compare sets', set1, set2) then
+  begin
+    _save2setsqry(set1, set2);
     HTMLClick('compare2sets/' + set1 + '/' + set2, foo);
+  end;
 end;
 
 procedure TMainForm.Mosaic1Click(Sender: TObject);
@@ -22923,8 +22972,12 @@ var
   set1, set2: string;
   foo: Boolean;
 begin
+  _load2setsqry(set1, set2);
   if Compare2SetsQuery('Common inventory of sets', set1, set2) then
+  begin
+    _save2setsqry(set1, set2);
     HTMLClick('common2sets/' + set1 + '/' + set2, foo);
+  end;
 end;
 
 procedure TMainForm.Jumpers1Click(Sender: TObject);

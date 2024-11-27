@@ -69,6 +69,8 @@ begin
   f := TfrmCompare2Sets.Create(nil);
   try
     f.Caption := title;
+    f.Edit1.Text := set1;
+    f.Edit2.Text := set2;
     f.ShowModal;
     if f.ModalResult = mrOK then
     begin

@@ -114,7 +114,7 @@ const
     (part: '3062'; bipart: '3062b'),
     (part: '3049'; bipart: '3049c'),
     (part: '4032'; bipart: '4032a'),
-    (part: '3046', bipart: '3046a')
+    (part: '3046'; bipart: '3046a')
   );
 
 function BI_ChangeOrderPartToBIAlias(var pt: string): boolean;

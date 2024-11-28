@@ -941,7 +941,7 @@ type
     function GatherOfflineNotes(const pcs: string; const color: integer): string; overload;
     procedure GatherAndSaveOfflineNotes(const pcs: string);
     procedure RandomBrickSetDownload;
-    procedure _GatherSetAreaStat(const setid: string; const pt: string; const stid: integer; const pl: intcolorarray_p);
+    function _GatherSetAreaStat(const setid: string; const pt: string; const stid: integer; const pl: intcolorarray_p): integer;
     procedure doCompareSetParts(const set1, set2: string);
     procedure doDrawStats1(const p1: intcolorarray_p; const tit1: string);
     procedure doDrawStats2(const p1, p2: intcolorarray_p; const tit1, tit2: string);
@@ -23838,15 +23838,17 @@ begin
     HTMLClick('spiece/' + pcs, foo);
 end;
 
-procedure TMainForm._GatherSetAreaStat(const setid: string; const pt: string; const stid: integer; const pl: intcolorarray_p);
+function TMainForm._GatherSetAreaStat(const setid: string; const pt: string; const stid: integer; const pl: intcolorarray_p): integer;
 var
   scode, spart, sbwidth, slen, sarea: string;
   lenlst, lstparts: TStringList;
   ci: TCInteger;
   i, idx: integer;
   sinv, inv: TBrickInventory;
-  stwhat: string;
+  value: integer;
 begin
+  Result := 0;
+
   ZeroMemory(pl, SizeOf(intcolorarray_t));
 
   sinv := db.GetSetInventory(setid);
@@ -23862,9 +23864,13 @@ begin
   for i := 1 to lenlst.Count - 1 do // skip 0 - header
   begin
     splitstring(lenlst.Strings[i], scode, spart, sbwidth, slen, sarea, ',');
-
     if scode = pt then
     begin
+      if sarea = '' then
+      begin
+        sarea := slen;
+        slen := sbwidth;
+      end;
       case stid of
         ST_LEN: lstparts.AddObject(spart, TCInteger.Create(atoi(slen)));
         ST_AREA: lstparts.AddObject(spart, TCInteger.Create(atoi(sarea)));
@@ -23883,10 +23889,12 @@ begin
   for i := 0 to inv.numlooseparts - 1 do
   begin
     idx := lstparts.IndexOf(inv.looseparts[i].part);
-    if idx > 0 then
+    if idx >= 0 then
     begin
       ci := (lstparts.Objects[idx] as TCInteger);
-      inc(pl[inv.looseparts[i].color], inv.looseparts[i].num * ci.value);
+      value := inv.looseparts[i].num * ci.value;
+      Inc(pl[inv.looseparts[i].color], value);
+      Inc(Result, value);
     end;
   end;
 
@@ -23897,41 +23905,66 @@ begin
   lenlst.Free;
 end;
 
+type
+  setstatitem_t = record
+    statid: string[32];
+    titlelen: string[32];
+    titlearea: string[32];
+  end;
+  setstatitem_p = ^setstatitem_t;
+
+const
+  NUMSETSTATITEMS = 23;
+
+  SETSTATITEMS: array[0..NUMSETSTATITEMS - 1] of setstatitem_t = (
+    (statid: 'bricksx';       titlelen: 'Bricks length (studs)';            titlearea: 'Bricks area (studs)'),
+    (statid: 'platesx';       titlelen: 'Plates length (studs)';            titlearea: 'Plates area (studs)'),
+    (statid: 'tilesx';        titlelen: 'Tiles length (studs)';             titlearea: 'Tiles area (studs)'),
+    (statid: 'bricks1x';      titlelen: 'Bricks 1x length (studs)';         titlearea: 'Bricks 1x area (studs)'),
+    (statid: 'bricks2x';      titlelen: 'Bricks 2x length (studs)';         titlearea: 'Bricks 2x area (studs)'),
+    (statid: 'bricks1xS';     titlelen: 'Special bricks length (studs)';    titlearea: 'Special bricks area (studs)'),
+    (statid: 'plates1x';      titlelen: 'Plates 1x length (studs)';         titlearea: 'Plates 1x area (studs)'),
+    (statid: 'plates2x';      titlelen: 'Plates 2x length (studs)';         titlearea: 'Plates 2x area (studs)'),
+    (statid: 'tiles1x';       titlelen: 'Tiles 1x length (studs)';          titlearea: 'Tiles 1x area (studs)'),
+    (statid: 'tiles2x';       titlelen: 'Tiles 2x length (studs)';          titlearea: 'Tiles 2x area (studs)'),
+    (statid: 'snot';          titlelen: 'Snot length (studs)';              titlearea: 'Snot area (studs)'),
+    (statid: 'technic1x';     titlelen: 'Technic bricks length (studs)';    titlearea: 'Technic bricks area studs)'),
+    (statid: 'jumpers';       titlelen: 'Jumpers length (studs)';           titlearea: 'Jumpers area (studs)'),
+    (statid: 'connectors';    titlelen: 'Floor connectors length (studs)';  titlearea: 'Floor connectors area (studs)'),
+    (statid: 'rail';          titlelen: 'Door rail length (studs)';         titlearea: 'Door rail area (studs)'),
+    (statid: 'invslope33';    titlelen: 'Inverted slope 33 length (studs)'; titlearea: 'Inverted slope 33 area (studs)'),
+    (statid: 'invslope45';    titlelen: 'Inverted slope 45 length (studs)'; titlearea: 'Inverted slope 45 area (studs)'),
+    (statid: 'invslope75';    titlelen: 'Inverted slope 75 length (studs)'; titlearea: 'Inverted slope 75 area (studs)'),
+    (statid: 'slope18';       titlelen: 'Slope 18 length (studs)';          titlearea: 'Slope 18 area (studs)'),
+    (statid: 'slope33';       titlelen: 'Slope 33 length (studs)';          titlearea: 'Slope 33 area (studs)'),
+    (statid: 'slope45';       titlelen: 'Slope 45 length (studs)';          titlearea: 'Slope 45 area (studs)'),
+    (statid: 'slope65';       titlelen: 'Slope 65 length (studs)';          titlearea: 'Slope 65 area (studs)'),
+    (statid: 'slope75';       titlelen: 'Slope 75 length (studs)';          titlearea: 'Slope 75 area (studs)')
+  );
+
 procedure TMainForm.doCompareSetParts(const set1, set2: string);
 var
   i: integer;
   parts_p: array[0..1] of intcolorarray_p;
+  ret1, ret2: integer;
 begin
   for i := 0 to 1 do
     parts_p[i] := malloc(SizeOf(intcolorarray_t));
 
-  _GatherSetAreaStat(set1, 'bricksx', ST_AREA, parts_p[0]);
-  _GatherSetAreaStat(set2, 'bricksx', ST_AREA, parts_p[1]);
+  for i := 0 to NUMSETSTATITEMS - 1 do
+  begin
+    ret1 := _GatherSetAreaStat(set1, SETSTATITEMS[i].statid, ST_AREA, parts_p[0]);
+    ret2 := _GatherSetAreaStat(set2, SETSTATITEMS[i].statid, ST_AREA, parts_p[1]);
 
-  document.write('<table width=100% bgcolor=' + TBGCOLOR + ' border=1>');
-  document.write('<th><b>Bricks Area (studs)</b></th>');
-  document.write('<tr><td>');
-  doDrawStats2(parts_p[0], parts_p[1], set1, set2);
-  document.write('</td></tr></table>');
-
-  _GatherSetAreaStat(set1, 'platesx', ST_AREA, parts_p[0]);
-  _GatherSetAreaStat(set2, 'platesx', ST_AREA, parts_p[1]);
-
-  document.write('<table width=100% bgcolor=' + TBGCOLOR + ' border=1>');
-  document.write('<th><b>Plates Area (studs)</b></th>');
-  document.write('<tr><td>');
-  doDrawStats2(parts_p[0], parts_p[1], set1, set2);
-  document.write('</td></tr></table>');
-
-  _GatherSetAreaStat(set1, 'tilesx', ST_AREA, parts_p[0]);
-  _GatherSetAreaStat(set2, 'tilesx', ST_AREA, parts_p[1]);
-
-  document.write('<table width=100% bgcolor=' + TBGCOLOR + ' border=1>');
-  document.write('<th><b>Tiles Area (studs)</b></th>');
-  document.write('<tr><td>');
-  doDrawStats2(parts_p[0], parts_p[1], set1, set2);
-  document.write('</td></tr></table>');
-
+    if (ret1 > 0) and (ret2 > 0) then
+    begin
+      document.write('<table width=100% bgcolor=' + TBGCOLOR + ' border=1>');
+      document.write('<th><b>' + SETSTATITEMS[i].titlearea + '</b></th>');
+      document.write('<tr><td>');
+      doDrawStats2(parts_p[0], parts_p[1], set1, set2);
+      document.write('</td></tr></table><br><br>');
+    end;
+  end;
 
   for i := 0 to 1 do
     memfree(pointer(parts_p[i]), SizeOf(intcolorarray_t));
@@ -23963,7 +23996,7 @@ begin
       inc(aa);
       document.write('<tr bgcolor=' + TBGCOLOR + '>');
       document.write('<td width=10% align=right>' + itoa(aa) + '.</td>');
-      document.write('<td width=40%  align=left>');
+      document.write('<td width=40% align=left>');
       DrawColorCell(cc, 25);
       document.write('(' + itoa(cp.id) + ') (BL=' + itoa(cp.BrickLinkColor) +  ')' + GetRebrickableColorHtml(cc) + '</td>');
       document.write('<td width=40% align=right>' + itoa(p1[cc]) + '</td></tr>');
@@ -23976,11 +24009,12 @@ var
   cc: integer;
   cp: colorinfo_p;
   aa: integer;
+  sum1, sum2: integer;
 begin
   aa := 0;
 
   document.write(
-    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<table width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
     '<tr bgcolor=' + THBGCOLOR + '>' +
     '<th><b>#</b></th>' +
     '<th><b>Color</b></th>' +
@@ -23989,6 +24023,8 @@ begin
     '</tr>'
   );
 
+  sum1 := 0;
+  sum2 := 0;
   for cc := -1 to MAXINFOCOLOR do
     if (p1[cc] > 0) or (p2[cc] > 0) then
     begin
@@ -24001,12 +24037,24 @@ begin
       else
         document.write('<tr bgcolor=' + HICOLOR + '>');
       document.write('<td width=10% align=right>' + itoa(aa) + '.</td>');
-      document.write('<td width=30%  align=left>');
+      document.write('<td width=30% align=left>');
       DrawColorCell(cc, 25);
       document.write(cp.name + ' (' + itoa(cp.id) + ') (BL=' + itoa(cp.BrickLinkColor) +  ')' + GetRebrickableColorHtml(cc) + '</td>');
       document.write('<td width=30% align=right>' + itoa(p1[cc]) + '</td>');
-      document.write('<td width=30% align=right>' + itoa(p2[cc]) + '</td>');
+      Inc(sum1, p1[cc]);
+      document.write('<td width=30% align=right>' + itoa(p2[cc]) + '</td></tr>');
+      Inc(sum2, p2[cc]);
     end;
+
+  if sum1 = sum2 then
+    document.write('<tr bgcolor=' + TBGCOLOR + '>')
+  else
+    document.write('<tr bgcolor=' + HICOLOR + '>');
+  document.write('<td width=10% align=right>*</td>');
+  document.write('<td width=30% align=left>Total: </td>');
+  document.write('<td width=30% align=right>' + itoa(sum1) + '</td>');
+  document.write('<td width=30% align=right>' + itoa(sum2) + '</td></tr>');
+
   document.write('</table>');
 end;
 

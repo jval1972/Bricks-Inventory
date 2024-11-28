@@ -18521,6 +18521,7 @@ begin
         begin
           pcs := kp.Strings[j];
           lst.Add(pcs + ',' + scolor);
+          pci := kp.Objects[j] as TPieceColorInfo;
           inv.AddLoosePartFast(pcs, i, 1, pci);
         end;
     end;

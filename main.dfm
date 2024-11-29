@@ -2123,6 +2123,10 @@ object MainForm: TMainForm
         Caption = 'Collection Value'
         OnClick = CollectionValue1Click
       end
+      object CollectionStatistics1: TMenuItem
+        Caption = 'Collection Statistics'
+        OnClick = CollectionStatistics1Click
+      end
       object N41: TMenuItem
         Caption = '-'
       end

@@ -410,6 +410,7 @@ type
     N63: TMenuItem;
     InventiryPieceswithoutupdateinrange1: TMenuItem;
     OpenItemPU2: TMenuItem;
+    CollectionStatistics1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -689,6 +690,7 @@ type
       Sender: TObject);
     procedure InventiryPieceswithoutupdateinrange1Click(Sender: TObject);
     procedure OpenItemPU2Click(Sender: TObject);
+    procedure CollectionStatistics1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -867,6 +869,7 @@ type
     procedure ShowMyWishListPieces;
     procedure ShowMyMinifiguresMenu;
     procedure ShowMyPiecesValue;
+    procedure ShowMyPiecesStats;
     procedure ShowLengthQuery(const id: string);
     procedure ShowLengthQuerySlopes(const id: string);
     procedure ShowDimentionsQuery(const id: string);
@@ -941,10 +944,12 @@ type
     function GatherOfflineNotes(const pcs: string; const color: integer): string; overload;
     procedure GatherAndSaveOfflineNotes(const pcs: string);
     procedure RandomBrickSetDownload;
+    function _GatherInvAreaStat(const sinv: TBrickInventory; const pt: string; const stid: integer; const pl: intcolorarray_p): integer;
     function _GatherSetAreaStat(const setid: string; const pt: string; const stid: integer; const pl: intcolorarray_p): integer;
     procedure doCompareSetParts(const set1, set2: string);
     procedure doDrawStats1(const p1: intcolorarray_p; const tit1: string);
     procedure doDrawStats2(const p1, p2: intcolorarray_p; const tit1, tit2: string);
+    procedure doDrawInvStats(const inv: TBrickInventory);
     procedure _load2setsqry(var set1, set2: string);
     procedure _save2setsqry(const set1, set2: string);
   public
@@ -14759,6 +14764,10 @@ begin
   begin
     ShowMyPiecesValue;
   end
+  else if slink = 'ShowMyPiecesStats' then
+  begin
+    ShowMyPiecesStats;
+  end
   else if Pos1('order/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
@@ -15964,6 +15973,46 @@ begin
   inv3.Free;
   inv4.Free;
   inv5.Free;
+
+  document.SaveBufferToFile(diskmirror);
+  document.Flash;
+  Screen.Cursor := crDefault;
+end;
+
+procedure TMainForm.ShowMyPiecesStats;
+var
+  inv1, inv2: TBrickInventory;
+begin
+  Screen.Cursor := crHourGlass;
+
+  document.write('<body background="splash.jpg">');
+  document.title('My Inventory Stats');
+  DrawNavigateBar;
+  document.write('<div style="color:' + DFGCOLOR + '">');
+  document.write('<p align=center>');
+
+  // inv1: without sets
+  inv1 := inventory.Clone;
+  inv1.RemoveAllSets;
+  inv1.Reorganize;
+
+  // inv2: with sets & mocs
+  inv2 := inventory.Clone;
+  inv2.DismandalAllSets;
+  inv2.Reorganize;
+
+  DrawHeadLine('Loose Parts <a href="diagramstorage/Loose Parts"><img src="images\diagram.png"></a>');
+  DrawPartOutValue(inv1);
+  doDrawInvStats(inv1);
+
+  DrawHeadLine('Loose Parts, sets & mocs <a href="diagramstorage/Inventory"><img src="images\diagram.png"></a>');
+  DrawPartOutValue(inv2);
+  doDrawInvStats(inv2);
+
+  document.write('<br></p></div></body>');
+
+  inv1.Free;
+  inv2.Free;
 
   document.SaveBufferToFile(diskmirror);
   document.Flash;
@@ -22332,6 +22381,13 @@ begin
   HTMLClick('ShowMyPiecesValue', foo);
 end;
 
+procedure TMainForm.CollectionStatistics1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('ShowMyPiecesStats', foo);
+end;
+
 procedure TMainForm.NewTab1Click(Sender: TObject);
 begin
   DoOpenUrlInNewTable('home');
@@ -23838,22 +23894,21 @@ begin
     HTMLClick('spiece/' + pcs, foo);
 end;
 
-function TMainForm._GatherSetAreaStat(const setid: string; const pt: string; const stid: integer; const pl: intcolorarray_p): integer;
+function TMainForm._GatherInvAreaStat(const sinv: TBrickInventory; const pt: string; const stid: integer; const pl: intcolorarray_p): integer;
 var
   scode, spart, sbwidth, slen, sarea: string;
   lenlst, lstparts: TStringList;
   ci: TCInteger;
   i, idx: integer;
-  sinv, inv: TBrickInventory;
+  inv: TBrickInventory;
   value: integer;
 begin
   Result := 0;
 
-  ZeroMemory(pl, SizeOf(intcolorarray_t));
-
-  sinv := db.GetSetInventory(setid);
   if sinv = nil then
     Exit;
+
+  ZeroMemory(pl, SizeOf(intcolorarray_t));
 
   lstparts := TStringList.Create;
 
@@ -23861,24 +23916,35 @@ begin
   if fexists(basedefault + 'db\db_cross_stats.txt') then
     lenlst.LoadFromFile(basedefault + 'db\db_cross_stats.txt');
 
-  for i := 1 to lenlst.Count - 1 do // skip 0 - header
+  if pt = '' then
   begin
-    splitstring(lenlst.Strings[i], scode, spart, sbwidth, slen, sarea, ',');
-    if scode = pt then
+    for i := 1 to lenlst.Count - 1 do // skip 0 - header
     begin
-      if sarea = '' then
+      splitstring(lenlst.Strings[i], scode, spart, sbwidth, ',');
+      lstparts.AddObject(spart, TCInteger.Create(1));
+    end
+  end
+  else
+  begin
+    for i := 1 to lenlst.Count - 1 do // skip 0 - header
+    begin
+      splitstring(lenlst.Strings[i], scode, spart, sbwidth, slen, sarea, ',');
+      if scode = pt then
       begin
-        sarea := slen;
-        slen := sbwidth;
+        if sarea = '' then
+        begin
+          sarea := slen;
+          slen := sbwidth;
+        end;
+        case stid of
+          ST_LEN: lstparts.AddObject(spart, TCInteger.Create(atoi(slen)));
+          ST_AREA: lstparts.AddObject(spart, TCInteger.Create(atoi(sarea)));
+        else
+          lstparts.AddObject(spart, TCInteger.Create(1))
+        end;
       end;
-      case stid of
-        ST_LEN: lstparts.AddObject(spart, TCInteger.Create(atoi(slen)));
-        ST_AREA: lstparts.AddObject(spart, TCInteger.Create(atoi(sarea)));
-      else
-        lstparts.AddObject(spart, TCInteger.Create(1))
-      end;
-    end;
 
+    end;
   end;
 
   lstparts.Sorted := True;
@@ -23886,15 +23952,31 @@ begin
   inv := sinv.Clone;
   inv.DismandalAllSets;
 
-  for i := 0 to inv.numlooseparts - 1 do
+  if pt = '' then
   begin
-    idx := lstparts.IndexOf(inv.looseparts[i].part);
-    if idx >= 0 then
+    for i := 0 to inv.numlooseparts - 1 do
     begin
-      ci := (lstparts.Objects[idx] as TCInteger);
-      value := inv.looseparts[i].num * ci.value;
-      Inc(pl[inv.looseparts[i].color], value);
-      Inc(Result, value);
+      idx := lstparts.IndexOf(inv.looseparts[i].part);
+      if idx < 0 then
+      begin
+        value :=  inv.looseparts[i].num;
+        Inc(pl[inv.looseparts[i].color], value);
+        Inc(Result, value);
+      end;
+    end;
+  end
+  else
+  begin
+    for i := 0 to inv.numlooseparts - 1 do
+    begin
+      idx := lstparts.IndexOf(inv.looseparts[i].part);
+      if idx >= 0 then
+      begin
+        ci := (lstparts.Objects[idx] as TCInteger);
+        value := inv.looseparts[i].num * ci.value;
+        Inc(pl[inv.looseparts[i].color], value);
+        Inc(Result, value);
+      end;
     end;
   end;
 
@@ -23903,6 +23985,14 @@ begin
   FreeList(lstparts);
 
   lenlst.Free;
+end;
+
+function TMainForm._GatherSetAreaStat(const setid: string; const pt: string; const stid: integer; const pl: intcolorarray_p): integer;
+var
+  sinv: TBrickInventory;
+begin
+  sinv := db.GetSetInventory(setid);
+  Result := _GatherInvAreaStat(sinv, pt, stid, pl);
 end;
 
 type
@@ -24056,6 +24146,100 @@ begin
   document.write('<td width=30% align=right>' + itoa(sum2) + '</td></tr>');
 
   document.write('</table>');
+end;
+
+type
+  invstatitem_t = record
+    statid: string[16];
+    statproperty: integer;
+    stattitle: string[42];
+  end;
+  invstatitem_p = ^invstatitem_t;
+
+const
+  NUMINVSTATITEMS = 17;
+
+  INVSTATITEMS: array[0..NUMINVSTATITEMS - 1] of invstatitem_t = (
+    (statid: 'bricksx';       statproperty: ST_AREA;      stattitle: 'Bricks<br>area<br>(studs)'),
+    (statid: 'platesx';       statproperty: ST_AREA;      stattitle: 'Plates<br>area<br>(studs)'),
+    (statid: 'tilesx';        statproperty: ST_AREA;      stattitle: 'Tiles<br>area<br>(studs)'),
+    (statid: 'slopesx';       statproperty: ST_AREA;      stattitle: 'Slopes<br>area<br>(studs)'),
+    (statid: 'invslopesx';    statproperty: ST_AREA;      stattitle: 'Inverted<br>slopes<br>area<br>(studs)'),
+    (statid: 'bricks1xS';     statproperty: ST_AREA;      stattitle: 'Special<br>bricks 1x<br>length<br>(studs)'),
+    (statid: 'snot';          statproperty: ST_AREA;      stattitle: 'Snot<br>area<br>(studs)'),
+    (statid: 'technic1x';     statproperty: ST_AREA;      stattitle: 'Technic<br>bricks 1x<br>length<br>(studs)'),
+    (statid: 'jumpers';       statproperty: ST_AREA;      stattitle: 'Jumpers<br>area<br>(studs)'),
+    (statid: 'connectors';    statproperty: ST_AREA;      stattitle: 'Floor<br>Connectors<br>area<br>(studs)'),
+    (statid: 'rail';          statproperty: ST_AREA;      stattitle: 'Door<br>rail<br>area<br>(studs)'),
+    (statid: 'doors';         statproperty: ST_NUMPIECES; stattitle: 'Doors<br>(num pieces)'),
+    (statid: 'doorframe';     statproperty: ST_NUMPIECES; stattitle: 'Door<br>frames<br>(num pieces)'),
+    (statid: 'doorshutter';   statproperty: ST_NUMPIECES; stattitle: 'Door<br>shutters<br>(num pieces)'),
+    (statid: 'windowframe';   statproperty: ST_NUMPIECES; stattitle: 'Windows<br>(num pieces)'),
+    (statid: 'windowshutter'; statproperty: ST_NUMPIECES; stattitle: 'Window<br>Shutters<br>(num pieces)'),
+    (statid: '';              statproperty: ST_NUMPIECES; stattitle: 'Other<br>(num pieces)')
+  );
+
+procedure TMainForm.doDrawInvStats(const inv: TBrickInventory);
+var
+  parts_p: array[0..NUMINVSTATITEMS - 1] of intcolorarray_p;
+  rets: array[0..NUMINVSTATITEMS - 1] of integer;
+  i, cc, aa: integer;
+  cp: colorinfo_p;
+  tot: integer;
+begin
+  for i := 0 to NUMINVSTATITEMS - 1 do
+  begin
+    parts_p[i] := malloc(SizeOf(intcolorarray_t));
+    rets[i] := _GatherInvAreaStat(inv, INVSTATITEMS[i].statid, INVSTATITEMS[i].statproperty, parts_p[i]);
+  end;
+
+  document.write(
+    '<table width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<tr bgcolor=' + THBGCOLOR + '>' +
+    '<th><b>#</b></th>' +
+    '<th><b>Color</b></th>');
+
+  for i := 0 to NUMINVSTATITEMS - 1 do
+    document.write('<th><b>' + INVSTATITEMS[i].stattitle + '</b></th>');
+
+  document.write('</tr>');
+
+  aa := 0;
+
+  for cc := -1 to MAXINFOCOLOR do
+  begin
+    tot := 0;
+    for i := 0 to NUMINVSTATITEMS - 1 do
+    begin
+      tot := tot + parts_p[i][cc];
+      if tot > 0 then
+        break;
+    end;
+    if tot > 0 then
+    begin
+      cp := db.Colors(cc);
+      if (cp.id <> cc) and (cc <> -1) then
+        Continue;
+      inc(aa);
+      document.write('<tr bgcolor=' + TBGCOLOR + '>');
+      document.write('<td width=5% align=right>' + itoa(aa) + '.</td>');
+      document.write('<td width=10% align=left>');
+      DrawColorCell(cc, 25);
+      document.write(cp.name + ' (' + itoa(cp.id) + ') (BL=' + itoa(cp.BrickLinkColor) +  ')' + GetRebrickableColorHtml(cc) + '</td>');
+      for i := 0 to NUMINVSTATITEMS - 1 do
+        document.write('<td width=' + itoa(100 div (NUMINVSTATITEMS + 2)) + '% align=right>' + itoa(parts_p[i][cc]) + '</td>');
+      document.write('</tr>');
+    end;
+  end;
+
+  document.write('<tr bgcolor=' + TBGCOLOR + '><td width=5% align=right>*</td><td width=10% align=left>Total:</td>');
+
+  for i := 0 to NUMINVSTATITEMS - 1 do
+    document.write('<td width=' + itoa(100 div (NUMINVSTATITEMS + 2)) + '% align=right>' + itoa(rets[i]) + '</td>');
+  document.write('</tr></table>');
+
+  for i := 0 to NUMINVSTATITEMS - 1 do
+    memfree(pointer(parts_p[i]), SizeOf(intcolorarray_t));
 end;
 
 end.

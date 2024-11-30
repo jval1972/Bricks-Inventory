@@ -1214,7 +1214,7 @@ initialization
   dataarray[25].fname := 'images\readysome.png';
 
   dataarray[26].data := @img_notes;
-  dataarray[26].size := 341;
+  dataarray[26].size := 678;
   dataarray[26].fname := 'images\notes.png';
 
 

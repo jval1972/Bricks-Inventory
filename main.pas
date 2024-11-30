@@ -732,7 +732,7 @@ type
     procedure dbloadprogress(const s: string; d : Double);
     procedure ShowLooseParts(inv: TBrickInventory; colormask: Integer = -1; partmask: string = ''; cat: Integer = -1;
       const fromAA: integer = -1; const toAA: integer = MAXINT);
-    procedure ShowSetInventory(const setid: string; const lite: Boolean = False; const filter: integer = 0);
+    procedure ShowSetInventory(const setid: string; const flags: integer = 0; const filter: integer = 0);
     procedure ShowInventoryRelatedPieces(const inv: TBrickInventory; const tit, headline: string);
     procedure ShowMyInventoryRelatedPieces;
     procedure ShowSetPartsStorage(const setid: string; const ppreview: boolean);
@@ -1003,6 +1003,11 @@ const
   SSI_PLATES = 3;
   SSI_TILES = 4;
   SSI_OTHER = 5;
+
+// ShowSetInventory() flags
+const
+  SSIF_LITE = 1;
+  SSIF_STATS = 2;
 
 const
   DPL_USETHUMBS = 1;
@@ -4623,7 +4628,7 @@ begin
   end;
 end;
 
-procedure TMainForm.ShowSetInventory(const setid: string; const lite: Boolean = False; const filter: integer = 0);
+procedure TMainForm.ShowSetInventory(const setid: string; const flags: integer = 0; const filter: integer = 0);
 var
   inv: TBrickInventory;
   missing: integer;
@@ -4634,6 +4639,8 @@ var
   tmpsets: TStringList;
   s1, s2: string;
   swanted: string;
+  lite: boolean;
+  showstats: boolean;
   sx, ss1, ss2, ss3: string;
   sf1, sf2, sf3, sf4, sf5, sf6: string;
   numbricks: integer;
@@ -4653,11 +4660,15 @@ var
   pidx: integer;
   year: integer;
   slink: string;
+  strstats: string;
   pci: TPieceColorInfo;
 begin
   Screen.Cursor := crHourGlass;
 
   lastset := setid;
+
+  lite := flags and SSIF_LITE <> 0;
+  showstats := flags and SSIF_STATS <> 0;
 
 {  if domultipagedocuments then
     if not lite then
@@ -4791,7 +4802,10 @@ begin
       end;
   else
     basefname := Trim(setid);
-    titpart := 'Inventory';
+    if showstats then
+      titpart := 'Statistics'
+    else
+      titpart := 'Inventory';
     newinv := inv.Clone;
   end;
 
@@ -4884,11 +4898,15 @@ begin
   else
     sf6 := '';
   year := db.SetYear(setid);
+  if showstats then
+    strstats := ''
+  else
+    strstats :=  ' <a href=sinvstats/' + setid + '><img src="images\stats.png"></a>';
   ss1 := Format('%s for %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled (%s%d%s in wish list)<br><img width=360px src=s\' + setid + '.jpg>' +
       ' ' + GetEditSetHtml(setid) +
       ' <a href=editpiecenotes/' + setid + '><img src="images\notes.png"></a>' +
       ' <a href=PreviewSetInventory/' + setid + '><img src="images\print.png"></a>' +
-      ' ' + GetDiagramPieceHtml(setid, '-1') + '<br>' +
+      ' ' + GetDiagramPieceHtml(setid, '-1') + strstats + '<br>' +
       '[Year: <a href=ShowSetsAtYear/%d>%d</a>]<br>',
     [titpart, GetPieceLinkHtml(setid), db.SetDesc(setid),
      newinv.numlooseparts, newinv.totallooseparts, newinv.totalsetsbuilted + newinv.totalsetsdismantaled,
@@ -4966,18 +4984,17 @@ begin
         '<a href="sinvcat/' + setid + '/2">Slopes</a>' + ': %d<br>' + 
         '<a href="sinvcat/' + setid + '/3">Plates</a>' + ': %d<br>' + 
         '<a href="sinvcat/' + setid + '/4">Tiles</a>' + ': %d<br>' + 
-        '<a href="sinvcat/' + setid + '/5">Other</a>' + ': %d<br>' + 
-        expensizestr, 
+        '<a href="sinvcat/' + setid + '/5">Other</a>' + ': %d<br>' +
+        expensizestr,
         [numbricks, numslopes, numplates, numtiles, newinv.totallooseparts - numbricks - numplates - numslopes - numtiles]
       )
     );
 
     DrawPriceguide(setid);
-  end
-  else
-  begin
-    DrawHeadLine('Back to set <a href="sinv/' + setid + '">' + setid + '</a>');
   end;
+
+  if (filter <> 0) or showstats then
+    DrawHeadLine('Back to set <a href="sinv/' + setid + '">' + setid + '</a>');
 
   dolugbulk := False;
   lb := nil;
@@ -4999,13 +5016,15 @@ begin
     end;
   end;
 
-  if dolugbulk then
-  begin
-    DrawInventoryTable(newinv, lite, setid, True, True, lb);
-    lb.Free;
-  end
+  if showstats then
+    doDrawInvStats(newinv)
+  else if dolugbulk then
+    DrawInventoryTable(newinv, lite, setid, True, True, lb)
   else
     DrawInventoryTable(newinv, lite, setid);
+
+  if lb <> nil then
+    lb.Free;
 
   document.write('<br>');
   document.write('<br>');
@@ -5016,7 +5035,7 @@ begin
   end;
   document.write('</p>');
 
-  if not lite then
+  if not lite and not showstats and (filter = 0) then
   begin
     minifiginv := newinv.Minifigures;
     if minifiginv.numlooseparts > 0 then
@@ -5027,23 +5046,24 @@ begin
       document.write('<br><br></p>');
     end;
     minifiginv.free;
+
+    if fexists(basedefault + 'db\sets\' + Trim(setid) + '.alternatives.txt') and (filter = 0) then
+    begin
+      addinv := TStringList.Create;
+      addinv.LoadFromFile(basedefault + 'db\sets\' + Trim(setid) + '.alternatives.txt');
+      DrawSetAlternatePieceList('Alternate parts <a href=downloadsetaltparts/' + Trim(setid) + '><img src="images\refresh.png"></a>', addinv);
+      addinv.Free;
+      document.write('<br><br>');
+    end
+    else if not db.IsMoc(setid) and (filter = 0) then
+    begin
+      DrawHeadLine('<a href=downloadsetaltparts/' + Trim(setid) + '>Try to download alternate parts from ' + s_bricklink + '.com</a>');
+      document.write('<br><br>');
+    end;
   end;
 
-  if fexists(basedefault + 'db\sets\' + Trim(setid) + '.alternatives.txt') and (filter = 0) then
-  begin
-    addinv := TStringList.Create;
-    addinv.LoadFromFile(basedefault + 'db\sets\' + Trim(setid) + '.alternatives.txt');
-    DrawSetAlternatePieceList('Alternate parts <a href=downloadsetaltparts/' + Trim(setid) + '><img src="images\refresh.png"></a>', addinv);
-    addinv.Free;
-    document.write('<br><br>');
-  end
-  else if not db.IsMoc(setid) and (filter = 0) then
-  begin
-    DrawHeadLine('<a href=downloadsetaltparts/' + Trim(setid) + '>Try to download alternate parts from ' + s_bricklink + '.com</a>');
-    document.write('<br><br>');
-  end;
   document.write('</div>');
-  if not lite then
+  if not lite and not showstats and (filter = 0) then
     document.write(BLColorPieceInfo(Trim(setid), -1));
   document.write('</body>');
   newinv.Free;
@@ -14361,7 +14381,12 @@ begin
   else if Pos1('sinvcat/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
-    ShowSetInventory(s2, False, atoi(s3));
+    ShowSetInventory(s2, 0, atoi(s3));
+  end
+  else if Pos1('sinvstats/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowSetInventory(s2, SSIF_STATS);
   end
   else if slink = 'ShowMyInventoryRelatedPieces' then
   begin
@@ -14568,7 +14593,7 @@ begin
   else if Pos1('sinvl/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
-    ShowSetInventory(s2, True);
+    ShowSetInventory(s2, SSIF_LITE);
   end
   else if Pos1('spiece/', slink) then
   begin

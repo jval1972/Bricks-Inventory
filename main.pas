@@ -718,6 +718,7 @@ type
     lastbricksetdownload: extended;
     idleindicator: integer;
     bstmpsets: TStringList;
+    crossstatslst: TStringList;
     function CheckAA(const AA, fromAA, toAA: integer): boolean;
     procedure Navigate(const akey: string; const pg: integer);
     procedure DrawColorCell(const cc: integer; const width: integer);
@@ -944,6 +945,8 @@ type
     function GatherOfflineNotes(const pcs: string; const color: integer): string; overload;
     procedure GatherAndSaveOfflineNotes(const pcs: string);
     procedure RandomBrickSetDownload;
+    procedure _crossstatsprepare;
+    procedure _crossstatsdone;
     function _GatherInvAreaStat(const sinv: TBrickInventory; const pt: string; const stid: integer; const pl: intcolorarray_p): integer;
     function _GatherSetAreaStat(const setid: string; const pt: string; const stid: integer; const pl: intcolorarray_p): integer;
     procedure doCompareSetParts(const set1, set2: string);
@@ -23919,10 +23922,22 @@ begin
     HTMLClick('spiece/' + pcs, foo);
 end;
 
+procedure TMainForm._crossstatsprepare;
+begin
+  crossstatslst := TStringList.Create;
+  if fexists(basedefault + 'db\db_cross_stats.txt') then
+    crossstatslst.LoadFromFile(basedefault + 'db\db_cross_stats.txt');
+end;
+
+procedure TMainForm._crossstatsdone;
+begin
+  crossstatslst.Free;
+end;
+
 function TMainForm._GatherInvAreaStat(const sinv: TBrickInventory; const pt: string; const stid: integer; const pl: intcolorarray_p): integer;
 var
   scode, spart, sbwidth, slen, sarea: string;
-  lenlst, lstparts: TStringList;
+  lstparts: TStringList;
   ci: TCInteger;
   i, idx: integer;
   inv: TBrickInventory;
@@ -23937,23 +23952,19 @@ begin
 
   lstparts := TStringList.Create;
 
-  lenlst := TStringList.Create;
-  if fexists(basedefault + 'db\db_cross_stats.txt') then
-    lenlst.LoadFromFile(basedefault + 'db\db_cross_stats.txt');
-
   if pt = '' then
   begin
-    for i := 1 to lenlst.Count - 1 do // skip 0 - header
+    for i := 1 to crossstatslst.Count - 1 do // skip 0 - header
     begin
-      splitstring(lenlst.Strings[i], scode, spart, sbwidth, ',');
+      splitstring(crossstatslst.Strings[i], scode, spart, sbwidth, ',');
       lstparts.AddObject(spart, TCInteger.Create(1));
     end
   end
   else
   begin
-    for i := 1 to lenlst.Count - 1 do // skip 0 - header
+    for i := 1 to crossstatslst.Count - 1 do // skip 0 - header
     begin
-      splitstring(lenlst.Strings[i], scode, spart, sbwidth, slen, sarea, ',');
+      splitstring(crossstatslst.Strings[i], scode, spart, sbwidth, slen, sarea, ',');
       if scode = pt then
       begin
         if sarea = '' then
@@ -24008,8 +24019,6 @@ begin
   inv.Free;
 
   FreeList(lstparts);
-
-  lenlst.Free;
 end;
 
 function TMainForm._GatherSetAreaStat(const setid: string; const pt: string; const stid: integer; const pl: intcolorarray_p): integer;
@@ -24066,19 +24075,24 @@ begin
   for i := 0 to 1 do
     parts_p[i] := malloc(SizeOf(intcolorarray_t));
 
-  for i := 0 to NUMSETSTATITEMS - 1 do
-  begin
-    ret1 := _GatherSetAreaStat(set1, SETSTATITEMS[i].statid, ST_AREA, parts_p[0]);
-    ret2 := _GatherSetAreaStat(set2, SETSTATITEMS[i].statid, ST_AREA, parts_p[1]);
-
-    if (ret1 > 0) and (ret2 > 0) then
+  _crossstatsprepare;
+  try
+    for i := 0 to NUMSETSTATITEMS - 1 do
     begin
-      document.write('<table width=100% bgcolor=' + TBGCOLOR + ' border=1>');
-      document.write('<th><b>' + SETSTATITEMS[i].titlearea + '</b></th>');
-      document.write('<tr><td>');
-      doDrawStats2(parts_p[0], parts_p[1], set1, set2);
-      document.write('</td></tr></table><br><br>');
+      ret1 := _GatherSetAreaStat(set1, SETSTATITEMS[i].statid, ST_AREA, parts_p[0]);
+      ret2 := _GatherSetAreaStat(set2, SETSTATITEMS[i].statid, ST_AREA, parts_p[1]);
+
+      if (ret1 > 0) and (ret2 > 0) then
+      begin
+        document.write('<table width=100% bgcolor=' + TBGCOLOR + ' border=1>');
+        document.write('<th><b>' + SETSTATITEMS[i].titlearea + '</b></th>');
+        document.write('<tr><td>');
+        doDrawStats2(parts_p[0], parts_p[1], set1, set2);
+        document.write('</td></tr></table><br><br>');
+      end;
     end;
+  finally
+    _crossstatsdone;
   end;
 
   for i := 0 to 1 do
@@ -24212,10 +24226,15 @@ var
   cp: colorinfo_p;
   tot: integer;
 begin
-  for i := 0 to NUMINVSTATITEMS - 1 do
-  begin
-    parts_p[i] := malloc(SizeOf(intcolorarray_t));
-    rets[i] := _GatherInvAreaStat(inv, INVSTATITEMS[i].statid, INVSTATITEMS[i].statproperty, parts_p[i]);
+  _crossstatsprepare;
+  try
+    for i := 0 to NUMINVSTATITEMS - 1 do
+    begin
+      parts_p[i] := malloc(SizeOf(intcolorarray_t));
+      rets[i] := _GatherInvAreaStat(inv, INVSTATITEMS[i].statid, INVSTATITEMS[i].statproperty, parts_p[i]);
+    end;
+  finally
+    _crossstatsdone;
   end;
 
   document.write(

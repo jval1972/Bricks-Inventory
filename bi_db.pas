@@ -216,11 +216,16 @@ type
     function BuildAllSets: boolean;
     function CanBuildSet(const setid: string): boolean;
     procedure LegacyColorMerge;
+    procedure BaseBrickMerge;
     function MissingToBuildSet(const setid: string): integer;
     function MissingToBuildSetLegacyIgnore(const setid: string): integer;
+    function MissingToBuildSetBaseBrick(const setid: string): integer;
+    function MissingToBuildSetLegacyBaseBrick(const setid: string): integer;
     function Minifigures: TBrickInventory;
     function InventoryForMissingToBuildSet(const setid: string; const nsets: integer = 1): TBrickInventory;
     function InventoryForMissingToBuildSetLegacyIgnore(const setid: string; const nsets: integer = 1): TBrickInventory;
+    function InventoryForMissingToBuildSetBaseBrick(const setid: string; const nsets: integer = 1): TBrickInventory;
+    function InventoryForMissingToBuildSetLegacyBaseBrick(const setid: string; const nsets: integer = 1): TBrickInventory;
     {$IFNDEF CRAWLER}
     function InventoryForExpensiveLotsNew(const nlots: integer = 1): TBrickInventory;
     function InventoryForExpensiveLotsUsed(const nlots: integer = 1): TBrickInventory;
@@ -230,10 +235,16 @@ type
     function InventoryForBigLots(const nitems: integer = 1): TBrickInventory;
     function CanBuildInventory(const inv: TBrickInventory): boolean;
     function CanBuildInventoryLegacyIgnore(const inv: TBrickInventory): boolean;
+    function CanBuildInventoryBaseBrick(const inv: TBrickInventory): boolean;
+    function CanBuildInventoryLegacyBaseBrick(const inv: TBrickInventory): boolean;
     function MissingToBuildInventory(const inv: TBrickInventory): integer;
     function MissingToBuildInventoryLegacyIgnore(const inv: TBrickInventory): integer;
+    function MissingToBuildInventoryBaseBrick(const inv: TBrickInventory): integer;
+    function MissingToBuildInventoryLegacyBaseBrick(const inv: TBrickInventory): integer;
     function InventoryForMissingToBuildInventory(const inv: TBrickInventory): TBrickInventory;
     function InventoryForMissingToBuildInventoryLegacyIgnore(const inv: TBrickInventory): TBrickInventory;
+    function InventoryForMissingToBuildInventoryBaseBrick(const inv: TBrickInventory): TBrickInventory;
+    function InventoryForMissingToBuildInventoryLegacyBaseBrick(const inv: TBrickInventory): TBrickInventory;
     function CommonInventory(const inv: TBrickInventory): TBrickInventory;
     function LoosePartsWeight: double;
     procedure UpdateCostValues;
@@ -1321,7 +1332,7 @@ implementation
 uses
   bi_system, bi_crawler, StrUtils, bi_priceadjust, bi_tmp, bi_globals,
   UrlMon, bi_multithread, bi_cachefile{$IFNDEF CRAWLER}, DateUtils, bi_pghistory,
-  bi_description_compress{$ENDIF};
+  bi_description_compress, bi_basebrick{$ENDIF};
 
 function fixpartname(const spart: string): string;
 var
@@ -5583,6 +5594,25 @@ begin
   DoReorganize;
 end;
 
+procedure TBrickInventory.BaseBrickMerge;
+var
+  bbi: TBaseBrickInfo;
+var
+  i: integer;
+begin
+  for i := 0 to fnumlooseparts - 1 do
+  begin
+    bbi := BI_GetBaseBrickInfo(flooseparts[i].part);
+    if bbi <> nil then
+    begin
+      flooseparts[i].part := bbi.part;
+      flooseparts[i].num := flooseparts[i].num * bbi.num;
+      flooseparts[i].pci := nil;
+    end;
+  end;
+  DoReorganize;
+end;
+
 function TBrickInventory.MissingToBuildSet(const setid: string): integer;
 begin
   Result := MissingToBuildInventory(db.GetSetInventory(setid));
@@ -5591,6 +5621,16 @@ end;
 function TBrickInventory.MissingToBuildSetLegacyIgnore(const setid: string): integer;
 begin
   Result := MissingToBuildInventoryLegacyIgnore(db.GetSetInventory(setid));
+end;
+
+function TBrickInventory.MissingToBuildSetBaseBrick(const setid: string): integer;
+begin
+  Result := MissingToBuildInventoryBaseBrick(db.GetSetInventory(setid));
+end;
+
+function TBrickInventory.MissingToBuildSetLegacyBaseBrick(const setid: string): integer;
+begin
+  Result := MissingToBuildInventoryLegacyBaseBrick(db.GetSetInventory(setid));
 end;
 
 function TBrickInventory.Minifigures: TBrickInventory;
@@ -5653,17 +5693,70 @@ end;
 // 8 -> 72 (old dark gray and dark bluish gray)
 function TBrickInventory.InventoryForMissingToBuildSetLegacyIgnore(const setid: string; const nsets: integer = 1): TBrickInventory;
 var
-  cloneinv, setinv: TBrickInventory;
+  cloneinv, setinv, inv: TBrickInventory;
   n, j: integer;
 begin
   Reorganize;
   cloneinv := Clone;
   cloneinv.LegacyColorMerge;
   Result := TBrickInventory.Create;
-  setinv := db.GetSetInventory(setid).Clone;
-  if setinv <> nil then
+  inv := db.GetSetInventory(setid);
+  if inv <> nil then
   begin
+    setinv := inv.Clone;
     setinv.LegacyColorMerge;
+    for j := 0 to setinv.numlooseparts - 1 do
+    begin
+      n := cloneinv.LoosePartCount(setinv.flooseparts[j].part, setinv.flooseparts[j].color);
+      if n < nsets * setinv.flooseparts[j].num then
+        Result.AddLoosePart(setinv.flooseparts[j].part, setinv.flooseparts[j].color, nsets * setinv.flooseparts[j].num - n, setinv.flooseparts[j].pci);
+    end;
+    setinv.Free;
+  end;
+  cloneinv.Free;
+end;
+
+function TBrickInventory.InventoryForMissingToBuildSetBaseBrick(const setid: string; const nsets: integer = 1): TBrickInventory;
+var
+  cloneinv, setinv, inv: TBrickInventory;
+  n, j: integer;
+begin
+  Reorganize;
+  cloneinv := Clone;
+  cloneinv.BaseBrickMerge;
+  Result := TBrickInventory.Create;
+  inv := db.GetSetInventory(setid);
+  if inv <> nil then
+  begin
+    setinv := inv.Clone;
+    setinv.BaseBrickMerge;
+    for j := 0 to setinv.numlooseparts - 1 do
+    begin
+      n := cloneinv.LoosePartCount(setinv.flooseparts[j].part, setinv.flooseparts[j].color);
+      if n < nsets * setinv.flooseparts[j].num then
+        Result.AddLoosePart(setinv.flooseparts[j].part, setinv.flooseparts[j].color, nsets * setinv.flooseparts[j].num - n, setinv.flooseparts[j].pci);
+    end;
+    setinv.Free;
+  end;
+  cloneinv.Free;
+end;
+
+function TBrickInventory.InventoryForMissingToBuildSetLegacyBaseBrick(const setid: string; const nsets: integer = 1): TBrickInventory;
+var
+  cloneinv, setinv, inv: TBrickInventory;
+  n, j: integer;
+begin
+  Reorganize;
+  cloneinv := Clone;
+  cloneinv.LegacyColorMerge;
+  cloneinv.BaseBrickMerge;
+  Result := TBrickInventory.Create;
+  inv := db.GetSetInventory(setid);
+  if inv <> nil then
+  begin
+    setinv := inv.Clone;
+    setinv.LegacyColorMerge;
+    setinv.BaseBrickMerge;
     for j := 0 to setinv.numlooseparts - 1 do
     begin
       n := cloneinv.LoosePartCount(setinv.flooseparts[j].part, setinv.flooseparts[j].color);
@@ -5886,6 +5979,16 @@ begin
   Result := MissingToBuildInventoryLegacyIgnore(inv) = 0;
 end;
 
+function TBrickInventory.CanBuildInventoryBaseBrick(const inv: TBrickInventory): boolean;
+begin
+  Result := MissingToBuildInventoryBaseBrick(inv) = 0;
+end;
+
+function TBrickInventory.CanBuildInventoryLegacyBaseBrick(const inv: TBrickInventory): boolean;
+begin
+  Result := MissingToBuildInventoryLegacyBaseBrick(inv) = 0;
+end;
+
 function TBrickInventory.MissingToBuildInventory(const inv: TBrickInventory): integer;
 var
   j, n: integer;
@@ -5917,6 +6020,36 @@ begin
   clone2.Free;
 end;
 
+function TBrickInventory.MissingToBuildInventoryBaseBrick(const inv: TBrickInventory): integer;
+var
+  clone1, clone2: TBrickInventory;
+begin
+  Reorganize;
+  clone1 := Clone;
+  clone1.BaseBrickMerge;
+  clone2 := inv.Clone;
+  clone2.BaseBrickMerge;
+  Result := clone1.MissingToBuildInventory(clone2);
+  clone1.Free;
+  clone2.Free;
+end;
+
+function TBrickInventory.MissingToBuildInventoryLegacyBaseBrick(const inv: TBrickInventory): integer;
+var
+  clone1, clone2: TBrickInventory;
+begin
+  Reorganize;
+  clone1 := Clone;
+  clone1.LegacyColorMerge;
+  clone1.BaseBrickMerge;
+  clone2 := inv.Clone;
+  clone2.LegacyColorMerge;
+  clone2.BaseBrickMerge;
+  Result := clone1.MissingToBuildInventory(clone2);
+  clone1.Free;
+  clone2.Free;
+end;
+
 function TBrickInventory.InventoryForMissingToBuildInventory(const inv: TBrickInventory): TBrickInventory;
 var
   j, n: integer;
@@ -5943,6 +6076,36 @@ begin
   clone1.LegacyColorMerge;
   clone2 := inv.Clone;
   clone2.LegacyColorMerge;
+  Result := clone1.InventoryForMissingToBuildInventory(clone2);
+  clone1.Free;
+  clone2.Free;
+end;
+
+function TBrickInventory.InventoryForMissingToBuildInventoryBaseBrick(const inv: TBrickInventory): TBrickInventory;
+var
+  clone1, clone2: TBrickInventory;
+begin
+  Reorganize;
+  clone1 := Clone;
+  clone1.BaseBrickMerge;
+  clone2 := inv.Clone;
+  clone2.BaseBrickMerge;
+  Result := clone1.InventoryForMissingToBuildInventory(clone2);
+  clone1.Free;
+  clone2.Free;
+end;
+
+function TBrickInventory.InventoryForMissingToBuildInventoryLegacyBaseBrick(const inv: TBrickInventory): TBrickInventory;
+var
+  clone1, clone2: TBrickInventory;
+begin
+  Reorganize;
+  clone1 := Clone;
+  clone1.LegacyColorMerge;
+  clone1.BaseBrickMerge;
+  clone2 := inv.Clone;
+  clone2.LegacyColorMerge;
+  clone2.BaseBrickMerge;
   Result := clone1.InventoryForMissingToBuildInventory(clone2);
   clone1.Free;
   clone2.Free;

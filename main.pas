@@ -834,7 +834,7 @@ type
     procedure ShowMissingFromStorageBins;
     procedure ShowPartsWithUnknownLocation;
     procedure ShowCheckStorageReport;
-    procedure ShowMissingToBuildSetInventory(const setid: string; const numsets: integer; legacyignore: boolean);
+    procedure ShowMissingToBuildSetInventory(const setid: string; const numsets: integer; const flags: LongWord);
     procedure ShowExpensiveSetLotsNew(const setid: string; const numlots: integer);
     procedure ShowExpensiveSetLotsUsed(const setid: string; const numlots: integer);
     procedure ShowExpensiveInvNew(const atitle: string; const numlots: integer);
@@ -1017,6 +1017,10 @@ const
 
 const
   FLG_SP_NO_ALIAS = 1;  // .ShowPiece
+
+const
+  MBS_LEGACYCOLOR = 1;
+  MBS_BASEBRICK = 2;
 
 type
   TThumbnailCacheInfo = class(TObject)
@@ -4952,15 +4956,19 @@ begin
     if missing = 0 then
       DrawHeadLine('You can built this set! <a href=buildset/' + Trim(setid) + '>(Built it!)</a>')
     else
-      DrawHeadLine(Format('%d part' + decide(missing = 1, ' is', 's are') + ' missing to build a copy of this set (%2.2f%s) (<a href="missingtobuildset/%s">show</a>)',
-        [missing, dbl_safe_div(missing * 100, newinv.totallooseparts), '%', Trim(setid)]));
+      DrawHeadLine(
+        Format('%d part' + decide(missing = 1, ' is', 's are') +
+          ' missing to build a copy of this set (%2.2f%s) (<a href="missingtobuildset/%s">show parts</a>) (<a href="missingtobuildsetBB/%s">show base content</a>)',
+          [missing, dbl_safe_div(missing * 100, newinv.totallooseparts), '%', Trim(setid), Trim(setid)]));
     document.write('</td>');
 
     document.write('<td width 25%>');
 
     missing2 := inventory.MissingToBuildSetLegacyIgnore(Trim(setid));
-    DrawHeadLine(Format('%d part' + decide(missing2 <= 1, ' is', 's are') + ' missing to build a copy of this set ignoring legacy colors (%2.2f%s) (<a href="missingtobuildsetLI/%s">show</a>)',
-      [missing2, dbl_safe_div(missing2 * 100, newinv.totallooseparts), '%', Trim(setid)]));
+    DrawHeadLine(
+      Format('%d part' + decide(missing2 <= 1, ' is', 's are') +
+        ' missing to build a copy of this set ignoring legacy colors (%2.2f%s) (<a href="missingtobuildsetLI/%s">show parts</a>) (<a href="missingtobuildsetLIBB/%s">show base content</a>)',
+        [missing2, dbl_safe_div(missing2 * 100, newinv.totallooseparts), '%', Trim(setid), Trim(setid)]));
 
     document.write('</td><td width 25%>');
 
@@ -5402,14 +5410,18 @@ begin
   if missing = 0 then
     DrawHeadLine('You can built this set! <a href=buildset/' + Trim(setid) + '>(Built it!)</a>')
   else
-    DrawHeadLine(Format('%d part' + decide(missing = 1, ' is', 's are') + ' missing to build a copy of this set (%2.2f%s) (<a href="missingtobuildset/%s">show</a>)',
-      [missing, dbl_safe_div(missing * 100, inv.totallooseparts), '%', Trim(setid)]));
+    DrawHeadLine(
+      Format('%d part' + decide(missing = 1, ' is', 's are') +
+        ' missing to build a copy of this set (%2.2f%s) (<a href="missingtobuildset/%s">show parts</a>) (<a href="missingtobuildsetBB/%s">show base content</a>)',
+        [missing, dbl_safe_div(missing * 100, inv.totallooseparts), '%', Trim(setid), Trim(setid)]));
 
   document.write('</td><td width 33%>');
 
   missing2 := inventory.MissingToBuildSetLegacyIgnore(Trim(setid));
-  DrawHeadLine(Format('%d part' + decide(missing2 <= 1, ' is', 's are') + ' missing to build a copy of this set ignoring legacy colors (%2.2f%s) (<a href="missingtobuildsetLI/%s">show</a>)',
-    [missing2, dbl_safe_div(missing2 * 100, inv.totallooseparts), '%', Trim(setid)]));
+  DrawHeadLine(
+    Format('%d part' + decide(missing2 <= 1, ' is', 's are') +
+      ' missing to build a copy of this set ignoring legacy colors (%2.2f%s) (<a href="missingtobuildsetLI/%s">show parts</a>) (<a href="missingtobuildsetLIBB/%s">show base content</a>)',
+      [missing2, dbl_safe_div(missing2 * 100, inv.totallooseparts), '%', Trim(setid), Trim(setid)]));
 
   document.write('</td><td width 33%>');
 
@@ -11358,9 +11370,11 @@ begin
   Screen.Cursor := crDefault;
 end;
 
-procedure TMainForm.ShowMissingToBuildSetInventory(const setid: string; const numsets: integer; legacyignore: boolean);
+procedure TMainForm.ShowMissingToBuildSetInventory(const setid: string; const numsets: integer; const flags: LongWord);
 var
-  inv, sinv: TBrickInventory;
+  inv, inv2, sinv: TBrickInventory;
+  legacyignore: boolean;
+  basebrickignore: boolean;
   missing: integer;
   s1: string;
   nparts: integer;
@@ -11368,18 +11382,32 @@ var
 begin
   Screen.Cursor := crHourGlass;
 
+  legacyignore := flags and MBS_LEGACYCOLOR <> 0;
+  basebrickignore := flags and MBS_BASEBRICK <> 0;
+
   if domultipagedocuments then
-    document.NewMultiPageDocument('ShowMissingToBuildSetInventory', setid + '_' + itoa(numsets) + '_' + itoa(intval(legacyignore)));
+    document.NewMultiPageDocument('ShowMissingToBuildSetInventory', setid + '_' + itoa(numsets) + '_' + itoa(flags));
 
   document.write('<body background="splash.jpg">');
   document.title('Missing to build set ' + setid);
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
-  if legacyignore then
+
+  if legacyignore and basebrickignore then
+  begin
+    inv := inventory.InventoryForMissingToBuildSetLegacyBaseBrick(setid, numsets);
+    legstr := 'BaseBrickLegacyIgnore_';
+  end
+  else if legacyignore then
   begin
     inv := inventory.InventoryForMissingToBuildSetLegacyIgnore(setid, numsets);
     legstr := 'LegacyIgnore_';
+  end
+  else if basebrickignore then
+  begin
+    inv := inventory.InventoryForMissingToBuildSetBaseBrick(setid, numsets);
+    legstr := 'BaseBrick_';
   end
   else
   begin
@@ -11464,10 +11492,20 @@ begin
     end;
   end;
 
-  if legacyignore then
+  if legacyignore and basebrickignore then
+  begin
+    DrawHeadLine('(Base inventory content ignoring legacy colors)');
+    DrawHeadLine(Format('<a href="missingtobuildsetLIBB/%s/%d">Check to build %d sets</a>', [setid, numsets + 1, numsets + 1]));
+  end
+  else if legacyignore then
   begin
     DrawHeadLine('(Ignoring legacy colors)');
     DrawHeadLine(Format('<a href="missingtobuildsetLI/%s/%d">Check to build %d sets</a>', [setid, numsets + 1, numsets + 1]));
+  end
+  else if basebrickignore then
+  begin
+    DrawHeadLine('(Base inventory content)');
+    DrawHeadLine(Format('<a href="missingtobuildsetBB/%s/%d">Check to build %d sets</a>', [setid, numsets + 1, numsets + 1]));
   end
   else
     DrawHeadLine(Format('<a href="missingtobuildset/%s/%d">Check to build %d sets</a>', [setid, numsets + 1, numsets + 1]));
@@ -14655,12 +14693,22 @@ begin
   else if Pos1('missingtobuildset/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
-    ShowMissingToBuildSetInventory(s2, StrToIntDef(s3, 1), False);
+    ShowMissingToBuildSetInventory(s2, StrToIntDef(s3, 1), 0);
   end
   else if Pos1('missingtobuildsetLI/', slink) then
   begin
     splitstring(slink, s1, s2, s3, '/');
-    ShowMissingToBuildSetInventory(s2, StrToIntDef(s3, 1), True);
+    ShowMissingToBuildSetInventory(s2, StrToIntDef(s3, 1), MBS_LEGACYCOLOR);
+  end
+  else if Pos1('missingtobuildsetBB/', slink) then
+  begin
+    splitstring(slink, s1, s2, s3, '/');
+    ShowMissingToBuildSetInventory(s2, StrToIntDef(s3, 1), MBS_BASEBRICK);
+  end
+  else if Pos1('missingtobuildsetLIBB/', slink) then
+  begin
+    splitstring(slink, s1, s2, s3, '/');
+    ShowMissingToBuildSetInventory(s2, StrToIntDef(s3, 1), MBS_LEGACYCOLOR or MBS_BASEBRICK);
   end
   else if Pos1('DownloadSetPageFromBrickSet/', slink) then
   begin

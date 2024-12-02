@@ -94,6 +94,10 @@ type
     PopupMenu1: TPopupMenu;
     Paste1: TMenuItem;
     Copy1: TMenuItem;
+    ScrollBox2: TScrollBox;
+    LBImage: TImage;
+    ScrollBox3: TScrollBox;
+    OrImage: TImage;
     procedure SpeedButton1Click(Sender: TObject);
     procedure SpeedButton2Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -123,6 +127,7 @@ type
     procedure PopupMenu1Popup(Sender: TObject);
     procedure Paste1Click(Sender: TObject);
     procedure Copy1Click(Sender: TObject);
+    procedure PageControl1Change(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -131,6 +136,7 @@ type
     partname: string;
     imgchanged: boolean;
     procedure AliasUpdate;
+    procedure UpdateImageThumbs(const flags: integer);
   public
     { Public declarations }
   end;
@@ -897,11 +903,13 @@ end;
 procedure TEditPieceForm.LugbulksListBoxClick(Sender: TObject);
 begin
   PreferLugbulkButton.Enabled := (LugbulksListBox.Items.Count > 0) and (LugbulksListBox.ItemIndex > -1);
+  UpdateImageThumbs(1);
 end;
 
 procedure TEditPieceForm.OrdersListBoxClick(Sender: TObject);
 begin
   PreferOrderButton.Enabled := (OrdersListBox.Items.Count > 0) and (OrdersListBox.ItemIndex > -1);
+  UpdateImageThumbs(2);
 end;
 
 procedure TEditPieceForm.ClearPrefSpeedButtonClick(Sender: TObject);
@@ -963,6 +971,70 @@ begin
     Clipboard.Assign(Image1.Picture.Bitmap);
   finally
   end;
+end;
+
+procedure TEditPieceForm.UpdateImageThumbs(const flags: integer);
+var
+  idx: integer;
+  fninput, fnoutput, lugbulkid, orderid: string;
+
+  procedure ClearImage(const img: TImage);
+  var
+    C: TCanvas;
+  begin
+    C := img.Picture.Bitmap.Canvas;
+    C.Pen.Color := clWhite;
+    C.Pen.Style := psSolid;
+    C.Brush.Color := clWhite;
+    C.Brush.Style := bsSolid;
+    C.Rectangle(0, 0, img.Picture.Bitmap.Width + 1, img.Picture.Bitmap.Height + 1);
+  end;
+
+begin
+  if flags and 1 <> 0 then
+  begin
+    idx := LugbulksListBox.ItemIndex;
+    if idx >= 0 then
+    begin
+      lugbulkid := 'LUGBULK-' + firstword(LugbulksListBox.Items.Strings[idx], ':');
+      fninput := basedefault + '-1\' + lugbulkid + '.png';
+      fnoutput := basedefault + '-1\' + lugbulkid + '.th128.png';
+      if not fexists(fnoutput) then
+        if fexists(fninput) then
+          ResizePng2Png(fninput, fnoutput, false, 128, 128);
+      if fexists(fnoutput) then
+        LBImage.Picture.LoadFromFile(fnoutput)
+      else
+        ClearImage(LBImage);
+    end
+    else
+      ClearImage(LBImage);
+  end;
+
+  if flags and 2 <> 0 then
+  begin
+    idx := OrdersListBox.ItemIndex;
+    if idx >= 0 then
+    begin
+      orderid := firstword(OrdersListBox.Items.Strings[idx], ':');
+      fninput := basedefault + 'orders\' + orderid + '.png';
+      fnoutput := basedefault + 'orders\' + orderid + '.th128.png';
+      if not fexists(fnoutput) then
+        if fexists(fninput) then
+          ResizePng2Png(fninput, fnoutput, false, 128, 128);
+      if fexists(fnoutput) then
+        OrImage.Picture.LoadFromFile(fnoutput)
+      else
+        ClearImage(OrImage);
+    end
+    else
+      ClearImage(OrImage);
+  end;
+end;
+
+procedure TEditPieceForm.PageControl1Change(Sender: TObject);
+begin
+  UpdateImageThumbs(3);
 end;
 
 end.

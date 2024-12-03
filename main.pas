@@ -3480,6 +3480,7 @@ begin
       (tmpstor.Objects[idx] as TCInteger).Add(num);
     end;
 
+    tmpstor.Sort;
     for i := 0 to tmpstor.Count - 1 do
     begin
       num := (tmpstor.Objects[i] as TCInteger).value;

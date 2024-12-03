@@ -152,6 +152,16 @@ uses
   bi_db, bi_delphi, bi_utils, bi_crawler, bi_globals, frm_selectparttype,
   frm_editbllink, bi_readylist, bi_orders, bl_orderxml;
 
+function sortorderlist(List: TStringList; Index1, Index2: Integer): Integer;
+var
+  o1, o2: string;
+  s1, s2: string;
+begin
+  splitstring(List.Strings[Index1], o1, s1, ':');
+  splitstring(List.Strings[Index2], o2, s2, ':');
+  Result := atoi(o1) - atoi(o2);
+end;
+
 function EditPiece(const apart: string; const color: integer): boolean;
 var
   f: TEditPieceForm;
@@ -174,6 +184,7 @@ var
   newreadylistqty: integer;
   oldtags: TStringList;
   newtags: TStringList;
+  olst: TStringList;
   i: integer;
   tagchange: boolean;
   islikeset: Boolean;
@@ -294,16 +305,24 @@ begin
         try f.LugbulksListBox.ItemIndex := 0 except end;
       f.PreferLugbulkButton.Enabled := f.LugbulksListBox.Items.Count > 0;
 
+      olst := TStringList.Create;
       oinf := orders.ItemInfo(apart, color);
       if oinf <> nil then
         for i := 0 to oinf.Count - 1 do
         begin
           oitem := oinf.Objects[i] as TOrderItemInfo;
           if (oitem.orderstatus <> 'NSS') and (oitem.orderstatus <> 'Canceled') and (oitem.orderstatus <> 'Cancelled') then
-            f.OrdersListBox.Items.Add(itoa(oitem.orderid) + ': ' + itoa(oitem.num));
+            olst.Add(itoa(oitem.orderid) + ': ' + itoa(oitem.num));
         end;
-      if f.OrdersListBox.Items.Count > 0 then
+      if olst.Count > 0 then
+      begin
+        olst.CustomSort(sortorderlist);
+        for i := 0 to olst.Count - 1 do
+          f.OrdersListBox.Items.Add(olst.Strings[i]);
         try f.OrdersListBox.ItemIndex := 0 except end;
+      end;
+      olst.Free;
+
       f.PreferOrderButton.Enabled := f.OrdersListBox.Items.Count > 0;
 
       for i := 0 to oldtags.Count - 1 do

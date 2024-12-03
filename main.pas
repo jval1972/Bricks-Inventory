@@ -3106,10 +3106,28 @@ begin
   lst.Free;
 end;
 
+function sortpiecelist_TOrderItemInfo(List: TStringList; Index1, Index2: Integer): Integer;
+var
+  o1, o2: TOrderItemInfo;
+  v1, v2: integer;
+begin
+  o1 := List.Objects[Index1] as TOrderItemInfo;
+  o2 := List.Objects[Index2] as TOrderItemInfo;
+  if o1 <> nil then
+    v1 := o1.orderid
+  else
+    v1 := 0;
+  if o2 <> nil then
+    v2 := o2.orderid
+  else
+    v2 := 0;
+  Result := v1 - v2;
+end;
+
 procedure TMainForm.DrawBrickOrderInfo(const brick: brickpool_p; const setid: string = '';
   const aspan1: integer = -1; const aspan2: integer = -1; const showreadylist: boolean = false);
 var
-  oinf: TStringList;
+  oinf, inflst: TStringList;
   oitem: TOrderItemInfo;
   i, j, p, k: integer;
   curconv: Double;
@@ -3153,9 +3171,14 @@ begin
   sspan2 := itoa(span2);
   sspan3 := itoa(span1 + span2 + 1);
 
-  oinf := orders.ItemInfo(brick.part, brick.color);
-  if oinf <> nil then
+  inflst := orders.ItemInfo(brick.part, brick.color);
+  if inflst <> nil then
   begin
+    oinf := TStringList.Create;
+    oinf.Assign(inflst);
+    oinf.Sorted := False;
+    oinf.CustomSort(sortpiecelist_TOrderItemInfo);
+
     for i := 0 to oinf.Count - 1 do
     begin
       oitem := oinf.Objects[i] as TOrderItemInfo;
@@ -3218,6 +3241,8 @@ begin
 
       document.write('</tr>');
     end;
+
+    oinf.Free;
   end;
 
   if dismantaledsetsinv <> nil then
@@ -3355,7 +3380,7 @@ end;
 
 procedure TMainForm.DrawBrickOrderInfoLite(const brick: brickpool_p; const needed: integer; const setid: string = '');
 var
-  oinf: TStringList;
+  oinf, inflst: TStringList;
   oitem: TOrderItemInfo;
   i, j: integer;
   inv, inv2: TBrickInventory;
@@ -3374,8 +3399,14 @@ begin
     Exit;
 
   document.write('<td width=30%>');
-  oinf := orders.ItemInfo(brick.part, brick.color);
-  if oinf <> nil then
+  inflst := orders.ItemInfo(brick.part, brick.color);
+  if inflst <> nil then
+  begin
+    oinf := TStringList.Create;
+    oinf.Assign(inflst);
+    oinf.Sorted := False;
+    oinf.CustomSort(sortpiecelist_TOrderItemInfo);
+
     for i := 0 to oinf.Count - 1 do
     begin
       oitem := oinf.Objects[i] as TOrderItemInfo;
@@ -3393,6 +3424,9 @@ begin
            oitem.num]);
       end;
     end;
+    
+    oinf.Free;
+  end;
 
   if dismantaledsetsinv <> nil then
     if dismantaledsetsinv.LoosePartCount(brick.part, brick.color) > 0 then
@@ -11204,6 +11238,7 @@ begin
     spart := inventory.looseparts[j].part;
     color := inventory.looseparts[j].color;
     oinf := orders.ItemInfo(spart, color);
+    oinf.CustomSort(sortpiecelist_TOrderItemInfo);
     if oinf <> nil then
     begin
       for i := 0 to oinf.Count - 1 do

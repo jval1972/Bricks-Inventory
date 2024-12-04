@@ -12235,6 +12235,26 @@ begin
     inv.SaveLooseParts(s1 + '.txt');
     setids.SaveToFile(s1 + '_sets.txt');
   end
+  else if setids = Missingforwishlist then
+  begin
+    s1 := basedefault + 'out\wishlistsetsquery\';
+    if not DirectoryExists(s1) then
+      ForceDirectories(s1);
+    sinv.SaveLooseParts(s1 + 'all_parts.txt');
+    s1 := s1 + 'missing_multisetsquery';
+    inv.SaveLooseParts(s1 + '.txt');
+    setids.SaveToFile(s1 + '_sets.txt');
+  end
+  else if setids = Missingformocs then
+  begin
+    s1 := basedefault + 'out\mocsmultisetquery\';
+    if not DirectoryExists(s1) then
+      ForceDirectories(s1);
+    sinv.SaveLooseParts(s1 + 'all_parts.txt');
+    s1 := s1 + 'missing_multisetsquery';
+    inv.SaveLooseParts(s1 + '.txt');
+    setids.SaveToFile(s1 + '_sets.txt');
+  end
   else
   begin
     s1 := basedefault + 'out\multisetsquery\';

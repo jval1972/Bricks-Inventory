@@ -2152,6 +2152,10 @@ object MainForm: TMainForm
           Caption = 'Missing for wish list'
           OnClick = Missingforwishlist1Click
         end
+        object Missingforbiultmocs1: TMenuItem
+          Caption = 'Missing for built mocs'
+          OnClick = Missingforbiultmocs1Click
+        end
       end
       object N47: TMenuItem
         Caption = '-'

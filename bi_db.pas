@@ -294,6 +294,7 @@ type
     function GetMoldList: TStringList;
     function GetDismandaledSets: TStringList;
     function GetWishList: TStringList;
+    function GetMocsList: TStringList;
     function GetHistoryStatsRec: brickstatshistory_t;
     function GetHistoryEvalRec: brickevalhistory_t;
     procedure StoreHistoryStatsRec(const fn: string; const pl: integer = 0);
@@ -4642,6 +4643,17 @@ begin
   for i := 0 to fnumsets - 1 do
     for j := 0 to fsets[i].numwishlist - 1 do
       Result.Add(fsets[i].setid)
+end;
+
+function TBrickInventory.GetMocsList: TStringList;
+var
+  i, j: integer;
+begin
+  Result := TStringList.Create;
+  for i := 0 to fnumsets - 1 do
+    if db.IsMoc(fsets[i].setid) then
+      for j := 0 to fsets[i].num - 1 do
+        Result.Add(fsets[i].setid)
 end;
 
 function TBrickInventory.GetHistoryEvalRec: brickevalhistory_t;

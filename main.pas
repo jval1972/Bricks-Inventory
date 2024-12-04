@@ -411,6 +411,7 @@ type
     InventiryPieceswithoutupdateinrange1: TMenuItem;
     OpenItemPU2: TMenuItem;
     CollectionStatistics1: TMenuItem;
+    Missingforbiultmocs1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -691,6 +692,7 @@ type
     procedure InventiryPieceswithoutupdateinrange1Click(Sender: TObject);
     procedure OpenItemPU2Click(Sender: TObject);
     procedure CollectionStatistics1Click(Sender: TObject);
+    procedure Missingforbiultmocs1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -1247,6 +1249,7 @@ begin
     Missingfordismandaledsetslist.LoadFromFile(s1);
 
   Missingforwishlist := TStringList.Create;
+  Missingformocs := TStringList.Create;
 
   document := TDocument.Create(HTML);
 
@@ -2847,6 +2850,7 @@ begin
   Missingformultiplesetslist.Free;
   Missingfordismandaledsetslist.Free;
   Missingforwishlist.Free;
+  Missingformocs.Free;
 
   if dismantaledsetsinv <> nil then
     dismantaledsetsinv.Free;
@@ -24368,6 +24372,18 @@ begin
 
   for i := 0 to NUMINVSTATITEMS - 1 do
     memfree(pointer(parts_p[i]), SizeOf(intcolorarray_t));
+end;
+
+procedure TMainForm.Missingforbiultmocs1Click(Sender: TObject);
+var
+  foo: Boolean;
+  lst: TStringList;
+begin
+  lst := inventory.GetMocsList;
+  Missingformocs.Text := lst.Text;
+  lst.Free;
+  if SelectSets(Missingformocs) then
+    HTMLClick('multymissing/' + IntToStr(Integer(Missingformocs)), foo);
 end;
 
 end.

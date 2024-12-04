@@ -708,6 +708,7 @@ type
     Missingformultiplesetslist: TStringList;
     Missingfordismandaledsetslist: TStringList;
     Missingforwishlist: TStringList;
+    Missingformocs: TStringList;
     lastset: string;
     dismantaledsetsinv: TBrickInventory;
     dismantaledsetslst: TStringList;
@@ -850,7 +851,7 @@ type
     procedure ShowLugbulkSuggestions(const years: string; const demand, sold: integer; const price: double);
     procedure ShowCompare2Sets(const set1, set2: string);
     procedure ShowCommon2Sets(const set1, set2: string);
-    procedure ShowOrders(const seller: string = '');
+    procedure ShowOrders(const seller: string = ''; const ayear: integer = 0);
     procedure ShowOrder(const orderid: string);
     procedure DrawOrderInf(const orderid: string);
     procedure ShowLugbulk(const year: string; const catid: integer  = -1);
@@ -1589,7 +1590,7 @@ begin
   document.write('</table>');
 end;
 
-procedure TMainForm.ShowOrders(const seller: string = '');
+procedure TMainForm.ShowOrders(const seller: string = ''; const ayear: integer = 0);
 var
   aa, i, j: integer;
   tot, grantot: Double;
@@ -1600,17 +1601,24 @@ var
   oo: IXMLORDERType;
   orderslist: TDNumberList;
   sorder, orderid, sthumb: string;
+  ok: boolean;
+  tit: string;
+  prefix: string;
 begin
   Screen.Cursor := crHourglass;
 
   if domultipagedocuments then
-    document.NewMultiPageDocument('ShowOrders', seller);
+    document.NewMultiPageDocument('ShowOrders_' + seller,  itoa(ayear));
 
   document.write('<body background="splash.jpg">');
-  if seller = '' then
-    document.title('Orders')
-  else
-    document.title('Orders (' + seller + ')');
+
+  tit := 'Orders';
+  if seller <> '' then
+    tit := tit + ' (' + seller + ')';
+  if ayear > 2013 then
+    tit := tit + ' (' + itoa(ayear) + ')';
+  document.title(tit);
+
   DrawNavigateBar;
   document.write('<div style="color:' + DFGCOLOR + '">');
   document.write('<p align=center>');
@@ -1647,10 +1655,22 @@ begin
   orderslist := TDNumberList.Create;
   for i := 0 to orders.numorders - 1 do
     for j := 0 to orders.orders[i].Count - 1 do
-      if (seller = '') or (orders.orders[i].ORDER[j].SELLER = seller) then
+    begin
+      ok := True;
+      if (seller <> '') and (orders.orders[i].ORDER[j].SELLER <> seller) then
+        ok := False;
+      if (ayear > 2013) and (itoa(ayear) <> LeftStr(orders.orders[i].ORDER[j].ORDERDATE, 4)) then
+        ok := False;
+      if ok then
         orderslist.Add(orders.orders[i].ORDER[j].ORDERID);
+    end;
 
   orderslist.Sort;
+
+  if seller = '' then
+    prefix := 'orders'
+  else
+    prefix := 'sellerorders/' + seller;
 
   for i := 0 to orderslist.Count - 1 do
   begin
@@ -1667,11 +1687,15 @@ begin
     document.write(
       '<tr bgcolor=' + TBGCOLOR + '>' +
       '<td width=5% align=right>' + IntToStr(aa) + '.</td>' +
-      '<td width=10%>' + sthumb + '<a href=order/' + orderid + '>#' + orderid + '</a></td>' +
-      '<td width=10% align=right>' + oo.ORDERDATE + '</td>'
+      '<td width=10%>' + sthumb + '<a href=order/' + orderid + '>#' + orderid + '</a></td>'
     );
+    if ayear > 2013 then
+      document.write('<td width=10% align=right>' + oo.ORDERDATE + '</td>')
+    else
+      document.write('<td width=10% align=right><a href="' + prefix + '/' + LeftStr(oo.ORDERDATE, 4) + '">' + LeftStr(oo.ORDERDATE, 4) + '</a>' + RightStr(oo.ORDERDATE, length(oo.ORDERDATE) - 4) + '</td>');
+
     if seller = '' then
-      document.write('<td width=19%><a href=sellerorders/' + oo.SELLER + '>' + oo.SELLER + '</a></td>')
+      document.write('<td width=19%><a href=sellerorders/' + oo.SELLER + '/' + itoa(ayear) + '>' + oo.SELLER + '</a></td>')
     else
       document.write('<td width=19%>' + oo.SELLER + '</td>');
     if oo.ORDERSTATUS = 'NSS' then
@@ -14969,10 +14993,15 @@ begin
   begin
     ShowOrders;
   end
-  else if Pos1('sellerorders/', slink) then
+  else if Pos1('orders/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
-    ShowOrders(s2);
+    ShowOrders('', atoi(s2));
+  end
+  else if Pos1('sellerorders/', slink) then
+  begin
+    splitstring(slink, s1, s2, s3, '/');
+    ShowOrders(s2, atoi(s3));
   end
   else if Pos1('showtag/', slink) then
   begin

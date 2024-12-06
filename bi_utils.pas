@@ -662,6 +662,10 @@ begin
     m.SaveToFile(tmp);
     try
       img.Picture.LoadFromFile(tmp);
+      img.Picture.Bitmap.Width := img.Picture.Graphic.Width;
+      img.Picture.Bitmap.Height := img.Picture.Graphic.Height;
+      img.Picture.Bitmap.PixelFormat := pf32bit;
+      img.Picture.Bitmap.Canvas.Draw(0, 0, img.Picture.Graphic);
       Result := True;
     except
       printf('Image %s is invalid '#13#10,[path]);

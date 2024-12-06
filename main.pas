@@ -11234,7 +11234,7 @@ procedure TMainForm.ShowPartsWithUnknownLocation;
 var
   inv, inv2, knownlocationinv: TBrickInventory;
   missing: integer;
-  oinf: TStringList;
+  oinf, inflst: TStringList;
   oitem: TOrderItemInfo;
   i, j: integer;
   spart: string;
@@ -11266,15 +11266,21 @@ begin
   begin
     spart := inventory.looseparts[j].part;
     color := inventory.looseparts[j].color;
-    oinf := orders.ItemInfo(spart, color);
-    oinf.CustomSort(sortpiecelist_TOrderItemInfo);
-    if oinf <> nil then
+    inflst := orders.ItemInfo(spart, color);
+    if inflst <> nil then
     begin
+      oinf := TStringList.Create;
+      oinf.Assign(inflst);
+      oinf.Sorted := False;
+      oinf.CustomSort(sortpiecelist_TOrderItemInfo);
+
       for i := 0 to oinf.Count - 1 do
       begin
         oitem := oinf.Objects[i] as TOrderItemInfo;
         knownlocationinv.AddLoosePart(spart, color, oitem.num);
       end;
+
+      oinf.Free;
     end;
   end;
 
@@ -18713,7 +18719,6 @@ var
   lst: TStringList;
   pcs: string;
   pci: TPieceColorInfo;
-  cost: double;
   inv: TBrickInventory;
   s1: string;
   kp: THashStringList;

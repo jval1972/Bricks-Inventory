@@ -374,13 +374,23 @@ begin
       begin
         ok := true;
         for i := x to x2 - 1 do
+        begin
           for j := y to y2 - 1 do
           begin
             if fmosaic[i, j].checked then
+            begin
               ok := false;
+              break;
+            end;
             if fmosaic[i, j].coloridx <> c then
+            begin
               ok := false;
+              break;
+            end;
           end;
+          if not ok then
+            break;
+        end;
         if ok then
         begin
           BitmapDraw(x, y, x2, y2, c);
@@ -398,13 +408,23 @@ begin
       begin
         ok := true;
         for i := x to x2 - 1 do
+        begin
           for j := y to y2 - 1 do
           begin
             if fmosaic[i, j].checked then
+            begin
               ok := false;
+              break;
+            end;
             if fmosaic[i, j].coloridx <> c then
+            begin
               ok := false;
+              break;
+            end;
           end;
+          if not ok then
+            break;
+        end;
         if ok then
         begin
           BitmapDraw(x, y, x2, y2, c);
@@ -451,13 +471,23 @@ begin
       begin
         ok := true;
         for i := x to x2 - 1 do
+        begin
           for j := y to y2 - 1 do
           begin
             if fmosaic[i, j].checked then
+            begin
               ok := false;
+              break;
+            end;
             if fmosaic[i, j].coloridx <> c then
+            begin
               ok := false;
+              break;
+            end;
           end;
+          if not ok then
+            break;
+        end;
         if ok then
         begin
           BitmapDraw(x, y, x2, y2, c);
@@ -475,13 +505,23 @@ begin
       begin
         ok := true;
         for i := x to x2 - 1 do
+        begin
           for j := y to y2 - 1 do
           begin
             if fmosaic[i, j].checked then
+            begin
               ok := false;
+              break;
+            end;
             if fmosaic[i, j].coloridx <> c then
+            begin
               ok := false;
+              break;
+            end;
           end;
+          if not ok then
+            break;
+        end;
         if ok then
         begin
           BitmapDraw(x, y, x2, y2, c);

@@ -34,43 +34,12 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, jpeg, ExtDlgs, ComCtrls, StdCtrls, ExtCtrls, bi_delphi, bi_db,
-  CheckLst, Buttons;
-
-type
-  mosaiccolorindex_t = record
-    idx: integer;
-    pieces: TStringList;
-  end;
+  CheckLst, Buttons, mosaic_base;
 
 const
-  NUMCOLORINDEXES = 36;
+  NUMPLATES = 33;
 
 type
-  mosaicbrick_t = record
-    brick: string[16];
-    plate: string[16];
-    x, y: Integer;
-    colors: TDNumberList;
-    use: Boolean;
-  end;
-
-const
-  NUMPLATES = 32;
-
-const
-  MAXDIMENTION = 256;
-  MOSAICBITMAPZOOM = 16;
-
-type
-  mosaicitem_t = record
-    coloridx: integer;
-    checked: Boolean;
-  end;
-  mosaicitem_p = ^mosaicitem_t;
-
-  mosaic_t = array[0..MAXDIMENTION - 1, 0..MAXDIMENTION - 1] of mosaicitem_t;
-  mosaic_p = ^mosaic_t;
-
   TBrickMosaicPlates = class
   private
     colorindexes: array[0..NUMCOLORINDEXES - 1] of mosaiccolorindex_t;
@@ -170,150 +139,45 @@ uses
   clipbrd, bi_utils, bi_tmp, bi_globals, bi_currency;
 
 const
-  C_bricks: array[0..NUMPLATES - 1] of mosaicbrick_t = (
-    (brick: '3020'; plate: '3020'; x: 2; y: 4; use: true),
-    (brick: '3021'; plate: '3021'; x: 2; y: 3; use: true),
-    (brick: '3022'; plate: '3022'; x: 2; y: 2; use: true),
-    (brick: '3023'; plate: '3023'; x: 1; y: 2; use: true),
-    (brick: '3024'; plate: '3024'; x: 1; y: 1; use: true),
-    (brick: '3832'; plate: '3832'; x: 2; y: 10; use: true),
-    (brick: '3034'; plate: '3034'; x: 2; y: 8; use: true),
-    (brick: '3460'; plate: '3460'; x: 1; y: 8; use: true),
-    (brick: '3666'; plate: '3666'; x: 1; y: 6; use: true),
-    (brick: '3710'; plate: '3710'; x: 1; y: 4; use: true),
-    (brick: '3623'; plate: '3623'; x: 1; y: 3; use: true),
-    (brick: '4477'; plate: '4477'; x: 1; y: 10; use: true),
-    (brick: '60479'; plate: '60479'; x: 1; y: 12; use: true),
-    (brick: '3795'; plate: '3795'; x: 2; y: 6; use: true),
-    (brick: '2445'; plate: ''; x: 2; y: 12; use: true),
-    (brick: '91988'; plate: ''; x: 2; y: 14; use: true),
-    (brick: '4282'; plate: ''; x: 2; y: 16; use: true),
-    (brick: '11212'; plate: ''; x: 3; y: 3; use: true),
-    (brick: '3031'; plate: ''; x: 4; y: 4; use: true),
-    (brick: '3032'; plate: ''; x: 4; y: 6; use: true),
-    (brick: '3035'; plate: ''; x: 4; y: 8; use: true),
-    (brick: '3030'; plate: ''; x: 4; y: 10; use: true),
-    (brick: '3029'; plate: ''; x: 4; y: 12; use: true),
-    (brick: '3958'; plate: ''; x: 6; y: 6; use: true),
-    (brick: '3036'; plate: ''; x: 6; y: 8; use: true),
-    (brick: '3033'; plate: ''; x: 6; y: 10; use: true),
-    (brick: '3028'; plate: ''; x: 6; y: 12; use: true),
-    (brick: '3456'; plate: ''; x: 6; y: 14; use: true),
-    (brick: '3027'; plate: ''; x: 6; y: 16; use: true),
-    (brick: '41539'; plate: ''; x: 8; y: 8; use: true),
-    (brick: '92438'; plate: ''; x: 8; y: 16; use: true),
-    (brick: '91405'; plate: ''; x: 16; y: 16; use: true)
+  C_plates: array[0..NUMPLATES - 1] of mosaicbrick_t = (
+    (brick: '3020';  x: 2; y: 4; use: true),
+    (brick: '3021';  x: 2; y: 3; use: true),
+    (brick: '3022';  x: 2; y: 2; use: true),
+    (brick: '3023';  x: 1; y: 2; use: true),
+    (brick: '3024';  x: 1; y: 1; use: true),
+    (brick: '78329'; x: 1; y: 5; use: true),
+    (brick: '3832';  x: 2; y: 10; use: true),
+    (brick: '3034';  x: 2; y: 8; use: true),
+    (brick: '3460';  x: 1; y: 8; use: true),
+    (brick: '3666';  x: 1; y: 6; use: true),
+    (brick: '3710';  x: 1; y: 4; use: true),
+    (brick: '3623';  x: 1; y: 3; use: true),
+    (brick: '4477';  x: 1; y: 10; use: true),
+    (brick: '60479'; x: 1; y: 12; use: true),
+    (brick: '3795';  x: 2; y: 6; use: true),
+    (brick: '2445';  x: 2; y: 12; use: true),
+    (brick: '91988'; x: 2; y: 14; use: true),
+    (brick: '4282';  x: 2; y: 16; use: true),
+    (brick: '11212'; x: 3; y: 3; use: true),
+    (brick: '3031';  x: 4; y: 4; use: true),
+    (brick: '3032';  x: 4; y: 6; use: true),
+    (brick: '3035';  x: 4; y: 8; use: true),
+    (brick: '3030';  x: 4; y: 10; use: true),
+    (brick: '3029';  x: 4; y: 12; use: true),
+    (brick: '3958';  x: 6; y: 6; use: true),
+    (brick: '3036';  x: 6; y: 8; use: true),
+    (brick: '3033';  x: 6; y: 10; use: true),
+    (brick: '3028';  x: 6; y: 12; use: true),
+    (brick: '3456';  x: 6; y: 14; use: true),
+    (brick: '3027';  x: 6; y: 16; use: true),
+    (brick: '41539'; x: 8; y: 8; use: true),
+    (brick: '92438'; x: 8; y: 16; use: true),
+    (brick: '91405'; x: 16; y: 16; use: true)
   );
 
-const
-  C_colorindexes: array[0..NUMCOLORINDEXES - 1] of mosaiccolorindex_t = (
-    (idx: 0),
-    (idx: 1),
-    (idx: 2),
-    (idx: 3),
-    (idx: 4),
-    (idx: 5),
-    (idx: 6),
-    (idx: 7),
-    (idx: 8),
-    (idx: 13),
-    (idx: 14),
-    (idx: 15),
-    (idx: 19),
-    (idx: 22),
-    (idx: 25),
-    (idx: 27),
-    (idx: 28),
-    (idx: 29),
-    (idx: 70),
-    (idx: 71),
-    (idx: 72),
-    (idx: 73),
-    (idx: 84),
-    (idx: 85),
-    (idx: 191),
-    (idx: 226),
-    (idx: 272),
-    (idx: 288),
-    (idx: 297),
-    (idx: 308),
-    (idx: 320),
-    (idx: 321),
-    (idx: 326),
-    (idx: 378),
-    (idx: 379),
-    (idx: 484)
-  );
-
-function brickindex(const brick: string): Integer;
-var
-  i: integer;
+function SortListByPrice_Plate(List: TStringList; Index1, Index2: Integer): Integer;
 begin
-  for i := 0 to NUMPLATES - 1 do
-    if brick = C_bricks[i].brick then
-    begin
-      Result := i;
-      Exit;
-    end;
-  Result := -1;
-end;
-
-function brickdimentionx(const brick: string): Integer;
-var
-  i: integer;
-begin
-  for i := 0 to NUMPLATES - 1 do
-    if brick = C_bricks[i].brick then
-    begin
-      Result := C_bricks[i].x;
-      Exit;
-    end;
-  Result := -1;
-end;
-
-function brickdimentiony(const brick: string): Integer;
-var
-  i: integer;
-begin
-  for i := 0 to NUMPLATES - 1 do
-    if brick = C_bricks[i].brick then
-    begin
-      Result := C_bricks[i].y;
-      Exit;
-    end;
-  Result := -1;
-end;
-
-function brickdimentions(const brick: string): Integer;
-var
-  i: integer;
-begin
-  for i := 0 to NUMPLATES - 1 do
-    if brick = C_bricks[i].brick then
-    begin
-      Result := C_bricks[i].x * C_bricks[i].y;
-      Exit;
-    end;
-  Result := -1;
-end;
-
-function SortListByPrice(List: TStringList; Index1, Index2: Integer): Integer;
-var
-  price1, price2: Double;
-begin
-  if Index1 = index2 then
-  begin
-    Result := 0;
-    Exit;
-  end;
-  price1 := (List.Objects[Index1] as TPieceColorInfo).EvaluatePriceUsed / brickdimentions(List.Strings[index1]);
-  price2 := (List.Objects[Index2] as TPieceColorInfo).EvaluatePriceUsed / brickdimentions(List.Strings[index2]);
-  if price1 > price2 then
-    Result := 1
-  else if price1 = price2 then
-    Result := 0
-  else
-    Result := -1;
+  Result := SortListByPrice(@C_plates, NUMPLATES, List, Index1, Index2);
 end;
 
 constructor TBrickMosaicPlates.Create;
@@ -337,7 +201,7 @@ begin
 
   for i := 0 to NUMPLATES - 1 do
   begin
-    bricks[i] := C_bricks[i];
+    bricks[i] := C_plates[i];
     bricks[i].colors := TDNumberList.Create;
   end;
   for i := 0 to NUMCOLORINDEXES - 1 do
@@ -366,7 +230,7 @@ begin
             if pci.EvaluatePriceUsed <= bricks[j].x *  bricks[j].y * price_per_stud then
               colorindexes[i].pieces.AddObject(bricks[j].brick, pci);
         end;
-      colorindexes[i].pieces.CustomSort(SortListByPrice);
+      colorindexes[i].pieces.CustomSort(SortListByPrice_Plate);
     end;
 end;
 
@@ -382,70 +246,6 @@ begin
   inv.Free;
   fbitmap.Free;
   fplanebitmap.Free;
-end;
-
-type
-  THSV = record  // hue saturation value (HSV)
-    Hue, Sat, Val: Double;
-  end;
-
-function RGB2HSV(const c: Tcolor): THSV;
-var
-  Min_, Max_, Delta: Double;
-  H , S , V: Double;
-  R, G, B : Byte;
-begin
-  R := GetRValue(c);
-  G := GetGValue(c);
-  B := GetBValue(c);
-  H := 0.0 ;
-  Min_ := MinI(MinI(R, G), B);
-  Max_ := MaxI(MaxI(R, G), B);
-  Delta := (Max_ - Min_);
-  V := Max_ ;
-  If ( Max_ <> 0.0 ) then
-    S := 255.0 * Delta / Max_
-  else
-    S := 0.0 ;
-  If (S <> 0.0) then
-    begin
-      If R = Max_ then
-        H := (G - B) / Delta
-      else
-        If G = Max_ then
-          H := 2.0 + (B - R) / Delta
-        else
-          If B = Max_ then
-            H := 4.0 + (R - G) / Delta
-    End
-  else
-    H := -1.0 ;
-  H := H * 60 ;
-  If H < 0.0 then
-    H := H + 360.0;
-  with Result Do
-    begin
-      Hue := H ;            // Hue -> 0..360
-      Sat := S * 100 / 255; // Saturation -> 0..100 %
-      Val := V * 100 / 255; // Value - > 0..100 %
-    end;
-end;
-
-type
-  TYUV = record  // hue saturation value (HSV)
-    Y, U, V: Double;
-  end;
-
-function RGB2YUV(const c: Tcolor): TYUV;
-var
-  r, g, b: integer;
-begin
-  r := GetRValue(c);
-  g := GetGValue(c);
-  b := GetBValue(c);
-  result.Y := 0.299 * r + 0.587 * g + 0.114 * b;
-  result.U := -0.14713 * r - 0.28886 * g + 0.436 * b;
-  result.V := 0.615 * r - 0.51499 * g - 0.10001 * b;
 end;
 
 procedure TBrickMosaicPlates.nearestcolorRGB(const c: LongWord; var ret: TColor; var color: integer);
@@ -576,14 +376,14 @@ begin
   for k := 0 to 0 do
   begin
     piece := (pcs.Objects[k] as TPieceColorInfo).piece;
-    idx := brickindex(piece);
+    idx := brickindex(@C_plates, NUMPLATES, piece);
     if idx < 0 then
       Continue;
     if not bricks[idx].use then
       Continue;
 
-    dx := brickdimentionx(piece);
-    dy := brickdimentiony(piece);
+    dx := brickdimentionx(@C_plates, NUMPLATES, piece);
+    dy := brickdimentiony(@C_plates, NUMPLATES, piece);
 
     x2 := x + dx;
     y2 := y + dy;
@@ -653,14 +453,14 @@ begin
   for k := 0 to pcs.Count - 1 do
   begin
     piece := (pcs.Objects[k] as TPieceColorInfo).piece;
-    idx := brickindex(piece);
+    idx := brickindex(@C_plates, NUMPLATES, piece);
     if idx < 0 then
       Continue;
     if not bricks[idx].use then
       Continue;
 
-    dx := brickdimentionx(piece);
-    dy := brickdimentiony(piece);
+    dx := brickdimentionx(@C_plates, NUMPLATES, piece);
+    dy := brickdimentiony(@C_plates, NUMPLATES, piece);
 
     x2 := x + dx;
     y2 := y + dy;
@@ -820,7 +620,7 @@ begin
       end;
     end;
 
-    CheckListBox2.Checked[brickindex('3024')] := true;
+    CheckListBox2.Checked[brickindex(@C_plates, NUMPLATES, '3024')] := true;
     for i := 0 to CheckListBox2.Items.Count - 1 do
       mosaic.bricks[i].use := CheckListBox2.Checked[i];
 

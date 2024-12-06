@@ -156,7 +156,8 @@ uses
   bi_undo in 'bi_undo.pas',
   frm_selectcurrency in 'frm_selectcurrency.pas' {SelectCurrencyForm},
   bi_notes in 'bi_notes.pas',
-  bi_basebrick in 'bi_basebrick.pas';
+  bi_basebrick in 'bi_basebrick.pas',
+  mosaic_base in 'mosaic_base.pas';
 
 {$R *.res}
 

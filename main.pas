@@ -16583,7 +16583,7 @@ begin
 end;
 
 const
-  NUMCROSSCOLORS = 40;
+  NUMCROSSCOLORS = 42;
   CROSSCOLOR: array[0..NUMCROSSCOLORS - 1] of integer = (
     0,
     1,

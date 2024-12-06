@@ -1306,10 +1306,7 @@ begin
     if i > 0 then
       if i < colors.Count - 1 then
         if (i + 1) mod 20 = 0 then
-        begin
-          document.Write('</tr></table>');
-          document.Write('<table border=1><tr>');
-        end;
+          document.Write('</tr></table><table border=1><tr>');
   end;
   document.Write('</tr></table>');
 end;
@@ -1340,10 +1337,7 @@ begin
     end;
   end;
   if x > 0 then
-  begin
-    document.Write('</tr></table>');
-    document.Write('<table border=1><tr>');
-  end;
+    document.Write('</tr></table><table border=1><tr>');
   for i := 0 to colors.Count - 1 do
   begin
     cc := colors.Numbers[i];
@@ -1362,8 +1356,7 @@ begin
       if i < colors.Count - 1 then
         if x mod 20 = 0 then
         begin
-          document.Write('</tr></table>');
-          document.Write('<table border=1><tr>');
+          document.Write('</tr></table><table border=1><tr>');
           x := 0;
         end;
   end;
@@ -1436,14 +1429,12 @@ begin
     '<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogbooks">Books</a></td></tr>' +
     '<tr bgcolor=' + TBGCOLOR + '><td><a href="catalogcatalogs">Catalogs</a></td></tr>' +
 
-    '</table>'
+    '</table>' +
+    '</p></div></body>'
   );
-
-  document.write('</p></div></body>');
 
   document.SaveBufferToFile(diskmirror);
   document.Flash;
-
 end;
 
 procedure TMainForm.DrawHeadLine(const s: string);
@@ -1491,18 +1482,21 @@ begin
   else
   begin
     ww := 100 div ll.Count;
-    document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
-    document.write('<tr bgcolor=' + DBGCOLOR + '>');
+    document.write(
+      '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+      '<tr bgcolor=' + DBGCOLOR + '>'
+    );
     for i := 0 to ll.Count - 1 do
     begin
       if i = 0 then
         document.write('<td width=' + itoa(100 - (ll.Count - 1) * ww) + '%>')
       else
         document.write('<td width=' + itoa(ww) + '%>');
-      document.write('<font color=' + DFGCOLOR + '>');
-      document.write('<h3 align=center>' + (ll.Objects[i] as TString).text + '</h3>');
-      document.write('</font>');
-      document.write('</td>');
+      document.write(
+        '<font color=' + DFGCOLOR + '>' +
+        '<h3 align=center>' + (ll.Objects[i] as TString).text + '</h3>' +
+        '</font></td>'
+      );
     end;
     document.write('</tr></table>');
   end;
@@ -1616,8 +1610,9 @@ begin
   document.title(tit);
 
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   DrawHeadLine('Orders');
 
   document.StartNavigateSection;
@@ -1803,8 +1798,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Storage Bins');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   DrawHeadLine('<a href=storage/>Storage Bins</a> <a href="diagramstorage/Storage Bins"><img src="images\diagram.png">');
 
   document.StartNavigateSection;
@@ -2061,8 +2057,9 @@ begin
   document.title(tit);
 
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   inv := TBrickInventory.Create;
   if doloose then
@@ -2130,8 +2127,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Order #' + orderid);
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   inv := orders.OrderInventory(orderid);
   if inv = nil then
   begin
@@ -3060,8 +3058,8 @@ begin
                   [inv.totallooseparts, inv.numlooseparts]);
   if setid <> '' then
     document.write(' <a href=refreshset/' + setid + '><img src="images\refresh.png"></a>');
-  document.write('</th></table>');
   document.write(
+    '</th></table>' +
     '<tr>' +
     '<td width=34% align="center"><b>Sold</b></td>' +
     '<td width=34% align="center"><b>Available</b></td>' +
@@ -4212,8 +4210,9 @@ begin
     document.write('<body background="splash.jpg">');
     document.title('Inventory Sets/Mocs');
     DrawNavigateBar;
-    document.write('<div style="color:' + DFGCOLOR + '">');
-    document.write('<p align=center>');
+    document.write(
+      '<div style="color:' + DFGCOLOR + '"><p align=center>'
+    );
     link := ''; //'<a href=dismantleallsets>Dismantle All Sets</a> - <a href=buildallsets>Build All Sets</a>';
 
     tot := 0;
@@ -4303,8 +4302,9 @@ begin
       document.write('<th>Num</th>')
     else
     begin
-      document.write('<th>Num Builded</th>');
-      document.write('<th>Num Dismandaled</th>');
+      document.write(
+        '<th>Num Builded</th><th>Num Dismandaled</th>'
+      );
 //      document.write('<th>Num Wish List</th>');
     end;
   end
@@ -4455,8 +4455,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Builted Sets/Mocs');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   tot := 0;
 
@@ -4743,8 +4744,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Set ' + setid);
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   inv := db.GetSetInventory(setid);
   if inv = nil then
   begin
@@ -5096,12 +5098,10 @@ begin
   if lb <> nil then
     lb.Free;
 
-  document.write('<br>');
-  document.write('<br>');
+  document.write('<br><br>');
   if ShowInventorySets(newinv, False, SSINV_FLAG_SETS_AND_MOCS) then
   begin
-    document.write('<br>');
-    document.write('<br>');
+    document.write('<br><br>');
   end;
   document.write('</p>');
 
@@ -5336,8 +5336,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Set ' + setid);
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   inv := db.GetSetInventory(setid);
   if inv = nil then
   begin
@@ -6087,15 +6088,14 @@ begin
 
   document.write('<body background="splash.jpg">');
   document.title('Set ' + setid + ' (preview)');
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   inv := db.GetSetInventory(setid);
   if inv = nil then
   begin
     DrawHeadLine('Can not find inventory for ' + setid + '<br><br>');
-    document.write('<br>');
-    document.write('</p>');
-    document.write('</div>');
+    document.write('<br></p></div>');
 
     tmpsets := TStringList.Create;
     for i := 0 to db.AllSets.Count - 1 do
@@ -6173,9 +6173,8 @@ begin
   begin
     document.write('<br><br>');
   end;
-  document.write('</p>');
 
-  document.write('</div></body>');
+  document.write('</p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   Screen.Cursor := crDefault;
@@ -6194,8 +6193,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Colors');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   inv := inventory;
   if inv = nil then
   begin
@@ -6292,8 +6292,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Tags');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine('Tags');
 
@@ -6495,8 +6496,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title(db.categories[cat].name);
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   inv := inventory;
   if inv = nil then
   begin
@@ -7031,8 +7033,9 @@ begin
     document.write('<body background="splash.jpg">');
     document.title(pcs + ' - ' + db.PieceDesc(pcs));
     DrawNavigateBar;
-    document.write('<div style="color:' + DFGCOLOR + '">');
-    document.write('<p align=center>');
+    document.write(
+      '<div style="color:' + DFGCOLOR + '"><p align=center>'
+    );
 
     if (CharPos('?', pcs) <= 0) and (CharPos('*', pcs) <= 0) and (Trim(pcs) <> '') then
     begin
@@ -7123,8 +7126,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title(pcs + ' - ' + db.PieceDesc(pcs));
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   if idx > 0 then
     prevP := _allpieces.Strings[idx - 1]
@@ -7723,8 +7727,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Catalog Molds');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine(tit);
 
@@ -8096,8 +8101,9 @@ begin
     document.write('<body background="splash.jpg">');
     document.title('Catalog');
     DrawNavigateBar;
-    document.write('<div style="color:' + DFGCOLOR + '">');
-    document.write('<p align=center>');
+    document.write(
+      '<div style="color:' + DFGCOLOR + '"><p align=center>'
+    );
 
     totstr := ' (<a href=ShowCatalogListAll/' + typ + '/' + itoa(year) + '/' + itoa(catid) + '>' + itoa(tot) + ' items</a>)';
     if tit_typ = '' then
@@ -8311,8 +8317,9 @@ begin
   else
     document.title(doctit);
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine(tit);
 
@@ -8420,9 +8427,8 @@ begin
       );
     end;
     mycost := GetItemCostDbl(pcs, cl);
-    document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td>');
+    document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td></tr>');
     mycosttot := mycosttot + mycost * numpieces;
-    document.write('</tr>');
 
     bp.part := pcs;
     bp.color := cl;
@@ -8495,8 +8501,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title(tit);
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine(tit);
 
@@ -8741,21 +8748,24 @@ begin
       prn := pci.EvaluatePriceNew;
       pru := pci.EvaluatePriceUsed;
       www := db.GetItemWeight(pci.piece, pci.color, pi);
-      document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>');
-      document.write('<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>');
+      document.write(
+        '<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(prn), moneyhtml(dbl_safe_div(prn, www) * 1000, 2)]) + '</td>' +
+        '<td width=15% align=right>' + Format('%s<br>%s / Kgr', [moneyhtml(pru), moneyhtml(dbl_safe_div(pru, www) * 1000, 2)]) + '</td>'
+      );
       prnt := prnt + prn * numpieces;
       prut := prut + pru * numpieces;
 
     end
     else
     begin
-      document.write('<td width=15% align=right>-</td>');
-      document.write('<td width=15% align=right>-</td>');
+      document.write(
+        '<td width=15% align=right>-</td>' +
+        '<td width=15% align=right>-</td>'
+      );
     end;
     mycost := GetItemCostDbl(pcs, cl);
-    document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td>');
+    document.write('<td width=10% align=right>' + Format('%s<br>%s', [moneyhtml(mycost), moneyhtml(mycost * numpieces)]) + '</td></tr>');
     mycosttot := mycosttot + mycost * numpieces;
-    document.write('</tr>');
 
     bp.part := pcs;
     bp.color := cl;
@@ -8793,8 +8803,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title(tit);
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine(tit);
 
@@ -9356,8 +9367,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Building instructions for ' + db.PieceDesc(pi));
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   stmp := '';
   if pci <> nil then
@@ -9705,8 +9717,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Sets released at ' + itoa(year));
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine(
     '<a href=ShowSetsAtYear/' + itoa(year - 1) + '>' + itoa(year - 1) + '</a> - ' +
@@ -9853,8 +9866,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title(tit);
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine(tit);
   DrawHeadLine('<a href=multysetinv/' + IntToStr(Integer(setlist)) + '>Show inventory of the above sets</a>');
@@ -10048,8 +10062,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('New sets to buy for partout');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine('New sets to buy for partout');
   document.StartNavigateSection;
@@ -10217,8 +10232,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Used sets to buy for partout');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine('Used sets to buy for partout');
   document.StartNavigateSection;
@@ -10380,8 +10396,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Used sets to built from scratch');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine('Used sets to built from scratch');
   document.StartNavigateSection;
@@ -10595,8 +10612,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('New sets to buy for minifigures');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine('New sets to buy for minifigures');
   document.StartNavigateSection;
@@ -10806,8 +10824,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Used sets to buy for minifigures');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine('Used sets to buy for minifigures');
   document.StartNavigateSection;
@@ -10925,8 +10944,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Sets by num pieces');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine('Sets by num pieces');
 
@@ -11021,8 +11041,9 @@ begin
   tit := Format('Sets by num pieces (from %d to %d)', [x, b]);
   document.title(tit);
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine(tit + Format(' (<a href=ShowSetsPartsBetween/%d/%d>Show all</a>)', [x, b]));
 
@@ -11200,8 +11221,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Missing from Storage Bins');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   inv2 := db.InventoryForAllStorageBins;
   inv := inventory.InventoryForMissingToBuildInventory(inv2);
   inv2.Free;
@@ -11244,8 +11266,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Parts with unknown location');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   knownlocationinv := TBrickInventory.Create;
   inv2 := db.InventoryForAllStorageBins;
   knownlocationinv.MergeWith(inv2);
@@ -11329,8 +11352,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Check Storage Bins For Errors');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   DrawHeadLine('Check Storage Bins For Errors');
   document.write('</p>');
   document.StartNavigateSection;
@@ -11407,9 +11431,7 @@ begin
       if j <> lst.Count then
         document.Write('<br>');
     end;
-    document.write('</td>');
-
-    document.write('</tr>');
+    document.write('</td></tr>');
 
     brick.part := spart;
     brick.color := ncolor;
@@ -11457,8 +11479,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Missing to build set ' + setid);
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   if legacyignore and basebrickignore then
   begin
@@ -11602,8 +11625,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Expensive lots of set ' + setid + ' (NEW)');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   sinv := db.GetSetInventory(setid);
   if sinv = nil then
   begin
@@ -11723,8 +11747,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Expensive lots of set ' + setid + ' (USED)');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   sinv := db.GetSetInventory(setid);
   if sinv = nil then
   begin
@@ -11839,8 +11864,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Expensive lots of my inventory (NEW)');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   sinv := inventory;
 
   if sinv = nil then
@@ -11919,8 +11945,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Expensive lots of my inventory (USED)');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   sinv := inventory;
 
   if sinv = nil then
@@ -11999,8 +12026,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Expensive parts of my inventory (NEW)');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   sinv := inventory;
 
   if sinv = nil then
@@ -12078,8 +12106,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Expensive parts of my inventory (USED)');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   sinv := inventory;
 
   if sinv = nil then
@@ -12159,8 +12188,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title(atitle);
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   sinv := inventory;
 
   if sinv = nil then
@@ -12234,8 +12264,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Missing to build multiple sets');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   sinv := TBrickInventory.Create;
   for i := 0 to setids.Count - 1 do
     sinv.MergeWith(db.GetSetInventory(setids.Strings[i]));
@@ -12360,8 +12391,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Inventory for multiple sets');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   inv := TBrickInventory.Create;
   nlots := 0;
   for i := 0 to setids.Count - 1 do
@@ -12426,8 +12458,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Storage Locations for multiple sets inventory');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   inv := TBrickInventory.Create;
   nlots := 0;
   for i := 0 to setids.Count - 1 do
@@ -12481,8 +12514,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Compare 2 sets');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   inv1 := db.GetSetInventory(set1);
   inv2 := db.GetSetInventory(set2);
 
@@ -12523,9 +12557,7 @@ begin
 //    [miss2, missinv2.numlooseparts, set1, miss2/db.GetSetInventoryWithOutExtra(set1).totallooseparts*100, '%']));
     [miss2, missinv2.numlooseparts, set1, dbl_safe_div(miss2 * 100, inv1.totallooseparts), '%']));
   DrawInventoryTableNoPages(missinv2, True);
-  document.write('</td></tr></table>');
-
-  document.write('<br>');
+  document.write('</td></tr></table><br>');
 
   missinv1.Free;
   missinv2.Free;
@@ -12533,9 +12565,10 @@ begin
 
   commoninv := inv1.CommonInventory(inv2);
 
-  document.write('<table width=100%><tr valign=top>');
-
-  document.write('<td width=100%>');
+  document.write(
+    '<table width=100%><tr valign=top>' +
+    '<td width=100%>'
+  );
   DrawHeadLine(
     Format('<a href="common2sets/%s/%s">Common inventory</a> for sets <a href="sinv/%s">%s</a> and  <a href="sinv/%s">%s</a>',
       [set1, set2, set1, set1, set2, set2])
@@ -12546,9 +12579,7 @@ begin
   DrawInventoryTableNoPages(commoninv, True);
   commoninv.Free;
 
-  document.write('</td></tr></table>');
-
-  document.write('<br>');
+  document.write('</td></tr></table><br>');
 
   doCompareSetParts(set1, set2);
 
@@ -12568,8 +12599,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Common inventory for ' + set1 + ' ' + set2);
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   inv1 := db.GetSetInventory(set1);
   inv2 := db.GetSetInventory(set2);
 
@@ -12598,13 +12630,7 @@ begin
   DrawHeadLine(Format('%d parts in %d lots common parts',
     [commoninv.totallooseparts, commoninv.numlooseparts]));
   DrawInventoryTableNoPages(commoninv, True);
-  document.write('</td>');
-
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('</td><br><br></p></div></body>');
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   commoninv.Free;
@@ -12711,8 +12737,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('My loose parts');
   DrawNavigateBar;
-  document.write('<div style="color:#' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:#' + DFGCOLOR + '"><p align=center>'
+  );
   if (colormask <> -1) and (cat <> -1) then
     DrawHeadLine('Loose Parts - ' +
       IntToStr(inv.numlotsbycatcolor(colormask, cat)) + ' lots, ' +
@@ -15818,8 +15845,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Pieces of my sets');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   inv := TBrickInventory.Create;
   for i := 0 to inventory.numsets - 1 do
@@ -15832,11 +15860,7 @@ begin
   DrawHeadLine('My builded sets Inventory');
 
   DrawInventoryTable(inv, False);
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   inv.Free;
   document.SaveBufferToFile(diskmirror);
   document.Flash;
@@ -15857,8 +15881,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Pieces of my builded sets and mocs');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   inv := TBrickInventory.Create;
   for i := 0 to inventory.numsets - 1 do
@@ -15870,11 +15895,7 @@ begin
   DrawHeadLine('My builded sets and mocs Inventory');
 
   DrawInventoryTable(inv, False);
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   inv.Free;
   document.SaveBufferToFile(diskmirror);
   document.Flash;
@@ -15895,8 +15916,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Pieces of my mocs');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   inv := TBrickInventory.Create;
   for i := 0 to inventory.numsets - 1 do
@@ -15909,11 +15931,7 @@ begin
   DrawHeadLine('My builded mocs Inventory');
 
   DrawInventoryTable(inv, False);
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   inv.Free;
   document.SaveBufferToFile(diskmirror);
   document.Flash;
@@ -15933,8 +15951,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Pieces of my wish list sets');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   inv := TBrickInventory.Create;
   for i := 0 to inventory.numsets - 1 do
@@ -15946,11 +15965,7 @@ begin
   DrawHeadLine('My <a href=mywishlist>wish list</a> sets Inventory');
 
   DrawInventoryTable(inv, False);
-  document.write('<br>');
-  document.write('<br>');
-  document.write('</p>');
-  document.write('</div>');
-  document.write('</body>');
+  document.write('<br><br></p></div></body>');
   inv.Free;
   document.SaveBufferToFile(diskmirror);
   document.Flash;
@@ -15962,8 +15977,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('My Minifigures');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   DrawHeadLine('Bricks Inventory - My Minifigures');
 
   document.write(
@@ -16061,8 +16077,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('My Inventory Value');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   inv1 := TBrickInventory.Create;
   inv2 := TBrickInventory.Create;
@@ -16155,8 +16172,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('My Inventory Stats');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   // inv1: without sets
   inv1 := inventory.Clone;
@@ -16280,13 +16298,11 @@ begin
         Format('(U) %s/stud<br>', [moneyhtml(dbl_safe_div(pci.EvaluatePriceUsed, area))])
       );
     end;
-    document.write('</td>');
+    document.write('</td></tr>');
 
     if pi <> nil then
       if pi.weight > 0.0 then
         totalweight := totalweight + pi.weight * num;
-
-    document.write('</tr>');
   end;
 
 
@@ -16546,13 +16562,11 @@ begin
       );
     end;
 
-    document.write('</td>');
+    document.write('</td></tr>');
 
     if pi <> nil then
       if pi.weight > 0.0 then
         totalweight := totalweight + pi.weight * num;
-
-    document.write('</tr>');
   end;
 
 
@@ -16635,8 +16649,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title(id + 'Stats');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   DrawHeadLine(id);
 
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
@@ -16692,8 +16707,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title(id + 'Stats');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   DrawHeadLine(id);
 
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
@@ -16749,8 +16765,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title(id + 'Stats');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   DrawHeadLine(id);
 
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
@@ -17328,8 +17345,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title(tit);
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine(tit);
   document.StartNavigateSection;
@@ -21387,8 +21405,9 @@ begin
   tit := Format('Sets from %d to %d lots', [a, b]);
   document.title(tit);
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine(tit);
 
@@ -21487,8 +21506,9 @@ begin
   tit := Format('Sets from %d to %d parts', [a, b]);
   document.title(tit);
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine(tit);
 
@@ -24222,9 +24242,11 @@ begin
 
       if (ret1 > 0) and (ret2 > 0) then
       begin
-        document.write('<table width=100% bgcolor=' + TBGCOLOR + ' border=1>');
-        document.write('<th><b>' + SETSTATITEMS[i].titlearea + '</b></th>');
-        document.write('<tr><td>');
+        document.write(
+          '<table width=100% bgcolor=' + TBGCOLOR + ' border=1>' +
+          '<th><b>' + SETSTATITEMS[i].titlearea + '</b></th>' +
+          '<tr><td>'
+        );
         doDrawStats2(parts_p[0], parts_p[1], set1, set2);
         document.write('</td></tr></table><br><br>');
       end;
@@ -24261,12 +24283,16 @@ begin
       if (cp.id <> cc) and (cc <> -1) then
         Continue;
       inc(aa);
-      document.write('<tr bgcolor=' + TBGCOLOR + '>');
-      document.write('<td width=10% align=right>' + itoa(aa) + '.</td>');
-      document.write('<td width=40% align=left>');
+      document.write(
+        '<tr bgcolor=' + TBGCOLOR + '>' +
+        '<td width=10% align=right>' + itoa(aa) + '.</td>' +
+        '<td width=40% align=left>'
+      );
       DrawColorCell(cc, 25);
-      document.write('(' + itoa(cp.id) + ') (BL=' + itoa(cp.BrickLinkColor) +  ')' + GetRebrickableColorHtml(cc) + '</td>');
-      document.write('<td width=40% align=right>' + itoa(p1[cc]) + '</td></tr>');
+      document.write(
+        '(' + itoa(cp.id) + ') (BL=' + itoa(cp.BrickLinkColor) +  ')' + GetRebrickableColorHtml(cc) + '</td>' +
+        '<td width=40% align=right>' + itoa(p1[cc]) + '</td></tr>'
+      );
     end;
   document.write('</table>');
 end;
@@ -24303,8 +24329,10 @@ begin
         document.write('<tr bgcolor=' + TBGCOLOR + '>')
       else
         document.write('<tr bgcolor=' + HICOLOR + '>');
-      document.write('<td width=10% align=right>' + itoa(aa) + '.</td>');
-      document.write('<td width=30% align=left>');
+      document.write(
+        '<td width=10% align=right>' + itoa(aa) + '.</td>' +
+        '<td width=30% align=left>'
+      );
       DrawColorCell(cc, 25);
       document.write(cp.name + ' (' + itoa(cp.id) + ') (BL=' + itoa(cp.BrickLinkColor) +  ')' + GetRebrickableColorHtml(cc) + '</td>');
       document.write('<td width=30% align=right>' + itoa(p1[cc]) + '</td>');
@@ -24317,12 +24345,13 @@ begin
     document.write('<tr bgcolor=' + TBGCOLOR + '>')
   else
     document.write('<tr bgcolor=' + HICOLOR + '>');
-  document.write('<td width=10% align=right>*</td>');
-  document.write('<td width=30% align=left>Total: </td>');
-  document.write('<td width=30% align=right>' + itoa(sum1) + '</td>');
-  document.write('<td width=30% align=right>' + itoa(sum2) + '</td></tr>');
-
-  document.write('</table>');
+  document.write(
+    '<td width=10% align=right>*</td>' +
+    '<td width=30% align=left>Total: </td>' +
+    '<td width=30% align=right>' + itoa(sum1) + '</td>' +
+    '<td width=30% align=right>' + itoa(sum2) + '</td></tr>' +
+    '</table>'
+  );
 end;
 
 type
@@ -24403,9 +24432,11 @@ begin
       if (cp.id <> cc) and (cc <> -1) then
         Continue;
       inc(aa);
-      document.write('<tr bgcolor=' + TBGCOLOR + '>');
-      document.write('<td width=5% align=right>' + itoa(aa) + '.</td>');
-      document.write('<td width=10% align=left>');
+      document.write(
+        '<tr bgcolor=' + TBGCOLOR + '>' +
+        '<td width=5% align=right>' + itoa(aa) + '.</td>' +
+        '<td width=10% align=left>'
+      );
       DrawColorCell(cc, 25);
       document.write(cp.name + ' (' + itoa(cp.id) + ') (BL=' + itoa(cp.BrickLinkColor) +  ')' + GetRebrickableColorHtml(cc) + '</td>');
       for i := 0 to NUMINVSTATITEMS - 1 do

@@ -1338,10 +1338,6 @@ begin
       else
         dec(x);
     end;
-
-    if i > 0 then
-      if i < colors.Count - 1 then
-        if (i + 1) mod 20 = 0 then
   end;
   if x > 0 then
   begin

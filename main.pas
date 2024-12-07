@@ -2171,8 +2171,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Home');
   DrawNavigateBar;
-  document.write('<div style="color:' + DFGCOLOR + '">');
-  document.write('<p align=center>');
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
   DrawHeadLine('Bricks Inventory');
   document.write('<table width=99% bgcolor=' + TBGCOLOR + ' border=2>');
 
@@ -7550,9 +7551,11 @@ begin
       );
 
       if donumlinks then
-        document.write('<td width=10%><p align=center>' +
+        document.write(
+          '<td width=10%><p align=center>' +
           '<a href=ShowMoldsWithNumColors/' + itoa(ncolors.Count) + '>' + itoa(ncolors.Count) + '</a>' +
-          '</p></td>')
+          '</p></td>'
+        )
       else
         document.write('<td width=10%><p align=center>' + itoa(ncolors.Count) + '</p></td>');
       document.write('<td width=65%>');

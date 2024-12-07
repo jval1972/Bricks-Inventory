@@ -2315,26 +2315,26 @@ begin
 
     { create a bitmap for each DC}
     { monochrome DC}
-    bmAndBack := CreateBitmap (SrcSize.x, SrcSize.y, 1, 1, nil);
+    bmAndBack := CreateBitmap(SrcSize.x, SrcSize.y, 1, 1, nil);
 
-    bmSave := CreateCompatibleBitmap (ahdc, DestSize.x, DestSize.y);
+    bmSave := CreateCompatibleBitmap(ahdc, DestSize.x, DestSize.y);
     GetObject(bmSave, SizeOf(BM), @BM);
     if (BM.bmBitsPixel > 1) or (BM.bmPlanes > 1) then
     begin
       { create some DCs to hold temporary data}
-      hdcInvMask   := CreateCompatibleDC(ahdc);
+      hdcInvMask := CreateCompatibleDC(ahdc);
       hdcMask := CreateCompatibleDC(ahdc);
 
       { each DC must select a bitmap object to store pixel data}
-      bmBackOld   := SelectObject (hdcInvMask, bmAndBack);
+      bmBackOld := SelectObject (hdcInvMask, bmAndBack);
 
       { set proper mapping mode}
-      SetMapMode (hdcImage, GetMapMode (ahdc));
+      SetMapMode(hdcImage, GetMapMode (ahdc));
 
       bmObjectOld := SelectObject(hdcMask, Mask.Handle);
 
       { create the inverse of the object mask}
-      BitBlt (hdcInvMask, 0, 0, SrcSize.x, SrcSize.y, hdcMask, 0, 0, NOTSRCCOPY);
+      BitBlt(hdcInvMask, 0, 0, SrcSize.x, SrcSize.y, hdcMask, 0, 0, NOTSRCCOPY);
 
       {set the background color of the source DC to the color contained in the
        parts of the bitmap that should be transparent, the foreground to the parts that
@@ -2344,7 +2344,7 @@ begin
 
       { Punch out a black hole in the background where the image will go}
       SetStretchBltMode(ahDC, WhiteOnBlack);
-      StretchBlt (ahDC, XStart, YStart, DestSize.x, DestSize.y, hdcMask, 0, 0, SrcSize.x, SrcSize.y, SRCAND);
+      StretchBlt(ahDC, XStart, YStart, DestSize.x, DestSize.y, hdcMask, 0, 0, SrcSize.x, SrcSize.y, SRCAND);
 
       { mask out the transparent colored pixels on the bitmap}
       BitBlt (hdcImage, 0, 0, SrcSize.x, SrcSize.y, hdcInvMask, 0, 0, SRCAND);
@@ -2357,12 +2357,12 @@ begin
       SetTextColor(ahDC, OldFore);
 
       { delete the memory bitmaps}
-      DeleteObject (SelectObject (hdcInvMask, bmBackOld));
-      SelectObject (hdcMask, bmObjectOld);
+      DeleteObject(SelectObject (hdcInvMask, bmBackOld));
+      SelectObject(hdcMask, bmObjectOld);
 
       { delete the memory DCs}
-      DeleteDC (hdcInvMask);
-      DeleteDC (hdcMask);
+      DeleteDC(hdcInvMask);
+      DeleteDC(hdcMask);
     end
     else
     begin
@@ -2512,8 +2512,10 @@ begin
   OldPal := SelectPalette(DC, ThePalette, False);
   RealizePalette(DC);
   try
-    Result := CreateDIBitmap(DC, bmInfo^.bmiHeader, CBM_INIT, Image,
-              bmInfo^, DIB_RGB_COLORS);
+    Result :=
+      CreateDIBitmap(
+        DC, bmInfo^.bmiHeader, CBM_INIT, Image, bmInfo^, DIB_RGB_COLORS
+      );
   finally
     SelectPalette(DC, OldPal, False);
     ReleaseDC(0, DC);
@@ -2557,7 +2559,7 @@ var
   IR: IndentRec;
 begin
   IR := IndentRec.Create;
-  if (Justify = Left) then
+  if Justify = Left then
   begin
     with IR do
     begin
@@ -2567,7 +2569,7 @@ begin
       L.Add(IR);
     end;
   end
-  else if (Justify = Right) then
+  else if Justify = Right then
   begin
     with IR do
     begin
@@ -3010,7 +3012,7 @@ begin
   if FCurrentIndex = Length(FChars) then
   begin
     SetLength(FChars, FCurrentIndex + 50);
-    ReallocMem(FIndices, (FCurrentIndex+50)*SizeOf(integer));
+    ReallocMem(FIndices, (FCurrentIndex + 50) * SizeOf(integer));
   end;
   Inc(FCurrentIndex);
   FIndices^[FCurrentIndex] := Index;
@@ -3223,7 +3225,7 @@ begin    {remove a single character}
   if N <= Leng then
   begin
     Move(C^[N + 1], C^[N], (Leng - N) * SizeOf(WideChar));
-    Move(I^[N+1], I^[N], (Leng - N) * SizeOf(integer));
+    Move(I^[N + 1], I^[N], (Leng - N) * SizeOf(integer));
     if StringOK then
       Delete(St, N, 1);
     Dec(Leng);
@@ -3332,12 +3334,12 @@ begin
             pr := @RgnData^.Buffer; // Buffer is an array of rects
             with RgnData^.rdh do
             begin
-              SetRect(pr[nCount], x0, y, x, y+1);
+              SetRect(pr[nCount], x0, y, x, y + 1);
               { adjust the bound rectangle of the region if we are "out-of-bounds" }
               if x0 < rcBound.Left then rcBound.Left := x0;
               if y < rcBound.Top then rcBound.Top := y;
               if x > rcBound.Right then rcBound.Right := x;
-              if y+1 > rcBound.Bottom then rcBound.Bottom := y+1;
+              if y + 1 > rcBound.Bottom then rcBound.Bottom := y + 1;
               Inc(nCount);
             end;
           end; // if x > x0
@@ -3377,7 +3379,7 @@ begin
     end;
   finally
     bmp.Free;
-    end;
+  end;
 end;
 
 {----------------EnlargeImage}
@@ -3444,7 +3446,7 @@ end;
 
 {----------------PrintBitmap1}
 procedure PrintBitmap1(Canvas: TCanvas; X, Y, W, H, YI, HI: integer;
-             BMHandle: HBitmap);
+  BMHandle: HBitmap);
 {Y relative to top of display here}
 var
   OldPal: HPalette;
@@ -3534,7 +3536,7 @@ end;
 
 {----------------PrintTransparentBitmap3}
 procedure PrintTransparentBitmap3(Canvas: TCanvas; X, Y, NewW, NewH: integer;
-             Bitmap, Mask: TBitmap; YI, HI: integer);
+  Bitmap, Mask: TBitmap; YI, HI: integer);
 {Y relative to top of display here}
 {This routine prints transparently on complex background by printing through a clip region}
 {X, Y are point where upper left corner will be printed.
@@ -3596,10 +3598,10 @@ begin
       HF := (SizeV.cx/SizeW.cx);  {Horizontal adjustment factor}
       VF := (SizeV.cy/SizeW.cy);  {Vertical adjustment factor}
 
-      XForm.eM11 := HF * (NewW/Bitmap.Width);
+      XForm.eM11 := HF * (NewW / Bitmap.Width);
       XForm.eM12 := 0;
       XForm.eM21 := 0;
-      XForm.eM22 := VF * (NewH/HI);
+      XForm.eM22 := VF * (NewH / HI);
       XForm.edx := HF*X;
       XForm.edy := VF*Y;
 
@@ -3667,8 +3669,8 @@ var
   g: TGpGraphics;
 begin
   g := TGPGraphics.Create(Handle);
-try
-  g.DrawImage(Image, DestX, DestY, Image.Width, Image.Height);
+  try
+    g.DrawImage(Image, DestX, DestY, Image.Width, Image.Height);
   except
   end;
   g.Free;
@@ -4070,7 +4072,8 @@ begin
           lb.lbHatch := 0;
           if S[I] = bssDotted then
             PenType := PS_Dot or ps_EndCap_Round
-          else PenType := PS_Dash or ps_EndCap_Square;
+          else
+            PenType := PS_Dash or ps_EndCap_Square;
           Pn := ExtCreatePen(PS_GEOMETRIC or PenType or ps_Join_Miter, W[I], lb, 0, nil);
           OldPn := SelectObject(Canvas.Handle, Pn);
           BeginPath(Canvas.Handle);

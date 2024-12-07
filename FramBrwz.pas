@@ -2224,9 +2224,7 @@ end;
 procedure TFrameBrowser.LoadURL(const URL: string);
 begin
   if not Processing then
-  begin
     LoadURLInternal(Normalize(URL), '', '', '', True, False);
-  end;
 end;
 
 {----------------TFrameBrowser.GetPostQuery}
@@ -2508,7 +2506,6 @@ var
   Viewer: ThtmlViewer;
   FrameTarget: TbrFrameBase;
   S, Dest, FullUrl: string;
-
 begin
   if Processing then
   begin

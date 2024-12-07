@@ -2121,7 +2121,7 @@ var
 begin
   Result := False;
   Reformat := False;
-  if (Image = DefBitmap) then
+  if Image = DefBitmap then
   begin
     Result := True;
     if Error then
@@ -2178,7 +2178,6 @@ var
   ARect: TRect;
   SubstImage: boolean;
   HasBlueBox: boolean;
-
 begin
   ViewImages := ParentSectionList.ShowImages;
 
@@ -2454,7 +2453,6 @@ var
   SaveWidth: integer;
   SaveStyle: TPenStyle;
   YY: integer;
-
 begin
   with ParentSectionList do
   begin
@@ -6578,7 +6576,6 @@ end;
 
 {----------------TSectionList.GetSelTextBuf}
 function TSectionList.GetSelTextBuf(Buffer: PWideChar; BufSize: integer): integer;
-
 var
   I: integer;
 begin
@@ -6596,9 +6593,9 @@ begin
     for I := 0 to Count - 1 do
       with TSectionBase(Items[I]) do
       begin
-        if (SelB >= StartCurs + Len) then
+        if SelB >= StartCurs + Len then
           Continue;
-        if (SelE <= StartCurs) then
+        if SelE <= StartCurs then
           Break;
         CopyToClipboard;
       end;
@@ -7012,7 +7009,7 @@ begin
             AMask := GetImageMask(TBitmap(Result), True, Color);
             Transparent := TGif;
           end
-          else if (Transparent = LLCorner) then
+          else if Transparent = LLCorner then
             AMask := GetImageMask(TBitmap(Result), False, 0);
       end;
       if Assigned(GetImage) then

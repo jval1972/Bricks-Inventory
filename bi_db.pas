@@ -18296,7 +18296,7 @@ begin
       idx := cp.knownpieces.IndexOfUCS(piece);
       if idx < 0 then
         if piece1  <> piece then
-          idx := cp.knownpieces.IndexOfUCS(RebrickablePart(piece));
+          idx := cp.knownpieces.IndexOfUCS(piece1);
     end;
 
     if idx >= 0 then

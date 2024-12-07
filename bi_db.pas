@@ -18102,15 +18102,20 @@ var
   check: string;
   i: integer;
   alias: TStringList;
+  piece1: string;
 begin
   check := fixpartname(piece);
   idx := fpieceshash.GetPos(check);
   if idx = -1 then
   begin
-    idx := fpieceshash.GetPos(RebrickablePart(piece));
+    piece1 := RebrickablePart(piece);
+    if piece1 <> piece then
+      idx := fpieceshash.GetPos(piece1);
     if idx = -1 then
     begin
-      idx := fpieceshash.GetPos(BricklinkPart(piece));
+      piece1 := BricklinkPart(piece);
+      if piece1 <> piece then
+        idx := fpieceshash.GetPos(piece1);
       if idx = -1 then
       begin
         alias := SearchGlobalPieceAlias(piece);
@@ -18212,6 +18217,8 @@ function TSetsDatabase.PieceColorInfo(const piece: string; const color: integer;
 var
   idx: integer;
   check1, check2: string;
+  piece1: string;
+  cp: colorinfo_p;
 
   function _checkalias: TPieceColorInfo;
   var
@@ -18223,10 +18230,10 @@ var
     begin
       for i := 0 to alias.Count - 1 do
       begin
-        idx := fcolors[color].knownpieces.IndexOf(piece);
+        idx := cp.knownpieces.IndexOf(piece);
         if idx >= 0 then
         begin
-          Result := fcolors[color].knownpieces.Objects[idx] as TPieceColorInfo;
+          Result := cp.knownpieces.Objects[idx] as TPieceColorInfo;
           Exit;
         end;
       end;
@@ -18265,38 +18272,42 @@ begin
       end;
     end;
 
+  cp := @fcolors[color];
   if (color < -1) or (color > MAXINFOCOLOR) then
   begin
     Result := _checkset;
     Exit;
   end;
 
-  if fcolors[color].knownpieces = nil then
+  if cp.knownpieces = nil then
   begin
     Result := _checkset;
     Exit;
   end;
 
-  idx := fcolors[color].knownpieces.IndexOf(piece);
+  idx := cp.knownpieces.IndexOf(piece);
   if idx < 0 then
   begin
-    idx := fcolors[color].knownpieces.IndexOf(RebrickablePart(piece));
+    piece1 := RebrickablePart(piece);
+    if piece1  <> piece then
+      idx := cp.knownpieces.IndexOf(piece1);
     if idx < 0 then
     begin
-      idx := fcolors[color].knownpieces.IndexOfUCS(piece);
+      idx := cp.knownpieces.IndexOfUCS(piece);
       if idx < 0 then
-        idx := fcolors[color].knownpieces.IndexOfUCS(RebrickablePart(piece));
+        if piece1  <> piece then
+          idx := cp.knownpieces.IndexOfUCS(RebrickablePart(piece));
     end;
 
     if idx >= 0 then
-      Result := fcolors[color].knownpieces.Objects[idx] as TPieceColorInfo
+      Result := cp.knownpieces.Objects[idx] as TPieceColorInfo
     else
       Result := _checkalias;
     if Result = nil then
       Result := _checkset;
     Exit;
   end;
-  Result := fcolors[color].knownpieces.Objects[idx] as TPieceColorInfo;
+  Result := cp.knownpieces.Objects[idx] as TPieceColorInfo;
 end;
 
 function TSetsDatabase.Priceguide(const brick: brickpool_p): priceguide_t;
@@ -21348,12 +21359,21 @@ begin
           lsets1.Add(stmp)
         else if (Pos1('-1,cty', stmp)) and (CountNumbers(stmp) = 4) then
           lsets1.Add(stmp)
+        else if (Pos1('-1,sh', stmp)) and (CountNumbers(stmp) = 4) then
+          lsets1.Add(stmp)
         else if Pos1('-1,3068bpb', stmp) or Pos1('-1,3069bpb', stmp) or Pos1('-1,3070bpb', stmp) then
         begin
-          if CountNumbers(stmp) = 8 then
+          if CountNumbers(stmp) = 4 then
             lparts3.Add(stmp)
           else
             lparts4.Add(stmp)
+        end
+        else if Pos1('-1,3068pb', stmp) or Pos1('-1,3069pb', stmp) or Pos1('-1,3070pb', stmp) then
+        begin
+          if CountNumbers(stmp) = 4 then
+            lparts1.Add(stmp)
+          else
+            lparts2.Add(stmp)
         end
         else
           lsets2.Add(stmp);

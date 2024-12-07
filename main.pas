@@ -12258,11 +12258,19 @@ var
   inv: TBrickInventory;
   missing: integer;
   s1: string;
+  oklist: boolean;
 begin
   Screen.Cursor := crHourGlass;
 
-  if domultipagedocuments then
-    document.NewMultiPageDocument('ShowMissingToBuilMultipledSets', decide(setids = nil, 'nil', setids.Text));
+  oklist :=
+    (setids = Missingformultiplesetslist) or
+    (setids = Missingfordismandaledsetslist) or
+    (setids = Missingforwishlist) or
+    (setids = Missingformocs);
+
+  if oklist then
+    if domultipagedocuments then
+      document.NewMultiPageDocument('ShowMissingToBuilMultipledSets', decide(setids = nil, 'nil', setids.Text));
 
   document.write('<body background="splash.jpg">');
   document.title('Missing to build multiple sets');
@@ -12270,6 +12278,17 @@ begin
   document.write(
     '<div style="color:' + DFGCOLOR + '"><p align=center>'
   );
+
+  if not oklist then
+  begin
+    DrawHeadLine('Invalid list: 0x' + IntToHex(Integer(setids), 8));
+    document.write('<br></p></div></body>');
+    document.SaveBufferToFile(diskmirror);
+    document.Flash;
+    Screen.Cursor := crDefault;
+    Exit;
+  end;
+
   sinv := TBrickInventory.Create;
   for i := 0 to setids.Count - 1 do
     sinv.MergeWith(db.GetSetInventory(setids.Strings[i]));

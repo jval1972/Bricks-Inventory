@@ -18243,7 +18243,7 @@ var
 
   function _checkset: TPieceColorInfo;
   begin
-    if Pos1('-', piece) then
+    if CharPos('-', piece) > 1 then
       if color <> -1 then
         if color <> INSTRUCTIONCOLORINDEX then
           if color <> BOXCOLORINDEX then

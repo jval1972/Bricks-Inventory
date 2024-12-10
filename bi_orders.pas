@@ -104,7 +104,7 @@ type
   end;
 
 const
-  NUMORDERALIAS = 7;
+  NUMORDERALIAS = 8;
 
 const
   orderalias: array[0..NUMORDERALIAS - 1] of orderalias_t = (
@@ -114,6 +114,7 @@ const
     (part: '3062'; bipart: '3062b'),
     (part: '3049'; bipart: '3049c'),
     (part: '4032'; bipart: '4032a'),
+    (part: '4032b'; bipart: '4032a'),
     (part: '3046'; bipart: '3046a')
   );
 

@@ -171,9 +171,7 @@ var
 
 
 type
-  SymString = string
-
-    [12];
+  SymString = string[12];
 
 const
   MaxRes = 80;
@@ -187,7 +185,6 @@ const
     'BIG', 'SMALL', 'P', 'MAP', 'FRAMESET', 'NOFRAMES', 'SCRIPT', 'DIV',
     'S', 'STRIKE', 'TR', 'NOBR', 'STYLE', 'SPAN', 'COLGROUP', 'LABEL',
     'THEAD', 'TBODY', 'TFOOT', 'OBJECT',
-
     'LI', 'BR', 'HR', 'DD', 'DT', 'IMG', 'BASE', 'BUTTON', 'INPUT',
     'SELECTED', 'BASEFONT', 'AREA', 'FRAME', 'PAGE', 'BGSOUND', 'WRAP',
     'META', 'PANEL', 'WBR', 'LINK', 'COL', 'PARAM', 'READONLY');

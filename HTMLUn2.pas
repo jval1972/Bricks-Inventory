@@ -1075,7 +1075,8 @@ begin
     LineTo(X2, Y1);
     if not Raised then
       Pen.Color := Light
-    else Pen.Color := Dark;
+    else
+      Pen.Color := Dark;
     LineTo(X2, Y2);
     LineTo(X1, Y2);
   end;
@@ -3636,7 +3637,8 @@ begin
         finally
           if Rslt = 1 then
             SelectClipRgn(DC, OldRgn)
-          else SelectClipRgn(DC, 0);
+          else
+            SelectClipRgn(DC, 0);
           DeleteObject(hRgn);
           DeleteObject(OldRgn);
         end;

@@ -82,7 +82,11 @@ function DownloadGIFFileToPNG(SourceFile, DestFile: string): Boolean;
 
 function JPG2PNG(const ajpg, apng: string): Boolean;
 
+function JPG2BMP(const ajpg, abmp: string): Boolean;
+
 function PNG2JPG(const apng, ajpg: string): Boolean;
+
+function PNG2BMP(const apng, abmp: string): Boolean;
 
 procedure SetClipboardTextWideString(const Text: WideString);
 
@@ -234,6 +238,8 @@ function ExtractAtDelimiters(const s: string; const p: integer; const d1, d2: Ch
 function CountOccurences(const SubText: string; const Text: string): Integer;
 
 function GetIntInRange(const x: Integer; const a, b: integer): Integer;
+
+function FontOpposingColor(const c: LongWord): LongWord;
 
 implementation
 
@@ -560,7 +566,7 @@ end;
 function PieceToImage(const img: TImage; const piece: string; color: integer = -1): boolean;
 var
   ps: TPakStream;
-  path: string;
+  path, pathout: string;
   entriesHash: THashTable;
   entries: TStringList;
   sTmp: string;
@@ -660,17 +666,19 @@ begin
     splitstring(path, s1, s2, '\');
     tmp := I_NewTempFile(s2);
     m.SaveToFile(tmp);
+    pathout := I_NewTempFile(piece + '_' + itoa(color) + '.bmp');
+    if RightStr(s2, 3) = 'png' then
+      PNG2BMP(tmp, pathout)
+    else
+      JPG2BMP(tmp, pathout);
     try
-      img.Picture.LoadFromFile(tmp);
-      img.Picture.Bitmap.Width := img.Picture.Graphic.Width;
-      img.Picture.Bitmap.Height := img.Picture.Graphic.Height;
-      img.Picture.Bitmap.PixelFormat := pf32bit;
-      img.Picture.Bitmap.Canvas.Draw(0, 0, img.Picture.Graphic);
+      img.Picture.Bitmap.LoadFromFile(pathout);
       Result := True;
     except
       printf('Image %s is invalid '#13#10,[path]);
     end;
     DeleteFile(tmp);
+    DeleteFile(pathout);
   finally
     m.Free;
   end;
@@ -798,6 +806,30 @@ begin
   P.Free;
 end;
 
+
+function JPG2BMP(const ajpg, abmp: string): Boolean;
+var
+  J: TJpegImage;
+  B: TBitmap;
+begin
+  Result := False;
+  if not fexists(ajpg) then
+    Exit;
+
+  J := TJpegImage.Create;
+  B := TBitmap.Create;
+  try
+    J.LoadFromFile(ajpg);
+    B.Assign(J);
+    B.SaveToFile(abmp);
+    Result := True;
+  except
+    Result := False;
+  end;
+  J.Free;
+  B.Free;
+end;
+
 function PNG2JPG(const apng, ajpg: string): Boolean;
 var
   J: TJpegImage;
@@ -814,7 +846,7 @@ begin
   P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
   try
     P.LoadFromFile(apng);
-    B.Assign(J);
+    B.Assign(P);
     J.Assign(B);
     J.SaveToFile(ajpg);
     Result := True;
@@ -822,6 +854,29 @@ begin
     Result := False;
   end;
   J.Free;
+  B.Free;
+  P.Free;
+end;
+
+function PNG2BMP(const apng, abmp: string): Boolean;
+var
+  B: TBitmap;
+  P: TPNGObject;
+begin
+  Result := False;
+  if fsize(apng) <= 0 then
+    Exit;
+
+  B := TBitmap.Create;
+  P := TPNGObject.Create;
+  try
+    P.LoadFromFile(apng);
+    B.Assign(P);
+    B.SaveToFile(abmp);
+    Result := True;
+  except
+    Result := False;
+  end;
   B.Free;
   P.Free;
 end;
@@ -2808,6 +2863,26 @@ begin
     Result := bb
   else
     Result := x;
+end;
+
+function FontOpposingColor(const c: LongWord): LongWord;
+const
+  CMODIFIER = 64;
+
+  function _c(const bb: byte): byte;
+  begin
+    if bb < 128 then
+      Result := bb + CMODIFIER
+    else
+      Result := bb - CMODIFIER;
+  end;
+var
+  r, g, b: byte;
+begin
+  r := _c(GetRValue(c));
+  g := _c(GetGValue(c));
+  b := _c(GetBValue(c));
+  Result := RGB(r, g, b);
 end;
 
 end.

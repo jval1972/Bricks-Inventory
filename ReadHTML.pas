@@ -697,7 +697,6 @@ end;
 
 {----------------GetID}
 function GetID(var S: string): boolean;
-
 begin
   Result := False;
   if not (Ch in ['A'..'Z']) then
@@ -713,7 +712,6 @@ end;
 {----------------GetAttribute}
 function GetAttribute(var Sym: Symb; var St: string; var S: string;
   var Val: integer): boolean;
-
 const
   MaxAttr = 84;
   Attrib: array[1..MaxAttr] of string[16] =
@@ -876,7 +874,6 @@ var
   SaveIndex: integer;
   Buffer: TCharCollection;
   CodePage: integer;
-
 begin
   Sy := TextSy;
   CodePage := PropStack.Last.CodePage;
@@ -1288,7 +1285,7 @@ var
   Algn: AlignmentType;
 
   procedure ReadColAttributes(var Width: integer; var AsPercent: boolean;
-  var Valign: AlignmentType; var Align: string; var Span: integer);
+    var Valign: AlignmentType; var Align: string; var Span: integer);
   var
     I: integer;
   begin
@@ -1933,7 +1930,7 @@ begin
                 S := S + '=' + T.Name;
               Params.Add(S);
             end;
-      until (Sy <> ParamSy);
+      until Sy <> ParamSy;
       try
         ThtmlViewer(CallingObject).OnObjectTag(CallingObject, PO.Panel,
           SL, Params, WantPanel);
@@ -2921,7 +2918,6 @@ var
   Done: boolean;
   LiBlock: TBlock;
   LISection: TSection;
-
 begin
   SectionList.Add(Section, TagIndex);
   PushNewProp(SymbToStr(Sym), Attributes.TheClass, Attributes.TheID,
@@ -2988,7 +2984,6 @@ var
   Index: char;
   NewBlock: TBlock;
   EndSym: Symb;
-
 begin
   LineCount := 1;
   Index := '1';
@@ -3217,8 +3212,8 @@ type
 const
   MaxX = 47;
   EUCJP_CharSet = 30;     {unused number}
-  XTable: array[1..MaxX] of XRec =
-    ((S: '1252'; CSet: ANSI_CHARSET),
+  XTable: array[1..MaxX] of XRec = (
+    (S: '1252'; CSet: ANSI_CHARSET),
     (S: '8859-1'; CSet: ANSI_CHARSET),
     (S: '1253'; CSet: GREEK_CHARSET),
     (S: '8859-7'; CSet: GREEK_CHARSET),
@@ -3264,7 +3259,8 @@ const
     (S: '5601'; CSet: HANGEUL_CHARSET),  {Korean}
     (S: 'euc-jp'; CSet: EUCJP_CHARSET),
     (S: '8859-15'; CSet: ANSI_CHARSET),  {almost Ansi, but not quite}
-    (S: 'tis-620'; CSet: THAI_CHARSET));
+    (S: 'tis-620'; CSet: THAI_CHARSET)
+  );
 
 var
   I, N: integer;
@@ -3845,7 +3841,6 @@ begin
   try
     GetCh; {get the reading started}
     DoText;
-
   finally
     Attributes.Free;
     if Assigned(Section) then
@@ -4749,7 +4744,6 @@ begin
     end;
   end;
 end;
-
 {$endif}
 
 initialization

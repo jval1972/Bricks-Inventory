@@ -1784,7 +1784,7 @@ var
   Header: ^GifHeader;
   X: integer;
   Colors: ^ColorArray;
-  Buff: array[0..SizeOf(GifHeader)+SizeOf(ColorArray)+8] of byte;
+  Buff: array[0..SizeOf(GifHeader) + SizeOf(ColorArray) + 8] of byte;
   P: PChar;
   OldPosition: integer;
 
@@ -1847,7 +1847,7 @@ var
   chunkType: array[0..4] of Char;
   chunkTypeStr: string;
   done : Boolean;
-  Ar: Array[0..10] of byte;
+  Ar: array[0..10] of byte;
   Alpha: array[0..255] of byte;   
   I: integer;
 
@@ -2149,7 +2149,7 @@ function GetImageAndMaskFromStream(Stream: TMemoryStream;
 var
   Filename: string;
   Path: array[0..Max_Path] of char;
-  F: File;
+  F: file;
   I: integer;
 begin
   Result := nil;
@@ -2347,7 +2347,7 @@ begin
       StretchBlt(ahDC, XStart, YStart, DestSize.x, DestSize.y, hdcMask, 0, 0, SrcSize.x, SrcSize.y, SRCAND);
 
       { mask out the transparent colored pixels on the bitmap}
-      BitBlt (hdcImage, 0, 0, SrcSize.x, SrcSize.y, hdcInvMask, 0, 0, SRCAND);
+      BitBlt(hdcImage, 0, 0, SrcSize.x, SrcSize.y, hdcInvMask, 0, 0, SRCAND);
 
       { XOR the bitmap with the background on the destination DC}
       SetStretchBltMode(ahDC, ColorOnColor);
@@ -2369,7 +2369,7 @@ begin
       DeleteObject(bmAndBack);
     end;
     DeleteObject(bmSave);
-    DeleteDC (hdcImage);
+    DeleteDC(hdcImage);
   finally
     Image.Free;
   end;
@@ -2407,7 +2407,7 @@ begin
   begin
     FHandle := GlobalAlloc(HeapAllocFlags, Size);
     if FHandle = 0 then
-      ABort;
+      Abort;
     Image := GlobalLock(FHandle);
   end;
 end;

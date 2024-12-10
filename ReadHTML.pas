@@ -3264,10 +3264,12 @@ const
 
 var
   I, N: integer;
+  lcontent: string;
 begin
   Result := False;
+  lcontent := Lowercase(Content);
   for I := 1 to MaxX do
-    if Pos(XTable[I].S, Lowercase(Content)) > 0 then
+    if Pos(XTable[I].S, lcontent) > 0 then
     begin
       Charset := XTable[I].CSet;
       Result := True;
@@ -3652,11 +3654,11 @@ begin
   HaveTranslated := False;
   IsUTF8 := False;
   Num := 0;
-  I := Pos(#0, DocS);
+  I := CharPos(#0, DocS);
   while (I > 0) and (Num < NullsAllowed) do
   begin  {be somewhat forgiving if there are a few nulls}
     DocS[I] := ' ';
-    I := Pos(#0, DocS);
+    I := CharPos(#0, DocS);
     Inc(Num);
   end;
   if I > 0 then

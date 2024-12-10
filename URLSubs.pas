@@ -85,7 +85,7 @@ begin
       J := CharPos('/', Copy(Base, J + 3, Length(Base) - (J + 2))) + J + 2
     {third slash for http://www.xxx.com/ }
     else
-      J := Pos('/', Base);
+      J := CharPos('/', Base);
   end;
   {insure there is a '/' on the end}
   if J = 0 then
@@ -332,7 +332,7 @@ begin
     else if lowercase(Copy(url, 1, 7)) = 'mailto:' then
     begin
       proto := 'mailto';
-      p := Pos(':', url);
+      p := CharPos(':', url);
     end;
   end
   else

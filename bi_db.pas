@@ -231,6 +231,8 @@ type
     function InventoryForExpensiveLotsUsed(const nlots: integer = 1): TBrickInventory;
     function InventoryForExpensivePartsNew(const nlots: integer = 1): TBrickInventory;
     function InventoryForExpensivePartsUsed(const nlots: integer = 1): TBrickInventory;
+    function GetMolds: TStringList;
+    function GetNumMolds: integer;
     {$ENDIF}
     function InventoryForBigLots(const nitems: integer = 1): TBrickInventory;
     function CanBuildInventory(const inv: TBrickInventory): boolean;
@@ -5952,6 +5954,39 @@ begin
   end;
 
   memfree(pointer(sortpool), allocsize1);
+end;
+{$ENDIF}
+
+{$IFNDEF CRAWLER}
+function TBrickInventory.GetMolds: TStringList;
+var
+  i: integer;
+  inv: TBrickInventory;
+  pt: string;
+begin
+  inv := Clone;
+  inv.SortPiecesByPartNumber;
+
+  Result := TStringList.Create;
+  pt := '';
+  for i := 0 to inv.fnumlooseparts - 1 do
+  begin
+    if inv.looseparts[i].part <> pt then
+    begin
+      pt := inv.looseparts[i].part;
+      Result.Add(pt);
+    end;
+  end;
+  inv.Free;
+end;
+
+function TBrickInventory.GetNumMolds: integer;
+var
+  molds: TStringList;
+begin
+  molds := GetMolds;
+  Result := molds.Count;
+  molds.Free;
 end;
 {$ENDIF}
 

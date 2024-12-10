@@ -12782,7 +12782,8 @@ begin
   begin
     DrawHeadLine('Loose Parts - ' +
       IntToStr(inv.numlooseparts) + ' lots, ' +
-      IntToStr(inv.totallooseparts) + ' parts');
+      IntToStr(inv.totallooseparts) + ' parts, ' +
+      IntToStr(inv.GetNumMolds) + ' molds');
     if looseparts then
       DrawHeadLine('Inventory Statistics <a href="diagramstorage/Inventory"><img src="images\diagram.png"></a>');
 

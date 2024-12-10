@@ -18790,15 +18790,21 @@ begin
 
     case cc of
       -1, 9999:
-        titcolor := 'Items without color <table border=1 width=25 bgcolor="#' + IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#FFFFFF><b>-</b></font></p></td></tr></table>';
+        titcolor := 'Items without color <table border=1 width=25 bgcolor="#' +
+          IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#FFFFFF><b>-</b></font></p></td></tr></table>';
       9996:
-        titcolor := 'Catalogs <table border=1 width=25 bgcolor="#' + IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#FFFFFF><b>C</b></font></p></td></tr></table>';
+        titcolor := 'Catalogs <table border=1 width=25 bgcolor="#' +
+          IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#FFFFFF><b>C</b></font></p></td></tr></table>';
       9997:
-        titcolor := 'Instructions <table border=1 width=25 bgcolor="#' + IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#FFFFFF><b>I</b></font></p></td></tr></table>';
+        titcolor := 'Instructions <table border=1 width=25 bgcolor="#' +
+          IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#FFFFFF><b>I</b></font></p></td></tr></table>';
       9998:
-        titcolor := 'Original Boxes <table border=1 width=25 bgcolor="#' + IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#FFFFFF><b>O</b></font></p></td></tr></table>';
+        titcolor := 'Original Boxes <table border=1 width=25 bgcolor="#' +
+          IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#FFFFFF><b>O</b></font></p></td></tr></table>';
       else
-        titcolor := 'Items in color <b>' + db.Colors(cc).name + '</b> (' + scolor + ') (BL=' + IntToStr(db.Colors(cc).BrickLinkColor) +  ')' + GetRebrickableColorHtml(cc) + '<table border=1 width=25 bgcolor="#' + IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center>' + scolor + '</p></td></tr></table>' ;
+        titcolor := 'Items in color <b>' + db.Colors(cc).name + '</b> (' + scolor + ') (BL=' + IntToStr(db.Colors(cc).BrickLinkColor) +  ')' +
+          GetRebrickableColorHtml(cc) + '<table border=1 width=25 bgcolor="#' +
+          IntToHex(db.colors(cc).RGB, 6) + '"><tr><td><p align=center><font color=#' + IntToHex(FontOpposingColor(db.colors(cc).RGB), 6) +'>' + scolor + '</font></p></td></tr></table>' ;
     end;
   end
   else

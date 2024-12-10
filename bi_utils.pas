@@ -2866,23 +2866,18 @@ begin
 end;
 
 function FontOpposingColor(const c: LongWord): LongWord;
-const
-  CMODIFIER = 64;
-
-  function _c(const bb: byte): byte;
-  begin
-    if bb < 128 then
-      Result := bb + CMODIFIER
-    else
-      Result := bb - CMODIFIER;
-  end;
 var
+  l: single;
   r, g, b: byte;
 begin
-  r := _c(GetRValue(c));
-  g := _c(GetGValue(c));
-  b := _c(GetBValue(c));
-  Result := RGB(r, g, b);
+  r := GetRValue(c);
+  g := GetGValue(c);
+  b := GetBValue(c);
+  l := (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  if l > 0.5 then
+    Result := RGB(0, 0, 0)
+  else
+    Result := RGB(255, 255, 255);
 end;
 
 end.

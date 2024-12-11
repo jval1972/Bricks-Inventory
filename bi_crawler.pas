@@ -688,7 +688,7 @@ begin
   end
   else
   begin
-    if (color = '89') or (color = '') or ((color = '-1') and (Pos('-', id) > 0))  then // set
+    if (color = '89') or (color = '') or ((color = '-1') and (CharPos('-', id) > 0))  then // set
     begin
       typ := 'S';
       blcolor := 0;

@@ -100,7 +100,7 @@ begin
 
   if (APath <> '') and (APath[1] = '/') then
   begin    {remove path from base and use host only}
-    if Pos('//', APath) = 1 then      {UNC filename}
+    if Pos1('//', APath) then      {UNC filename}
       if Proto = 'file' then
         Result := 'file:///' + APath
       else
@@ -153,7 +153,7 @@ begin
   end
   else
     Query := '';
-  if Pos('file://', Result) = 1 then
+  if Pos1('file://', Result) then
     Result := DosToHTML(Result);
   if GetProtocol(Result) = '' then
     Result := 'http://' + Result;       {add http protocol as a default}

@@ -46,7 +46,7 @@ function SortContextualItems(S: string): string;
 
 implementation
 
-uses Graphics, ReadHTML, UrlSubs, htmlun2, bi_delphi;
+uses Graphics, ReadHTML, UrlSubs, HTMLUn2, bi_delphi;
 
 const
   NeedPound = True;
@@ -276,7 +276,7 @@ begin
   end;
 end;
 
-{$ifndef ver120_plus}
+{$IFNDEF ver120_plus}
 {Delphi 3 doesn't like this to be inside DoFont}
 type
   FontEnum =
@@ -290,12 +290,12 @@ const
     'larger', 'smaller', 'xx-small', 'x-small', 'small', 'medium', 'large',
     'x-large', 'xx-large');
 
-{$endif}
+{$ENDIF}
 
 procedure DoFont(Styles: TObject; Selectors: TStringList; Prop, Value: string;
   Process: TProcessProc);
 { do the Font shorthand property specifier }
-{$ifdef ver120_plus}
+{$IFDEF ver120_plus}
 type
   FontEnum =
     (italic, oblique, normal, bolder, lighter, bold, smallcaps,
@@ -306,7 +306,7 @@ const
     ('italic', 'oblique', 'normal', 'bolder', 'lighter', 'bold', 'small-caps',
     'larger', 'smaller', 'xx-small', 'x-small', 'small', 'medium', 'large',
     'x-large', 'xx-large');
-{$endif}
+{$ENDIF}
 var
   S: array[0..6] of string;
   Count, I: integer;

@@ -30,7 +30,7 @@ unit HTMLGif2;
 interface
 
 uses
-  Windows, SysUtils, Classes, Graphics, Controls, ExtCtrls, htmlUN2, mmSystem,
+  Windows, SysUtils, Classes, Graphics, Controls, ExtCtrls, HTMLUn2, mmSystem,
   htmlgif1;
 
 type
@@ -71,7 +71,6 @@ type
     TheEnd: boolean;    {end of what gets copied}
 
     IsCopy: boolean;
-
   public
     constructor Create;
     constructor CreateCopy(Item: TgfFrame);
@@ -120,7 +119,6 @@ type
     function GetBitMap: TBitmap;
 
     procedure NextFrame(OldFrame: integer);
-
   public
     ShowIt: boolean;
     IsCopy: boolean;   {set if this is a copy of one in Cache}

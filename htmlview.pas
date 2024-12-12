@@ -329,12 +329,12 @@ type
     procedure HTMLPaint(Sender: TObject); virtual;
     procedure HTMLMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer); virtual;
-{$ifdef ver120_plus}
+{$IFDEF ver120_plus}
     procedure HTMLMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: integer; MousePos: TPoint);
     function DoMouseWheel(Shift: TShiftState; WheelDelta: integer;
       MousePos: TPoint): boolean; override;
-{$endif}
+{$ENDIF}
     procedure HTMLMouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: integer); virtual;
     procedure HTMLMouseUp(Sender: TObject; Button: TMouseButton;
@@ -371,22 +371,22 @@ type
     procedure LoadFromFile(const FileName: string);
     procedure LoadTextFromString(const S: string);
     procedure LoadHtmlFromString(const S: string);
-    {$ifdef ver120_plus}{Delphi 4 and higher}
+    {$IFDEF ver120_plus}{Delphi 4 and higher}
     procedure LoadFromString(const S: string; const Reference: string = ''); overload;
-    {$ifdef Delphi6_Plus}
+    {$IFDEF Delphi6_Plus}
     procedure LoadFromString(const WS: WideString; const Reference: string = '');
       overload;
-    {$endif}
+    {$ENDIF}
     procedure LoadFromStream(const AStream: TStream; const Reference: string = '');
     procedure LoadStrings(const Strings: TStrings; const Reference: string = '');
     procedure LoadFromBuffer(Buffer: PChar; BufSize: integer;
       const Reference: string = '');
-    {$else}
+    {$ELSE}
     procedure LoadFromString(const S: string; const Reference: string);
     procedure LoadFromStream(const AStream: TStream; const Reference: string);
     procedure LoadStrings(const Strings: TStrings; const Reference: string);
     procedure LoadFromBuffer(Buffer: PChar; BufSize: integer; const Reference: string);
-    {$endif}
+    {$ENDIF}
     procedure LoadTextFile(const FileName: string);
     procedure LoadImageFile(const FileName: string);
     procedure LoadTextStrings(Strings: TStrings);
@@ -498,9 +498,9 @@ type
     property Tag;
     property PopupMenu;
     property ShowHint;
-    {$ifdef ver120_plus}
+    {$IFDEF ver120_plus}
     property Anchors;
-    {$endif}
+    {$ENDIF}
     property Height default 150;
     property Width default 150;
     property DefBackground: TColor read FBackground write SetColor default clBtnFace;
@@ -539,9 +539,9 @@ type
     property OnMouseMove;
     property OnMouseUp;
     property OnMouseDown;
-    {$ifdef ver120_plus}
+    {$IFDEF ver120_plus}
     property OnMouseWheel;
-    {$endif}
+    {$ENDIF}
     property OnKeyDown;
     property OnKeyUp;
     property OnKeyPress;
@@ -622,9 +622,9 @@ begin
   BorderPanel.Ctl3D := False;
   BorderPanel.Align := alClient;
   BorderPanel.ParentCtl3D := False;
-  {$ifdef delphi7_plus}
+  {$IFDEF delphi7_plus}
   BorderPanel.ParentBackground := False;
-  {$endif}
+  {$ENDIF}
 
   BorderPanel.Parent := Self;
 
@@ -970,13 +970,13 @@ begin
     FOnMetaRefresh(Self, FRefreshDelay, FRefreshURL);
 end;
 
-{$ifdef Delphi6_Plus}
+{$IFDEF Delphi6_Plus}
 procedure ThtmlViewer.LoadFromString(const WS: WideString; const Reference: string);
 begin
   LoadFromString(#$EF + #$BB + #$BF + UTF8Encode(WS), Reference);
 end;
 
-{$endif}
+{$ENDIF}
 
 {----------------ThtmlViewer.LoadString}
 procedure ThtmlViewer.LoadString(const Source, Reference: string; ft: ThtmlFileType);
@@ -1791,7 +1791,7 @@ begin
 end;
 
 {----------------ThtmlViewer.HTMLMouseWheel}
-{$ifdef ver120_plus}
+{$IFDEF ver120_plus}
 procedure ThtmlViewer.HTMLMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: integer; MousePos: TPoint);
 var
@@ -1818,7 +1818,7 @@ begin
   end;
 end;
 
-{$endif}
+{$ENDIF}
 
 {----------------ThtmlViewer.XYToDisplayPos}
 function ThtmlViewer.XYToDisplayPos(X, Y: integer): integer;
@@ -2734,7 +2734,7 @@ begin
             Inc(Y, BH);
           end;
         end
-      {$ifndef NoMetafile}
+      {$IFNDEF NoMetafile}
         else if Image is ThtMetafile then
         begin
           Y := YStart;
@@ -2752,7 +2752,7 @@ begin
           except
           end;
         end
-      {$endif}
+      {$ENDIF}
         else
         begin
           Y := YStart;
@@ -2834,7 +2834,7 @@ begin
             Inc(Y, BH);
           end;
         end
-      {$ifndef NoMetafile}
+      {$IFNDEF NoMetafile}
         else if Image is ThtMetafile then
         begin
           Y := YStart;
@@ -2852,7 +2852,7 @@ begin
           except
           end;
         end
-      {$endif}
+      {$ENDIF}
         else
         begin
           Y := YStart;

@@ -1410,9 +1410,9 @@ var
           CM.AddCell(Table.Rows.Count, CellObj);
       end
       else
-    {$ifdef DebugIt}
+    {$IFDEF DebugIt}
         ShowMessage('Table cell error, ReadHTML.pas, DoTable')
-    {$endif}
+    {$ENDIF}
       ;
       SectionList := nil;
     end;
@@ -3515,9 +3515,9 @@ begin
                   if CompareText(Name, 'fixed') = 0 then
                     PropStack.Last.Assign('fixed', BackgroundAttachment);
               end;
-        {$ifdef Quirk}
+        {$IFDEF Quirk}
           MasterList.Styles.FixupTableColor(PropStack.Last);
-        {$endif}
+        {$ENDIF}
           PropStack.Last.Assign(AMarginWidth, MarginLeft);
           PropStack.Last.Assign(AMarginWidth, MarginRight);
           PropStack.Last.Assign(AMarginHeight, MarginTop);
@@ -3713,19 +3713,19 @@ procedure ParseHTMLString(const S: string; ASectionList: TList;
   AIncludeEvent: TIncludeType;
   ASoundEvent: TSoundType; AMetaEvent: TMetaType;
   ALinkEvent: TLinkType);
-{$ifndef NoTabLink}
+{$IFNDEF NoTabLink}
 const
   MaxTab = 400;    {maximum number of links before tabbing of links aborted}
 var
   TabCount, SaveSIndex: integer;
   T: TAttribute;
-{$endif}
+{$ENDIF}
 begin
   DocS := S;
   ParseInit(ASectionList, nil);
 
   try
-  {$ifndef NoTabLink}
+  {$IFNDEF NoTabLink}
     SaveSIndex := SIndex;
     LinkSearch := True;
     SoundEvent := nil;
@@ -3751,7 +3751,7 @@ begin
     {reset a few things}
     SIndex := SaveSIndex;
     Buff := PChar(DocS);
-  {$endif}
+  {$ENDIF}
 
     LinkSearch := False;
     SoundEvent := ASoundEvent;
@@ -4674,7 +4674,7 @@ const
     (Name: 'euro'; Value: #8364)  //  euro sign, U+20AC NEW
     );
 
-{$ifndef Delphi6_Plus}
+{$IFNDEF Delphi6_Plus}
 type
   TCaseSensitiveStringList = class(TStringList)
   public
@@ -4727,7 +4727,7 @@ begin
   end;
 end;
 
-{$else}
+{$ELSE}
 procedure SortEntities;    {Delphi 6 version}
 var
   I: integer;
@@ -4746,7 +4746,7 @@ begin
     end;
   end;
 end;
-{$endif}
+{$ENDIF}
 
 initialization
   LCToken := TokenObj.Create;

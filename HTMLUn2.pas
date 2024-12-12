@@ -370,7 +370,7 @@ type
     procedure AddChPosObject(const S: string; Pos: integer);
   end;
 
-{$ifndef NoMetafile}
+{$IFNDEF NoMetafile}
   ThtMetaFile = class(TMetaFile)
   private
     FBitmap, FMask: TBitmap;
@@ -386,7 +386,7 @@ type
     property WhiteBGBitmap: TBitmap read GetWhiteBGBitmap;
   end;
 
-{$endif}
+{$ENDIF}
 
   ImageType = (NoImage, Bmp, Gif, Gif89, Png, Jpg);
   SetOfChar = set of char;
@@ -488,8 +488,8 @@ function CharPos(const ch: char; const s: string): integer;
 implementation
 
 uses
-  jpeg, DitherUnit, bi_utils, bi_quantize, bi_defs, {$ifndef NoOldPng}
-  PngImage1, {$endif} htmlview, htmlsubs, HtmlGif2, StylePars, ActiveX, bi_delphi;
+  jpeg, DitherUnit, bi_utils, bi_quantize, bi_defs, {$IFNDEF NoOldPng}
+  PngImage1, {$ENDIF} htmlview, htmlsubs, HtmlGif2, StylePars, ActiveX, bi_delphi;
 
 type
   EGDIPlus = class (Exception);
@@ -632,11 +632,11 @@ begin
   begin
     GetMem(Ints, SizeOf(Integer)* Max);
     try
-      {$ifdef ver120_plus}
+      {$IFDEF ver120_plus}
       if GetTextExtentExPointW(DC, S, Max, Width, @Result, @Ints^, ExtS) then
-      {$else}
+      {$ELSE}
       if GetTextExtentExPointW(DC, S, Max, Width, Result, Integer(Ints^), ExtS) then
-      {$endif}
+      {$ENDIF}
       if Result > 0 then
         Extent := Ints^[Result]
       else
@@ -1102,11 +1102,11 @@ begin
   end;
 end;
 
-{$ifdef Ver90}
+{$IFDEF Ver90}
 procedure Assert(B: boolean; const S: string);
 begin   {dummy Assert for Delphi 2}
 end;
-{$endif}
+{$ENDIF}
 
 destructor TFreeList.Destroy;
 var
@@ -2044,11 +2044,11 @@ function GetBitmapAndMaskFromStream(Stream: TMemoryStream;
 var
   IT: ImageType;
   jpImage: TJpegMod;
-  {$ifndef NoOldPng}
+  {$IFNDEF NoOldPng}
   PI: TPngImage;
   Color: TColor;
   Tmp: TBitmap;
-  {$endif}
+  {$ENDIF}
 begin
   Result := nil;
   AMask := nil;
@@ -2085,7 +2085,7 @@ begin
         jpImage.Free;
       end;
     end
-    {$ifndef NoOldPng}
+    {$IFNDEF NoOldPng}
     else if IT = Png then
     begin
       if IsTransparentPNG(Stream, Color) then  {check for transparent PNG}
@@ -2099,19 +2099,19 @@ begin
         PI.Free;
       end;
     end
-    {$else}
+    {$ELSE}
     else if IT = Png then
       Result := nil
-    {$endif}
+    {$ENDIF}
     else
     begin
       Result.LoadFromStream(Stream);   {Bitmap}
     end;
     if Transparent = LLCorner then
       AMask := GetImageMask(Result, False, 0)
-    {$ifdef NoOldPng}
+    {$IFDEF NoOldPng}
      ;
-    {$else}
+    {$ELSE}
     else if Transparent = TPng then
     begin
       AMask := GetImageMask(Result, True, Color);
@@ -2133,7 +2133,7 @@ begin
       end;
       Tmp.Free;
     end;
-    {$endif}
+    {$ENDIF}
     Result := ConvertImage(Result);
   except
     Result.Free;
@@ -2179,7 +2179,7 @@ begin
   end;
 
   Result := GetBitmapAndMaskFromStream(Stream, Transparent, AMask);
-  {$ifndef NoMetafile}
+  {$IFNDEF NoMetafile}
   if not Assigned(Result) then
   begin
     Result := ThtMetafile.Create;
@@ -2191,7 +2191,7 @@ begin
       FreeAndNil(Result);
     end;
   end;
-  {$endif}
+  {$ENDIF}
 end;
 
 function GetImageMask(Image: TBitmap; ColorValid: boolean; AColor: TColor): TBitmap;
@@ -2259,14 +2259,14 @@ begin
         Mask.Free;
         if GpObj is TBitmap then
           Result := TBitmap(GpObj)
-  {$ifndef NoMetafile}
+  {$IFNDEF NoMetafile}
         else if GpObj is ThtMetafile then
         begin
           Result := TBitmap.Create;
           Result.Assign(ThtMetafile(GpObj).WhiteBGBitmap);
           GpObj.Free;
         end
-  {$endif}
+  {$ENDIF}
         else if GpObj is TGpImage then
         begin
           Result := TBitmap.Create;
@@ -2897,7 +2897,7 @@ begin
   end;
 end;
 
-{$ifndef NoMetafile}
+{$IFNDEF NoMetafile}
 procedure ThtMetaFile.Construct;
 var
   Tmp: TBitmap;
@@ -2972,7 +2972,7 @@ begin
   FreeAndNil(FWhiteBGBitmap);
   inherited;
 end;
-{$endif}
+{$ENDIF}
 
 function InSet(W: WideChar; S: SetOfChar): boolean;
 begin
@@ -3086,7 +3086,7 @@ var
   NewLen, Len: integer;
 begin
   Len := Length(S);
-  {$ifdef Delphi6_Plus}
+  {$IFDEF Delphi6_Plus}
   if IsWin95 and (CodePage = CP_UTF8) then
   begin
     {Provide initial space. The resulting string will never be longer than the
@@ -3095,7 +3095,7 @@ begin
     NewLen := UTF8ToUnicode(PWideChar(Result), Len + 1, PChar(S), Len) - 1;  {subtr 1 as don't want to count null terminator}
   end
   else
-  {$endif}
+  {$ENDIF}
   begin
     {Provide initial space. The resulting string will never be longer than the
      UTF-8 or multibyte encoded string.}
@@ -3112,11 +3112,11 @@ function WideStringToMultibyte(CodePage: integer; W: WideString): string;
 var
   NewLen, Len: integer;
 begin
-  {$ifdef Delphi6_Plus}
+  {$IFDEF Delphi6_Plus}
   if CodePage = CP_UTF8 then  {UTF-8 encoded string.}
     Result := UTF8Encode(W)
   else
-  {$endif}
+  {$ENDIF}
   begin
     Len := Length(W);
     SetLength(Result, 3 * Len);
@@ -3164,7 +3164,7 @@ var
 
 begin
   Len := S.FCurrentIndex;
-{$ifdef Delphi6_Plus}
+{$IFDEF Delphi6_Plus}
   if IsWin95 and (CodePage = CP_UTF8) then
   begin
     {Provide initial space. The resulting string will never be longer than the
@@ -3173,7 +3173,7 @@ begin
     NewLen := UTF8ToUnicode(PWideChar(WS), Len + 1, PChar(S.FChars), Len) - 1;  {subtr 1 as don't want to count null terminator}
   end
   else
-{$endif}
+{$ENDIF}
   begin
     {Provide initial space. The resulting string will never be longer than the
      UTF-8 or multibyte encoded string.}
@@ -4115,10 +4115,10 @@ begin
     Result := TGpImage(Image).Height
   else if Image is TGifImage then
     Result := TGifImage(Image).Height
-  {$ifndef NoMetafile}
+  {$IFNDEF NoMetafile}
   else if Image is ThtMetaFile then
     Result := ThtMetaFile(Image).Height
-  {$endif}
+  {$ENDIF}
   else
     Raise(EGDIPlus.Create('Not a TBitmap, TGifImage, TMetafile, or TGpImage'));
 end;
@@ -4131,10 +4131,10 @@ begin
     Result := TGpImage(Image).Width
   else if Image is TGifImage then
     Result := TGifImage(Image).Width
-  {$ifndef NoMetafile}
+  {$IFNDEF NoMetafile}
   else if Image is ThtMetaFile then
     Result := ThtMetaFile(Image).Width
-  {$endif}
+  {$ENDIF}
   else
     Raise(EGDIPlus.Create('Not a TBitmap, TGifImage, TMetafile, or TGpImage'));
 end;
@@ -4176,13 +4176,13 @@ initialization
   IsWin95 := (Win32Platform = VER_PLATFORM_WIN32_WINDOWS) and (Win32MinorVersion in [0..9]);
   IsWin32Platform := Win32Platform = VER_PLATFORM_WIN32_WINDOWS;
 
-  {$ifdef UseElPack}
+  {$IFDEF UseElPack}
   UnicodeControls := True;
-  {$endif}
+  {$ENDIF}
 
-  {$ifdef UseTNT}
+  {$IFDEF UseTNT}
   UnicodeControls := not IsWin32Platform;
-  {$endif}
+  {$ENDIF}
 
   DefBitMap := TBitmap.Create;
   DefBitMap.Handle := LoadBitmap(HInstance, MakeIntResource(DefaultBitmap));

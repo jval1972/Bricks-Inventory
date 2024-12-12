@@ -65,36 +65,36 @@ interface
 uses
   SysUtils, WinTypes, Windows, WinProcs, Messages, Classes, Graphics, Controls,
   Forms, Dialogs, StdCtrls, ExtCtrls, HTMLUn2, HTMLGif2, mmSystem, bi_delphi,
-  {$ifdef UseTNT}
+  {$IFDEF UseTNT}
   TntStdCtrls,
-  {$endif}
-  {$ifdef UseElPack}
+  {$ENDIF}
+  {$IFDEF UseElPack}
   ElListBox, ElCombos, ElEdits, ElPopBtn,
-  {$endif}
+  {$ENDIF}
   StyleUn;
 
 type
-  {$ifdef UseTNT}
+  {$IFDEF UseTNT}
   ThtEdit = TTntEdit;
   ThtButton = TTntButton;
   ThtMemo = TTntMemo;
   ThtCombobox = TTntCombobox;
   ThtListbox = TTntListbox;
-  {$else}
-    {$ifdef UseElPack}
+  {$ELSE}
+    {$IFDEF UseElPack}
   ThtEdit = TElEdit;
   ThtButton = TElPopupButton;
   ThtMemo = TElMemo;
   ThtCombobox = TElCombobox;
   ThtListbox = TElListbox;
-    {$else}
+    {$ELSE}
   ThtEdit = TEdit;
   ThtButton = TButton;
   ThtMemo = TMemo;
   ThtCombobox = TCombobox;
   ThtListbox = TListbox;
-    {$endif}
-  {$endif}
+    {$ENDIF}
+  {$ENDIF}
 
   ThvPanel = class(TPanel)
   public
@@ -161,7 +161,7 @@ type
     procedure CreateTabControl(TabIndex: integer);
     procedure AKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure AssignY(Y: integer);
-    {$endif}
+    {$ENDIF}
   public
     Pos: integer;        {0..Len  Index where font takes effect}
     TheFont: TMyFont;
@@ -1198,9 +1198,9 @@ var
 implementation
 
 uses
-  {$ifdef Delphi6_Plus}
+  {$IFDEF Delphi6_Plus}
   Variants,
-  {$endif}
+  {$ENDIF}
   HTMLView, ReadHTML, HTMLSbs1, GDIPL2A;
 
 var
@@ -1459,7 +1459,7 @@ begin
       AddObject(Format('%.5d%.3d', [TabIndex, Count]), TabControl);
 end;
 
-{$endif}
+{$ENDIF}
 
 procedure TFontObj.CreateFIArray;
 begin
@@ -1580,9 +1580,9 @@ begin
     Result := UrlTarget.Url;
   except
     Result := '';
-  {$ifdef DebugIt}
+  {$IFDEF DebugIt}
     ShowMessage('Bad TFontObj, htmlsubs.pas, TFontObj.GetUrl');
-  {$endif}
+  {$ENDIF}
   end;
 end;
 
@@ -1722,7 +1722,7 @@ begin
           if J >= 0 then
             ParentSectionList.TabOrderList.Delete(J);
         end;
-    {$endif}
+    {$ENDIF}
       FO1.Free;
       Delete(I - 1);
     end
@@ -1989,7 +1989,7 @@ begin
 {$ifndef NoMetafile}
   else if (Image is ThtMetaFile) then
     Result := ThtMetaFile(Image).WhiteBGBitmap;
-{$endif}
+{$ENDIF}
 end;
 
 procedure TImageObj.SetHover(Value: HoverType);
@@ -2393,7 +2393,7 @@ begin
       {$ifndef NoMetafile}
         else if ddImage is ThtMetaFile then
           Canvas.StretchDraw(Rect(XX, Y, XX + ObjWidth, Y + ObjHeight), ThtMetaFile(ddImage));
-      {$endif}
+      {$ENDIF}
       end;
     end
     else
@@ -2432,7 +2432,7 @@ begin
     {$ifndef NoMetafile}
       else if ddImage is ThtMetaFile then
         Canvas.StretchDraw(Rect(XX, Y, XX + ObjWidth, Y + ObjHeight), ThtMetaFile(ddImage));
-    {$endif}
+    {$ENDIF}
     end;
   except
   end;
@@ -3096,7 +3096,7 @@ procedure TFormControlObj.EnterEvent(Sender: TObject);
 {$ifndef FastRadio}
 var
   I: integer;
-{$endif}
+{$ENDIF}
 begin
   if MasterList.IsCopy then
     Exit;
@@ -3114,7 +3114,7 @@ begin
           FControl.Left := -4000; {even if it can't be seen}
         end;
   end;
-{$endif}
+{$ENDIF}
   if Assigned(MasterList.ObjectFocus) and (OnFocusMessage <> '') then
     MasterList.ObjectFocus(MasterList.TheOwner, Self, OnFocusMessage);
   if OnChangeMessage <> '' then
@@ -3130,7 +3130,7 @@ procedure TFormControlObj.ExitEvent(Sender: TObject);
 begin
 {$ifndef FastRadio}
   MasterList.AdjustFormControls;
-{$endif}
+{$ENDIF}
   Active := False;
   if OnChangeMessage <> '' then
     DoOnChange;
@@ -3326,7 +3326,7 @@ begin
     ThtEdit(FControl).Text := Value;
 end;
 
-{$ifdef bloop}
+{$IFDEF bloop}
 procedure TEditFormControlObj.Draw(Canvas: TCanvas; X1, Y1: integer);
 var
   H2, Addon: integer;
@@ -3359,7 +3359,7 @@ begin
   end;
 end;
 
-{$endif}
+{$ENDIF}
 
 procedure TEditFormControlObj.Draw(Canvas: TCanvas; X1, Y1: integer);
 var
@@ -3503,9 +3503,9 @@ begin
     Enabled := not Disabled;
   end;
   FControl.Parent := PntPanel;
-{$ifdef UseElPack}
+{$IFDEF UseElPack}
   ThtButton(FControl).Color := clBtnFace;
-{$endif}
+{$ENDIF}
 end;
 
 procedure TButtonFormControlObj.Draw(Canvas: TCanvas; X1, Y1: integer);
@@ -4753,7 +4753,7 @@ begin
     TheGpObj := ThtMetafile(BGImage.Image).Bitmap;
     TheMask := ThtMetafile(BGImage.Image).Mask;
   end
-{$endif}
+{$ENDIF}
   else
   begin
     TheGpObj := BGImage.Image;
@@ -4789,7 +4789,7 @@ begin
   if not NoMask and ((BGImage.Image is TBitmap)
      {$ifndef NoMetafile}
     or (BGImage.Image is ThtMetafile)
-     {$endif}
+     {$ENDIF}
     ) then
   begin
     if not Assigned(TiledMask) then
@@ -6700,7 +6700,7 @@ var
     end;
   end;
 
-  {$endif}
+  {$ENDIF}
 
 begin
   if IsCopy or (FormControlList.Count = 0) then
@@ -6715,7 +6715,7 @@ begin
             FControl.Hide;   {hides and turns off tabs}
     end
     else
-  {$endif}
+  {$ENDIF}
     begin
       Control := TheOwner;   {ThtmlViewer}
       repeat
@@ -6912,10 +6912,10 @@ function TSectionList.GetTheBitmap(const BMName: string;
 {Transparent may be set to NotTransp or LLCorner on entry but may discover it's
  TGif here}
 
-{$ifdef ShareWare}
+{$IFDEF ShareWare}
 const
   OneTime: boolean = False;
-{$endif}
+{$ENDIF}
 
 var
   UName: string;
@@ -6961,9 +6961,9 @@ var
   end;
 
 begin
-{$ifdef ShareWare}
+{$IFDEF ShareWare}
 {$Include DemoVers.inc}
-{$endif}
+{$ENDIF}
   AMask := nil;
   Delay := False;
   FromCache := False;
@@ -7132,7 +7132,7 @@ begin
       begin
         BackgroundBitmap := ThtMetaFile(TmpResult);
       end
-    {$endif}
+    {$ENDIF}
       else
       begin
         BackgroundBitmap := nil;
@@ -9821,7 +9821,7 @@ begin
   {$ifndef NoTabLink}
     if not AMasterList.StopTab then
       FO.CreateTabControl(AnUrl.TabIndex);
-  {$endif}
+  {$ENDIF}
   end;
 
   Fonts.Add(FO);
@@ -10219,7 +10219,7 @@ begin
   {$ifndef NoTabLink}
     if not ParentSectionList.StopTab then
       FO.CreateTabControl(AnUrl.TabIndex);
-  {$endif}
+  {$ENDIF}
   end
   else if Assigned(FO.FIArray) then
   begin
@@ -10965,7 +10965,7 @@ var
       Inc(Cnt);  {to skip by the control}
     until Cnt >= NN;
 
-  {$ifndef NoTabLink}
+  {$IFNDEF NoTabLink}
     if not ParentSectionList.IsCopy then
     begin
       Cnt := 0;   {now check URLs}
@@ -10975,7 +10975,7 @@ var
         Cnt := Cnt + Fonts.GetFontCountAt(PStart - Buff + Cnt, Len);
       until Cnt >= NN;
     end;
-  {$endif}
+  {$ENDIF}
 
     LR.Start := PStart;
     LR.LineHt := DHt;

@@ -34,7 +34,7 @@ interface
 
 uses
   SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
-  Forms, Dialogs, StdCtrls, ExtCtrls, Menus, htmlsubs, htmlview, htmlun2,
+  Forms, Dialogs, StdCtrls, ExtCtrls, Menus, htmlsubs, htmlview, HTMLUn2,
   readHTML;
 
 type
@@ -107,9 +107,9 @@ type
     FFontSize: integer;
     FCursor: TCursor;
     FHistoryMaxCount: integer;
-    {$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+    {$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
     FCharset: TFontCharset;
-    {$endif}
+    {$ENDIF}
     FOnProcessing: TProcessingEvent;
     FHistory, FTitleHistory: TStrings;
     FDither: boolean;
@@ -175,9 +175,9 @@ type
     procedure SetSelLength(Value: integer);
     function GetSelStart: integer;
     procedure SetSelStart(Value: integer);
-    {$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+    {$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
     procedure SetCharset(Value: TFontCharset);
-    {$endif}
+    {$ENDIF}
     function GetOurPalette: HPalette;
     procedure SetOurPalette(Value: HPalette);
     procedure SetDither(Value: boolean);
@@ -294,17 +294,17 @@ type
       write SetVisitedMaxCount default 50;
     property HistoryMaxCount: integer read FHistoryMaxCount write SetHistoryMaxCount;
     property Cursor: TCursor read FCursor write SetCursor default crIBeam;
-    {$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+    {$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
     property CharSet: TFontCharset read FCharSet write SetCharset;
-    {$endif}
+    {$ENDIF}
     property OnProcessing: TProcessingEvent read FOnProcessing write FOnProcessing;
     property OnObjectTag: TObjectTagEvent read FOnObjectTag write SetOnObjectTag;
 
 
     property Align;
-    {$ifdef ver120_plus}
+    {$IFDEF ver120_plus}
     property Anchors;
-    {$endif}
+    {$ENDIF}
     property Enabled;
     property PopupMenu;
     property ShowHint;
@@ -341,9 +341,9 @@ type
     UnLoaded: boolean;
     procedure UpdateFrameList; virtual; abstract;
   protected
-    {$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+    {$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
     LocalCharSet: TFontCharset;
-    {$endif}
+    {$ENDIF}
     procedure FVMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer); virtual; abstract;
     procedure FVMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
@@ -695,10 +695,10 @@ var
   S, Dest: string;
 begin
   inherited Create(AOwner);
-{$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+{$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
   if AOwner is TSubFrameSet then
     LocalCharSet := TSubFrameset(AOwner).LocalCharSet;
-{$endif}
+{$ENDIF}
   LOwner := AOwner as TSubFrameSet;
   MasterSet := Master;
   BevelInner := bvNone;
@@ -901,9 +901,9 @@ begin
   Viewer.SendToBack;
   Viewer.Visible := True;
   Viewer.Tabstop := True;
-{$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+{$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
   Viewer.CharSet := LocalCharset;
-{$endif}
+{$ENDIF}
   MasterSet.Viewers.Add(Viewer);
   with MasterSet.FrameViewer do
   begin
@@ -1558,10 +1558,10 @@ constructor TSubFrameSet.CreateIt(AOwner: TComponent; Master: TFrameSet);
 begin
   inherited Create(AOwner);
   MasterSet := Master;
-{$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+{$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
   if AOwner is TFrameBase then
     LocalCharSet := TSubFrameset(AOwner).LocalCharSet;
-{$endif}
+{$ENDIF}
   OuterBorder := 0;   {no border for subframesets}
   if Self <> Master then
     BorderSize := Master.BorderSize;
@@ -1571,9 +1571,9 @@ begin
   OnMouseDown := FVMouseDown;
   OnMouseMove := FVMouseMove;
   OnMouseUp := FVMouseUp;
-{$ifdef delphi7_plus}
+{$IFDEF delphi7_plus}
   ParentBackground := False;
-{$endif}
+{$ENDIF}
   ParentColor := True;
 end;
 
@@ -2152,10 +2152,10 @@ procedure TSubFrameSet.HandleMeta(Sender: TObject; const HttpEq, Name, Content: 
 var
   DelTime, I: integer;
 begin
-{$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+{$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
   if CompareText(HttpEq, 'content-type') = 0 then
     TranslateCharset(Content, LocalCharset);
-{$endif}
+{$ENDIF}
 
   with MasterSet.FrameViewer do
   begin
@@ -2220,9 +2220,9 @@ constructor TFrameSet.Create(AOwner: TComponent);
 begin
   inherited CreateIt(AOwner, Self);
   FrameViewer := AOwner as TFrameViewer;
-{$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+{$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
   LocalCharSet := FrameViewer.FCharset;
-{$endif}
+{$ENDIF}
   if fvNoBorder in FrameViewer.FOptions then
     BorderSize := 0
   else
@@ -2576,9 +2576,9 @@ begin
   FMarginHeight := 5;
   FOptions := [fvPrintTableBackground, fvPrintMonochromeBlack];
 
-{$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+{$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
   FCharset := DEFAULT_CHARSET;
-{$endif}
+{$ENDIF}
   Visited := TStringList.Create;
 
   CurFrameSet := TFrameSet.Create(Self);
@@ -2673,16 +2673,16 @@ var
   OldPos: integer;
   Tmp: TObject;
   SameName: boolean;
-  {$ifdef Windows}
+  {$IFDEF Windows}
   Dummy: integer;
-  {$endif}
+  {$ENDIF}
 begin
   FProcessing := True;
   if Assigned(FOnProcessing) then
     FOnProcessing(Self, True);
-{$ifdef windows}
+{$IFDEF windows}
   Dummy :=
-{$endif}
+{$ENDIF}
     IOResult;     {remove any pending file errors}
   SplitURL(FName, S, Dest);
   try
@@ -4288,7 +4288,7 @@ begin
     AViewer.SelStart := Value;
 end;
 
-{$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+{$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
 procedure TFVBase.SetCharset(Value: TFontCharset);
 var
   I: integer;
@@ -4301,7 +4301,7 @@ begin
   end;
 end;
 
-{$endif}
+{$ENDIF}
 
 procedure TFVBase.SetOnObjectTag(Handler: TObjectTagEvent);
 var

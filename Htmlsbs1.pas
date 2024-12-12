@@ -103,9 +103,9 @@ type
   private
     EnterItems: integer;
     EnterSelected: array[0..50] of boolean;
-    {$ifdef OpOnChange}
+    {$IFDEF OpOnChange}
     procedure OptionalOnChange(Sender: TObject);
-    {$endif}
+    {$ENDIF}
   protected
     procedure DoOnChange; override;
     procedure SaveContents; override;
@@ -132,9 +132,9 @@ type
     {Select with single selection and Size = 1}
   private
     EnterIndex: integer;
-    {$ifdef OpOnChange}
+    {$IFDEF OpOnChange}
     procedure OptionalOnChange(Sender: TObject);
-    {$endif}
+    {$ENDIF}
   protected
     procedure DoOnChange; override;
     procedure SaveContents; override;
@@ -183,9 +183,9 @@ type
 implementation
 
 uses
-  {$ifdef Delphi6_Plus}
+  {$IFDEF Delphi6_Plus}
   Variants,
-  {$endif}
+  {$ENDIF}
   ReadHTML, HTMLView;
 
 {----------------TPage.Draw1}
@@ -491,7 +491,7 @@ begin
   begin
     Left := -4000;   {so will be invisible until placed}
     Parent := PntPanel;
-    if (Prop.GetBorderStyle <> bssNone) then
+    if Prop.GetBorderStyle <> bssNone then
       BorderStyle := bsNone;
     Tmp := Prop.GetFont;
     Font.Assign(Tmp);
@@ -501,11 +501,11 @@ begin
     ExtendedSelect := Multiple;
     OnEnter := EnterEvent;
     OnExit := ExitEvent;
-    {$ifdef OpOnChange}
+    {$IFDEF OpOnChange}
     OnClick := OptionalOnChange;
     {$else}
     OnClick := FormControlClick;
-    {$endif}
+    {$ENDIF}
     OnMouseMove := HandleMouseMove;
     Enabled := not Disabled;
   end;
@@ -699,7 +699,7 @@ begin
       MasterList.ObjectChange(MasterList.TheOwner, Self, OnChangeMessage);
 end;
 
-{$ifdef OpOnChange}
+{$IFDEF OpOnChange}
 procedure TListBoxFormControlObj.OptionalOnChange(Sender: TObject);
 var
   Pt: TPoint;
@@ -710,7 +710,7 @@ begin
     FormControlClick(Self);
 end;
 
-{$endif}
+{$ENDIF}
 
 procedure TListBoxFormControlObj.SetData(Index: integer; const V: string);
 var
@@ -763,14 +763,14 @@ begin
     Style := csDropDownList;
     OnEnter := EnterEvent;
     OnExit := ExitEvent;
-  {$ifdef OpOnChange}
+  {$IFDEF OpOnChange}
     OnChange := OptionalOnChange;
   {$else}
     OnClick := FormControlClick;
-  {$endif}
-  {$ifdef UseElpack}{others don't have onmousemove}
+  {$ENDIF}
+  {$IFDEF UseElpack}{others don't have onmousemove}
     OnMouseMove := HandleMouseMove;
-  {$endif}
+  {$ENDIF}
     OnDropDown := FormControlClick;
     Enabled := not Disabled;
   end;
@@ -878,7 +878,7 @@ begin
   EnterIndex := ThtCombobox(FControl).ItemIndex;
 end;
 
-{$ifdef OpOnChange}
+{$IFDEF OpOnChange}
 procedure TComboFormControlObj.OptionalOnChange(Sender: TObject);
 begin
   if ThtCombobox(FControl).ItemIndex <> EnterIndex then
@@ -888,16 +888,15 @@ begin
       MasterList.ObjectChange(MasterList.TheOwner, Self, OnChangeMessage);
   end;
 end;
-
-{$endif}
+{$ENDIF}
 
 procedure TComboFormControlObj.DoOnChange;
 begin
-{$ifndef OpOnChange}
+{$IFNDEF OpOnChange}
   if ThtCombobox(FControl).ItemIndex <> EnterIndex then
     if Assigned(MasterList.ObjectChange) then
       MasterList.ObjectChange(MasterList.TheOwner, Self, OnChangeMessage);
-{$endif}
+{$ENDIF}
 end;
 
 {----------------TTextAreaFormControlObj.Create}

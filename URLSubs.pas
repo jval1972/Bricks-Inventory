@@ -4,7 +4,7 @@ unit URLSubs;
 interface
 
 uses
-  WinTypes, WinProcs, Messages, SysUtils, htmlun2;
+  WinTypes, WinProcs, Messages, SysUtils, HTMLUn2;
 
 function GetBase(const URL: string): string;
 {Given an URL, get the base directory}
@@ -14,7 +14,7 @@ function Combine(Base, APath: string): string;
 {needs work for cases where directories might overlap}
 
 function Normalize(const URL: string): string;
-{lowercase, trim, and make sure a '/' terminates a hostname, adds http://}
+{LowerCase, trim, and make sure a '/' terminates a hostname, adds http://}
 
 function IsFullURL(const URL: string): boolean;
 {set if contains a protocol}
@@ -31,7 +31,7 @@ function GetURLFilenameAndExt(const URL: string): string;
 function DosToHTML(FName: string): string;
 {convert an Dos style filename to one for HTML.  Does not add the file:///}
 
-function DosToHtmlNoSharp(FName: string): string;
+function DosToHtmlNoSharp(const FName: string): string;
 {convert a Dos style filename to one for HTML.  Does not add the file:///.
  use where "#" is not being used as a local position but rather is part of filename.}
 
@@ -184,7 +184,7 @@ begin
   else
     S := Url;
   N := Pos('://', S);
-  Result := (N > 0) and (N < Pos('/', S)) or (Pos('mailto:', Lowercase(S)) <> 0);
+  Result := (N > 0) and (N < Pos('/', S)) or (Pos('mailto:', LowerCase(S)) <> 0);
 end;
 
 function GetProtocol(const URL: string): string;
@@ -199,7 +199,7 @@ begin
   else
     S := URL;
   ParseURL(S, Result, user, pass, Host, port, Path);
-  Result := Lowercase(Result);
+  Result := LowerCase(Result);
 end;
 
 function GetURLExtension(const URL: string): string;
@@ -306,7 +306,7 @@ begin
   p := Pos('://', url);
   if p = 0 then
   begin
-    if (url[1] = '/') then
+    if url[1] = '/' then
     begin
       { Relative path without protocol specified }
       proto := 'http';
@@ -318,7 +318,7 @@ begin
         Exit;
       end;
     end
-    else if lowercase(Copy(url, 1, 5)) = 'http:' then
+    else if LowerCase(Copy(url, 1, 5)) = 'http:' then
     begin
       proto := 'http';
       p := 6;
@@ -329,7 +329,7 @@ begin
         Exit;
       end;
     end
-    else if lowercase(Copy(url, 1, 7)) = 'mailto:' then
+    else if LowerCase(Copy(url, 1, 7)) = 'mailto:' then
     begin
       proto := 'mailto';
       p := CharPos(':', url);
@@ -387,16 +387,14 @@ function DosToHTML(FName: string): string;
 var
   Colon: integer;
 
-  procedure Replace(Old, New: char);
+  procedure Replace(const OldC, NewC: char);
   var
-    I: integer;
+    I, len: integer;
   begin
-    I := Pos(Old, FName);
-    while I > 0 do
-    begin
-      FName[I] := New;
-      I := Pos(Old, FName);
-    end;
+    len := Length(FName);
+    for I := 1 to len do
+      if FName[I] = OldC then
+        FName[I] := NewC;
   end;
 
 begin
@@ -408,20 +406,18 @@ begin
   Result := FName;
 end;
 
-function DosToHtmlNoSharp(FName: string): string;
+function DosToHtmlNoSharp(const FName: string): string;
 {convert a Dos style filename to one for HTML.  Does not add the file:///.
  use where "#" is not being used as a local position but rather is part of filename.}
 var
   I: integer;
 begin
-  I := CharPos('#', FName);
-  while I > 0 do
-  begin
-    Delete(FName, I, 1);
-    Insert('%23', FName, I);
-    I := CharPos('#', FName);
-  end;
-  Result := FName;
+  Result := '';
+  for I := 1 to Length(FName) do
+    if FName[I] = '#' then
+      Result := Result + '%23'
+    else
+      Result := Result + FName[I];
 end;
 
 end.

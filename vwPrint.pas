@@ -71,17 +71,17 @@ uses Consts;
 var
   FPrinter: TvwPrinter;
   
-{$ifdef ver100_plus}    {Delphi 3, 4 or C++Builder 3, 4}
+{$IFDEF ver100_plus}    {Delphi 3, 4 or C++Builder 3, 4}
 procedure RaiseError(const Msg: string);
 begin
   raise EPrinter.Create(Msg);
 end;
-{$else}
+{$ELSE}
 procedure RaiseError(MsgID: Integer);
 begin
   raise EPrinter.CreateRes(MsgID);
 end;
-{$endif}
+{$ENDIF}
 
 function AbortProc(Prn: HDC; Error: Integer): Bool; stdcall;
 begin

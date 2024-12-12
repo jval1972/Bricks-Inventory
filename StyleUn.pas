@@ -40,11 +40,11 @@ const
   Auto = -12348765;
   AutoParagraph = -12348766;
   ParagraphSpace = 14;   {default spacing between paragraphs, etc.}
-  {$ifdef Delphi6_Plus}
+  {$IFDEF Delphi6_Plus}
   varInt = [varInteger, varByte, varSmallInt, varShortInt, varWord, varLongWord];
-  {$else}
+  {$ELSE}
   varInt = [varInteger];
-  {$endif}
+  {$ENDIF}
   EastEurope8859_2 = 31; {for 8859-2}
   CRLF = #$D#$A;
 
@@ -68,9 +68,9 @@ type
   end;
   PtPositionRec = array[1..2] of PositionRec;
 
-{$ifdef Ver90}
+{$IFDEF Ver90}
   TFontCharSet = integer;  {dummy for Delphi 2}
-{$endif}
+{$ENDIF}
 
   ThtFontInfo = class
     iName: string;
@@ -205,9 +205,9 @@ type
     function AddObject(const S: string; AObject: TObject): integer; override;
     function AddDuplicate(const Tag: string; Prop: TProperties): TProperties;
     procedure ModifyLinkColor(Psuedo: string; AColor: TColor);
-    {$ifdef Quirk}
+    {$IFDEF Quirk}
     procedure FixupTableColor(BodyProp: TProperties);
-    {$endif}
+    {$ENDIF}
   end;
 
 const
@@ -251,25 +251,25 @@ function ReadFontName(S: string): string;
 
 function AlignmentFromString(S: string): AlignmentType;
 
-{$ifndef Ver130}
-{$ifndef Delphi6_Plus}
+{$IFNDEF Ver130}
+{$IFNDEF Delphi6_Plus}
 procedure FreeAndNil(var Obj);
-{$endif}
-{$endif}
+{$ENDIF}
+{$ENDIF}
 
 implementation
 
 uses
-  {$ifdef Delphi6_Plus}
+  {$IFDEF Delphi6_Plus}
   Variants,
-  {$endif}
-  htmlsubs, htmlun2, readhtml, bi_delphi;
+  {$ENDIF}
+  htmlsubs, HTMLUn2, readhtml, bi_delphi;
 
 var
   DefPointSize: double;
 
-{$ifndef Ver130}
-{$ifndef Delphi6_Plus}
+{$IFNDEF Ver130}
+{$IFNDEF Delphi6_Plus}
 procedure FreeAndNil(var Obj);
 var
   P: TObject;
@@ -279,8 +279,8 @@ begin
   P.Free;
 end;
 
-{$endif}
-{$endif}
+{$ENDIF}
+{$ENDIF}
 
 {----------------AlignmentFromString}
 function AlignmentFromString(S: string): AlignmentType;
@@ -1540,11 +1540,11 @@ var
   end;
 
 begin
-{$ifdef Quirk}
+{$IFDEF Quirk}
   if (Tag = 'td') or (Tag = 'th') then
     OldSize := DefPointSize
   else
-{$endif}
+{$ENDIF}
   if (VarType(Props[FontSize]) = VarDouble) and (Props[FontSize] > 0.0) then
     {should be true}
     OldSize := Props[FontSize]
@@ -2100,14 +2100,14 @@ begin
     begin
       AddModifyProp('::link', Prop, Value);  {also applies to ::link}
     end;
-  {$ifdef Quirk}
+  {$IFDEF Quirk}
     if (Selector = 'body') and (PropIndex = Color) then
       FixupTableColor(Propty);
-  {$endif}
+  {$ENDIF}
   end;
 end;
 
-{$ifdef Quirk}
+{$IFDEF Quirk}
 procedure TStyleList.FixupTableColor(BodyProp: TProperties);
 {if Quirk is set, make sure that the table color is defined the same as the
  body color}
@@ -2127,7 +2127,7 @@ begin
   end;
 end;
 
-{$endif}
+{$ENDIF}
 
 function TStyleList.AddObject(const S: string; AObject: TObject): integer;
 begin
@@ -2194,7 +2194,7 @@ begin
   AddObject('default', Properties);
   DefProp := Properties;
 
-{$ifdef Quirk}
+{$IFDEF Quirk}
   Properties := TProperties.Create;
   with Properties do
   begin
@@ -2206,7 +2206,7 @@ begin
   AddObject('td', Properties);
   Properties := AddDuplicate('th', Properties);
   Properties.Props[FontWeight] := 'bold';
-{$endif}
+{$ENDIF}
 
   Properties := TProperties.Create;
   with Properties do
@@ -2309,9 +2309,9 @@ begin
   end;
   AddObject('b', Properties);
   AddDuplicate('strong', Properties);
-{$ifndef Quirk}
+{$IFNDEF Quirk}
   AddDuplicate('th', Properties);
-{$endif}
+{$ENDIF}
 
   Properties := TProperties.Create;
   with Properties do

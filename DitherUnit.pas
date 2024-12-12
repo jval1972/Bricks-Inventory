@@ -78,16 +78,16 @@ interface
   {$DEFINE D4_BCB3}
 {$ENDIF}
 
-{$ifdef Ver130}   {Delphi 5}  
+{$IFDEF Ver130}   {Delphi 5}  
   {$DEFINE VER10x}
   {$DEFINE VER11_PLUS}
   {$DEFINE D4_BCB3}
 {$ENDIF}
 
-{$ifdef ver125}    {C++Builder 4}
+{$IFDEF ver125}    {C++Builder 4}
   {$DEFINE VER11_PLUS}
   {$DEFINE D4_BCB3}
-{$endif}
+{$ENDIF}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -167,12 +167,12 @@ function GetBitmap(Source: TPersistent): TBitmap;  {LDB}
 implementation
 
 uses
-{$ifdef DEBUG}
+{$IFDEF DEBUG}
   dialogs,
-{$endif}
+{$ENDIF}
   mmsystem, // timeGetTime()
   messages,
-  htmlun2;
+  HTMLUn2;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -507,12 +507,12 @@ type
 
   TDIBWriter = class(TDIB)
   private
-{$ifdef PIXELFORMAT_TOO_SLOW}
+{$IFDEF PIXELFORMAT_TOO_SLOW}
     FDIBInfo: PBitmapInfo;
     FDIBBits: pointer;
     FDIBInfoSize: integer;
     FDIBBitsSize: longint;
-{$endif}
+{$ENDIF}
   protected
     procedure CreateDIB;
     procedure FreeDIB;
@@ -551,23 +551,23 @@ end;
 
 ////////////////////////////////////////////////////////////////////////////////
 constructor TDIBWriter.Create(ABitmap: TBitmap; APixelFormat: TPixelFormat);
-{$ifndef PIXELFORMAT_TOO_SLOW}
+{$IFNDEF PIXELFORMAT_TOO_SLOW}
 var
   SavePalette: HPalette;
-{$endif}
+{$ENDIF}
 begin
   inherited Create(ABitmap, APixelFormat);
-{$ifndef PIXELFORMAT_TOO_SLOW}
+{$IFNDEF PIXELFORMAT_TOO_SLOW}
   SavePalette := FBitmap.ReleasePalette;
   try
     SafeSetPixelFormat(FBitmap, FPixelFormat);
   finally
     FBitmap.Palette := SavePalette;
   end;
-{$else}
+{$ELSE}
   FDIBInfo := nil;
   FDIBBits := nil;
-{$endif}
+{$ENDIF}
 end;
 
 destructor TDIBWriter.Destroy;
@@ -579,7 +579,7 @@ end;
 
 function TDIBWriter.GetScanline(Row: integer): pointer;
 begin
-{$ifdef PIXELFORMAT_TOO_SLOW}
+{$IFDEF PIXELFORMAT_TOO_SLOW}
   NeedDIB;
 
   if FDIBBits = nil then
@@ -594,9 +594,9 @@ begin
       Row := biHeight - Row - 1;
     Result := PChar(Cardinal(FDIBBits) + Cardinal(Row) * AlignBit(biWidth, biBitCount, 32));
   end;
-{$else}
+{$ELSE}
   Result := FBitmap.ScanLine[Row];
-{$endif}
+{$ENDIF}
 end;
 
 procedure TDIBWriter.CreateDIB;
@@ -621,7 +621,7 @@ var
           JE    @@386
     @@1:  MOV   EAX, [EDX+ECX*4]
           BSWAP EAX
-          shr   EAX,8
+          SHR   EAX,8
           MOV   [EDX+ECX*4],EAX
           DEC   ECX
           JNS   @@1
@@ -632,8 +632,8 @@ var
           MOV   EAX, [EDX+ECX*4]
           MOV   BH, AL
           MOV   BL, AH
-          shr   EAX,16
-          shl   EBX,8
+          SHR   EAX,16
+          SHL   EBX,8
           MOV   BL, AL
           MOV   [EDX+ECX*4],EBX
           DEC   ECX
@@ -644,7 +644,7 @@ var
   end;
 {$ENDIF}
 begin
-{$ifdef PIXELFORMAT_TOO_SLOW}
+{$IFDEF PIXELFORMAT_TOO_SLOW}
   if FBitmap.Handle = 0 then
     Error(sInvalidBitmap);
 
@@ -695,39 +695,39 @@ begin
     FreeDIB;
     raise;
   end;
-{$endif}
+{$ENDIF}
 end;
 
 procedure TDIBWriter.FreeDIB;
 begin
-{$ifdef PIXELFORMAT_TOO_SLOW}
+{$IFDEF PIXELFORMAT_TOO_SLOW}
   if FDIBInfo <> nil then
     FreeMem(FDIBInfo);
   if FDIBBits <> nil then
     GlobalFreePtr(FDIBBits);
   FDIBInfo := nil;
   FDIBBits := nil;
-{$endif}
+{$ENDIF}
 end;
 
 procedure TDIBWriter.NeedDIB;
 begin
-{$ifdef PIXELFORMAT_TOO_SLOW}
+{$IFDEF PIXELFORMAT_TOO_SLOW}
   if FDIBBits = nil then
     CreateDIB;
-{$endif}
+{$ENDIF}
 end;
 
 // Convert the DIB created by CreateDIB back to a TBitmap
 procedure TDIBWriter.UpdateBitmap;
-{$ifdef PIXELFORMAT_TOO_SLOW}
+{$IFDEF PIXELFORMAT_TOO_SLOW}
 var
   Stream: TMemoryStream;
   FileSize: longint;
   BitmapFileHeader: TBitmapFileHeader;
-{$endif}
+{$ENDIF}
 begin
-{$ifdef PIXELFORMAT_TOO_SLOW}
+{$IFDEF PIXELFORMAT_TOO_SLOW}
   if (FDIBInfo = nil) or (FDIBBits = nil) then
     exit;
   Stream := TMemoryStream.Create;
@@ -756,7 +756,7 @@ begin
   finally
     Stream.Free;
   end;
-{$endif}
+{$ENDIF}
 end;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -861,7 +861,7 @@ begin
   InverseIndex := (Red shr 3) or ((Green and $F8) shl 2) OR ((Blue and $F8) shl 7);
 
   if FInverseLookup^[InverseIndex] <> -1 then
-    Result := char(FInverseLookup^[InverseIndex])
+    Result := Char(FInverseLookup^[InverseIndex])
   else
   begin
     // Sequential scan for nearest color to minimize euclidian distance
@@ -871,13 +871,13 @@ begin
       with FPaletteEntries[i] do
       begin
         Delta := ABS(peRed - Red) + ABS(peGreen - Green) + ABS(peBlue - Blue);
-        if (Delta < MinDelta) then
+        if Delta < MinDelta then
         begin
           MinDelta := Delta;
           MinColor := i;
         end;
       end;
-    Result := char(MinColor);
+    Result := Char(MinColor);
     FInverseLookup^[InverseIndex] := MinColor;
   end;
 
@@ -1536,16 +1536,16 @@ var
   DstScanLine,
   Dst: PChar;
   BGR: TRGBTriple;
-{$ifdef DEBUG_DITHERPERFORMANCE}
+{$IFDEF DEBUG_DITHERPERFORMANCE}
   TimeStart, TimeStop: DWORD;
-{$endif}
+{$ENDIF}
 
 
 begin
-{$ifdef DEBUG_DITHERPERFORMANCE}
+{$IFDEF DEBUG_DITHERPERFORMANCE}
   timeBeginPeriod(5);
   TimeStart := timeGetTime;
-{$endif}
+{$ENDIF}
 
   Result := TBitmap.Create;
   try
@@ -1663,14 +1663,14 @@ begin
     raise;
   end;
 
-{$ifdef DEBUG_DITHERPERFORMANCE}
+{$IFDEF DEBUG_DITHERPERFORMANCE}
   TimeStop := timeGetTime;
   ShowMessage(format('Dithered %d pixels in %d mS, Rate %d pixels/mS (%d pixels/S)',
     [Bitmap.Height*Bitmap.Width, TimeStop-TimeStart,
     MulDiv(Bitmap.Height, Bitmap.Width, TimeStop-TimeStart+1),
     MulDiv(Bitmap.Height, Bitmap.Width * 1000, TimeStop-TimeStart+1)]));
   timeEndPeriod(5);
-{$endif}
+{$ENDIF}
 end;
 {$IFDEF R_PLUS}
   {$RANGECHECKS ON}
@@ -1699,7 +1699,8 @@ begin
       DitherMode := dmFloydSteinberg;
       // Convert image to 8 bits/pixel or less
       FBitmap := ReduceColors(TBitmap(Source), ColorReduction, DitherMode);
-    end else
+    end
+    else
     begin
       // Create new bitmap and copy
       FBitmap := TBitmap.Create;

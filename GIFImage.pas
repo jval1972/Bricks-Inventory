@@ -180,9 +180,9 @@ unit GIFImage;
 // { TODO -oanme -cBugFix : Solution for background buffering in scrollbox. }
 //
 //////////////////////////////////////////////////////////////////////////////////
-{$ifdef BCB}
+{$IFDEF BCB}
 {$ObjExportAll On}
-{$endif}
+{$ENDIF}
 
 interface
 ////////////////////////////////////////////////////////////////////////////////
@@ -486,9 +486,9 @@ interface
 {$ENDIF}
 
 // Special options for Time2Help parser
-{$ifdef TIME2HELP}
+{$IFDEF TIME2HELP}
 {$UNDEF PIXELFORMAT_TOO_SLOW}
-{$endif}
+{$ENDIF}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -1278,9 +1278,9 @@ type
     FOnEndPaint: TNotifyEvent;
     procedure DoOnTerminate(Sender: TObject);// Sync. shutdown procedure
     procedure DoSynchronize(Method: TThreadMethod);// Conditional sync stub
-{$ifdef SERIALIZE_RENDER}
+{$IFDEF SERIALIZE_RENDER}
     procedure PrefetchBitmap;      // Sync. bitmap prefetch
-{$endif}
+{$ENDIF}
     procedure DoPaintFrame;      // Sync. buffered paint procedure
     procedure DoPaint;         // Sync. paint procedure
     procedure DoEvent;
@@ -1567,11 +1567,11 @@ procedure Register;
 //                      Error messages
 //
 ////////////////////////////////////////////////////////////////////////////////
-{$ifndef VER9x}
+{$IFNDEF VER9x}
 resourcestring
-{$else}
+{$ELSE}
 const
-{$endif}
+{$ENDIF}
   // GIF Error messages
   sOutOfData = 'Premature end of data';
   sTooManyColors = 'Color table overflow';
@@ -1651,36 +1651,36 @@ const
 implementation
 
 { This makes me long for the C preprocessor... }
-{$ifdef DEBUG}
-  {$ifdef DEBUG_COMPRESSPERFORMANCE}
+{$IFDEF DEBUG}
+  {$IFDEF DEBUG_COMPRESSPERFORMANCE}
     {$define DEBUG_PERFORMANCE}
-  {$else}
-    {$ifdef DEBUG_DECOMPRESSPERFORMANCE}
+  {$ELSE}
+    {$IFDEF DEBUG_DECOMPRESSPERFORMANCE}
       {$define DEBUG_PERFORMANCE}
-    {$else}
-      {$ifdef DEBUG_DITHERPERFORMANCE}
+    {$ELSE}
+      {$IFDEF DEBUG_DITHERPERFORMANCE}
         {$define DEBUG_PERFORMANCE}
-      {$else}
-        {$ifdef DEBUG_DITHERPERFORMANCE}
+      {$ELSE}
+        {$IFDEF DEBUG_DITHERPERFORMANCE}
           {$define DEBUG_PERFORMANCE}
-        {$else}
-          {$ifdef DEBUG_DRAWPERFORMANCE}
+        {$ELSE}
+          {$IFDEF DEBUG_DRAWPERFORMANCE}
             {$define DEBUG_PERFORMANCE}
-          {$else}
-            {$ifdef DEBUG_RENDERPERFORMANCE}
+          {$ELSE}
+            {$IFDEF DEBUG_RENDERPERFORMANCE}
               {$define DEBUG_PERFORMANCE}
-            {$endif}
-          {$endif}
-        {$endif}
-      {$endif}
-    {$endif}
-  {$endif}
-{$endif}
+            {$ENDIF}
+          {$ENDIF}
+        {$ENDIF}
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
 
 uses
-{$ifdef DEBUG}
+{$IFDEF DEBUG}
   dialogs,
-{$endif}
+{$ENDIF}
   mmsystem, // timeGetTime()
   messages,
   Consts;
@@ -1768,11 +1768,11 @@ end;
   {$DEFINE R_PLUS}
   {$RANGECHECKS OFF}
 {$ENDIF}
-{$ifdef D3_BCB3}
+{$IFDEF D3_BCB3}
 function GDICheck(Value: Integer): Integer;
-{$else}
+{$ELSE}
 function GDICheck(Value: Cardinal): Cardinal;
-{$endif}
+{$ENDIF}
 var
   ErrorCode: integer;
   // 2008.10.19 ->
@@ -2541,14 +2541,14 @@ type
 
   TDIBReader = class(TDIB)
   private
-{$ifdef VER9x}
+{$IFDEF VER9x}
     FDIB: TDIBSection;
     FDC: HDC;
     FScanLine: pointer;
     FLastRow: integer;
     FInfo: PBitmapInfo;
     FBytes: integer;
-{$endif}
+{$ENDIF}
   protected
     function GetScanline(Row: integer): pointer; override;
   public
@@ -2558,15 +2558,15 @@ type
 
   TDIBWriter = class(TDIB)
   private
-{$ifdef PIXELFORMAT_TOO_SLOW}
+{$IFDEF PIXELFORMAT_TOO_SLOW}
     FDIBInfo: PBitmapInfo;
     FDIBBits: pointer;
     FDIBInfoSize: integer;
     FDIBBitsSize: longint;
-{$ifndef CREATEDIBSECTION_SLOW}
+{$IFNDEF CREATEDIBSECTION_SLOW}
     FDIB: HBITMAP;
-{$endif}
-{$endif}
+{$ENDIF}
+{$ENDIF}
     FPalette: HPalette;
     FHeight: integer;
     FWidth: integer;
@@ -2595,16 +2595,16 @@ end;
 
 ////////////////////////////////////////////////////////////////////////////////
 constructor TDIBReader.Create(ABitmap: TBitmap; APixelFormat: TPixelFormat);
-{$ifdef VER9x}
+{$IFDEF VER9x}
 var
   InfoHeaderSize: integer;
   ImageSize: longInt;
-{$endif}
+{$ENDIF}
 begin
   inherited Create(ABitmap, APixelFormat);
-{$ifndef VER9x}
+{$IFNDEF VER9x}
   SetPixelFormat(FBitmap, FPixelFormat);
-{$else}
+{$ELSE}
   FDC := CreateCompatibleDC(0);
   SelectPalette(FDC, FBitmap.Palette, False);
 
@@ -2618,22 +2618,22 @@ begin
   GetMem(FScanLine, ImageSize DIV abs(FInfo^.bmiHeader.biHeight));
 
   FLastRow := -1;
-{$endif}
+{$ENDIF}
 end;
 
 destructor TDIBReader.Destroy;
 begin
-{$ifdef VER9x}
+{$IFDEF VER9x}
   DeleteDC(FDC);
   FreeMem(FScanLine);
   FreeMem(FInfo);
-{$endif}
+{$ENDIF}
   inherited Destroy;
 end;
 
 function TDIBReader.GetScanline(Row: integer): pointer;
 begin
-{$ifdef VER9x}
+{$IFDEF VER9x}
   if (Row < 0) or (Row >= FBitmap.Height) then
     raise EInvalidGraphicOperation.Create(SScanLine);
   GDIFlush;
@@ -2647,9 +2647,9 @@ begin
     Row := FInfo^.bmiHeader.biHeight - Row - 1;
   GetDIBits(FDC, FBitmap.Handle, Row, 1, FScanLine, FInfo^, DIB_RGB_COLORS);
 
-{$else}
+{$ELSE}
   Result := FBitmap.ScanLine[Row];
-{$endif}
+{$ENDIF}
 end;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2666,21 +2666,21 @@ begin
 
   FHeight := AHeight;
   FWidth := AWidth;
-{$ifndef PIXELFORMAT_TOO_SLOW}
+{$IFNDEF PIXELFORMAT_TOO_SLOW}
   FBitmap.Palette := 0;
   FBitmap.Height := FHeight;
   FBitmap.Width := FWidth;
   SafeSetPixelFormat(FBitmap, FPixelFormat);
   FPalette := CopyPalette(APalette);
   FBitmap.Palette := FPalette;
-{$else}
+{$ELSE}
   FPalette := APalette;
   FDIBInfo := nil;
   FDIBBits := nil;
-{$ifndef CREATEDIBSECTION_SLOW}
+{$IFNDEF CREATEDIBSECTION_SLOW}
   FDIB := 0;
-{$endif}
-{$endif}
+{$ENDIF}
+{$ENDIF}
 end;
 
 destructor TDIBWriter.Destroy;
@@ -2692,7 +2692,7 @@ end;
 
 function TDIBWriter.GetScanline(Row: integer): pointer;
 begin
-{$ifdef PIXELFORMAT_TOO_SLOW}
+{$IFDEF PIXELFORMAT_TOO_SLOW}
   NeedDIB;
 
   if (FDIBBits = nil) then
@@ -2707,9 +2707,9 @@ begin
       Row := biHeight - Row - 1;
     Result := PAnsiChar(Cardinal(FDIBBits) + Cardinal(Row) * AlignBit(biWidth, biBitCount, 32));
   end;
-{$else}
+{$ELSE}
   Result := FBitmap.ScanLine[Row];
-{$endif}
+{$ENDIF}
 end;
 
 procedure TDIBWriter.CreateDIB;
@@ -2758,7 +2758,7 @@ var
   end;
 {$ENDIF}
 begin
-{$ifdef PIXELFORMAT_TOO_SLOW}
+{$IFDEF PIXELFORMAT_TOO_SLOW}
   FreeDIB;
 
   if (PixelFormat = pf8bit) then
@@ -2807,11 +2807,11 @@ begin
     end;
     FDIBBitsSize := AlignBit(Width, FDIBInfo^.bmiHeader.biBitCount, 32) * Cardinal(abs(Height));
 
-{$ifdef CREATEDIBSECTION_SLOW}
+{$IFDEF CREATEDIBSECTION_SLOW}
     FDIBBits := GlobalAllocPtr(GMEM_MOVEABLE, FDIBBitsSize);
     if (FDIBBits = nil) then
       raise EOutOfMemory.Create(sOutOfMemDIB);
-{$else}
+{$ELSE}
 //    ScreenDC := GDICheck(GetDC(0));
     try
       // Allocate DIB section
@@ -2824,66 +2824,66 @@ begin
     finally
 //      ReleaseDC(0, ScreenDC);
     end;
-{$endif}
+{$ENDIF}
 
   except
     FreeDIB;
     raise;
   end;
-{$endif}
+{$ENDIF}
 end;
 
 procedure TDIBWriter.FreeDIB;
 begin
-{$ifdef PIXELFORMAT_TOO_SLOW}
+{$IFDEF PIXELFORMAT_TOO_SLOW}
   if (FDIBInfo <> nil) then
     FreeMem(FDIBInfo);
-{$ifdef CREATEDIBSECTION_SLOW}
+{$IFDEF CREATEDIBSECTION_SLOW}
   if (FDIBBits <> nil) then
     GlobalFreePtr(FDIBBits);
-{$else}
+{$ELSE}
   if (FDIB <> 0) then
     DeleteObject(FDIB);
   FDIB := 0;
-{$endif}
+{$ENDIF}
   FDIBInfo := nil;
   FDIBBits := nil;
-{$endif}
+{$ENDIF}
 end;
 
 procedure TDIBWriter.NeedDIB;
 begin
-{$ifdef PIXELFORMAT_TOO_SLOW}
-{$ifdef CREATEDIBSECTION_SLOW}
+{$IFDEF PIXELFORMAT_TOO_SLOW}
+{$IFDEF CREATEDIBSECTION_SLOW}
   if (FDIBBits = nil) then
-{$else}
+{$ELSE}
   if (FDIB = 0) then
-{$endif}
+{$ENDIF}
     CreateDIB;
-{$endif}
+{$ENDIF}
 end;
 
 // Convert the DIB created by CreateDIB back to a TBitmap
 procedure TDIBWriter.UpdateBitmap;
-{$ifdef PIXELFORMAT_TOO_SLOW}
+{$IFDEF PIXELFORMAT_TOO_SLOW}
 var
   Stream: TMemoryStream;
   FileSize: longInt;
   BitmapFileHeader: TBitmapFileHeader;
-{$endif}
+{$ENDIF}
 begin
-{$ifdef PIXELFORMAT_TOO_SLOW}
+{$IFDEF PIXELFORMAT_TOO_SLOW}
 
-{$ifdef CREATEDIBSECTION_SLOW}
+{$IFDEF CREATEDIBSECTION_SLOW}
   if (FDIBBits = nil) then
-{$else}
+{$ELSE}
   if (FDIB = 0) then
-{$endif}
+{$ENDIF}
     exit;
 
   // Win95 and NT differs in what solution performs best
-{$ifndef CREATEDIBSECTION_SLOW}
-{$ifdef VER10_PLUS}
+{$IFNDEF CREATEDIBSECTION_SLOW}
+{$IFDEF VER10_PLUS}
   if (Win32Platform = VER_PLATFORM_WIN32_NT) then
   begin
     // Assign DIB to bitmap
@@ -2891,8 +2891,8 @@ begin
     FDIB := 0;
     FBitmap.Palette := CopyPalette(Palette);
   end else
-{$endif}
-{$endif}
+{$ENDIF}
+{$ENDIF}
   begin
     // Write DIB to a stream in the BMP file format
     Stream := TMemoryStream.Create;
@@ -2922,7 +2922,7 @@ begin
       Stream.Free;
     end;
   end;
-{$endif}
+{$ENDIF}
 end;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4742,10 +4742,10 @@ var
   SrcScanLine, Src: PRGBTriple;
   DstScanLine, Dst: PAnsiChar;
   BGR: TRGBTriple;
-{$ifdef DEBUG_DITHERPERFORMANCE}
+{$IFDEF DEBUG_DITHERPERFORMANCE}
   TimeStart, TimeStop: DWORD;
 
-{$endif}
+{$ENDIF}
 
   function GrayScalePalette: hPalette;
   var
@@ -4833,10 +4833,10 @@ var
   end;
 
 begin
-{$ifdef DEBUG_DITHERPERFORMANCE}
+{$IFDEF DEBUG_DITHERPERFORMANCE}
   timeBeginPeriod(5);
   TimeStart := timeGetTime;
-{$endif}
+{$ENDIF}
 
   Result := TBitmap.Create;
   try
@@ -4844,9 +4844,9 @@ begin
     if (ColorReduction = rmNone) then
     begin
       Result.Assign(Bitmap);
-{$ifndef VER9x}
+{$IFNDEF VER9x}
       SetPixelFormat(Result, pf24bit);
-{$endif}
+{$ENDIF}
       exit;
     end;
 
@@ -4986,14 +4986,14 @@ begin
     raise;
   end;
 
-{$ifdef DEBUG_DITHERPERFORMANCE}
+{$IFDEF DEBUG_DITHERPERFORMANCE}
   TimeStop := timeGetTime;
   ShowMessage(format('Dithered %d pixels in %d mS, Rate %d pixels/mS (%d pixels/S)',
     [Bitmap.Height * Bitmap.Width, TimeStop - TimeStart,
     MulDiv(Bitmap.Height, Bitmap.Width, TimeStop - TimeStart + 1),
     MulDiv(Bitmap.Height, Bitmap.Width * 1000, TimeStop - TimeStart + 1)]));
   timeEndPeriod(5);
-{$endif}
+{$ENDIF}
 end;
 
 {$IFDEF R_PLUS}
@@ -5983,10 +5983,10 @@ var
   LastByte: integer;      // Index of last byte in buffer
   get_done, return_clear, ZeroBlock: boolean;
   ClearValue: byte;
-{$ifdef DEBUG_DECOMPRESSPERFORMANCE}
+{$IFDEF DEBUG_DECOMPRESSPERFORMANCE}
   TimeStartDecompress, TimeStopDecompress: DWORD;
 
-{$endif}
+{$ENDIF}
 
   function nextCode(BitsPerCode: integer): integer;
   const
@@ -6196,9 +6196,9 @@ begin
 
   FillChar(FData^, FDataSize, ClearValue);
 
-{$ifdef DEBUG_DECOMPRESSPERFORMANCE}
+{$IFDEF DEBUG_DECOMPRESSPERFORMANCE}
   TimeStartDecompress := timeGetTime;
-{$endif}
+{$ENDIF}
 
   (*
   ** Read initial code size in bits from stream
@@ -6273,12 +6273,12 @@ begin
     ;
     //      raise GIFException.Create('Too much input data, ignoring extra...');
   end;
-{$ifdef DEBUG_DECOMPRESSPERFORMANCE}
+{$IFDEF DEBUG_DECOMPRESSPERFORMANCE}
   TimeStopDecompress := timeGetTime;
   ShowMessage(format('Decompressed %d pixels in %d mS, Rate %d pixels/mS',
     [Height * Width, TimeStopDecompress - TimeStartDecompress, (Height * Width) div
     (TimeStopDecompress - TimeStartDecompress + 1)]));
-{$endif}
+{$ENDIF}
 end;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6318,12 +6318,12 @@ type
   PHashArray = ^THashArray;
 
   THashTable = class
-{$ifdef DEBUG_HASHPERFORMANCE}
+{$IFDEF DEBUG_HASHPERFORMANCE}
     CountLookupFound: longint;
     CountMissFound: longint;
     CountLookupNotFound: longint;
     CountMissNotFound: longint;
-{$endif}
+{$ENDIF}
     HashTable: PHashArray;
   public
     constructor Create;
@@ -6364,42 +6364,42 @@ begin
   inherited Create;
   GetMem(HashTable, SizeOf(THashArray));
   Clear;
-{$ifdef DEBUG_HASHPERFORMANCE}
+{$IFDEF DEBUG_HASHPERFORMANCE}
   CountLookupFound := 0;
   CountMissFound := 0;
   CountLookupNotFound := 0;
   CountMissNotFound := 0;
-{$endif}
+{$ENDIF}
 end;
 
 destructor THashTable.Destroy;
 begin
-{$ifdef DEBUG_HASHPERFORMANCE}
+{$IFDEF DEBUG_HASHPERFORMANCE}
   ShowMessage(
     Format('Found: %d  HitRate: %.2f', [CountLookupFound,
     (CountLookupFound + 1) / (CountMissFound + 1)]) + #13 +
     Format('Not found: %d  HitRate: %.2f', [CountLookupNotFound,
     (CountLookupNotFound + 1) / (CountMissNotFound + 1)]));
-{$endif}
+{$ENDIF}
   FreeMem(HashTable);
   inherited Destroy;
 end;
 
 // Clear hash table and fill with empty slots (doh!)
 procedure THashTable.Clear;
-{$ifdef DEBUG_HASHFILLFACTOR}
+{$IFDEF DEBUG_HASHFILLFACTOR}
 var
   i, Count: longint;
-{$endif}
+{$ENDIF}
 begin
-{$ifdef DEBUG_HASHFILLFACTOR}
+{$IFDEF DEBUG_HASHFILLFACTOR}
   Count := 0;
   for i := 0 to HashSize - 1 do
     if (HashTable[i] shr GIFCodeBits <> HashEmpty) then
       Inc(Count);
   ShowMessage(format('Size: %d, Filled: %d, Rate %.4f',
     [HashSize, Count, Count / HashSize]));
-{$endif}
+{$ENDIF}
 
   FillChar(HashTable^, SizeOf(THashArray), $FF);
 end;
@@ -6427,16 +6427,16 @@ function THashTable.Lookup(Key: KeyInt): CodeInt;
 var
   HKey: CodeInt;
   HTKey: KeyInt;
-{$ifdef DEBUG_HASHPERFORMANCE}
+{$IFDEF DEBUG_HASHPERFORMANCE}
   n: longint;
-{$endif}
+{$ENDIF}
 begin
   // Create hash key from prefix string
   HKey := HashKey(Key);
 
-{$ifdef DEBUG_HASHPERFORMANCE}
+{$IFDEF DEBUG_HASHPERFORMANCE}
   n := 0;
-{$endif}
+{$ENDIF}
   // Scan table for key
   // HTKey := HashTable[HKey] SHR GIFCodeBits; { Unoptimized }
   Key := Key shl GIFCodeBits; { Optimized }
@@ -6448,15 +6448,15 @@ begin
     begin
       // Extract and return value
       Result := HashTable[HKey] and GIFCodeMask;
-{$ifdef DEBUG_HASHPERFORMANCE}
+{$IFDEF DEBUG_HASHPERFORMANCE}
       Inc(CountLookupFound);
       Inc(CountMissFound, n);
-{$endif}
+{$ENDIF}
       exit;
     end;
-{$ifdef DEBUG_HASHPERFORMANCE}
+{$IFDEF DEBUG_HASHPERFORMANCE}
     Inc(n);
-{$endif}
+{$ENDIF}
     // Try next slot
     HKey := NextHashKey(HKey);
     // HTKey := HashTable[HKey] SHR GIFCodeBits; { Unoptimized }
@@ -6464,10 +6464,10 @@ begin
   end;
   // Found empty slot - key doesn't exist
   Result := -1;
-{$ifdef DEBUG_HASHPERFORMANCE}
+{$IFDEF DEBUG_HASHPERFORMANCE}
   Inc(CountLookupNotFound);
   Inc(CountMissNotFound, n);
-{$endif}
+{$ENDIF}
 end;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6834,11 +6834,11 @@ procedure TGIFEncoder.Compress(AStream: TStream; ABitsPerPixel: integer;
   AWidth, AHeight: integer; AInterlace: boolean; AData: PAnsiChar; AMaxColor: integer);
 const
   EndBlockByte      = $00;         // End of block marker
-{$ifdef DEBUG_COMPRESSPERFORMANCE}
+{$IFDEF DEBUG_COMPRESSPERFORMANCE}
 var
   TimeStartCompress   ,
   TimeStopCompress   : DWORD;
-{$endif}
+{$ENDIF}
 begin
   MaxColor := AMaxColor;
   Stream := AStream;
@@ -6880,19 +6880,19 @@ begin
     GIFStream.Warning := Warning;
     if (Data <> nil) and (Height > 0) and (Width > 0) then
     begin
-{$ifdef DEBUG_COMPRESSPERFORMANCE}
+{$IFDEF DEBUG_COMPRESSPERFORMANCE}
       TimeStartCompress := timeGetTime;
-{$endif}
+{$ENDIF}
 
       // Call compress implementation
       DoCompress;
 
-{$ifdef DEBUG_COMPRESSPERFORMANCE}
+{$IFDEF DEBUG_COMPRESSPERFORMANCE}
       TimeStopCompress := timeGetTime;
       ShowMessage(format('Compressed %d pixels in %d mS, Rate %d pixels/mS',
         [Height*Width, TimeStopCompress-TimeStartCompress,
         DWORD(Height*Width) DIV (TimeStopCompress-TimeStartCompress+1)]));
-{$endif}
+{$ENDIF}
       // Output the final code.
       Output(EOFCode);
     end else
@@ -7935,19 +7935,19 @@ begin
   end;
 end;
 
-{$ifdef DEBUG_RENDERPERFORMANCE}
+{$IFDEF DEBUG_RENDERPERFORMANCE}
 var
   ImageCount      : DWORD = 0;
   RenderTime      : DWORD = 0;
-{$endif}
+{$ENDIF}
 function TGIFSubImage.GetBitmap: TBitmap;
 var
   n         : integer;
-{$ifdef DEBUG_RENDERPERFORMANCE}
+{$IFDEF DEBUG_RENDERPERFORMANCE}
   RenderStartTime   : DWORD;
-{$endif}
+{$ENDIF}
 begin
-{$ifdef DEBUG_RENDERPERFORMANCE}
+{$IFDEF DEBUG_RENDERPERFORMANCE}
   if (GetAsyncKeyState(VK_CONTROL) <> 0) then
   begin
     ShowMessage(format('Render %d images in %d mS, Rate %d mS/image (%d images/S)',
@@ -7955,15 +7955,15 @@ begin
        RenderTime DIV (ImageCount+1),
        MulDiv(ImageCount, 1000, RenderTime+1)]));
   end;
-{$endif}
+{$ENDIF}
   Result := FBitmap;
   if (Result <> nil) or (Empty) then
     Exit;
 
-{$ifdef DEBUG_RENDERPERFORMANCE}
+{$IFDEF DEBUG_RENDERPERFORMANCE}
   inc(ImageCount);
   RenderStartTime := timeGetTime;
-{$endif}
+{$ENDIF}
   try
     Image.Progress(Self, psStarting, 0, False, Rect(0,0,0,0), sProgressRendering);
     try
@@ -7991,9 +7991,9 @@ begin
   except
     on EAbort do ;   // OnProgress can raise EAbort to cancel image load
   end;
-{$ifdef DEBUG_RENDERPERFORMANCE}
+{$IFDEF DEBUG_RENDERPERFORMANCE}
   inc(RenderTime, timeGetTime-RenderStartTime);
-{$endif}
+{$ENDIF}
 end;
 
 procedure TGIFSubImage.SetBitmap(Value: TBitmap);
@@ -8249,7 +8249,7 @@ var
     y         : integer;
   begin
     // Copy colormap
-{$ifdef VER10_PLUS}
+{$IFDEF VER10_PLUS}
     if (FBitmap.HandleType = bmDIB) then
       FColorMap.ImportDIBColors(FBitmap.Canvas.Handle)
     else
@@ -8436,13 +8436,13 @@ var
 
     // Make things a little easier for TGIFSubImage.Assign by converting
     // pfDevice to a more import friendly format
-{$ifdef SLOW_BUT_SAFE}
+{$IFDEF SLOW_BUT_SAFE}
     SafeSetPixelFormat(ABitmap, pf8bit);
-{$else}
-{$ifndef VER9x}
+{$ELSE}
+{$IFNDEF VER9x}
     SetPixelFormat(ABitmap, pf24bit);
-{$endif}
-{$endif}
+{$ENDIF}
+{$ENDIF}
     ABitmap.Canvas.Draw(0, 0, Graphic);
   end;
 
@@ -8543,9 +8543,9 @@ var
     begin
       ABitmap.Width := Metafile.Width;
       ABitmap.Height := Metafile.Height;
-{$ifndef VER9x}
+{$IFNDEF VER9x}
       SetPixelFormat(ABitmap, pf24bit);
-{$endif}
+{$ENDIF}
       ABitmap.Canvas.Brush.Color := Background;
       ABitmap.Canvas.Brush.Style := bsSolid;
       ABitmap.Canvas.FillRect(ABitmap.Canvas.ClipRect);
@@ -8632,13 +8632,13 @@ begin
     Height := TBitmap(Source).Height;
 
     PixelFormat := GetPixelFormat(TBitmap(Source));
-{$ifdef VER9x}
+{$IFDEF VER9x}
     // Delphi 2 TBitmaps are always DDBs. This means that if a 24 bit
     // bitmap is loaded in 8 bit device mode, TBitmap.PixelFormat will
     // be pf8bit, but TBitmap.Palette will be 0!
     if (TBitmap(Source).Palette = 0) then
       PixelFormat := pfDevice;
-{$endif}
+{$ENDIF}
     if (PixelFormat > pf8bit) or (PixelFormat = pfDevice) then
     begin
       // Convert image to 8 bits/pixel or less
@@ -8657,11 +8657,11 @@ begin
 
     Image.Progress(Self, psStarting, 0, False, Rect(0,0,0,0), sProgressConverting);
     try
-{$ifdef VER9x}
+{$IFDEF VER9x}
       // This shouldn't happen, but better safe...
       if (FBitmap.Palette = 0) then
         PixelFormat := pf24bit;
-{$endif}
+{$ENDIF}
       if (not(PixelFormat in [pf1bit, pf4bit, pf8bit, pf24bit])) then
         PixelFormat := pf24bit;
       DIBSource := TDIBReader.Create(FBitmap, PixelFormat);
@@ -8680,11 +8680,11 @@ begin
         DIBSource.Free;
       end;
 
-{$ifdef VER10_PLUS}
+{$IFDEF VER10_PLUS}
       // Add mask for transparent bitmaps
       if (TBitmap(Source).Transparent) then
         AddMaskOnly(TBitmap(Source).MaskHandle);
-{$endif}
+{$ENDIF}
 
     finally
       if ExceptObject = nil then
@@ -8888,17 +8888,17 @@ var
   MaskDC      : HDC;
   Save         : THandle;
   Tile         : TRect;
-{$ifdef DEBUG_DRAWPERFORMANCE}
+{$IFDEF DEBUG_DRAWPERFORMANCE}
   ImageCount      ,
   TimeStart      ,
   TimeStop      : DWORD;
-{$endif}
+{$ENDIF}
 
 begin
-{$ifdef DEBUG_DRAWPERFORMANCE}
+{$IFDEF DEBUG_DRAWPERFORMANCE}
   TimeStart := timeGetTime;
   ImageCount := 0;
-{$endif}
+{$ENDIF}
   if (DoTransparent) and (Transparent) and (HasMask) then
   begin
     // Draw transparent using mask
@@ -8922,9 +8922,9 @@ begin
               Bitmap.Canvas.Handle, 0, 0, Width, Height, MaskDC, 0, 0);
             Tile.Top := Tile.Top + Image.Height;
             Tile.Bottom := Tile.Bottom + Image.Height;
-{$ifdef DEBUG_DRAWPERFORMANCE}
+{$IFDEF DEBUG_DRAWPERFORMANCE}
             inc(ImageCount);
-{$endif}
+{$ENDIF}
           end;
           Tile.Left := Tile.Left + Image.Width;
           Tile.Right := Tile.Right + Image.Width;
@@ -8959,9 +8959,9 @@ begin
           ACanvas.StretchDraw(Tile, Bitmap);
           Tile.Top := Tile.Top + Image.Height;
           Tile.Bottom := Tile.Bottom + Image.Height;
-{$ifdef DEBUG_DRAWPERFORMANCE}
+{$IFDEF DEBUG_DRAWPERFORMANCE}
           inc(ImageCount);
-{$endif}
+{$ENDIF}
         end;
         Tile.Left := Tile.Left + Image.Width;
         Tile.Right := Tile.Right + Image.Width;
@@ -8969,7 +8969,7 @@ begin
     end else
       ACanvas.StretchDraw(Rect, Bitmap);
   end;
-{$ifdef DEBUG_DRAWPERFORMANCE}
+{$IFDEF DEBUG_DRAWPERFORMANCE}
   if (GetAsyncKeyState(VK_CONTROL) <> 0) then
   begin
     TimeStop := timeGetTime;
@@ -8978,7 +8978,7 @@ begin
       ImageCount DIV (TimeStop-TimeStart+1),
       MulDiv(ImageCount, 1000, TimeStop-TimeStart+1)]));
   end;
-{$endif}
+{$ENDIF}
 end;
 
 // Given a destination rect (DestRect) calculates the
@@ -10589,14 +10589,14 @@ end;
 
 // Prefetch bitmap
 // Used to force the GIF image to be rendered as a bitmap
-{$ifdef SERIALIZE_RENDER}
+{$IFDEF SERIALIZE_RENDER}
 procedure TGIFPainter.PrefetchBitmap;
 begin
   // Touch current bitmap to force bitmap to be rendered
   if not((FImage.Images[ActiveImage].Empty) or (FImage.Images[ActiveImage].HasBitmap)) then
     FImage.Images[ActiveImage].Bitmap;
 end;
-{$endif}
+{$ENDIF}
 
 // Main thread execution loop - This is where it all happens...
 procedure TGIFPainter.Execute;
@@ -10685,11 +10685,11 @@ begin
             if (Delay > 0) then
             begin
               // Prefetch frame bitmap
-{$ifdef SERIALIZE_RENDER}
+{$IFDEF SERIALIZE_RENDER}
               DoSynchronize(PrefetchBitmap);
-{$else}
+{$ELSE}
               FImage.Images[ActiveImage].Bitmap;
-{$endif}
+{$ENDIF}
 
               // Calculate inter frame delay
               NewDelayStart := timeGetTime;

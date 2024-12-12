@@ -5,15 +5,15 @@
 {*                                                           *}
 {*************************************************************}
 
-{$ifDef ver150}  {Delphi 7}
+{$IFDEF ver150}  {Delphi 7}
 {$Define Delphi7_Plus}
-{$endif}
-{$ifDef ver170}  {Delphi 2005}
+{$ENDIF}
+{$IFDEF ver170}  {Delphi 2005}
 {$Define Delphi7_Plus}
-{$endif}
-{$ifDef ver180}  {Delphi 2006}
+{$ENDIF}
+{$IFDEF ver180}  {Delphi 2006}
 {$Define Delphi7_Plus}     {9.4}
-{$endif}
+{$ENDIF}
 
 unit PreviewForm;
 
@@ -337,10 +337,10 @@ begin
   OldHint := Application.OnHint;
   Application.OnHint := OnHint;
   CheckEnable;
-  {$ifdef delphi7_plus}
+  {$IFDEF delphi7_plus}
   PagePanel.ParentBackground := False;
   PagePanel2.ParentBackground := False;
-  {$endif}
+  {$ENDIF}
   ScrollBox1Resize(nil);   {make sure it gets sized}
 end;
 
@@ -404,7 +404,7 @@ end;
 
 procedure TPreviewForm.LastPageSpeedClick(Sender: TObject);
 begin
-  CurPage := MFPrinter.LastAvailablePage-1;
+  CurPage := MFPrinter.LastAvailablePage - 1;
   CheckEnable;
 end;
 

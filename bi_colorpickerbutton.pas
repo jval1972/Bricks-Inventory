@@ -1448,9 +1448,9 @@ var
   Count: Integer;
   dColor: Single;
   OffScreen: TBitmap;
-{$ifdef DEBUG}
+{$IFDEF DEBUG}
   R: TRect;
-{$endif}
+{$ENDIF}
 begin
   // to make the painting (and selecting) flicker free we use an offscreen
   // bitmap here

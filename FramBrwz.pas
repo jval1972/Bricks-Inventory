@@ -34,7 +34,7 @@ interface
 
 uses
   SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
-  Forms, Dialogs, StdCtrls, ExtCtrls, Menus, htmlsubs, htmlview, htmlun2,
+  Forms, Dialogs, StdCtrls, ExtCtrls, Menus, htmlsubs, htmlview, HTMLUn2,
   readHTML, FramView;
 
 type
@@ -60,9 +60,9 @@ type
     UnLoaded: boolean;
     procedure UpdateFrameList; virtual; abstract;
   protected
-    {$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+    {$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
     LocalCharSet: TFontCharset;
-    {$endif}
+    {$ENDIF}
     procedure FVMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer); virtual; abstract;
     procedure FVMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
@@ -399,10 +399,10 @@ var
   S: string;
 begin
   inherited Create(AOwner);
-{$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+{$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
   if AOwner is TbrSubFrameSet then
     LocalCharSet := TbrSubFrameset(AOwner).LocalCharSet;
-{$endif}
+{$ENDIF}
   LOwner := AOwner as TbrSubFrameSet;
   MasterSet := Master;
   BevelInner := bvNone;
@@ -511,7 +511,7 @@ var
 begin
   if not (fvMetaRefresh in MasterSet.FrameViewer.FOptions) then
     Exit;
-  Ext := Lowercase(GetURLExtension(URL));
+  Ext := LowerCase(GetURLExtension(URL));
   if (Ext = 'exe') or (Ext = 'zip') then
     Exit;
   if URL = '' then
@@ -536,7 +536,7 @@ begin
     Exit;
   if not IsFullUrl(NextFile) then
     NextFile := Combine(UrlBase, NextFile);
-  if (MasterSet.Viewers.Count = 1) then    {load a new FrameSet}
+  if MasterSet.Viewers.Count = 1 then    {load a new FrameSet}
     MasterSet.FrameViewer.LoadURLInternal(NextFile, '', '', '', True, True)
   else
   begin
@@ -610,9 +610,9 @@ begin
   Viewer.SendToBack;
   Viewer.Visible := True;
   Viewer.Tabstop := True;
-{$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+{$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
   Viewer.CharSet := LocalCharset;
-{$endif}
+{$ENDIF}
   MasterSet.Viewers.Add(Viewer);
   with MasterSet.FrameViewer do
   begin
@@ -883,7 +883,6 @@ var
   Upper, Lower, FrameFile: boolean;
   Item: TbrFrameBase;
   I: integer;
-
 begin
   if Assigned(RefreshTimer) then
     RefreshTimer.Enabled := False;
@@ -1128,7 +1127,7 @@ var
 begin
   with frHistory do
   begin
-    if (Count > 0) then
+    if Count > 0 then
     begin
       PositionObj(frPositionHistory[frHistoryIndex]).Pos := OldPos;
       if frHistory[frHistoryIndex] <> NewName then
@@ -1252,10 +1251,10 @@ constructor TbrSubFrameSet.CreateIt(AOwner: TComponent; Master: TbrFrameSet);
 begin
   inherited Create(AOwner);
   MasterSet := Master;
-{$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+{$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
   if AOwner is TbrFrameBase then
     LocalCharSet := TbrSubFrameset(AOwner).LocalCharSet;
-{$endif}
+{$ENDIF}
   OuterBorder := 0;   {no border for subframesets}
   if Self <> Master then
     BorderSize := Master.BorderSize;
@@ -1267,9 +1266,9 @@ begin
   OnMouseDown := FVMouseDown;
   OnMouseMove := FVMouseMove;
   OnMouseUp := FVMouseUp;
-{$ifdef delphi7_plus}
+{$IFDEF delphi7_plus}
   ParentBackground := False;
-{$endif}
+{$ENDIF}
   ParentColor := True;
   if (AOwner is TbrFrameBase) then
     URLBase := TbrFrameBase(AOwner).URLBase;
@@ -1281,7 +1280,7 @@ var
   I, J: integer;
 begin
   for J := 0 to List.Count - 1 do
-    if (TbrFrameBase(List[J]) is TbrFrame) then
+    if TbrFrameBase(List[J]) is TbrFrame then
     begin
       with TbrFrame(List[J]) do
         if Assigned(MasterSet) and (WinName <> '') and
@@ -1289,7 +1288,7 @@ begin
           MasterSet.FrameNames.Find(WinName, I) then
           MasterSet.FrameNames.Delete(I);
     end
-    else if (TbrFrameBase(List[J]) is TbrSubFrameSet) then
+    else if TbrFrameBase(List[J]) is TbrSubFrameSet then
       TbrSubFrameSet(List[J]).ClearFrameNames;
 end;
 
@@ -1300,7 +1299,7 @@ var
   Frame: TbrFrame;
 begin
   for J := 0 to List.Count - 1 do
-    if (TbrFrameBase(List[J]) is TbrFrame) then
+    if TbrFrameBase(List[J]) is TbrFrame then
     begin
       Frame := TbrFrame(List[J]);
       with Frame do
@@ -1310,7 +1309,7 @@ begin
           MasterSet.FrameNames.AddObject(Uppercase(WinName), Frame);
         end;
     end
-    else if (TbrFrameBase(List[J]) is TbrSubFrameSet) then
+    else if TbrFrameBase(List[J]) is TbrSubFrameSet then
       TbrSubFrameSet(List[J]).AddFrameNames;
 end;
 
@@ -1828,10 +1827,10 @@ procedure TbrSubFrameSet.HandleMeta(Sender: TObject;
 var
   DelTime, I: integer;
 begin
-{$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+{$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
   if CompareText(HttpEq, 'content-type') = 0 then
     TranslateCharset(Content, LocalCharset);
-{$endif}
+{$ENDIF}
 
   with MasterSet.FrameViewer do
   begin
@@ -1892,9 +1891,9 @@ constructor TbrFrameSet.Create(AOwner: TComponent);
 begin
   inherited CreateIt(AOwner, Self);
   FrameViewer := AOwner as TFrameBrowser;
-{$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+{$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
   LocalCharSet := FrameViewer.FCharset;
-{$endif}
+{$ENDIF}
   if fvNoBorder in FrameViewer.FOptions then
     BorderSize := 0
   else
@@ -2146,9 +2145,9 @@ begin
   FMarginWidth := 10;
   FMarginHeight := 5;
   FOptions := [fvPrintTableBackground, fvPrintMonochromeBlack];
-{$ifdef ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
+{$IFDEF ver100_plus}{Delphi 3,4,5, C++Builder 3, 4}
   FCharset := DEFAULT_CHARSET;
-{$endif}
+{$ENDIF}
   Visited := TStringList.Create;
   FEncodePostArgs := True;
 
@@ -2243,9 +2242,9 @@ var
   OldPos: longint;
   Tmp: TObject;
   SameName: boolean;
-  {$ifdef Windows}
+  {$IFDEF Windows}
   Dummy: integer;
-  {$endif}
+  {$ENDIF}
   Stream: TMemoryStream;
   StreamType: ThtmlFileType;
   I: integer;
@@ -2255,9 +2254,9 @@ begin
   FProcessing := True;
   if Assigned(FOnProcessing) then
     FOnProcessing(Self, True);
-{$ifdef windows}
+{$IFDEF windows}
   Dummy :=
-{$endif}
+{$ENDIF}
     IOResult;     {remove any pending file errors}
   SplitURL(URL, S, Dest);
   try
@@ -2783,7 +2782,7 @@ begin
   if (FHistoryMaxCount > 0) and (CurbrFrameSet.FCurrentFile <> '') then
     with FHistory do
     begin
-      if (Count > 0) then
+      if Count > 0 then
       begin
         Strings[FHistoryIndex] := CurbrFrameSet.FCurrentFile;
         Objects[FHistoryIndex] := CurbrFrameSet;
@@ -2860,7 +2859,7 @@ begin
       end
       else
       begin
-        if (Tmp is ThtmlViewer) then
+        if Tmp is ThtmlViewer then
           TbrFrame(ThtmlViewer(Tmp).FrameOwner).ReloadFile(FHistory[Value],
             longint(FPosition[Value]));
       end;
@@ -2954,42 +2953,42 @@ begin
   for I := 0 to CurbrFrameSet.Viewers.Count - 1 do
     with ThtmlViewer(CurbrFrameSet.Viewers[I]) do
     begin
-      if (fvOverLinksActive in Value) then
+      if fvOverLinksActive in Value then
         htOptions := htOptions + [htOverLinksActive]
       else
         htOptions := htOptions - [htOverLinksActive];
 
-      if (fvNoLinkUnderline in Value) then
+      if fvNoLinkUnderline in Value then
         htOptions := htOptions + [htNoLinkUnderline]
       else
         htOptions := htOptions - [htNoLinkUnderline];
 
-      if (fvPrintTableBackground in Value) then
+      if fvPrintTableBackground in Value then
         htOptions := htOptions + [htPrintTableBackground]
       else
         htOptions := htOptions - [htPrintTableBackground];
 
-      if (fvPrintBackground in Value) then
+      if fvPrintBackground in Value then
         htOptions := htOptions + [htPrintBackground]
       else
         htOptions := htOptions - [htPrintBackground];
 
-      if (fvPrintMonochromeBlack in Value) then
+      if fvPrintMonochromeBlack in Value then
         htOptions := htOptions + [htPrintMonochromeBlack]
       else
         htOptions := htOptions - [htPrintMonochromeBlack];
 
-      if (fvShowVScroll in Value) then
+      if fvShowVScroll in Value then
         htOptions := htOptions + [htShowVScroll]
       else
         htOptions := htOptions - [htShowVScroll];
 
-      if (fvNoWheelMouse in Value) then
+      if fvNoWheelMouse in Value then
         htOptions := htOptions + [htNoWheelMouse]
       else
         htOptions := htOptions - [htNoWheelMouse];
 
-      if (fvNoLinkHilite in Value) then
+      if fvNoLinkHilite in Value then
         htOptions := htOptions + [htNoLinkHilite]
       else
         htOptions := htOptions - [htNoLinkHilite];
@@ -3012,7 +3011,7 @@ function TFrameBrowser.CreateSubFrameSet(FrameSet: TObject): TObject;
 var
   NewFrameSet, FS: TbrSubFrameSet;
 begin
-  FS := (FrameSet as TbrSubFrameSet);
+  FS := FrameSet as TbrSubFrameSet;
   NewFrameSet := TbrSubFrameSet.CreateIt(FS, CurbrFrameSet);
   FS.List.Add(NewFrameSet);
   FS.InsertControl(NewFrameSet);
@@ -3258,7 +3257,7 @@ procedure TFrameBrowser.AddVisitedLink(const S: string);
 var
   I: integer;
 begin
-  if (FVisitedMaxCount = 0) then
+  if FVisitedMaxCount = 0 then
     Exit;
   I := Visited.IndexOf(S);
   if I = 0 then

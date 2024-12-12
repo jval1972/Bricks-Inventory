@@ -1,6 +1,6 @@
-{$ifdef ver140}
+{$IFDEF ver140}
 {$warn Symbol_Platform Off}
-{$endif}
+{$ENDIF}
 
 unit HTMLEd1;
 

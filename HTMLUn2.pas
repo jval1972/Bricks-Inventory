@@ -1949,7 +1949,7 @@ var
 begin
   Result := False;
   try
-    Stream := TFileStream.Create(FName, fmShareDenyWrite or FmOpenRead);
+    Stream := TFileStream.Create(FName, fmOpenRead or fmShareDenyWrite);
     try
       Result := IsTransparent(Stream, Color);
     finally

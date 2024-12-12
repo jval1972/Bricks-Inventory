@@ -1008,6 +1008,7 @@ object MainForm: TMainForm
       OnMouseWheel = HTMLMouseWheel
       OnProcessing = HTMLProcessing
       OnRightClick = HTMLRightClick
+      OnParseBegin = HTMLParseBegin
     end
   end
   object Timer1: TTimer

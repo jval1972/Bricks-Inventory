@@ -150,7 +150,7 @@ implementation
 uses
   urlmon,
   bi_db, bi_delphi, bi_utils, bi_crawler, bi_globals, frm_selectparttype,
-  frm_editbllink, bi_readylist, bi_orders, bl_orderxml;
+  frm_editbllink, bi_readylist, bi_orders, bl_orderxml, bi_keepfile;
 
 function sortorderlist(List: TStringList; Index1, Index2: Integer): Integer;
 var
@@ -192,6 +192,8 @@ var
   oinf: TStringList;
   oitem: TOrderItemInfo;
   P: TPNGObject;
+  sstrm: TStream;
+  savename: string;
 begin
   Result := False;
   if Trim(apart) = '' then
@@ -489,7 +491,14 @@ begin
   end;
   if P <> nil then
   try
-    P.SaveToFile(basedefault + itoa(color) + '\' + part + '.png');
+    savename := basedefault + itoa(color) + '\' + part + '.png';
+    try
+      P.SaveToFile(savename);
+    except
+      sstrm := BI_KeepFileStream(savename);
+      P.SaveToStream(sstrm);
+      sstrm.Free;
+    end;
   finally
     P.Free;
   end;

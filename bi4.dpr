@@ -157,7 +157,8 @@ uses
   frm_selectcurrency in 'frm_selectcurrency.pas' {SelectCurrencyForm},
   bi_notes in 'bi_notes.pas',
   bi_basebrick in 'bi_basebrick.pas',
-  mosaic_base in 'mosaic_base.pas';
+  mosaic_base in 'mosaic_base.pas',
+  bi_keepfile in 'bi_keepfile.pas';
 
 {$R *.res}
 

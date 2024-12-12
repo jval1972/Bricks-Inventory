@@ -693,6 +693,7 @@ type
     procedure OpenItemPU2Click(Sender: TObject);
     procedure CollectionStatistics1Click(Sender: TObject);
     procedure Missingforbiultmocs1Click(Sender: TObject);
+    procedure HTMLParseBegin(Sender: TObject; var Source: String);
   private
     { Private declarations }
     streams: TStringList;
@@ -947,7 +948,7 @@ type
     function GatherOfflineNotes(const pcs: string): string; overload;
     function GatherOfflineNotes(const pcs: string; const color: integer): string; overload;
     procedure GatherAndSaveOfflineNotes(const pcs: string);
-    procedure RandomBrickSetDownload;
+    function RandomBrickSetDownload: boolean;
     procedure _crossstatsprepare;
     procedure _crossstatsdone;
     function _GatherInvAreaStat(const sinv: TBrickInventory; const pt: string; const stid: integer; const pl: intcolorarray_p): integer;
@@ -978,7 +979,7 @@ uses
   frm_update2, frm_update3, frm_update4, bi_cachefile, frm_editlugbulkprice,
   frm_options, bi_multithread, bi_iterators, bi_defs, bi_crawler, bi_script,
   buildinexcludes, bi_instructions, frm_pdfinstructions, bi_data, bi_notes,
-  bi_imagerotate, bi_readylist, bi_currency, HTMLEd1;
+  bi_imagerotate, bi_readylist, bi_currency, HTMLEd1, bi_keepfile;
 
 {$R *.dfm}
 
@@ -1196,6 +1197,7 @@ begin
 //  I_InitTempFiles;
   I_Init;
   starttime := I_GetSysTime;
+  BI_KeepFileInit;
   bstmpsets := TStringList.Create;
   lastbricksetdownload := 0.0;
   idleindicator := 0;
@@ -2880,6 +2882,7 @@ begin
   SplashForm.Free;
   PAK_ShutDown;
   MT_ShutDown;
+  BI_KeepFileDone;
   I_Quit;
 
   document.Free;
@@ -11463,7 +11466,7 @@ end;
 
 procedure TMainForm.ShowMissingToBuildSetInventory(const setid: string; const numsets: integer; const flags: LongWord);
 var
-  inv, inv2, sinv: TBrickInventory;
+  inv, sinv: TBrickInventory;
   legacyignore: boolean;
   basebrickignore: boolean;
   missing: integer;
@@ -20823,7 +20826,8 @@ begin
   if activebits > 0 then
     activebits := activebits - 1000;
   if activebits <= 0 then
-    RandomBrickSetDownload;
+    if not RandomBrickSetDownload then
+      BI_KeepFileFlash;
   Done := True;
 end;
 
@@ -23885,7 +23889,7 @@ begin
   HTMLClick('mywishlist', foo);
 end;
 
-procedure TMainForm.RandomBrickSetDownload;
+function TMainForm.RandomBrickSetDownload: boolean;
 const
   BS_TIMEOUT = 10; // every 10 seconds
   BS_SLEEPTIME = 60; // 1 minute
@@ -23899,6 +23903,8 @@ var
   idx: integer;
   i: integer;
 begin
+  Result := False;
+
   if not initialized then
     Exit;
 
@@ -23933,6 +23939,7 @@ begin
                 SaveStringToFile(autoname, autonotes);
               end;
             end;
+            Result := True;
             Exit;
           end;
     end;
@@ -24496,6 +24503,11 @@ begin
   lst.Free;
   if SelectSets(Missingformocs) then
     HTMLClick('multymissing/' + IntToStr(Integer(Missingformocs)), foo);
+end;
+
+procedure TMainForm.HTMLParseBegin(Sender: TObject; var Source: String);
+begin
+  repeat until not BI_KeepFileFlash;
 end;
 
 end.

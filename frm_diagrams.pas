@@ -206,7 +206,7 @@ implementation
 
 uses
   bi_db, bi_delphi, bi_utils, bi_orders, bi_pghistory, bi_globals, bi_currency,
-  bi_defs, frm_selectcurrency;
+  bi_defs, frm_selectcurrency, bi_keepfile;
 
 const
   PG_nTimesSold = 1;
@@ -817,6 +817,8 @@ var
   chid1: integer;
   oldcur: string;
   P: TPNGObject;
+  sstrm: TStream;
+  savename: string;
 begin
   oldcur := optdefaultcurrency;
   P := nil;
@@ -911,7 +913,14 @@ begin
   end;
   if P <> nil then
   try
-    P.SaveToFile(basedefault + itoa(color) + '\' + part + '.png');
+    savename := basedefault + itoa(color) + '\' + part + '.png';
+    try
+      P.SaveToFile(savename);
+    except
+      sstrm := BI_KeepFileStream(savename);
+      P.SaveToStream(sstrm);
+      sstrm.Free;
+    end;
   finally
     P.Free;
   end;

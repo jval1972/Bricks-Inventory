@@ -57,14 +57,21 @@ end;
 procedure BI_KeepFileDone;
 var
   cnt: integer;
+  mx: integer;
 begin
   if keepfile = nil then
-    Exit;
+    exit;
 
   cnt := 0;
+  mx := 0;
   while keepfile.Count > cnt do
+  begin
     if not BI_KeepFileFlash(cnt) then
       inc(cnt);
+    inc(mx);
+    if mx > keepfile.Count then
+      break;
+  end;
   freelist(keepfile);
   keepfile := nil;
 end;
@@ -76,7 +83,8 @@ var
   ts: TString;
 begin
   if keepfile = nil then
-    Exit;
+    BI_KeepFileInit;
+
   tmppath := I_NewTempFile(name);
   fs := TFileStream.Create(tmppath, fmCreate);
   ts := TString.Create;

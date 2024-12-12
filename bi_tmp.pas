@@ -65,14 +65,18 @@ begin
   tempfiles.Free;
 end;
 
+var
+  cntid: integer = 0;
+
 function I_NewTempFile(const name: string): string;
 var
   buf: array[0..4095] of char;
 begin
   ZeroMemory(@buf, SizeOf(buf));
   GetTempPath(SizeOf(buf), buf);
-  result :=  StringVal(buf) + '\' + fname(name);
+  result :=  StringVal(buf) + '\bi4tmp_' + itoa(cntid) + '_' + fname(name);
   tempfiles.Add(result);
+  inc(cntid);
 end;
 
 function I_DeclareTempFile(const fname: string): string;

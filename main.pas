@@ -22733,7 +22733,6 @@ begin
       end;
     end;
 
-  scheck := 'STICKER FOR SET ';
   cp := db.Colors(-1);
   kp := cp.knownpieces;
   if kp <> nil then
@@ -22745,7 +22744,13 @@ begin
           if pci.year = 0 then
           begin
             desc := db.PieceDesc(pci.piece);
+            scheck := 'STICKER FOR SET ';
             idx := Pos(scheck, strupper(desc));
+            if idx <= 0 then
+            begin
+              scheck := 'STICKER SHEET FOR SET ';
+              idx := Pos(scheck, strupper(desc));
+            end;
             if idx = 1 then
             begin
               sset := '';

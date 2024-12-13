@@ -1707,7 +1707,7 @@ begin
       J := ParentSectionList.LinkList.IndexOf(FO1);
       if J >= 0 then
         ParentSectionList.LinkList.Delete(J);
-    {$ifndef NoTabLink}
+{$IFNDEF NoTabLink}
       if Assigned(FO1.TabControl) then
         if FO.UrlTarget.Id = FO1.UrlTarget.ID then
         begin      {if the same link, transfer the TabControl to the survivor}
@@ -1722,7 +1722,7 @@ begin
           if J >= 0 then
             ParentSectionList.TabOrderList.Delete(J);
         end;
-    {$ENDIF}
+{$ENDIF}
       FO1.Free;
       Delete(I - 1);
     end
@@ -2539,7 +2539,7 @@ begin
         end;
       end;
     end;
-    if (BorderSize > 0) then
+    if BorderSize > 0 then
     begin
       SaveColor := Pen.Color;
       SaveWidth := Pen.Width;
@@ -6755,7 +6755,7 @@ begin
     end;
   if Assigned(BackgroundAniGif) and not IsCopy then
     BackgroundAniGif.ShowIt := True;
-  if (ColorBits <= 8) then
+  if ColorBits <= 8 then
   begin
     OldPal := SelectPalette(Canvas.Handle, ThePalette, True);
     RealizePalette(Canvas.Handle);

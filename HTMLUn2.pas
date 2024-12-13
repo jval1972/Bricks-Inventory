@@ -1126,7 +1126,7 @@ begin
   inherited Clear;
 end;
 
-constructor TBitmapItem.Create(AImage:TgpObject; AMask: TBitmap; Tr: Transparency);
+constructor TBitmapItem.Create(AImage: TgpObject; AMask: TBitmap; Tr: Transparency);
 begin
   inherited Create;
   MImage := AImage;

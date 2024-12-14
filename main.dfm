@@ -2072,6 +2072,21 @@ object MainForm: TMainForm
           OnClick = Appearsin3sets1Click
         end
       end
+      object Commonpartsofmyinventory1: TMenuItem
+        Caption = 'Common parts of my inventory'
+        object Appearinmorethan20sets1: TMenuItem
+          Caption = 'Appear in more than 100 sets'
+          OnClick = Appearinmorethan100sets1Click
+        end
+        object Appearinmorethan500sets1: TMenuItem
+          Caption = 'Appear in more than 500 sets'
+          OnClick = Appearinmorethan500sets1Click
+        end
+        object Appearinmorethan1000sets1: TMenuItem
+          Caption = 'Appear in more than 1000 sets'
+          OnClick = Appearinmorethan1000sets1Click
+        end
+      end
       object Expensivepartsofmyinventory1: TMenuItem
         Caption = 'Expensive parts of my inventory'
         object MostexpensivelotsofmyNEWparts1: TMenuItem

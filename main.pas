@@ -412,6 +412,10 @@ type
     OpenItemPU2: TMenuItem;
     CollectionStatistics1: TMenuItem;
     Missingforbiultmocs1: TMenuItem;
+    Commonpartsofmyinventory1: TMenuItem;
+    Appearinmorethan20sets1: TMenuItem;
+    Appearinmorethan500sets1: TMenuItem;
+    Appearinmorethan1000sets1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure HTMLImageRequest(Sender: TObject; const SRC: String; var Stream: TMemoryStream);
     procedure FormDestroy(Sender: TObject);
@@ -694,6 +698,9 @@ type
     procedure CollectionStatistics1Click(Sender: TObject);
     procedure Missingforbiultmocs1Click(Sender: TObject);
     procedure HTMLParseBegin(Sender: TObject; var Source: String);
+    procedure Appearinmorethan100sets1Click(Sender: TObject);
+    procedure Appearinmorethan500sets1Click(Sender: TObject);
+    procedure Appearinmorethan1000sets1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -905,6 +912,7 @@ type
     procedure StoreInventoryStatsRec(const piece: string; const color: string = '');
     procedure DoEditSet(const setid: string);
     procedure ShowUniquePiecesOfMyInventory(const ntimes: integer);
+    procedure ShowCommonPiecesOfMyInventory(const ntimes: integer);
     procedure ShowMoldsWithNumColors(const ncolors: integer);
     procedure ShowMoldsWithMoreThanColors(const ncolors: integer);
     procedure ShowMoldsWithNumColorsBetween(const mincolors, maxcolors: integer);
@@ -14686,6 +14694,11 @@ begin
     splitstring(slink, s1, s2, '/');
     ShowUniquePiecesOfMyInventory(atoi(s2));
   end
+  else if Pos1('ShowCommonPiecesOfMyInventory/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowCommonPiecesOfMyInventory(atoi(s2));
+  end
   else if Pos1('ShowMoldsWithNumColors/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
@@ -19820,6 +19833,37 @@ begin
   lst.Free;
 end;
 
+procedure TMainForm.ShowCommonPiecesOfMyInventory(const ntimes: integer);
+var
+  i, j: integer;
+  lst: TStringList;
+  pci: TPieceColorInfo;
+  cnt: integer;
+  titstr: string;
+begin
+  lst := TStringList.Create;
+
+  for i := 0 to inventory.numlooseparts - 1 do
+  begin
+    pci := db.PieceColorInfo(@inventory.looseparts[i]);
+    if pci <> nil then
+      if pci.sets <> nil then
+      begin
+        cnt := 0;
+        for j := 0 to pci.sets.Count - 1 do
+          if not db.IsMoc(pci.sets.Strings[j]) then
+            inc(cnt);
+        if cnt >= ntimes then
+          lst.AddObject(inventory.looseparts[i].part + ',' + itoa(inventory.looseparts[i].color), pci);
+      end;
+  end;
+
+  lst.Sort;
+  titstr := 'Pieces of my inventory that appear at least in ' + itoa(ntimes) + ' official sets';
+  DrawPieceList(titstr, lst, SORT_NONE, '', titstr);
+  lst.Free;
+end;
+
 procedure TMainForm.Appersin1set1Click(Sender: TObject);
 var
   foo: boolean;
@@ -24513,6 +24557,27 @@ end;
 procedure TMainForm.HTMLParseBegin(Sender: TObject; var Source: String);
 begin
   repeat until not BI_KeepFileFlash;
+end;
+
+procedure TMainForm.Appearinmorethan100sets1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('ShowCommonPiecesOfMyInventory/100', foo);
+end;
+
+procedure TMainForm.Appearinmorethan500sets1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('ShowCommonPiecesOfMyInventory/500', foo);
+end;
+
+procedure TMainForm.Appearinmorethan1000sets1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('ShowCommonPiecesOfMyInventory/1000', foo);
 end;
 
 end.

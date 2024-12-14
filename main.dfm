@@ -2059,9 +2059,9 @@ object MainForm: TMainForm
       end
       object Rarepartsofmyinventory1: TMenuItem
         Caption = 'Rare parts of my inventory'
-        object Appersin1set1: TMenuItem
+        object Appearsin1set1: TMenuItem
           Caption = 'Appear in 1 official set'
-          OnClick = Appersin1set1Click
+          OnClick = Appearsin1set1Click
         end
         object Appearsin2sets1: TMenuItem
           Caption = 'Appear in 2 official sets'

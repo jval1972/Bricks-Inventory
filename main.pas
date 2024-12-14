@@ -187,7 +187,7 @@ type
     FirstappearedExcludingvariations1: TMenuItem;
     DiscontinuedAllpartsExcl1: TMenuItem;
     Rarepartsofmyinventory1: TMenuItem;
-    Appersin1set1: TMenuItem;
+    Appearsin1set1: TMenuItem;
     Appearsin2sets1: TMenuItem;
     Appearsin3sets1: TMenuItem;
     N27: TMenuItem;
@@ -532,7 +532,7 @@ type
     procedure Piecesdiscontinuedatyear1Click(Sender: TObject);
     procedure FirstappearedExcludingvariations1Click(Sender: TObject);
     procedure DiscontinuedAllpartsExcl1Click(Sender: TObject);
-    procedure Appersin1set1Click(Sender: TObject);
+    procedure Appearsin1set1Click(Sender: TObject);
     procedure Appearsin2sets1Click(Sender: TObject);
     procedure Appearsin3sets1Click(Sender: TObject);
     procedure Appearinmorethan100sets1Click(Sender: TObject);
@@ -19864,7 +19864,7 @@ begin
   lst.Free;
 end;
 
-procedure TMainForm.Appersin1set1Click(Sender: TObject);
+procedure TMainForm.Appearsin1set1Click(Sender: TObject);
 var
   foo: boolean;
 begin

@@ -535,6 +535,9 @@ type
     procedure Appersin1set1Click(Sender: TObject);
     procedure Appearsin2sets1Click(Sender: TObject);
     procedure Appearsin3sets1Click(Sender: TObject);
+    procedure Appearinmorethan100sets1Click(Sender: TObject);
+    procedure Appearinmorethan500sets1Click(Sender: TObject);
+    procedure Appearinmorethan1000sets1Click(Sender: TObject);
     procedure MostexpensiveofmypartsNEW1Click(Sender: TObject);
     procedure MostexpensiveofmypartsUSED1Click(Sender: TObject);
     procedure SetstobuyforminifigsNEW1Click(Sender: TObject);
@@ -698,9 +701,6 @@ type
     procedure CollectionStatistics1Click(Sender: TObject);
     procedure Missingforbiultmocs1Click(Sender: TObject);
     procedure HTMLParseBegin(Sender: TObject; var Source: String);
-    procedure Appearinmorethan100sets1Click(Sender: TObject);
-    procedure Appearinmorethan500sets1Click(Sender: TObject);
-    procedure Appearinmorethan1000sets1Click(Sender: TObject);
   private
     { Private declarations }
     streams: TStringList;
@@ -19885,6 +19885,27 @@ begin
   HTMLClick('ShowUniquePiecesOfMyInventory/3', foo);
 end;
 
+procedure TMainForm.Appearinmorethan100sets1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('ShowCommonPiecesOfMyInventory/100', foo);
+end;
+
+procedure TMainForm.Appearinmorethan500sets1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('ShowCommonPiecesOfMyInventory/500', foo);
+end;
+
+procedure TMainForm.Appearinmorethan1000sets1Click(Sender: TObject);
+var
+  foo: boolean;
+begin
+  HTMLClick('ShowCommonPiecesOfMyInventory/1000', foo);
+end;
+
 procedure TMainForm.MostexpensiveofmypartsNEW1Click(Sender: TObject);
 var
   foo: Boolean;
@@ -24557,27 +24578,6 @@ end;
 procedure TMainForm.HTMLParseBegin(Sender: TObject; var Source: String);
 begin
   repeat until not BI_KeepFileFlash;
-end;
-
-procedure TMainForm.Appearinmorethan100sets1Click(Sender: TObject);
-var
-  foo: boolean;
-begin
-  HTMLClick('ShowCommonPiecesOfMyInventory/100', foo);
-end;
-
-procedure TMainForm.Appearinmorethan500sets1Click(Sender: TObject);
-var
-  foo: boolean;
-begin
-  HTMLClick('ShowCommonPiecesOfMyInventory/500', foo);
-end;
-
-procedure TMainForm.Appearinmorethan1000sets1Click(Sender: TObject);
-var
-  foo: boolean;
-begin
-  HTMLClick('ShowCommonPiecesOfMyInventory/1000', foo);
 end;
 
 end.

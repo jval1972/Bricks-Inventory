@@ -11284,6 +11284,8 @@ begin
     '<div style="color:' + DFGCOLOR + '"><p align=center>'
   );
   knownlocationinv := TBrickInventory.Create;
+  if inventory.DismantaledSetCount(S_READYLIST_01) = 0 then
+    knownlocationinv.MergeWith(BI_GetReadyListInv(S_READYLIST_01));
   inv2 := db.InventoryForAllStorageBins;
   knownlocationinv.MergeWith(inv2);
   inv2.Free;

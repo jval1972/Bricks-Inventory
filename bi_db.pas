@@ -206,6 +206,7 @@ type
     procedure RemoveAllSets;
     function LoosePartCount(const part: string; color: integer): integer;
     function BuildSetCount(const sset: string): integer;
+    function DismantaledSetCount(const sset: string): integer;
     procedure AddSet(const setid: string; const typ: integer);
     procedure GetSetInfo(const setid: string; const s: set_p);
     procedure GetSetInfoForDiagrams(const setid: string; const s: set_p);
@@ -5383,6 +5384,19 @@ begin
     if  fsets[i].setid = sset then
     begin
       Result := fsets[i].num;
+      Exit;
+    end;
+  Result := 0;
+end;
+
+function TBrickInventory.DismantaledSetCount(const sset: string): integer;
+var
+  i: Integer;
+begin
+  for i := fnumsets - 1 downto 0  do
+    if  fsets[i].setid = sset then
+    begin
+      Result := fsets[i].numdismantaled;
       Exit;
     end;
   Result := 0;

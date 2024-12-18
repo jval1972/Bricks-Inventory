@@ -2371,6 +2371,7 @@ var
 begin
   Result := True;
   MyDate := Now;
+
   DecodeDateTime(myDate, myYear, myMonth, myDay, myHour, myMin, mySec, myMilli);
   if myHour <> 7 then
     if myHour <> 8 then
@@ -2398,6 +2399,13 @@ begin
         Result := False;
         Exit;
       end;
+
+  if myDay = 18 then
+    if myHour = 8 then
+    begin
+      Result := False;
+      Exit;
+    end;
 end;
 
 const

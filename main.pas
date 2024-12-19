@@ -3341,7 +3341,7 @@ begin
       begin
         if numstor > 0 then
           removeforbuildsetstr :=
-            ' <a href=removepiecefromstoragenum/' + brick.part + '/' + itoa(brick.color) + '/' +
+            ' <a href=removepiecefromstoragenum/' + brick.part + '/' + pci.colorstr + '/' +
                 itoa(brick.num) + '/' + stor + '><img src="images\remove.png"></a>'
         else
           removeforbuildsetstr := '';
@@ -3350,7 +3350,7 @@ begin
       begin
         if numstor > 0 then
           removeforbuildsetstr :=
-            ' <a href=removepiecefromstorageset/' + brick.part + '/' + itoa(brick.color) + '/' +
+            ' <a href=removepiecefromstorageset/' + brick.part + '/' + pci.colorstr + '/' +
                 setid + '/' + stor + '><img src="images\remove.png"></a>'
         else
           removeforbuildsetstr := '';
@@ -5697,7 +5697,7 @@ var
             if num >= needed then
             begin
               _AddToStorageList2('set:' + Asid, Apci.piece, Apci.color, MinI(num, needed));
-              preferredparts.Add(Apci.piece + ',' + itoa(Apci.color));
+              preferredparts.Add(Apci.piece + ',' + Apci.colorstr);
             end;
           end;
         end
@@ -5715,7 +5715,7 @@ var
                 if needed <= Aoitem.num then
                 begin
                   _AddToStorageList2('order:' + itoa(Aoitem.orderid), Apci.piece, Apci.color, needed);
-                  preferredparts.Add(Apci.piece + ',' + itoa(Apci.color));
+                  preferredparts.Add(Apci.piece + ',' + Apci.colorstr);
                 end;
             end;
         end;
@@ -5723,7 +5723,7 @@ var
       Exit;
     end;
 
-    if preferredparts.IndexOf(Apci.piece + ',' + itoa(Apci.color)) >= 0 then
+    if preferredparts.IndexOf(Apci.piece + ',' + Apci.colorstr) >= 0 then
       Exit;
 
     if pass = 1 then
@@ -5781,7 +5781,7 @@ var
                     begin
                       _removefromstorage(Apci.piece, Apci.color);
                       _AddToStorageList2('set:' + Asid, Apci.piece, Apci.color, MinI(num, needed));
-                      storagecompleteparts2.Add(Apci.piece + ',' + itoa(Apci.color));
+                      storagecompleteparts2.Add(Apci.piece + ',' + Apci.colorstr);
                       exit;
                     end
                     else
@@ -19856,7 +19856,7 @@ begin
           if not db.IsMoc(pci.sets.Strings[j]) then
             inc(cnt);
         if cnt >= ntimes then
-          lst.AddObject(inventory.looseparts[i].part + ',' + itoa(inventory.looseparts[i].color), pci);
+          lst.AddObject(inventory.looseparts[i].part + ',' + pci.colorstr, pci);
       end;
   end;
 
@@ -21796,7 +21796,7 @@ begin
       ddays := DaysBetween(dn, pci.Date);
       if ddays >= x then
       begin
-        lst.Add(pci.piece + ',' + itoa(pci.color));
+        lst.Add(pci.piece + ',' + pci.colorstr);
         inv.AddLoosePartFast(pci.piece, pci.color, 1, pci);
       end;
     end;
@@ -21999,7 +21999,7 @@ begin
       if ddays >= x then
         if ddays <= x2 then
         begin
-          lst.Add(pci.piece + ',' + itoa(pci.color));
+          lst.Add(pci.piece + ',' + pci.colorstr);
           inv.AddLoosePartFast(pci.piece, pci.color, 1, pci);
         end;
       end;

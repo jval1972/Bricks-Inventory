@@ -683,6 +683,7 @@ const
 
 type
   pci_parecsrc_t = (pci_src_internal, pci_src_cache);
+  string4 = string[4];
 
 type
   TPieceColorInfo = class(TObject)
@@ -699,7 +700,7 @@ type
     {$ENDIF}
     fpiece: string;
     fcolor: integer;
-    fcolorstr: string[4];
+    fcolorstr: string4;
     fsets: TStringList;
     fparts: TStringListContainer;
     {$IFNDEF CRAWLER}
@@ -833,6 +834,7 @@ type
     {$ENDIF}
     property piece: string read fpiece;
     property color: integer read fcolor;
+    property colorstr: string4 read fcolorstr;
     property hasloaded: boolean read GetHasLoaded write SetHasLoaded;
     property sets: TStringList read fsets;
     property parts: TStringListContainer read fparts;

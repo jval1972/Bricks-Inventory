@@ -18344,7 +18344,7 @@ begin
   if idx < 0 then
   begin
     piece1 := RebrickablePart(piece);
-    if piece1  <> piece then
+    if piece1 <> piece then
       idx := cp.knownpieces.IndexOf(piece1);
     if idx < 0 then
     begin

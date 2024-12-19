@@ -335,6 +335,7 @@ begin
   if idx < 0 then
     idx := fpieceorderinfo.AddObject(s, TStringList.Create);
   lst := fpieceorderinfo.Objects[idx] as TStringList;
+  lst.Duplicates := dupAccept; 
   lst.Sorted := True;
   oinf := TOrderItemInfo.Create;
   oname := itoa(oo.ORDERID);

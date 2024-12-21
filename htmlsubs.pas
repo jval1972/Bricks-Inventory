@@ -2293,7 +2293,7 @@ begin
     end;
   end;
 
-  if (not ViewImages or SubstImage) then
+  if not ViewImages or SubstImage then
   begin
     if (SpecWidth >= 0) or (SpecHeight >= 0) then
     begin  {size to whatever is specified}
@@ -2331,7 +2331,7 @@ begin
   if HasBlueBox then
     BorderSize := IntMax(1, BorderSize);
 
-  if (BorderSize > 0) then
+  if BorderSize > 0 then
   begin
     Inc(ImageHeight, 2 * BorderSize);      {extra pixels top and bottom for border}
     Inc(ImageWidth, 2 * BorderSize);
@@ -2498,7 +2498,7 @@ begin
       AMiddle: DrawYY := MiddleAlignTop;
       ABottom, ABaseline: DrawYY := YBaseLine - ImageHeight - VSpaceB;
     end;
-    if (BorderSize > 0) then
+    if BorderSize > 0 then
     begin
       Inc(DrawXX, BorderSize);
       Inc(DrawYY, BorderSize);

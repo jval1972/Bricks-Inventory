@@ -1258,6 +1258,10 @@ const
   TableTermSet = [TableEndSy, TDSy, TRSy, TREndSy, THSy, THEndSy,
     TDEndSy, CaptionSy, CaptionEndSy, ColSy, ColgroupSy];
 
+  TableTermSetO = [TableEndSy, TDSy, TRSy, TREndSy, THSy, THEndSy,
+    TDEndSy, CaptionSy, CaptionEndSy, ColSy, ColgroupSy, SelectEndSy,
+    InputSy, PSy, EofSy];
+
 procedure DoBody(const TermSet: SymbSet); forward;
 
 procedure DoLists(Sym: symb_t; const TermSet: SymbSet); forward;
@@ -1859,7 +1863,7 @@ begin
   InOption := False;
   Selected := False;
   Attr := nil;
-  while not (Sy in [SelectEndSy, InputSy, PSy, EofSy] + TableTermSet) do
+  while not (Sy in TableTermSetO) do
   begin
     case Sy of
       OptionSy, OptionEndSy:
@@ -1876,7 +1880,8 @@ begin
           Attr := Attributes.CreateStringList;
         end;
       end;
-      TextSy: if InOption then
+      TextSy:
+        if InOption then
           WS := WS + LCToken.S;
     end;
     Next;

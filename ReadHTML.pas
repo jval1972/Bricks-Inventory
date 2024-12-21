@@ -143,7 +143,7 @@ procedure PopAProp(Tag: string);
 implementation
 
 uses
-  htmlsubs, htmlsbs1, htmlview, StylePars, UrlSubs;
+  htmlsubs, htmlsbs1, htmlview, StylePars, UrlSubs, bi_delphi;
 
 const
   Tab = #9;
@@ -171,12 +171,12 @@ var
 
 
 type
-  SymString = string[12];
+  symstring_t = string[12];
 
 const
   MaxRes = 80;
   MaxEndRes = 57;
-  ResWords: array[1..MaxRes] of SymString =
+  ResWords: array[1..MaxRes] of symstring_t =
     ('HTML', 'TITLE', 'BODY', 'HEAD', 'B', 'I', 'H', 'EM', 'STRONG',
     'U', 'CITE', 'VAR', 'TT', 'CODE', 'KBD', 'SAMP', 'OL', 'UL', 'DIR',
     'MENU', 'DL',
@@ -216,6 +216,110 @@ const
     THeadEndSy, TBodyEndSy, TFootEndSy, ObjectEndSy);
 
 type
+  symbtableitem_t = record
+    symb: integer;
+    symstring: symstring_t;
+  end;
+  symbtable_t = array[0..$FF] of symbtableitem_t;
+  symbtable_p = ^symbtable_t;
+
+  symbsymbitem_t = record
+    symb: symb_t;
+    endsymb: symb_t;
+  end;
+  symbsymbtable_t = array[0..$FF] of symbsymbitem_t;
+  symbsymbtable_p = ^symbsymbtable_t;
+
+var
+  ResTable: symbtable_p = nil;
+  ResTableSize: integer = 0;
+  EndResTable: symbtable_p = nil;
+  EndResTableSize: integer = 0;
+  ResToEndResTable: symbsymbtable_p = nil;
+  ResToEndResTableSize: integer = 0;
+
+procedure InitResTables;
+var
+  i, idx, mx: integer;
+begin
+  mx := - 1;
+  for i := 1 to MaxEndRes do
+    if Ord(EndResSy[i]) > mx then
+      mx := Ord(EndResSy[i]);
+
+// Res table
+  ResTableSize := mx;
+  ResTable := malloc(ResTableSize * SizeOf(symbtableitem_t));
+
+  for i := 0 to ResTableSize - 1 do
+  begin
+    ResTable[i].symb := -1;
+    ResTable[i].symstring := '';
+  end;
+
+  for i := 1 to MaxRes do
+  begin
+    idx := Ord(ResSy[i]);
+    ResTable[idx].symb := Ord(ResSy[i]);
+    ResTable[idx].symstring := LowerCase(ResWords[idx]);
+  end;
+
+// EndRes table
+  EndResTableSize := mx;
+  EndResTable := malloc(EndResTableSize * SizeOf(symbtableitem_t));
+
+  for i := 0 to EndResTableSize - 1 do
+  begin
+    EndResTable[i].symb := -1;
+    EndResTable[i].symstring := '';
+  end;
+
+  for i := 1 to MaxEndRes do
+  begin
+    idx := Ord(EndResSy[i]);
+    EndResTable[idx].symb := Ord(EndResSy[i]);
+    EndResTable[idx].symstring := LowerCase(ResWords[idx]);
+  end;
+
+// ResToEndRes table
+  ResToEndResTableSize := mx;
+  ResToEndResTable := malloc(EndResTableSize * SizeOf(symbsymbitem_t));
+
+  for i := 0 to ResToEndResTableSize - 1 do
+  begin
+    ResToEndResTable[i].symb := HtmlSy;
+    ResToEndResTable[i].endsymb := HtmlSy;
+  end;
+
+  for i := 1 to MaxRes do
+  begin
+    idx := Ord(ResSy[i]);
+    ResToEndResTable[idx].symb := ResSy[i];
+    if i <= MaxEndRes then
+      ResToEndResTable[idx].endsymb := EndResSy[i];
+  end;
+end;
+
+procedure DoneResTables;
+begin
+  if ResTable <> nil then
+  begin
+    memfree(pointer(ResTable), ResTableSize * SizeOf(symbtableitem_t));
+    ResTableSize := 0;
+  end;
+  if EndResTable <> nil then
+  begin
+    memfree(pointer(EndResTable), EndResTableSize * SizeOf(symbtableitem_t));
+    EndResTableSize := 0;
+  end;
+  if ResToEndResTable <> nil then
+  begin
+    memfree(pointer(ResToEndResTable), EndResTableSize * SizeOf(symbsymbitem_t));
+    ResToEndResTableSize := 0;
+  end;
+end;
+
+type
   EParseError = class(Exception);
 
 var
@@ -243,6 +347,14 @@ begin
 end;
 
 function SymbToStr(Sy: symb_t): string;
+begin
+  if Ord(Sy) >= EndResTableSize then
+    Result := ''
+  else if EndResTable[Ord(Sy)].symb = Ord(Sy) then
+    Result := EndResTable[Ord(Sy)].symstring
+  else
+    Result := '';
+(* old code
 var
   I: integer;
 begin
@@ -253,22 +365,38 @@ begin
       Exit;
     end;
   Result := '';
+*)
 end;
 
 function EndSymbToStr(Sy: symb_t): string;
+begin
+  if Ord(Sy) >= EndResTableSize then
+    Result := ''
+  else if EndResTable[Ord(Sy)].symb = Ord(Sy) then
+    Result := EndResTable[Ord(Sy)].symstring
+  else
+    Result := '';
+(* old code
 var
   I: integer;
 begin
   for I := 1 to MaxEndRes do
     if EndResSy[I] = Sy then
     begin
-      Result := Lowercase(ResWords[I]);
+      Result := LowerCase(ResWords[I]);
       Exit;
     end;
   Result := '';
+*)
 end;
 
 function EndSymbFromSymb(Sy: symb_t): symb_t;
+begin
+  if Ord(Sy) >= ResToEndResTableSize then
+    Result := HtmlSy   {won't match}
+  else
+    Result := ResToEndResTable[Ord(Sy)].endsymb;
+(* old code
 var
   I: integer;
 begin
@@ -279,6 +407,7 @@ begin
       Exit;
     end;
   Result := HtmlSy;  {won't match}
+*)
 end;
 
 function StrToSymb(const S: string): symb_t;
@@ -709,13 +838,11 @@ begin
   Result := True;
 end;
 
-{----------------GetAttribute}
-function GetAttribute(var Sym: symb_t; var St: string; var S: string;
-  var Val: integer): boolean;
 const
   MaxAttr = 84;
-  Attrib: array[1..MaxAttr] of string[16] =
-    ('HREF', 'NAME', 'SRC', 'ALT', 'ALIGN', 'TEXT', 'BGCOLOR', 'LINK',
+
+  Attrib: array[1..MaxAttr] of string[16] = (
+    'HREF', 'NAME', 'SRC', 'ALT', 'ALIGN', 'TEXT', 'BGCOLOR', 'LINK',
     'BACKGROUND', 'COLSPAN', 'ROWSPAN', 'BORDER', 'CELLPADDING',
     'CELLSPACING', 'VALIGN', 'WIDTH', 'START', 'VALUE', 'TYPE',
     'CHECKBOX', 'RADIO', 'METHOD', 'ACTION', 'CHECKED', 'SIZE',
@@ -729,9 +856,11 @@ const
     'BORDERCOLORLIGHT', 'BORDERCOLORDARK', 'CHARSET', 'RATIO',
     'TITLE', 'ONFOCUS', 'ONBLUR', 'ONCHANGE', 'SPAN', 'TABINDEX',
     'BGPROPERTIES', 'DISABLED', 'TOPMARGIN', 'LEFTMARGIN', 'LABEL',
-    'READONLY');
-  AttribSym: array[1..MaxAttr] of symb_t =
-    (HrefSy, NameSy, SrcSy, AltSy, AlignSy, TextSy, BGColorSy, LinkSy,
+    'READONLY'
+  );
+
+  AttribSym: array[1..MaxAttr] of symb_t = (
+    HrefSy, NameSy, SrcSy, AltSy, AlignSy, TextSy, BGColorSy, LinkSy,
     BackgroundSy, ColSpanSy, RowSpanSy, BorderSy, CellPaddingSy,
     CellSpacingSy, VAlignSy, WidthSy, StartSy, ValueSy, TypeSy,
     CheckBoxSy, RadioSy, MethodSy, ActionSy, CheckedSy, SizeSy,
@@ -745,7 +874,30 @@ const
     BorderColorLightSy, BorderColorDarkSy, CharSetSy, RatioSy,
     TitleSy, OnFocusSy, OnBlurSy, OnChangeSy, SpanSy, TabIndexSy,
     BGPropertiesSy, DisabledSy, TopMarginSy, LeftMarginSy, LabelSy,
-    ReadonlySy);
+    ReadonlySy
+  );
+
+var
+  attributeslist: TStringList;
+
+procedure InitAttributes;
+var
+  i: integer;
+begin
+  attributeslist := TStringList.Create;
+  for i := 1 to MaxAttr do
+    attributeslist.AddObject(Attrib[i], Pointer(Ord(AttribSym[i])));
+  attributeslist.Sorted := True;
+end;
+
+procedure DoneAttributes;
+begin
+  attributeslist.Free;
+end;
+
+{----------------GetAttribute}
+function GetAttribute(var Sym: symb_t; var St: string; var S: string;
+  var Val: integer): boolean;
 var
   I: integer;
 begin
@@ -755,12 +907,17 @@ begin
   St := '';
   if GetID(St) then
   begin
+    I := attributeslist.IndexOf(St);
+    if I >= 0 then
+      Sym := symb_t(attributeslist.Objects[I]);
+(* Old code
     for I := 1 to MaxAttr do
       if St = Attrib[I] then
       begin
         Sym := AttribSym[I];
         Break;
       end;
+*)
   end
   else
     Exit;   {no ID}
@@ -844,8 +1001,7 @@ begin
     begin
       if not EndTag then
         Sy := ResSy[I]
-      else
-      if I <= MaxEndRes then
+      else if I <= MaxEndRes then
         Sy := EndResSy[I];   {else Sy  := CommandSy}
       Break;
     end;
@@ -4752,10 +4908,14 @@ initialization
   LCToken := TokenObj.Create;
   PropStack := TPropStack.Create;
   SortEntities;
+  InitResTables;
+  InitAttributes;
 
 finalization
   LCToken.Free;
   PropStack.Free;
   Entities.Free;
+  DoneResTables;
+  DoneAttributes;
 
 end.

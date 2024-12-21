@@ -73,7 +73,7 @@ type
   JustifyType = (NoJustify, Left, Centered, Right, FullJustify);
   TRowType = (THead, TBody, TFoot);
 
-  Symb = (
+  symb_t = (
     HtmlSy, TitleSy, BodySy, HeadSy, PSy, PEndSy, BSy, BEndSy, ISy, IEndSy,
     HtmlEndSy, TitleEndSy, BodyEndSy, HeadEndSy, BRSy, HeadingSy, HeadingEndSy,
     EmSy, EmEndSy, StrongSy, StrongEndSy, USy, UEndSy, HRSy,
@@ -112,13 +112,13 @@ type
 
   TAttribute = class(TObject)  {holds a tag attribute}
   public
-    Which: Symb;     {symbol of attribute such as HrefSy}
+    Which: symb_t;     {symbol of attribute such as HrefSy}
     WhichName: string;
     Value: integer;  {numeric value if appropriate}
     Percent: boolean;{if value is in percent}
     Name: string;   {String (mixed case), value after '=' sign}
     CodePage: integer;
-    constructor Create(ASym: Symb; AValue: integer;
+    constructor Create(ASym: symb_t; AValue: integer;
       const NameStr, ValueStr: string; ACodePage: integer);
     destructor Destroy; override;
   end;
@@ -134,7 +134,7 @@ type
   public
     destructor Destroy; override;
     procedure Clear;
-    function Find(Sy: Symb; var T: TAttribute): boolean;
+    function Find(Sy: symb_t; var T: TAttribute): boolean;
     function CreateStringList: TStringList;
     property TheClass: string read GetClass;
     property TheID: string read GetID;
@@ -1264,7 +1264,7 @@ begin
   inherited Clear;
 end;
 
-constructor TAttribute.Create(ASym: Symb; AValue: integer;
+constructor TAttribute.Create(ASym: symb_t; AValue: integer;
            Const NameStr, ValueStr: string; ACodePage: integer);
 begin
   inherited Create;
@@ -1293,7 +1293,7 @@ begin
   inherited Clear;
 end;
 
-function TAttributeList.Find(Sy: Symb; var T: TAttribute): boolean;
+function TAttributeList.Find(Sy: symb_t; var T: TAttribute): boolean;
 var
   I: integer;
 begin

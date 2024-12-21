@@ -700,7 +700,7 @@ type
     FirstLineHt: integer;
   public
     constructor Create(Master: TSectionList; Prop: TProperties;
-      AnOwnerCell: TCellBasic; Sy: Symb; APlain: boolean;
+      AnOwnerCell: TCellBasic; Sy: symb_t; APlain: boolean;
       AIndexType: char; AListNumb, ListLevel: integer;
       Attributes: TAttributeList);
     constructor CreateCopy(AMasterList: TSectionList; T: TSectionBase); override;
@@ -903,11 +903,11 @@ type
     procedure AddPanel1(PO: TPanelObj; Index: integer);
     function CreatePanel(L: TAttributeList;
       ACell: TCellBasic): TPanelObj;
-    function AddFormControl(Which: Symb; AMasterList: TSectionList;
+    function AddFormControl(Which: symb_t; AMasterList: TSectionList;
       L: TAttributeList; ACell: TCellBasic; Index: integer;
       Prop: TProperties): TFormControlObj;
     procedure ChangeFont(Prop: TProperties);
-    procedure HRef(Sy: Symb; List: TSectionList; AnURL: TUrlTarget;
+    procedure HRef(Sy: symb_t; List: TSectionList; AnURL: TUrlTarget;
       Attributes: TAttributeList; Prop: TProperties);
     function FindCountThatFits(Canvas: TCanvas; Width: integer;
       Start: PWideChar; Max: integer): integer;
@@ -5995,7 +5995,7 @@ end;
 
 {----------------TBlockLI.Create}
 constructor TBlockLI.Create(Master: TSectionList; Prop: TProperties;
-  AnOwnerCell: TCellBasic; Sy: Symb; APlain: boolean;
+  AnOwnerCell: TCellBasic; Sy: symb_t; APlain: boolean;
   AIndexType: char; AListNumb, ListLevel: integer;
   Attributes: TAttributeList);
 var
@@ -10192,7 +10192,7 @@ begin
 end;
 
 {----------------------TSection.HRef}
-procedure TSection.HRef(Sy: Symb; List: TSectionList; AnURL: TUrlTarget;
+procedure TSection.HRef(Sy: symb_t; List: TSectionList; AnURL: TUrlTarget;
   Attributes: TAttributeList; Prop: TProperties);
 var
   FO: TFontObj;
@@ -10265,7 +10265,7 @@ begin
 end;
 
 {----------------TSection.AddFormControl}
-function TSection.AddFormControl(Which: Symb; AMasterList: TSectionList;
+function TSection.AddFormControl(Which: symb_t; AMasterList: TSectionList;
   L: TAttributeList; ACell: TCellBasic; Index: integer;
   Prop: TProperties): TFormControlObj;
 var

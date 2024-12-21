@@ -150,7 +150,7 @@ const
   EofChar = #0;
 
 var
-  Sy: Symb;
+  Sy: symb_t;
   Section: TSection;
   SectionList: TCellBasic;
   MasterList: TSectionList;
@@ -189,7 +189,7 @@ const
     'SELECTED', 'BASEFONT', 'AREA', 'FRAME', 'PAGE', 'BGSOUND', 'WRAP',
     'META', 'PANEL', 'WBR', 'LINK', 'COL', 'PARAM', 'READONLY');
 
-  ResSy: array[1..MaxRes] of Symb =
+  ResSy: array[1..MaxRes] of symb_t =
     (htmlSy, TitleSy, BodySy, HeadSy, BSy, ISy, HeadingSy, EmSy, StrongSy,
     USy, CiteSy, VarSy, TTSy, CodeSy, KbdSy, SampSy, OLSy, ULSy, DirSy,
     MenuSy, DLSy, ASy, AddressSy, BlockQuoteSy, PreSy, CenterSy, TableSy,
@@ -203,7 +203,7 @@ const
     WrapSy, MetaSy, PanelSy, WbrSy, LinkSy, ColSy, ParamSy, ReadonlySy);
 
   {keep these in order with those above}
-  EndResSy: array[1..MaxEndRes] of Symb =
+  EndResSy: array[1..MaxEndRes] of symb_t =
     (HtmlEndSy, TitleEndSy, BodyEndSy, HeadEndSy, BEndSy, IEndSy, HeadingEndSy,
     EmEndSy, StrongEndSy, UEndSy, CiteEndSy, VarEndSy, TTEndSy, CodeEndSy,
     KbdEndSy, SampEndSy,
@@ -242,7 +242,7 @@ begin
   Result := PropStack.Count - 1;
 end;
 
-function SymbToStr(Sy: Symb): string;
+function SymbToStr(Sy: symb_t): string;
 var
   I: integer;
 begin
@@ -255,7 +255,7 @@ begin
   Result := '';
 end;
 
-function EndSymbToStr(Sy: Symb): string;
+function EndSymbToStr(Sy: symb_t): string;
 var
   I: integer;
 begin
@@ -268,7 +268,7 @@ begin
   Result := '';
 end;
 
-function EndSymbFromSymb(Sy: Symb): Symb;
+function EndSymbFromSymb(Sy: symb_t): symb_t;
 var
   I: integer;
 begin
@@ -281,7 +281,7 @@ begin
   Result := HtmlSy;  {won't match}
 end;
 
-function StrToSymb(const S: string): Symb;
+function StrToSymb(const S: string): symb_t;
 var
   I: integer;
   S1: string;
@@ -521,7 +521,7 @@ function GetQuotedValue(var S: string): boolean;
   {get a quoted string but strip the quotes}
 var
   Term: char;
-  SaveSy: Symb;
+  SaveSy: symb_t;
 begin
   Result := False;
   Term := Ch;
@@ -624,14 +624,14 @@ end;
 
 {----------------GetQuotedStr}
 function GetQuotedStr(var S: string; var Value: integer; WantCrLf: boolean;
-  Sym: Symb): boolean;
+  Sym: symb_t): boolean;
   {get a quoted string but strip the quotes, check to see if it is numerical}
 var
   Term: char;
   S1: string;
   Code: integer;
   ValD: double;
-  SaveSy: Symb;
+  SaveSy: symb_t;
 begin
   Result := False;
   Term := Ch;
@@ -710,7 +710,7 @@ begin
 end;
 
 {----------------GetAttribute}
-function GetAttribute(var Sym: Symb; var St: string; var S: string;
+function GetAttribute(var Sym: symb_t; var St: string; var S: string;
   var Val: integer): boolean;
 const
   MaxAttr = 84;
@@ -730,7 +730,7 @@ const
     'TITLE', 'ONFOCUS', 'ONBLUR', 'ONCHANGE', 'SPAN', 'TABINDEX',
     'BGPROPERTIES', 'DISABLED', 'TOPMARGIN', 'LEFTMARGIN', 'LABEL',
     'READONLY');
-  AttribSym: array[1..MaxAttr] of Symb =
+  AttribSym: array[1..MaxAttr] of symb_t =
     (HrefSy, NameSy, SrcSy, AltSy, AlignSy, TextSy, BGColorSy, LinkSy,
     BackgroundSy, ColSpanSy, RowSpanSy, BorderSy, CellPaddingSy,
     CellSpacingSy, VAlignSy, WidthSy, StartSy, ValueSy, TypeSy,
@@ -794,7 +794,7 @@ var
   I: integer;
   L: integer;
   Save: integer;
-  Sym: Symb;
+  Sym: symb_t;
 begin
   if Ch <> '<' then
   begin
@@ -1096,7 +1096,7 @@ begin
 end;
 
 type
-  SymbSet = set of Symb;
+  SymbSet = set of symb_t;
 
 const
   TableTermSet = [TableEndSy, TDSy, TRSy, TREndSy, THSy, THEndSy,
@@ -1104,7 +1104,7 @@ const
 
 procedure DoBody(const TermSet: SymbSet); forward;
 
-procedure DoLists(Sym: Symb; const TermSet: SymbSet); forward;
+procedure DoLists(Sym: symb_t; const TermSet: SymbSet); forward;
 
 procedure DoAEnd;  {do the </a>}
 begin
@@ -1119,7 +1119,7 @@ begin
     Section.HRef(AEndSy, MasterList, CurrentUrlTarget, nil, PropStack.Last);
 end;
 
-procedure DoDivEtc(Sym: Symb; const TermSet: SymbSet);
+procedure DoDivEtc(Sym: symb_t; const TermSet: SymbSet);
 var
   FormBlock, DivBlock: TBlock;
 begin
@@ -1995,12 +1995,12 @@ var
   Done, FoundHRef: boolean;
   IO: TFloatingObj;
   Page: TPage;
-  SaveSy: Symb;
+  SaveSy: symb_t;
   Prop: TProperties;
   C: char;
   N, IX: integer;
 
-  procedure ChangeTheFont(Sy: Symb; Pre: boolean);
+  procedure ChangeTheFont(Sy: symb_t; Pre: boolean);
   var
     FaceName: string;
     CharSet: TFontCharSet;
@@ -2071,7 +2071,7 @@ var
     Done, InForm, InP: boolean;
     I, InitialStackIndex: integer;
     PreBlock, FormBlock, PBlock: TBlock;
-    SaveSy: Symb;
+    SaveSy: symb_t;
     FoundHRef: boolean;
     Prop: TProperties;
     C: char;
@@ -2912,7 +2912,7 @@ begin
   Next;
 end;
 
-procedure DoListItem(BlockType, Sym: Symb; LineCount: integer; Index: char;
+procedure DoListItem(BlockType, Sym: symb_t; LineCount: integer; Index: char;
   Plain: boolean; const TermSet: SymbSet);
 var
   Done: boolean;
@@ -2976,14 +2976,14 @@ begin
 end;
 
 {-------------DoLists}
-procedure DoLists(Sym: Symb; const TermSet: SymbSet);
+procedure DoLists(Sym: symb_t; const TermSet: SymbSet);
 var
   T: TAttribute;
   LineCount: integer;
   Plain: boolean;
   Index: char;
   NewBlock: TBlock;
-  EndSym: Symb;
+  EndSym: symb_t;
 begin
   LineCount := 1;
   Index := '1';

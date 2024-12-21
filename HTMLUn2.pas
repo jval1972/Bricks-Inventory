@@ -491,6 +491,9 @@ uses
   jpeg, DitherUnit, bi_utils, bi_quantize, bi_defs, {$IFNDEF NoOldPng}
   PngImage1, {$ENDIF} htmlview, htmlsubs, HtmlGif2, StylePars, ActiveX, bi_delphi;
 
+const
+  MEMORY_QUANTIZED_LIMIT = 512 * 1024 * 1024;
+
 type
   EGDIPlus = class (Exception);
   TJpegMod = class(TJpegImage)
@@ -2079,7 +2082,7 @@ begin
         Result.Assign(jpImage.Bitmap);
         if quantizeimagetosavemem then
           if Result.PixelFormat in [pf15bit, pf16bit, pf24bit, pf32bit] then
-            if GetMemoryUsed > 512 * 1024 * 1024 then
+            if GetMemoryUsed > MEMORY_QUANTIZED_LIMIT then
               ReduceTo8Bit(Result);
       finally
         jpImage.Free;
@@ -2095,6 +2098,10 @@ begin
         PI.LoadFromStream(Stream);
         Result.Assign(PI);
         if Result.Handle <> 0 then;      {force proper initiation win98/95}
+        if quantizeimagetosavemem then
+          if Result.PixelFormat in [pf15bit, pf16bit, pf24bit, pf32bit] then
+            if GetMemoryUsed > MEMORY_QUANTIZED_LIMIT then
+              ReduceTo8Bit(Result);
       finally
         PI.Free;
       end;

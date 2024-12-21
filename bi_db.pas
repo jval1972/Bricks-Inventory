@@ -211,7 +211,7 @@ type
     procedure GetSetInfo(const setid: string; const s: set_p);
     procedure GetSetInfoForDiagrams(const setid: string; const s: set_p);
     function RemoveSet(const setid: string; const typ: integer): boolean;
-    function DismandalSet(const setid: string): boolean;
+    function DismandalSet(const setid: string; const aspartonly: boolean = False): boolean;
     function DismandalAllSets: boolean;
     function BuildSet(const setid: string): boolean;
     function BuildAllSets: boolean;
@@ -5522,7 +5522,7 @@ begin
   Result := False;
 end;
 
-function TBrickInventory.DismandalSet(const setid: string): boolean;
+function TBrickInventory.DismandalSet(const setid: string; const aspartonly: boolean = False): boolean;
 var
   i, j, k: integer;
   inv: TBrickInventory;
@@ -5543,9 +5543,17 @@ begin
       begin
         for j := 0 to inv.numlooseparts - 1 do
           AddLoosePart(inv.flooseparts[j].part, inv.flooseparts[j].color, inv.flooseparts[j].num, inv.flooseparts[j].pci);
-        for j := 0 to inv.fnumsets - 1 do
-          for k := 0 to inv.fsets[j].num - 1 do
-            AddSet(inv.fsets[j].setid, AS_NORMAL);
+        if aspartonly then
+        begin
+          for j := 0 to inv.fnumsets - 1 do
+            AddLoosePart(inv.fsets[j].setid, -1, inv.fsets[j].num);
+        end
+        else
+        begin
+          for j := 0 to inv.fnumsets - 1 do
+            for k := 0 to inv.fsets[j].num - 1 do
+              AddSet(inv.fsets[j].setid, AS_NORMAL);
+        end;
       end;
       Exit;
     end;

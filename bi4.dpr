@@ -127,7 +127,7 @@ uses
   FramBrwz in 'FramBrwz.pas',
   FramView in 'framview.pas',
   GDIPL2A in 'GDIPL2A.pas',
-  HtmlGif1 in 'htmlgif1.pas',
+  HTMLGif1 in 'HTMLGif1.pas',
   HTMLGif2 in 'HTMLGif2.pas',
   Htmlsbs1 in 'Htmlsbs1.pas',
   Htmlsubs in 'htmlsubs.pas',

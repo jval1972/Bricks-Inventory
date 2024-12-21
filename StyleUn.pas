@@ -118,7 +118,8 @@ type
     BackgroundRepeat, BackgroundAttachment, VerticalAlign, Position, ZIndex,
     ListStyleType, ListStyleImage, Float, Clear, TextIndent,
     PageBreakBefore, PageBreakAfter, PageBreakInside, TextTransform,
-    WordWrap, FontVariant, BorderCollapse, OverFlow, Display);
+    WordWrap, FontVariant, BorderCollapse, OverFlow, Display
+  );
 
   TVMarginArray = array[BackgroundColor..LeftPos] of variant;
   TMarginArray = array[BackgroundColor..LeftPos] of integer;
@@ -294,11 +295,11 @@ begin
     Result := ALeft
   else if S = 'right' then
     Result := ARight
-  else if (S = 'bottom') then
+  else if S = 'bottom' then
     Result := ABottom
-  else if (S = 'baseline') then
+  else if S = 'baseline' then
     Result := ABaseline
-  else if (S = 'justify') then
+  else if S = 'justify' then
     Result := AJustify
   else
     Result := ANone;

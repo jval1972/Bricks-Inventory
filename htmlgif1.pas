@@ -2,10 +2,10 @@
 
 {$i HtmlCons.inc}
 
-unit HtmlGif1;
+unit HTMLGif1;
 
 {***************************************************************}
-{*                     htmlgif1.pas                            *}
+{*                     HTMLGif1.pas                            *}
 {*                                                             *}
 {*   Thanks to Ron Collins for the Gif code in this module.    *}
 {*   His copyright notice is below.                            *}

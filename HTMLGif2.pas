@@ -31,7 +31,7 @@ interface
 
 uses
   Windows, SysUtils, Classes, Graphics, Controls, ExtCtrls, HTMLUn2, mmSystem,
-  htmlgif1;
+  HTMLGif1;
 
 type
   TRGBColor = packed record
@@ -40,10 +40,12 @@ type
     Blue: byte;
   end;
 
-  TDisposalType = (dtUndefined,   {Take no action}
+  TDisposalType = (
+    dtUndefined,   {Take no action}
     dtDoNothing,   {Leave graphic, next frame goes on top of it}
     dtToBackground,{restore original background for next frame}
-    dtToPrevious); {restore image as it existed before this frame}
+    dtToPrevious   {restore image as it existed before this frame}
+  );
 
 type
   ThtBitmap = class(TBitmap)

@@ -171,7 +171,7 @@ var
 
 
 type
-  symstring_t = string[12];
+  symstring_t = string[15];
 
 const
   MaxRes = 80;
@@ -260,8 +260,8 @@ begin
   for i := 1 to MaxRes do
   begin
     idx := Ord(ResSy[i]);
-    ResTable[idx].symb := Ord(ResSy[i]);
-    ResTable[idx].symstring := LowerCase(ResWords[idx]);
+    ResTable[idx].symb := idx;
+    ResTable[idx].symstring := LowerCase(ResWords[i]);
   end;
 
 // EndRes table
@@ -277,8 +277,8 @@ begin
   for i := 1 to MaxEndRes do
   begin
     idx := Ord(EndResSy[i]);
-    EndResTable[idx].symb := Ord(EndResSy[i]);
-    EndResTable[idx].symstring := LowerCase(ResWords[idx]);
+    EndResTable[idx].symb := idx;
+    EndResTable[idx].symstring := LowerCase(ResWords[i]);
   end;
 
 // ResToEndRes table
@@ -348,10 +348,10 @@ end;
 
 function SymbToStr(Sy: symb_t): string;
 begin
-  if Ord(Sy) >= EndResTableSize then
+  if Ord(Sy) >= ResTableSize then
     Result := ''
-  else if EndResTable[Ord(Sy)].symb = Ord(Sy) then
-    Result := EndResTable[Ord(Sy)].symstring
+  else if ResTable[Ord(Sy)].symb = Ord(Sy) then
+    Result := ResTable[Ord(Sy)].symstring
   else
     Result := '';
 (* old code

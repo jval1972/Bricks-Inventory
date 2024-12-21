@@ -3061,8 +3061,8 @@ procedure TMainForm.DrawPartOutValue(inv: TBrickInventory; const setid: string =
 
 begin
   document.write(
-    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
-    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<table width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<table width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
     '<th>'
   );
   document.write('<b>Inventory (Part Out) Value (%d ' +
@@ -3078,7 +3078,7 @@ begin
     '<td width=34% align="center"><b>Evaluated</b></td>' +
     '</tr>' +
     '</table>' +
-    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<table width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
     '<tr>'
   );
   inv.UpdateCostValues;
@@ -3094,8 +3094,8 @@ begin
   document.write('</tr></table>');
 
   document.write(
-    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
-    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<table width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<table width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
     '<th>' +
     '<b>Demand</b>' +
     '</th></table>' +
@@ -3104,7 +3104,7 @@ begin
     '<td width=50% align="center"><b>Used</b></td>' +
     '</tr>' +
     '</table>' +
-    '<table  width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
+    '<table width=99% bgcolor=' + TBGCOLOR + ' border=2>' +
     '<tr align="RIGHT">'
   );
   document.write('<td>%2.2f</td>', [inv.nDemand.value * 100]);
@@ -4163,13 +4163,13 @@ begin
   PA := db.PArecAt(part, color, at);
 
   document.write(
-    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<table width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
     '<tr>' +
     '<td width=50% align="center"><b>Priceguide</b></td>' +
     '<td width=50% align="center"><b>Availability</b></td>' +
     '</tr>' +
     '</table>' +
-    '<table  width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
+    '<table width=99% bgcolor=' + THBGCOLOR + ' border=2>' +
     '<tr>' +
     _getcolex('New', 'Times Sold: ',
       pg.nTimesSold, pg.nTotalQty, pg.nMinPrice, pg.nAvgPrice, pg.nQtyAvgPrice, pg.nMaxPrice,

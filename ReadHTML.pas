@@ -468,7 +468,8 @@ function GetchBasic: char; {read a character}
 begin
   LCh := ReadChar;
   case LCh of
-    {skip a ^J after a ^M or a ^M after a ^J}  ^M: if LastChar = lcLF then
+    {skip a ^J after a ^M or a ^M after a ^J}
+    ^M: if LastChar = lcLF then
         LCh := ReadChar;
     ^J: if LastChar = lcCR then
         LCh := ReadChar;

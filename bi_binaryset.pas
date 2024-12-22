@@ -318,7 +318,7 @@ begin
       else if Pos1('Mx', rec.data[i].piece) then
         rec.data[i].piece[1] := 'm'
       else
-        cache[cacheidx].data[i].piece := fixpartname(cache[cacheidx].data[i].piece);
+        rec.data[i].piece := fixpartname(rec.data[i].piece);
       if rec.data[i].color = -2 then
         rec.data[i].color := -1;
 
@@ -336,9 +336,9 @@ begin
       else if Pos1('Mx', recSM.data[i].piece) then
         recSM.data[i].piece[1] := 'm'
       else
-        cache[cacheidx].data[i].piece := fixpartname(cache[cacheidx].data[i].piece);
-      if rec.data[i].color = -2 then
-        rec.data[i].color := -1;
+        recSM.data[i].piece := fixpartname(recSM.data[i].piece);
+      if recSM.data[i].color = -2 then
+        recSM.data[i].color := -1;
 
       Result := Result + #13#10 + recSM.data[i].piece + ',' + itoa(recSM.data[i].color) + ',' + itoa(recSM.data[i].num);
     end;
@@ -354,9 +354,9 @@ begin
       else if Pos1('Mx', recMD.data[i].piece) then
         recMD.data[i].piece[1] := 'm'
       else
-        cache[cacheidx].data[i].piece := fixpartname(cache[cacheidx].data[i].piece);
-      if rec.data[i].color = -2 then
-        rec.data[i].color := -1;
+        recMD.data[i].piece := fixpartname(recMD.data[i].piece);
+      if recMD.data[i].color = -2 then
+        recMD.data[i].color := -1;
 
       Result := Result + #13#10 + recMD.data[i].piece + ',' + itoa(recMD.data[i].color) + ',' + itoa(recMD.data[i].num);
     end;
@@ -418,6 +418,8 @@ begin
   if str.count > BIMAXSETITEMS then
   begin
     DeleteSet(aset);
+    DeleteSetSM(aset);
+    DeleteSetMD(aset);
     Result := False;
     Exit;
   end;

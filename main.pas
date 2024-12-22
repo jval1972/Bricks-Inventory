@@ -8388,7 +8388,7 @@ begin
     pi := db.PieceInfo(pci);
 
     document.write(
-      '<td width=35%>' + decide((cl = 9996) or (cl = 9997) or (cl = 9998) or (options and DPL_USETHUMBS <> 0), MakeThumbnailImage(pcs, cl), '<img src=' + col + '\' + pcs + '.png>') +
+      '<td width=35%>' + decide((cl = 9996) or (cl = 9997) or (cl = 9998) or (options and DPL_USETHUMBS <> 0), MakeThumbnailImage(pcs, cl), '<img width=100px src=' + col + '\' + pcs + '.png>') +
       '<b>' + GetPieceLinkHtml(pcs) + '</b>' +
       ' - ' + db.PieceDesc(pi) + '</td>' +
       '<td width=20%>'

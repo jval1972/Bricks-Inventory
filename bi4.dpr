@@ -158,7 +158,8 @@ uses
   bi_notes in 'bi_notes.pas',
   bi_basebrick in 'bi_basebrick.pas',
   mosaic_base in 'mosaic_base.pas',
-  bi_keepfile in 'bi_keepfile.pas';
+  bi_keepfile in 'bi_keepfile.pas',
+  bi_wadfile in 'bi_wadfile.pas';
 
 {$R *.res}
 

@@ -122,7 +122,8 @@ end;
 procedure TBinary.Changed(Sender: TObject);
 begin
   FModified := True;
-  if Assigned(FOnChange) then FOnChange(Self);
+  if Assigned(FOnChange) then
+    FOnChange(Self);
 end;
 
 procedure TBinary.DefineProperties(Filer: TFiler);
@@ -209,10 +210,11 @@ begin
 end;
 
 procedure TBinary.LoadFromStream(Stream: TStream; Compressed: boolean);
-const BufSize = $FFFF;
+const
+  BufSize = $FFFF;
 var
   DStream: TZDecompressionStream;
-  Buf : Array [1..BufSize] of byte;
+  Buf : array [1..BufSize] of byte;
   Size, NumRead, pos: longint;
 begin
   Clear;
@@ -233,7 +235,7 @@ begin
           NumRead := DStream.Read(Buf, Min(SizeOf(Buf), Size - pos));
           inc(pos, NumRead);
           FMemoryCache.Write(Buf, NumRead);
-          Progress(Self, psRunning, poLoad, Round(pos*100/Size));
+          Progress(Self, psRunning, poLoad, Round(pos * 100 / Size));
         end;
       finally
         DStream.Free;
@@ -254,7 +256,7 @@ begin
       NumRead := Stream.Read(Buf, Min(SizeOf(Buf), Size - pos));
       inc(pos, NumRead);
       FMemoryCache.Write(Buf, NumRead);
-      Progress(Self, psRunning, poLoad, Round(pos*100/Stream.Size));
+      Progress(Self, psRunning, poLoad, Round(pos * 100 / Stream.Size));
     end;
     FCompressedSize := FMemoryCache.Size;
     Progress(Self, psEnding, poLoad, 0);

@@ -3,6 +3,8 @@ program zip_test;
 {$APPTYPE CONSOLE}
 
 uses
+  FastMM4 in 'FastMM4.pas',
+  FastMM4Messages in 'FastMM4Messages.pas',
   SysUtils,
   Classes,
   bi_binary in 'bi_binary.pas',
@@ -105,7 +107,16 @@ begin
   mocs.Add('mosaic_donald01_48x48');
   mocs.Add('mosaic_agalia_96x64');
   mocs.Add('moneybin');
-  
+  mocs.Add('LUGBULK-2015');
+  mocs.Add('LUGBULK-2016');
+  mocs.Add('LUGBULK-2017');
+  mocs.Add('LUGBULK-2018');
+  mocs.Add('LUGBULK-2019');
+  mocs.Add('LUGBULK-2020');
+  mocs.Add('LUGBULK-2021');
+  mocs.Add('LUGBULK-2021');
+  mocs.Add('lugbulk2017');
+
   mocs.Sorted := True;
 end;
 
@@ -115,6 +126,8 @@ var
   check: string;
   i: integer;
 begin
+  Result := fin;
+
   sl := TStringList.Create;
 
   check := strlower(fname(fin));
@@ -139,7 +152,6 @@ begin
     sl.SaveToFile(Result);
   end;
   sl.Free;
-  Result := fin;
 end;
 
 procedure DoZip(const fin, fout: string);

@@ -393,6 +393,8 @@ begin
         sData := LoadStringFromFile(BrickSetCachePath(pcs));
         sData := Utf8ToAnsi(sData);
         p := Pos('<section class="featurebox ">', sData);
+        if p < 1 then
+          p := Pos('<section class=''featurebox ''>', sData);
         if p > 0 then
         begin
           sbr := '';

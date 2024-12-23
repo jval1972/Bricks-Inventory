@@ -9812,15 +9812,19 @@ begin
     for i := 0 to fcategories[CATEGORYLUGBULK].knownpieces.Count - 1 do
     begin
       sname := fcategories[CATEGORYLUGBULK].knownpieces.Strings[i];
-      lyear := PieceColorInfo(sname, -1).year;
-      if lyear >= 2015 then
+      pci := PieceColorInfo(sname, -1);
+      if pci <> nil then
       begin
-        linv := GetSetInventory(sname);
-        for j := 0 to linv.fnumlooseparts - 1 do
+        lyear := pci.year;
+        if lyear >= 2015 then
         begin
-          pci := PieceColorInfo(@linv.looseparts[j]);
-          if pci <> nil then
-            pci.SetLugbulk(lyear, True);
+          linv := GetSetInventory(sname);
+          for j := 0 to linv.fnumlooseparts - 1 do
+          begin
+            pci := PieceColorInfo(@linv.looseparts[j]);
+            if pci <> nil then
+              pci.SetLugbulk(lyear, True);
+          end;
         end;
       end;
       progressfunc(progressstring, i / fcategories[CATEGORYLUGBULK].knownpieces.Count);

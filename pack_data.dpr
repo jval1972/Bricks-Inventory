@@ -135,7 +135,7 @@ begin
   begin
     sl.LoadFromFile(fin);
     for i := sl.Count - 1 downto 1 do
-      if mocs.IndexOf(secondword(sl[i])) >= 0 then
+      if mocs.IndexOf(secondword(sl[i], ',')) >= 0 then
         sl.Delete(i);
     Result := I_NewTempFile(check);
     sl.SaveToFile(Result);
@@ -146,7 +146,7 @@ begin
   begin
     sl.LoadFromFile(fin);
     for i := sl.Count - 1 downto 1 do
-      if mocs.IndexOf(firstword(sl[i])) >= 0 then
+      if mocs.IndexOf(firstword(sl[i], ',')) >= 0 then
         sl.Delete(i);
     Result := I_NewTempFile(check);
     sl.SaveToFile(Result);
@@ -154,7 +154,7 @@ begin
   sl.Free;
 end;
 
-procedure DoZip(const fin, fout: string);
+procedure DoZip(const fin, finname, fout: string);
 var
   i: integer;
   id: string;
@@ -176,8 +176,8 @@ begin
   b.SaveToFile(fix_fout, True);
 
   id := '';
-  for i := PATH_BEGIN to Length(fin) do
-    id := id + fin[i];
+  for i := PATH_BEGIN to Length(finname) do
+    id := id + finname[i];
   rc.Add(Format('%d DATABASE %s', [ids.Count, fix_fout]));
   ids.Add(id);
 
@@ -216,7 +216,10 @@ begin
   begin
     if CharPos('*', files[i]) < 1 then
     begin
-      DoZip(CheckMoc(files[i]), basedefault + fname(files[i]) + '.z');
+      DoZip(
+        CheckMoc(files[i]),
+        files[i],
+        basedefault + fname(files[i]) + '.z');
     end
     else
     begin
@@ -228,7 +231,11 @@ begin
       for j := lst.Count - 1 downto 0 do
       begin
         if (mocs.IndexOf(lst[j]) < 0) and (CharPos(' ', lst[j]) = 0) then
-          DoZip(files[0] + prefix + '\' + lst[j], basedefault + prefix + '\' + fname(lst[j]) + '.z')
+          DoZip(
+            files[0] + prefix + '\' + lst[j],
+            files[0] + prefix + '\' + lst[j],
+            basedefault + prefix + '\' + fname(lst[j]) + '.z'
+          )
         else
           lst.Delete(j);
       end;
@@ -251,6 +258,8 @@ begin
   rc.Add('1 DATABASE ' + basedefault + 'database.dat');
   rc.SaveToFile('database.rc');
   rc.Free;
+
+  b.Free;
 
   I_ShutDownTempFiles;
 

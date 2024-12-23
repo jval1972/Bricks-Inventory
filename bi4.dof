@@ -140,6 +140,7 @@ Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 Count=1
 Item0=..\dcu
 [HistoryLists\hlOutputDirectorry]
-Count=2
+Count=3
 Item0=h:\BrickInventory\bin
-Item1=g:\BrickInventory\bin
+Item1=h:\BrickInventory\bin2
+Item2=g:\BrickInventory\bin

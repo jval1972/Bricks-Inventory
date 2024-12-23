@@ -730,6 +730,7 @@ type
     idleindicator: integer;
     bstmpsets: TStringList;
     crossstatslst: TStringList;
+    failinstall: boolean;
     function CheckAA(const AA, fromAA, toAA: integer): boolean;
     procedure Navigate(const akey: string; const pg: integer);
     procedure DrawColorCell(const cc: integer; const width: integer);
@@ -967,6 +968,7 @@ type
     procedure doDrawInvStats(const inv: TBrickInventory);
     procedure _load2setsqry(var set1, set2: string);
     procedure _save2setsqry(const set1, set2: string);
+    procedure CleanUp;
   public
     { Public declarations }
     activebits: integer;
@@ -987,7 +989,7 @@ uses
   frm_update2, frm_update3, frm_update4, bi_cachefile, frm_editlugbulkprice,
   frm_options, bi_multithread, bi_iterators, bi_defs, bi_crawler, bi_script,
   buildinexcludes, bi_instructions, frm_pdfinstructions, bi_data, bi_notes,
-  bi_imagerotate, bi_readylist, bi_currency, HTMLEd1, bi_keepfile;
+  bi_imagerotate, bi_readylist, bi_currency, HTMLEd1, bi_keepfile, frm_install;
 
 {$R *.dfm}
 
@@ -1209,6 +1211,7 @@ begin
   bstmpsets := TStringList.Create;
   lastbricksetdownload := 0.0;
   idleindicator := 0;
+  failinstall := False;
   MT_Init;
   SplashForm := TSplashForm.Create(nil);
   lastset := '';
@@ -2830,18 +2833,23 @@ begin
   Stream := streams.Objects[0] as TMemoryStream;}
 end;
 
-procedure TMainForm.FormDestroy(Sender: TObject);
+procedure TMainForm.CleanUp;
 var
   i: integer;
 begin
   IdleTimer.Enabled := False;
 
 //  TimingForm.CrawlerTimer.Enabled := False;
-  inventory.SaveLooseParts(basedefault + 'myparts.txt');
-  inventory.SavePartsInventoryPriceguide(basedefault + 'myparts_priceguide.txt');
-  inventory.SaveSets(basedefault + 'mysets.txt');
 
-  StoreMyInventoryStats;
+  if inventory <> nil then
+  begin
+    inventory.SaveLooseParts(basedefault + 'myparts.txt');
+    inventory.SavePartsInventoryPriceguide(basedefault + 'myparts_priceguide.txt');
+    inventory.SaveSets(basedefault + 'mysets.txt');
+
+    StoreMyInventoryStats;
+    inventory.Free;
+  end;
 
 {  ShowSplash;
   progress_string := 'Saving Priceguide...';
@@ -2853,8 +2861,8 @@ begin
   HideSplash;}
 
   orders.Free;
-  inventory.Free;
-  FreeAndNil(db);
+  if db <> nil then
+    FreeAndNil(db);
 
   for i := 0 to streams.Count - 1 do
     streams.Objects[i].Free;
@@ -2897,6 +2905,11 @@ begin
 
   optenablecrawling := CheckBox1.Checked;
   BI_SaveDefaults(basedefault + 'bi4.ini');
+end;
+
+procedure TMainForm.FormDestroy(Sender: TObject);
+begin
+  CleanUp;
 end;
 
 procedure TMainForm.FormShow(Sender: TObject);
@@ -2988,6 +3001,17 @@ begin
     MkDir(basedefault + 'notes');
 
   LugBulks1.Visible := DirectoryExists(basedefault + 'lugbulks');
+
+  if not CheckInstallation then
+    if not InstallDataBase then
+    begin
+      db := nil;
+      inventory := nil;
+      failinstall := True;
+      CleanUp;
+      Halt(0);
+      Exit;
+    end;
 
   db := TSetsDatabase.Create;
   progress_string := 'Loading database...';

@@ -159,7 +159,8 @@ uses
   bi_basebrick in 'bi_basebrick.pas',
   mosaic_base in 'mosaic_base.pas',
   bi_keepfile in 'bi_keepfile.pas',
-  bi_wadfile in 'bi_wadfile.pas';
+  bi_wadfile in 'bi_wadfile.pas',
+  frm_install in 'frm_install.pas' {InstallationForm};
 
 {$R *.res}
 

@@ -3000,6 +3000,11 @@ begin
   if fexists(basedefault + 'mysets.txt') then
     inventory.LoadSets(basedefault + 'mysets.txt');
 
+  for i := -1 to MAXINFOCOLOR do
+    if db.Colors(i).knownpieces <> nil then
+      if not DirectoryExists(basedefault + itoa(i)) then
+        ForceDirectories(basedefault + itoa(i));
+
   initialized := True;
   HideSplash;
 

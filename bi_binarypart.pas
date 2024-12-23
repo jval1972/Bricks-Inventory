@@ -364,7 +364,7 @@ begin
     end;
     rec.numitems := j;
   end
-  else if (str.Strings[0] = 'Part,Color,Num,Cost') then
+  else if str.Strings[0] = 'Part,Color,Num,Cost' then
   begin
     j := 0;
     for i := 1 to str.count - 1 do

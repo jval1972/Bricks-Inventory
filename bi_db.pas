@@ -3707,6 +3707,8 @@ begin
       else if (bp.part = '553') or (bp.part = '553b') or (bp.part = '553c') or (bp.part = '3262') or (bp.part = '18841') then begin s.Add(Format('%s,%d,%d', ['30367b', bp.color, bp.num])); end
       //20241211
       else if bp.part = '2958' then begin s.Add(Format('%s,%d,%d', ['2745', bp.color, bp.num])); end
+      //20241223
+      else if bp.part = '50746' then begin s.Add(Format('%s,%d,%d', ['54200', bp.color, bp.num])); end
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;

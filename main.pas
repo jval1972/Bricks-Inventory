@@ -6455,6 +6455,9 @@ begin
   document.write('<body background="splash.jpg">');
   document.title('Inventory for tag "' + tag + '"');
   DrawNavigateBar;
+  document.write(
+    '<div style="color:' + DFGCOLOR + '"><p align=center>'
+  );
 
   DrawHeadLine(Format('Inventory for tag "%s"',
     [taglink(tag)]));

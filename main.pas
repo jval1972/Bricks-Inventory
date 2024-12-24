@@ -1028,6 +1028,7 @@ const
 
 const
   DPL_USETHUMBS = 1;
+  DPL_CALCTOTALCOST = 2;
 
 const
   FLG_SP_NO_ALIAS = 1;  // .ShowPiece
@@ -6406,7 +6407,7 @@ begin
   end;
 
   lst.Sort;
-  DrawPieceList('Tag: "' + '<a href="showtaginv/' + tag + '">' + tag + '</a>"<br>', lst, SORT_NONE, '', 'Tag: "' + tag + '"');
+  DrawPieceList('Tag: "' + '<a href="showtaginv/' + tag + '">' + tag + '</a>"<br>', lst, SORT_NONE, '', 'Tag: "' + tag + '"', DPL_CALCTOTALCOST);
   lst.Free;
 
   s1 := basedefault + 'out\Tags\';
@@ -8346,6 +8347,7 @@ var
   bp: brickpool_t;
   totpieces: integer;
   mycosttot: double;
+  moneystr: string;
   dn: TDateTime;
   www: double;
 begin
@@ -8496,11 +8498,15 @@ begin
   );
   if sortorder = SORT_DATE_UPDATE then
     document.write('<td width=15%><b> </b></td>');
+  if options and DPL_CALCTOTALCOST <> 0 then
+    moneystr := moneyhtml(mycosttot, 2)
+  else
+    moneystr := '';
   document.write(
     '<td width=10% align=right><b>' + IntToStr(totpieces) + '</b></td>' +
     '<td width=10% align=right><b>' + moneyhtml(prnt, 2) + '</b></td>' +
     '<td width=10% align=right><b>' + moneyhtml(prut, 2) + '</b></td>' +
-    '<td width=10% align=right><b> </b></td>' +
+    '<td width=10% align=right><b>' + moneystr + '</b></td>' +
     '<br></table>'
   );
 

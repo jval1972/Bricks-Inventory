@@ -393,6 +393,22 @@ begin
     Result := part;
 end;
 
+type
+  primitivelookup_t = record
+    part: string[15];
+    prim: string[15];
+  end;
+
+const
+  NUM_EXTRAPRIMITIVES = 5;
+  EXTRAPRIMITIVES: array[0..NUM_EXTRAPRIMITIVES - 1] of primitivelookup_t = (
+    (part: '38648c01'; prim: '10830'),
+    (part: '80440'; prim: '24312'),
+    (part: '90370'; prim: '90393'),
+    (part: '66897'; prim: '21445'),
+    (part: '1941'; prim: '20612')
+  );
+
 function TLDD.Primitive(const part: string): TLDDPrimitiveInfo;
 var
   i, idx: integer;
@@ -409,6 +425,16 @@ begin
         Break;
     end;
     related.Free;
+  end;
+  if idx < 0 then
+  begin
+    for i := 0 to NUM_EXTRAPRIMITIVES - 1 do
+      if part = EXTRAPRIMITIVES[i].part then
+      begin
+        idx := fPrimitives.IndexOf(EXTRAPRIMITIVES[i].prim);
+        if idx >= 0 then
+          Break;
+      end;
   end;
   if idx >= 0 then
     Result := fPrimitives.Objects[idx] as TLDDPrimitiveInfo

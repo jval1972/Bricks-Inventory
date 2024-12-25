@@ -93,6 +93,8 @@ begin
     fexists(basedefault + 'db\db_gears.txt') and
     fexists(basedefault + 'db\db_instructions.txt') and
     fexists(basedefault + 'db\db_knownpieces.txt') and
+    fexists(basedefault + 'db\db_lddmaterials.txt') and
+    fexists(basedefault + 'db\db_lddprimitives.txt') and
     fexists(basedefault + 'db\db_newnames.txt') and
     fexists(basedefault + 'db\db_parttypes.txt') and
     fexists(basedefault + 'db\db_pieces.txt') and

@@ -34,7 +34,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, OleCtrls, SHDocVw, Readhtml, FramView, Htmlview, ExtCtrls, Masks,
   StdCtrls, Buttons, bi_docwriter, bi_db, bi_hash, bi_orders, Menus, jpeg,
-  pngimage, bi_lugbulk2017, ComCtrls, bi_delphi, AppEvnts;
+  pngimage, bi_lugbulk2017, ComCtrls, bi_delphi, AppEvnts, bi_ldd;
 
 type
   TMainForm = class(TForm)
@@ -731,6 +731,7 @@ type
     bstmpsets: TStringList;
     crossstatslst: TStringList;
     failinstall: boolean;
+    ldd: TLDD;
     function CheckAA(const AA, fromAA, toAA: integer): boolean;
     procedure Navigate(const akey: string; const pg: integer);
     procedure DrawColorCell(const cc: integer; const width: integer);
@@ -2865,6 +2866,9 @@ begin
   if db <> nil then
     FreeAndNil(db);
 
+  if ldd <> nil then
+    FreeAndNil(ldd);
+
   for i := 0 to streams.Count - 1 do
     streams.Objects[i].Free;
   streams.Free;
@@ -3008,6 +3012,7 @@ begin
     begin
       db := nil;
       inventory := nil;
+      ldd := nil;
       failinstall := True;
       CleanUp;
       Halt(0);
@@ -3018,6 +3023,9 @@ begin
   progress_string := 'Loading database...';
   db.progressfunc := dbloadprogress;
   db.Load;
+
+  ldd := TLDD.Create;
+
   inventory := TBrickInventory.Create;
   inventory.CreateExtentedHashTable;
   if fexists(basedefault + 'myparts.txt') then
@@ -4935,6 +4943,9 @@ begin
 
   s2 := s1 + setid + '_priceguide.txt';
   newinv.SavePartsInventoryPriceguide(s2);
+
+  SaveStringToFile(s1 + basefname + '.LXFML', ldd.GenerateLXFML(newinv, basefname));
+  SaveStringToFile(s1 + basefname + '.LXFML.log', ldd.errorlog);
 
   if filter = 0 then
   begin

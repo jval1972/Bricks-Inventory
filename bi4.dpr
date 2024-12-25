@@ -160,7 +160,8 @@ uses
   mosaic_base in 'mosaic_base.pas',
   bi_keepfile in 'bi_keepfile.pas',
   bi_wadfile in 'bi_wadfile.pas',
-  frm_install in 'frm_install.pas' {InstallationForm};
+  frm_install in 'frm_install.pas' {InstallationForm},
+  bi_ldd in 'bi_ldd.pas';
 
 {$R *.res}
 

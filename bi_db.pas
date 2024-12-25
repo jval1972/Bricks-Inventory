@@ -333,6 +333,7 @@ type
     nSets: integer;
     fYear: integer;
     yYear: integer;
+    lddColor: integer;
     legoColor: string[24];
     ldrawColor: integer;
     {$ENDIF}

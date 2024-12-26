@@ -4847,9 +4847,9 @@ procedure TBrickInventory.SortPieces;
 
   procedure QuickSortN(const A: brickpool_pa; iLo, iHi: Integer);
   var
-     Lo, Hi: integer;
-     Pivot: string;
-     T: brickpool_t;
+    Lo, Hi: integer;
+    Pivot: string;
+    T: brickpool_t;
   begin
     Lo := iLo;
     Hi := iHi;
@@ -4882,9 +4882,9 @@ procedure TBrickInventory.SortPiecesByPartNumber;
 
   procedure QuickSortPN(const A: brickpool_pa; iLo, iHi: Integer);
   var
-     Lo, Hi: integer;
-     Pivot: string;
-     T: brickpool_t;
+    Lo, Hi: integer;
+    Pivot: string;
+    T: brickpool_t;
   begin
     Lo := iLo;
     Hi := iHi;
@@ -4931,6 +4931,7 @@ procedure TBrickInventory.SortPiecesByPriceNew;
      Lo, Hi: integer;
      Pivot: double;
      T: brickpool_t;
+    Pivot: double;
   begin
     Lo := iLo;
     Hi := iHi;
@@ -4974,9 +4975,9 @@ procedure TBrickInventory.SortPiecesByPriceUsed;
 
   procedure QuickSortPU(const A: brickpool_pa; iLo, iHi: Integer);
   var
-     Lo, Hi: integer;
-     Pivot: double;
-     T: brickpool_t;
+    Lo, Hi: integer;
+    Pivot: double;
+    T: brickpool_t;
   begin
     Lo := iLo;
     Hi := iHi;
@@ -5009,9 +5010,9 @@ procedure TBrickInventory.SortPiecesByColor;
 
   procedure QuickSortPC(const A: brickpool_pa; iLo, iHi: Integer);
   var
-     Lo, Hi: integer;
-     Pivot: integer;
-     T: brickpool_t;
+    Lo, Hi: integer;
+    Pivot: integer;
+    T: brickpool_t;
   begin
     Lo := iLo;
     Hi := iHi;

@@ -41,6 +41,9 @@ const
   LDD_MAP_STARTX = -0.4;
   LDD_MAP_STARTZ = -0.4;
 
+const
+  LDD_DEF_STACK_HEIGHT = 30;
+
 type
   lddmaterial_t = record
     MatID: integer;
@@ -104,9 +107,6 @@ type
     property MapZ: integer read GetMapZ;
   end;
 
-const
-  LDD_PRIMITIVE_CACHE_SIZE = 16;
-
 type
   TLDD = class(TObject)
   private
@@ -118,6 +118,7 @@ type
     flddmaterials: lddmaterial_pa;
     fnmaterials: integer;
     ferrorlog: string;
+    fstackheight: integer;
     function _ftoa(const f: double): string;
   protected
     function LDD_InitColors: boolean;
@@ -135,6 +136,7 @@ type
     function Primitive(const part: string): TLDDPrimitiveInfo;
     function GenerateLXFML(const inv: TBrickInventory; const aname: string): string;
     property errorlog: string read ferrorlog;
+    property stackheight: integer read fstackheight write fstackheight;
   end;
 
 implementation
@@ -363,6 +365,7 @@ end;
 constructor TLDD.Create;
 begin
   Inherited Create;
+  stackheight := LDD_DEF_STACK_HEIGHT;
   LDD_InitColors;
   LDD_InitPrimitives;
 end;
@@ -507,6 +510,7 @@ var
   procedure _write_brick(const bp: brickpool_p);
   var
     ii, ix, iz: integer;
+    istack: integer;
     prim: TLDDPrimitiveInfo;
     cp: colorinfo_p;
     saa: string;
@@ -537,7 +541,8 @@ var
     else
       mapsizez := LDD_MAP_SIZE_Z + LDD_MAP_SIZE_ADD - zsize - 1;
 
-    for ii := 0 to bp.num - 1 do
+    ii := 0;
+    while ii < bp.num do
     begin
       mapbestx := 0;
       mapbesty := MAXINT;
@@ -568,23 +573,34 @@ var
           Break;
       end;
 
-      for ix := mapbestx to mapbestx + xsize do
-        for iz := mapbestz to mapbestz + zsize do
-          mapp[ix, iz] := mapbesty + ysize + 1;
+      istack := 0;
+      while istack < stackheight do
+      begin
+        for ix := mapbestx to mapbestx + xsize do
+          for iz := mapbestz to mapbestz + zsize do
+            mapp[ix, iz] := mapbesty + ysize + 1;
 
-      saa := itoa(aa);
-      inc(aa);
+        saa := itoa(aa);
+        inc(aa);
 
-      _writeln('  <Brick refID="' + saa + '" designID="' + prim.basename + '">');
-      _writeln('    <Part refID="' + saa + '" designID="' + prim.basename + '" materials="' + itoa(cp.lddColor) + ',0,0,0" decoration="0">');
-      _writeln('      <Bone refID="' + saa + '" transformation="1,0,0,0,1,0,0,0,1,' +
-        _ftoa(MapXToX(mapbestx) - prim.minX) + ',' +
-        _ftoa(MapYToY(mapbesty) - prim.minY) + ',' +
-        _ftoa(MapZToZ(mapbestz) - prim.minZ) + '">'
-      );
-      _writeln('      </Bone>');
-      _writeln('    </Part>');
-      _writeln('  </Brick>');
+        _writeln('  <Brick refID="' + saa + '" designID="' + prim.basename + '">');
+        _writeln('    <Part refID="' + saa + '" designID="' + prim.basename + '" materials="' + itoa(cp.lddColor) + ',0,0,0" decoration="0">');
+        _writeln('      <Bone refID="' + saa + '" transformation="1,0,0,0,1,0,0,0,1,' +
+          _ftoa(MapXToX(mapbestx) - prim.minX) + ',' +
+          _ftoa(MapYToY(mapbesty) - prim.minY) + ',' +
+          _ftoa(MapZToZ(mapbestz) - prim.minZ) + '">'
+        );
+        _writeln('      </Bone>');
+        _writeln('    </Part>');
+        _writeln('  </Brick>');
+
+        inc(ii);
+        if ii = bp.num then
+          break;
+
+        mapbesty := mapbesty + ysize + 1;
+        istack := istack + ysize + 1;
+      end;
     end;
   end;
 

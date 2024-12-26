@@ -18707,7 +18707,7 @@ end;
 function TSetsDatabase.Crawler(const rlevel: integer = 0): boolean;
 var
   spart, scolor: string;
-  idx: integer;
+  idx, i: integer;
   pci: TPieceColorInfo;
   pi: TPieceInfo;
   s: string;
@@ -18789,7 +18789,8 @@ begin
 
   fcrawlerhistory.Add(s);
   if fcrawlerhistory.Count > 20000 then
-    fcrawlerhistory.Delete(0);
+    for i := 0 to 99 do
+      fcrawlerhistory.Delete(0);
 
   if not codeok then
   begin
@@ -21389,11 +21390,13 @@ end;
 
 procedure TSetsDatabase.CreateCrawlerFile;
 var
-  ltmp, lsets1, lsets2, lparts1, lparts2, lparts3, lparts4, tmplst: TStringList;
+  ltmp, ltmp2, lsets1, lsets2, lparts1, lparts2, lparts3, lparts4, tmplst: TStringList;
   i: integer;
   stmp, oldname, newname: string;
+  ncnt: integer;
 begin
   ltmp := TStringList.Create;
+  ltmp2 := TStringList.Create;
   lsets1 := TStringList.Create;
   lsets2 := TStringList.Create;
   lparts1 := TStringList.Create;
@@ -21404,50 +21407,58 @@ begin
   try
     ltmp.AddStrings(fcolorpieces);
     for i := 0 to ltmp.Count - 1 do
-      if not Pos1('-1,', ltmp.Strings[i]) then
-      begin
-        oldname := secondword(ltmp.strings[i], ',');
-        newname := GetNewPieceName(oldname);
-        if (newname = oldname) or (newname = '') then
-          lparts1.Add(ltmp.Strings[i])
-        else if tmplst.IndexOf(newname) < 0 then
-        begin
-          tmplst.Add(newname);
-          lparts2.Add(ltmp.Strings[i]);
-        end
-        else if Odd(i) then
-          lparts3.Add(ltmp.Strings[i])
-        else
-          lparts4.Add(ltmp.Strings[i])
-      end;
-    for i := 0 to ltmp.Count - 1 do
     begin
       stmp := ltmp.Strings[i];
       if Pos1('-1,', stmp) then
+        ltmp2.Add(stmp)
+      else
       begin
-        if (Pos1('-1,sw', stmp)) and (CountNumbers(stmp) = 4) then
-          lsets1.Add(stmp)
-        else if (Pos1('-1,cty', stmp)) and (CountNumbers(stmp) = 4) then
-          lsets1.Add(stmp)
-        else if (Pos1('-1,sh', stmp)) and (CountNumbers(stmp) = 4) then
-          lsets1.Add(stmp)
-        else if Pos1('-1,3068bpb', stmp) or Pos1('-1,3069bpb', stmp) or Pos1('-1,3070bpb', stmp) then
+        oldname := secondword(stmp, ',');
+        newname := GetNewPieceName(oldname);
+        if (newname = oldname) or (newname = '') then
+          lparts1.Add(stmp)
+        else if tmplst.IndexOf(newname) < 0 then
         begin
-          if CountNumbers(stmp) = 4 then
+          tmplst.Add(newname);
+          lparts2.Add(stmp);
+        end
+        else if Odd(i) then
+          lparts3.Add(stmp)
+        else
+          lparts4.Add(stmp)
+      end;
+    end;
+    for i := 0 to ltmp2.Count - 1 do
+    begin
+      stmp := ltmp2.Strings[i];
+      ncnt := CountNumbers(stmp);
+      if (Pos1('-1,sw', stmp)) and (ncnt = 4) then
+        lsets1.Add(stmp)
+      else if (Pos1('-1,cty', stmp)) and (ncnt = 4) then
+        lsets1.Add(stmp)
+      else if (Pos1('-1,sh', stmp)) and (ncnt = 4) then
+        lsets1.Add(stmp)
+      else if Pos1('-1,30', stmp) then
+      begin
+        if Pos1('-1,3068bpb', stmp) or Pos1('-1,3069bpb', stmp) or Pos1('-1,3070bpb', stmp) then
+        begin
+          if ncnt = 4 then
             lparts3.Add(stmp)
           else
             lparts4.Add(stmp)
         end
         else if Pos1('-1,3068pb', stmp) or Pos1('-1,3069pb', stmp) or Pos1('-1,3070pb', stmp) then
         begin
-          if CountNumbers(stmp) = 4 then
+          if ncnt = 4 then
             lparts1.Add(stmp)
           else
             lparts2.Add(stmp)
         end
         else
           lsets2.Add(stmp);
-      end;
+      end
+      else
+        lsets2.Add(stmp);
     end;
     fcrawlerpriority.AddStrings(lparts1);
     fcrawlerpriority.AddStrings(lparts2);
@@ -21457,6 +21468,7 @@ begin
     fcrawlerpriority.AddStrings(lparts4);
   finally
     ltmp.Free;
+    ltmp2.Free;
     lsets1.Free;
     lsets2.Free;
     lparts1.Free;

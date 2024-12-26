@@ -43,6 +43,20 @@ const
 
 const
   LDD_DEF_STACK_HEIGHT = 30;
+  LDD_MIN_STACK_HEIGHT = 15;
+  LDD_MAX_STACK_HEIGHT = 45;
+
+const
+  LDD_SAVE_FORMAT_LXFML = 0;
+  LDD_SAVE_FORMAT_LXF = 1;
+
+const
+  LDD_SORT_GROUPID = 0;
+  LDD_SORT_GROUPID_COLOR = 1;
+  LDD_SORT_GROUPID_PRIMITIVE = 2;
+  LDD_SORT_SIZE = 3;
+  LDD_SORT_COLOR = 4;
+  LDD_SORT_PRIMITIVE = 5;
 
 type
   lddmaterial_t = record
@@ -70,6 +84,7 @@ type
 type
   TLDDPrimitiveInfo = class(TObject)
   protected
+    fgroupid: integer;
     fminX, fminY, fminZ: double;
     fmaxX, fmaxY, fmaxZ: double;
     // Actual Size
@@ -105,6 +120,8 @@ type
     property MapX: integer read GetMapX;
     property MapY: integer read GetMapY;
     property MapZ: integer read GetMapZ;
+    // Group ID (for sorting)
+    property groupid: integer read fgroupid write fgroupid; 
   end;
 
 type
@@ -118,7 +135,6 @@ type
     flddmaterials: lddmaterial_pa;
     fnmaterials: integer;
     ferrorlog: string;
-    fstackheight: integer;
     function _ftoa(const f: double): string;
   protected
     function LDD_InitColors: boolean;
@@ -135,14 +151,15 @@ type
     destructor Destroy; override;
     function Primitive(const part: string): TLDDPrimitiveInfo;
     function GenerateLXFML(const inv: TBrickInventory; const aname: string): string;
+    procedure SaveToLXFMLFile(const fname: string; const inv: TBrickInventory; const aname: string);
+    procedure SaveToLXFFile(const fname: string; const inv: TBrickInventory; const aname: string);
     property errorlog: string read ferrorlog;
-    property stackheight: integer read fstackheight write fstackheight;
   end;
 
 implementation
 
 uses
-  bi_globals, bi_utils, bi_delphi;
+  bi_globals, bi_utils, bi_delphi, bi_wzipfile, bi_defs;
 
 // -----------------------------------------------------------------------------
 
@@ -216,10 +233,10 @@ end;
 
 function TLDD.LDD_InitColors: boolean;
 var
-  sl: TStringList;
+  sl, lcolors: TStringList;
   fn: string;
-  i, j: integer;
-  ln, sMatID, sRed, sGreen, sBlue, sAlpha, sMaterialType, sMatDesc: string;
+  i, j, idx: integer;
+  ln, sColor, sMatID, sRed, sGreen, sBlue, sAlpha, sMaterialType, sMatDesc: string;
   matp: lddmaterial_p;
   cp: colorinfo_p;
   rc, gc, bc: integer;
@@ -239,6 +256,29 @@ begin
 
   sl := TStringList.Create;
   sl.LoadFromFile(fn);
+
+  lcolors := TStringList.Create;
+  fn := basedefault + 'db\db_lddcolors.txt';
+  if fexists(fn) then
+  begin
+    lcolors.LoadFromFile(fn);
+    if lcolors.Count > 1 then
+    begin
+      if lcolors.Strings[0] = 'Color,LegoMaterial' then
+      begin
+        lcolors.Delete(0);
+        for i := 0 to lcolors.Count - 1 do
+        begin
+          ln := lcolors.Strings[i];
+          splitstring(ln, sColor, sMatID, ',');
+          lcolors.Strings[i] := sMatID;
+          lcolors.Objects[i] := TCInteger.Create(atoi(sColor));
+        end;
+      end;
+      lcolors.Sorted := True;
+    end;
+  end;
+
   if sl.Count > 1 then
     if sl.Strings[0] = 'MatID,Red,Green,Blue,Alpha,MaterialType,MatDesc' then
     begin
@@ -258,32 +298,43 @@ begin
         matp.MaterialType := sMaterialType;
         matp.MatDesc := sMatDesc;
       end;
+
+      for i := 0 to fnmaterials - 1 do
+      begin
+        idx := lcolors.IndexOf(itoa(flddmaterials[i].MatID));
+        if idx >= 0 then
+          db.Colors((lcolors.Objects[idx] as TCInteger).value).lddColor := flddmaterials[i].MatID;
+      end;
+
       for i := -1 to LASTNORMALCOLORINDEX do
       begin
         cp := db.Colors(i);
-        if (cp.id = i) or (i = -1) then
+        if cp.lddColor <= 0 then
         begin
-          cc := RGBInvert(cp.RGB);
-          rc := cc and $FF;
-          gc := (cc shr 8) and $FF;
-          bc := (cc shr 16) and $FF;
-          db_transparent := Pos('Trans', cp.name) > 0;
-          mindist := $ffffffff;
-          cp.lddColor := 1;
-          for j := 0 to fnmaterials - 1 do
+          if (cp.id = i) or (i = -1) then
           begin
-            matp := @flddmaterials[j];
-            ldd_transparent := matp.Alpha < 255;
-            if ldd_transparent = db_transparent then
+            cc := RGBInvert(cp.RGB);
+            rc := cc and $FF;
+            gc := (cc shr 8) and $FF;
+            bc := (cc shr 16) and $FF;
+            db_transparent := Pos('Trans', cp.name) > 0;
+            mindist := $ffffffff;
+            cp.lddColor := 1;
+            for j := 0 to fnmaterials - 1 do
             begin
-              rdiff := matp.Red - rc;
-              gdiff := matp.Green - gc;
-              bdiff := matp.Blue - bc;
-              dist := 0.30 * rdiff * rdiff + 0.59 * gdiff * gdiff + 0.11 * bdiff * bdiff;
-              if dist < mindist then
+              matp := @flddmaterials[j];
+              ldd_transparent := matp.Alpha < 255;
+              if ldd_transparent = db_transparent then
               begin
-                cp.lddColor := matp.MatID;
-                mindist := dist;
+                rdiff := matp.Red - rc;
+                gdiff := matp.Green - gc;
+                bdiff := matp.Blue - bc;
+                dist := 0.30 * rdiff * rdiff + 0.59 * gdiff * gdiff + 0.11 * bdiff * bdiff;
+                if dist < mindist then
+                begin
+                  cp.lddColor := matp.MatID;
+                  mindist := dist;
+                end;
               end;
             end;
           end;
@@ -291,6 +342,7 @@ begin
       end;
     end;
 
+  FreeList(lcolors);
   sl.Free;
 end;
 
@@ -300,7 +352,7 @@ var
   aliaslist: TStringList;
   fn: string;
   i, j: integer;
-  ln, sPrimitive, sminX, sminY, sminZ, smaxX, smaxY, smaxZ, saliases: string;
+  ln, sPrimitive, sminX, sminY, sminZ, smaxX, smaxY, smaxZ, sgroupid, saliases: string;
   linfo: TLDDPrimitiveInfo;
 begin
   Result := False;
@@ -319,13 +371,13 @@ begin
   sl := TStringList.Create;
   sl.LoadFromFile(fn);
   if sl.Count > 1 then
-    if sl.Strings[0] = 'Primitive,minX,minY,minZ,maxX,maxY,maxZ,aliases' then
+    if sl.Strings[0] = 'Primitive,minX,minY,minZ,maxX,maxY,maxZ,maingroupid,groupid,aliases' then
     begin
       Result := True;
       for i := 1 to sl.Count - 1 do
       begin
         ln := sl.Strings[i];
-        splitstring(ln, sPrimitive, sminX, sminY, sminZ, smaxX, smaxY, smaxZ, saliases, ',');
+        splitstring(ln, sPrimitive, sminX, sminY, sminZ, smaxX, smaxY, smaxZ, sgroupid, saliases, ',');
 
         linfo := TLDDPrimitiveInfo.Create;
         linfo.basename := sPrimitive;
@@ -335,6 +387,7 @@ begin
         linfo.maxX := atof(smaxX);
         linfo.maxY := atof(smaxY);
         linfo.maxZ := atof(smaxZ);
+        linfo.groupid := atoi(sgroupid);
 
         fPrimitivesContainer.AddObject(sPrimitive, linfo);
 
@@ -365,7 +418,6 @@ end;
 constructor TLDD.Create;
 begin
   Inherited Create;
-  stackheight := LDD_DEF_STACK_HEIGHT;
   LDD_InitColors;
   LDD_InitPrimitives;
 end;
@@ -489,6 +541,98 @@ type
   lddmap_t = array[0..LDD_MAP_SIZE_X + LDD_MAP_SIZE_ADD - 1, 0..LDD_MAP_SIZE_z + LDD_MAP_SIZE_ADD - 1] of integer;
   lddmap_p = ^lddmap_t;
 
+type
+  lddsortfunc_dbl = function(const b: brickpool_p): double;
+  lddsortfunc_str = function(const b: brickpool_p): string;
+
+function _ldd_sort_groupid(const bp: brickpool_p): double;
+var
+  prim: TLDDPrimitiveInfo;
+begin
+  prim := bp.pci as TLDDPrimitiveInfo;
+  if prim = nil then
+    Result := 0
+  else
+    Result := prim.groupid;
+end;
+
+function _ldd_sort_groupidcolor(const bp: brickpool_p): double;
+var
+  prim: TLDDPrimitiveInfo;
+begin
+  prim := bp.pci as TLDDPrimitiveInfo;
+  if prim = nil then
+  begin
+    Result := 0;
+    Exit;
+  end
+  else
+    Result := prim.groupid;
+  Result := Result + bp.color / (MAXINFOCOLOR + 1);
+end;
+
+function _ldd_sort_groupidprimitive(const bp: brickpool_p): double;
+var
+  prim: TLDDPrimitiveInfo;
+  pid: integer;
+begin
+  prim := bp.pci as TLDDPrimitiveInfo;
+  if prim = nil then
+  begin
+    Result := 0;
+    Exit;
+  end
+  else
+    Result := prim.groupid;
+  pid := atoi(prim.basename);
+  Result := Result + pid / 1000000;
+end;
+
+function _ldd_sort_primitive(const bp: brickpool_p): string;
+var
+  prim: TLDDPrimitiveInfo;
+begin
+  prim := bp.pci as TLDDPrimitiveInfo;
+  if prim = nil then
+    Result := ''
+  else
+    Result := prim.basename;
+end;
+
+function _ldd_sort_size(const bp: brickpool_p): double;
+var
+  prim: TLDDPrimitiveInfo;
+  pid: integer;
+begin
+  prim := bp.pci as TLDDPrimitiveInfo;
+  if prim = nil then
+  begin
+    Result := 0;
+    Exit;
+  end
+  else
+    Result := prim.GetxSize * prim.GetzSize;
+  pid := atoi(prim.basename);
+  Result := Result + pid / 1000000;
+end;
+
+function _ldd_sort_color(const bp: brickpool_p): double;
+var
+  prim: TLDDPrimitiveInfo;
+  pid: integer;
+begin
+  prim := bp.pci as TLDDPrimitiveInfo;
+  if prim = nil then
+  begin
+    Result := 0;
+    Exit;
+  end
+  else
+    Result := prim.GetxSize * prim.GetzSize;
+  pid := atoi(prim.basename);
+  Result := Result + pid / 1000000;
+end;
+
 function TLDD.GenerateLXFML(const inv: TBrickInventory; const aname: string): string;
 var
   i: integer;
@@ -496,6 +640,56 @@ var
   tmpinv: TBrickInventory;
   mapp: lddmap_p;
   aa: integer;
+
+  procedure QSortInvDBL(const A: brickpool_pa; iLo, iHi: Integer; const func: lddsortfunc_dbl);
+  var
+    Lo, Hi: integer;
+    Pivot: double;
+    T: brickpool_t;
+  begin
+    Lo := iLo;
+    Hi := iHi;
+    Pivot := func(@A[(Lo + Hi) div 2]);
+    repeat
+      while func(@A[Lo]) < Pivot do Inc(Lo);
+      while func(@A[Hi]) > Pivot do Dec(Hi);
+      if Lo <= Hi then
+      begin
+        T := A[Lo];
+        A[Lo] := A[Hi];
+        A[Hi] := T;
+        Inc(Lo);
+        Dec(Hi);
+      end;
+    until Lo > Hi;
+    if Hi > iLo then QSortInvDBL(A, iLo, Hi, func);
+    if Lo < iHi then QSortInvDBL(A, Lo, iHi, func);
+  end;
+
+  procedure QSortInvSTR(const A: brickpool_pa; iLo, iHi: Integer; const func: lddsortfunc_str);
+  var
+    Lo, Hi: integer;
+    Pivot: string;
+    T: brickpool_t;
+  begin
+    Lo := iLo;
+    Hi := iHi;
+    Pivot := func(@A[(Lo + Hi) div 2]);
+    repeat
+      while func(@A[Lo]) < Pivot do Inc(Lo);
+      while func(@A[Hi]) > Pivot do Dec(Hi);
+      if Lo <= Hi then
+      begin
+        T := A[Lo];
+        A[Lo] := A[Hi];
+        A[Hi] := T;
+        Inc(Lo);
+        Dec(Hi);
+      end;
+    until Lo > Hi;
+    if Hi > iLo then QSortInvSTR(A, iLo, Hi, func);
+    if Lo < iHi then QSortInvSTR(A, Lo, iHi, func);
+  end;
 
   procedure _write(const s: string);
   begin
@@ -519,7 +713,7 @@ var
     ixsize, izsize: integer;
     mapsizex, mapsizez: integer;
   begin
-    prim := Primitive(bp.part);
+    prim := bp.pci as TLDDPrimitiveInfo;
     if prim = nil then
     begin
       LogLn('Can not match LDD primitive ' + bp.part);
@@ -574,7 +768,7 @@ var
       end;
 
       istack := 0;
-      while istack < stackheight do
+      while istack < optlddstackheight do
       begin
         for ix := mapbestx to mapbestx + xsize do
           for iz := mapbestz to mapbestz + zsize do
@@ -607,6 +801,8 @@ var
 begin
   ClearLog;
 
+  optlddstackheight := GetIntInRange(optlddstackheight, LDD_MIN_STACK_HEIGHT, LDD_MAX_STACK_HEIGHT);
+
   ret := '';
   _writeln('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>');
   _writeln('<LXFML versionMajor="5" versionMinor="0" name="' + aname + '">');
@@ -629,6 +825,26 @@ begin
   aa := 0;
 
   for i := 0 to tmpinv.numlooseparts - 1 do
+    tmpinv.looseparts[i].pci := Primitive(tmpinv.looseparts[i].part);
+
+  case optlddsordorder of
+    LDD_SORT_GROUPID:
+      QSortInvDBL(tmpinv.looseparts, 0, tmpinv.numlooseparts - 1, _ldd_sort_groupid);
+    LDD_SORT_GROUPID_COLOR:
+      QSortInvDBL(tmpinv.looseparts, 0, tmpinv.numlooseparts - 1, _ldd_sort_groupidcolor);
+    LDD_SORT_GROUPID_PRIMITIVE:
+      QSortInvDBL(tmpinv.looseparts, 0, tmpinv.numlooseparts - 1, _ldd_sort_groupidprimitive);
+    LDD_SORT_SIZE:
+      QSortInvDBL(tmpinv.looseparts, 0, tmpinv.numlooseparts - 1, _ldd_sort_size);
+    LDD_SORT_COLOR:
+      QSortInvDBL(tmpinv.looseparts, 0, tmpinv.numlooseparts - 1, _ldd_sort_color);
+    LDD_SORT_PRIMITIVE:
+      QSortInvSTR(tmpinv.looseparts, 0, tmpinv.numlooseparts - 1, _ldd_sort_primitive);
+  else
+    QSortInvDBL(tmpinv.looseparts, 0, tmpinv.numlooseparts - 1, _ldd_sort_groupidprimitive);
+  end;
+
+  for i := 0 to tmpinv.numlooseparts - 1 do
     _write_brick(@tmpinv.looseparts[i]);
 
   memfree(pointer(mapp), SizeOf(lddmap_t));
@@ -649,6 +865,57 @@ begin
   _writeln('</LXFML>');
 
   Result := ret;
+end;
+
+procedure TLDD.SaveToLXFMLFile(const fname: string; const inv: TBrickInventory; const aname: string);
+begin
+  backupfile(fname);
+  SaveStringToFile(fname, GenerateLXFML(inv, aname));
+  SaveStringToFile(fname + '.log', ferrorlog);
+end;
+
+const
+  LXFIMAGE100: array[0..390] of Byte = (
+    $89, $50, $4E, $47, $0D, $0A, $1A, $0A, $00, $00, $00, $0D, $49, $48, $44,
+    $52, $00, $00, $00, $80, $00, $00, $00, $80, $08, $06, $00, $00, $00, $C3,
+    $3E, $61, $CB, $00, $00, $01, $4E, $49, $44, $41, $54, $78, $9C, $ED, $D2,
+    $31, $01, $00, $20, $0C, $C0, $30, $C0, $BF, $B4, $89, $42, $C6, $8E, $26,
+    $0A, $7A, $F4, $CE, $CC, $A1, $EB, $6D, $07, $B0, $CB, $00, $71, $06, $88,
+    $33, $40, $9C, $01, $E2, $0C, $10, $67, $80, $38, $03, $C4, $19, $20, $CE,
+    $00, $71, $06, $88, $33, $40, $9C, $01, $E2, $0C, $10, $67, $80, $38, $03,
+    $C4, $19, $20, $CE, $00, $71, $06, $88, $33, $40, $9C, $01, $E2, $0C, $10,
+    $67, $80, $38, $03, $C4, $19, $20, $CE, $00, $71, $06, $88, $33, $40, $9C,
+    $01, $E2, $0C, $10, $67, $80, $38, $03, $C4, $19, $20, $CE, $00, $71, $06,
+    $88, $33, $40, $9C, $01, $E2, $0C, $10, $67, $80, $38, $03, $C4, $19, $20,
+    $CE, $00, $71, $06, $88, $33, $40, $9C, $01, $E2, $0C, $10, $67, $80, $38,
+    $03, $C4, $19, $20, $CE, $00, $71, $06, $88, $33, $40, $9C, $01, $E2, $0C,
+    $10, $67, $80, $38, $03, $C4, $19, $20, $CE, $00, $71, $06, $88, $33, $40,
+    $9C, $01, $E2, $0C, $10, $67, $80, $38, $03, $C4, $19, $20, $CE, $00, $71,
+    $06, $88, $33, $40, $9C, $01, $E2, $0C, $10, $67, $80, $38, $03, $C4, $19,
+    $20, $CE, $00, $71, $06, $88, $33, $40, $9C, $01, $E2, $0C, $10, $67, $80,
+    $38, $03, $C4, $19, $20, $CE, $00, $71, $06, $88, $33, $40, $9C, $01, $E2,
+    $0C, $10, $67, $80, $38, $03, $C4, $19, $20, $CE, $00, $71, $06, $88, $33,
+    $40, $9C, $01, $E2, $0C, $10, $67, $80, $38, $03, $C4, $19, $20, $CE, $00,
+    $71, $06, $88, $33, $40, $9C, $01, $E2, $0C, $10, $67, $80, $38, $03, $C4,
+    $19, $20, $CE, $00, $71, $06, $88, $33, $40, $9C, $01, $E2, $0C, $10, $67,
+    $80, $38, $03, $C4, $19, $20, $CE, $00, $71, $06, $88, $33, $40, $9C, $01,
+    $E2, $0C, $10, $67, $80, $38, $03, $C4, $19, $20, $CE, $00, $71, $06, $88,
+    $33, $40, $9C, $01, $E2, $0C, $10, $67, $80, $B8, $0F, $99, $32, $03, $64,
+    $AA, $D0, $1E, $E0, $00, $00, $00, $00, $49, $45, $4E, $44, $AE, $42, $60,
+    $82
+  );
+
+procedure TLDD.SaveToLXFFile(const fname: string; const inv: TBrickInventory; const aname: string);
+var
+  lxf: TWZipFile;
+begin
+  lxf := TWZipFile.Create;
+  AddStringToZip(lxf, 'IMAGE100.LXFML', GenerateLXFML(inv, aname));
+  AddDataToZip(lxf, 'IMAGE100.PNG', @LXFIMAGE100, SizeOf(LXFIMAGE100));
+  backupfile(fname);
+  lxf.SaveToFile(fname);
+  lxf.Free;
+  SaveStringToFile(fname + '.log', ferrorlog);
 end;
 
 end.

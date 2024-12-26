@@ -69,9 +69,16 @@ type
     ListBox1: TListBox;
     CheckBox15: TCheckBox;
     CheckBoxCacheThumbnails: TCheckBox;
+    TabSheet6: TTabSheet;
+    CheckBoxLDDSave: TCheckBox;
+    LDDSortRadioGroup: TRadioGroup;
+    LDDSaveFormatRadioGroup: TRadioGroup;
+    LDDHeightTrackBar: TTrackBar;
+    LDDHeightLabel: TLabel;
     procedure Edit1KeyPress(Sender: TObject; var Key: Char);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure LDDHeightTrackBarChange(Sender: TObject);
   private
     { Private declarations }
   public
@@ -85,7 +92,7 @@ implementation
 {$R *.dfm}
 
 uses
-  bi_delphi, bi_defs, bi_system, bi_currency;
+  bi_delphi, bi_defs, bi_system, bi_currency, bi_ldd;
 
 function BI_EditOptions: boolean;
 var
@@ -131,6 +138,18 @@ begin
 
     if IsIntegerInRange(inventorysortmethod, 0, f.RadioGroup1.items.Count - 1) then
       f.RadioGroup1.ItemIndex := inventorysortmethod;
+
+    f.LDDHEightTrackBar.Min := LDD_MIN_STACK_HEIGHT;
+    f.LDDHEightTrackBar.Max := LDD_MAX_STACK_HEIGHT;
+    f.LDDHEightTrackBar.Position := LDD_DEF_STACK_HEIGHT;
+    if IsIntegerInRange(optlddstackheight, LDD_MIN_STACK_HEIGHT, LDD_MAX_STACK_HEIGHT) then
+      f.LDDHEightTrackBar.Position := optlddstackheight;
+    f.CheckBoxLDDSave.Checked := optlddalwayssave;
+    if IsIntegerInRange(optlddsaveformat, 0, f.LDDSaveFormatRadioGroup.items.Count - 1) then
+      f.LDDSaveFormatRadioGroup.ItemIndex := optlddsaveformat;
+    if IsIntegerInRange(optlddsordorder, 0, f.LDDSortRadioGroup.items.Count - 1) then
+      f.LDDSortRadioGroup.ItemIndex := optlddsordorder;
+
     f.ShowModal;
     if f.ModalResult = mrOK then
     begin
@@ -158,6 +177,11 @@ begin
       idx := f.ListBox1.ItemIndex;
       if idx >= 0 then
         optdefaultcurrency := (f.ListBox1.Items.Objects[idx] as TStringInit).text;
+
+      optlddstackheight := f.LDDHEightTrackBar.Position;
+      optlddalwayssave := f.CheckBoxLDDSave.Checked;
+      optlddsaveformat := f.LDDSaveFormatRadioGroup.ItemIndex;
+      optlddsordorder := f.LDDSortRadioGroup.ItemIndex;
     end;
   finally
     f.Free;
@@ -190,6 +214,11 @@ var
 begin
   for i := 0 to ListBox1.Items.Count - 1 do
     ListBox1.Items.Objects[i].Free;
+end;
+
+procedure TOptionsForm.LDDHeightTrackBarChange(Sender: TObject);
+begin
+  LDDHeightLabel.Caption := Format('Stack Height (%d plates)', [LDDHeightTrackBar.Position]);
 end;
 
 end.

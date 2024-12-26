@@ -749,6 +749,7 @@ type
     procedure ShowSetInventory(const setid: string; const flags: integer = 0; const filter: integer = 0);
     procedure ShowInventoryRelatedPieces(const inv: TBrickInventory; const tit, headline: string);
     procedure ShowMyInventoryRelatedPieces;
+    procedure SaveLDDFile(const fname: string; const inv: TBrickInventory; const basename: string);
     procedure ShowSetPartsStorage(const setid: string; const ppreview: boolean);
     procedure DrawInventoryPartsStorage(const psinv: TBrickInventory; const ppreview: boolean);
     procedure PreviewInventoryTable(inv: TBrickInventory);
@@ -3004,6 +3005,8 @@ begin
     MkDir(basedefault + 'cache');
   if not DirectoryExists(basedefault + 'notes') then
     MkDir(basedefault + 'notes');
+  if not DirectoryExists(basedefault + 'ldd') then
+    MkDir(basedefault + 'ldd');
 
   LugBulks1.Visible := DirectoryExists(basedefault + 'lugbulks');
 
@@ -4944,8 +4947,8 @@ begin
   s2 := s1 + setid + '_priceguide.txt';
   newinv.SavePartsInventoryPriceguide(s2);
 
-  SaveStringToFile(s1 + basefname + '.LXFML', ldd.GenerateLXFML(newinv, basefname));
-  SaveStringToFile(s1 + basefname + '.LXFML.log', ldd.errorlog);
+  if optlddalwayssave then
+    SaveLDDFile(basedefault + 'ldd\' + basefname, newinv, basefname);
 
   if filter = 0 then
   begin
@@ -5193,6 +5196,14 @@ begin
   document.SaveBufferToFile(diskmirror);
   document.Flash;
   Screen.Cursor := crDefault;
+end;
+
+procedure TMainForm.SaveLDDFile(const fname: string; const inv: TBrickInventory; const basename: string);
+begin
+  if optlddsaveformat = LDD_SAVE_FORMAT_LXFML then
+    ldd.SaveToLXFMLFile(fname + '.LXFML', inv, basename)
+  else
+    ldd.SaveToLXFFile(fname + '.lxf', inv, basename)
 end;
 
 procedure TMainForm.ShowInventoryRelatedPieces(const inv: TBrickInventory; const tit, headline: string);
@@ -17573,7 +17584,7 @@ begin
 
   lst.Insert(0, 'Part,Color');
   fn := basedefault + 'lugbulks\' + IntToStr(year) + '_' + FloatToStr(over) + '_' + IntToStr(catid) + '.txt';
-  BackUpFile(fn);
+  backupfile(fn);
   lst.SaveToFile(fn);
   lst.Free;
 end;

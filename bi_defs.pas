@@ -31,7 +31,7 @@ unit bi_defs;
 interface
 
 uses
-  bi_delphi, bi_system;
+  bi_delphi, bi_system, bi_ldd;
 
 type
   ttype_t = (tText, tString255, tInteger, tBoolean, tGroup);
@@ -69,9 +69,13 @@ var
   optbriefcurrencysymbol: boolean;
   optshowusernotes: boolean;
   optshowautonotes: boolean;
+  optlddstackheight: integer;
+  optlddalwayssave: boolean;
+  optlddsaveformat: integer;
+  optlddsordorder: integer;
 
 const
-  NUMDEFAULTS = 26;
+  NUMDEFAULTS = 31;
 
   defaults: array[0..NUMDEFAULTS - 1] of default_t = (
     (name: 'General';
@@ -280,7 +284,47 @@ const
      defaultsvalue: '1';
      defaultivalue: 1;
      defaultbvalue: True;
-     _type: tBoolean)
+     _type: tBoolean),
+
+    (name: 'LDD';
+     location: nil;
+     setable: false;
+     defaultsvalue: '';
+     defaultivalue: 0;
+     defaultbvalue: false;
+     _type: tGroup),
+
+    (name: 'optlddstackheight';
+     location: @optlddstackheight;
+     setable: true;
+     defaultsvalue: '';
+     defaultivalue: LDD_DEF_STACK_HEIGHT;
+     defaultbvalue: True;
+     _type: tInteger),
+
+    (name: 'optlddalwayssave';
+     location: @optlddalwayssave;
+     setable: true;
+     defaultsvalue: '';
+     defaultivalue: 0;
+     defaultbvalue: False;
+     _type: tInteger),
+
+    (name: 'optlddsaveformat';
+     location: @optlddsaveformat;
+     setable: true;
+     defaultsvalue: '';
+     defaultivalue: LDD_SAVE_FORMAT_LXF;
+     defaultbvalue: False;
+     _type: tInteger),
+
+    (name: 'optlddsordorder';
+     location: @optlddsordorder;
+     setable: true;
+     defaultsvalue: '';
+     defaultivalue: LDD_SORT_GROUPID_PRIMITIVE;
+     defaultbvalue: False;
+     _type: tInteger)
 
   );
 

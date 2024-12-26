@@ -115,6 +115,8 @@ procedure AddStreamToZip(const pk3: TWZipFile; const fname: string; const strm: 
 
 procedure AddStringToZip(const pk3: TWZipFile; const fname: string; const data: string);
 
+procedure AddDataToZip(const pk3: TWZipFile; const fname: string; const data: pointer; const datasize: integer);
+
 implementation
 
 { TWZipFile }
@@ -564,6 +566,22 @@ begin
   idx := pk3.AddFile(fname);
   pk3.Data[idx] := data;
   pk3.DateTime[idx] := Now();
+end;
+
+procedure AddDataToZip(const pk3: TWZipFile; const fname: string; const data: pointer; const datasize: integer);
+var
+  idx: integer;
+  sdata: string;
+  i: integer;
+begin
+  idx := pk3.AddFile(fname);
+  sdata := '';
+  SetLength(sdata, datasize);
+  for i := 1 to datasize do
+    sdata[i] := Chr(PByteArray(data)[i - 1]);
+  pk3.Data[idx] := sdata;
+  pk3.DateTime[idx] := Now();
+  SetLength(sdata, 0);
 end;
 
 end.

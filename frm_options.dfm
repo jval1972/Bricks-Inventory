@@ -557,7 +557,7 @@ object OptionsForm: TOptionsForm
     Align = alBottom
     BevelOuter = bvNone
     Caption = ' '
-    Font.Charset = GREEK_CHARSET
+    Font.Charset = DEFAULT_CHARSET
     Font.Color = clBlack
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
@@ -580,7 +580,7 @@ object OptionsForm: TOptionsForm
         Height = 23
         Caption = 'OK'
         Default = True
-        Font.Charset = GREEK_CHARSET
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
         Font.Height = -13
         Font.Name = 'MS Sans Serif'
@@ -596,7 +596,7 @@ object OptionsForm: TOptionsForm
         Height = 23
         Cancel = True
         Caption = 'Cancel'
-        Font.Charset = GREEK_CHARSET
+        Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
         Font.Height = -13
         Font.Name = 'MS Sans Serif'
@@ -612,8 +612,8 @@ object OptionsForm: TOptionsForm
     Top = 8
     Width = 345
     Height = 233
-    ActivePage = TabSheet4
-    Font.Charset = GREEK_CHARSET
+    ActivePage = TabSheet6
+    Font.Charset = DEFAULT_CHARSET
     Font.Color = clBlack
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
@@ -834,6 +834,71 @@ object OptionsForm: TOptionsForm
         Height = 17
         Caption = 'Use short currency symbol if possible'
         TabOrder = 1
+      end
+    end
+    object TabSheet6: TTabSheet
+      Caption = 'LDD Export'
+      ImageIndex = 5
+      object LDDHeightLabel: TLabel
+        Left = 120
+        Top = 40
+        Width = 141
+        Height = 16
+        Caption = 'Stack Height (30 plates)'
+        FocusControl = LDDHeightTrackBar
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+      end
+      object CheckBoxLDDSave: TCheckBox
+        Left = 120
+        Top = 16
+        Width = 217
+        Height = 17
+        Caption = 'Automatically save set inventory'
+        TabOrder = 0
+      end
+      object LDDSortRadioGroup: TRadioGroup
+        Left = 8
+        Top = 96
+        Width = 321
+        Height = 97
+        Caption = ' Primitive Sort  '
+        Columns = 2
+        Items.Strings = (
+          'GroupID'
+          'GroupID && Color'
+          'GroupID && Primitive'
+          'Size'
+          'Color'
+          'Primitive')
+        TabOrder = 1
+      end
+      object LDDSaveFormatRadioGroup: TRadioGroup
+        Left = 8
+        Top = 8
+        Width = 105
+        Height = 73
+        Caption = ' Save Format '
+        Items.Strings = (
+          'LFXML'
+          'LFX')
+        TabOrder = 2
+      end
+      object LDDHeightTrackBar: TTrackBar
+        Left = 128
+        Top = 56
+        Width = 201
+        Height = 33
+        Max = 45
+        Min = 15
+        Position = 30
+        TabOrder = 3
+        TickMarks = tmBoth
+        OnChange = LDDHeightTrackBarChange
       end
     end
   end

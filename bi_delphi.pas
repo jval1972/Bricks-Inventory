@@ -504,6 +504,8 @@ procedure splitstring(const inp: string; var out1, out2, out3, out4, out5, out6,
 
 procedure splitstring(const inp: string; var out1, out2, out3, out4, out5, out6, out7, out8: string; const splitter: char); overload;
 
+procedure splitstring(const inp: string; var out1, out2, out3, out4, out5, out6, out7, out8, out9: string; const splitter: char); overload;
+
 procedure splitstring(const inp: string; var out1, out2: string; const splitters: charset_t); overload;
 
 procedure splitstring(const inp: string; var out1, out2, out3: string; const splitters: charset_t); overload;
@@ -2779,6 +2781,46 @@ begin
       out7 := out7 + inp[i]
     else
       out8 := out8 + inp[i]
+  end;
+end;
+
+procedure splitstring(const inp: string; var out1, out2, out3, out4, out5, out6, out7, out8, out9: string; const splitter: char); overload;
+var
+  i: integer;
+  aa: integer;
+begin
+  out1 := '';
+  out2 := '';
+  out3 := '';
+  out4 := '';
+  out5 := '';
+  out6 := '';
+  out7 := '';
+  out8 := '';
+  out9 := '';
+  aa := 1;
+  for i := 1 to length(inp) do
+  begin
+    if (aa < 9) and (inp[i] = splitter) then
+      inc(aa)
+    else if aa = 1 then
+      out1 := out1 + inp[i]
+    else if aa = 2 then
+      out2 := out2 + inp[i]
+    else if aa = 3 then
+      out3 := out3 + inp[i]
+    else if aa = 4 then
+      out4 := out4 + inp[i]
+    else if aa = 5 then
+      out5 := out5 + inp[i]
+    else if aa = 6 then
+      out6 := out6 + inp[i]
+    else if aa = 7 then
+      out7 := out7 + inp[i]
+    else if aa = 8 then
+      out8 := out8 + inp[i]
+    else
+      out9 := out9 + inp[i]
   end;
 end;
 

@@ -4928,10 +4928,9 @@ procedure TBrickInventory.SortPiecesByPriceNew;
 
   procedure QuickSortPN(const A: brickpool_pa; iLo, iHi: Integer);
   var
-     Lo, Hi: integer;
-     Pivot: double;
-     T: brickpool_t;
+    Lo, Hi: integer;
     Pivot: double;
+    T: brickpool_t;
   begin
     Lo := iLo;
     Hi := iHi;
@@ -13951,7 +13950,7 @@ begin
         if pci <> nil then
           if (yearnum >= MIN_ACCEPRABLE_YEAR) and (yearnum <= MAX_ACCEPTABLE_YEAR) then
             SetItemYear(pci, yearnum);
-        SetPartType(spart, BrickLinkColorToSystemColor(N.Numbers[i]), 'B');
+        SetPartType(spart, cl, 'B');
       end;
 
       tmpweight := -1.0;
@@ -13987,9 +13986,9 @@ begin
                     SetItemYear(pci2, yyyy);
                 end;
               end;
+              SetPartType(salternates.Strings[k], cl, 'B');
             end;
           end;
-          SetPartType(salternates.Strings[k], BrickLinkColorToSystemColor(N.Numbers[i]), 'B');
           pi2 := PieceInfo(salternates.Strings[k]);
           if tmpweight > 0.0 then
             if tmpweight <> oldweight then

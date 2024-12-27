@@ -6768,7 +6768,7 @@ begin
     Result := ' <a href=updateinstructionsfromnet/' + pcs + '>' + '<img src="images\refresh.png"></img></a>' +
               ' <a href=updateinstructionsfrompdf/' + pcs + '>' + '<img src="images\pdf.png"></img></a>';
     instructions_exist := InstructionsExist(pcs);
-    if instructions_exist or (findfile(basedefault + InstructionDir(pcs) + '*.pdf') <> '') then
+    if instructions_exist or (findfile(basedefault + InstructionDir(pcs) + '*.pdf') <> '') or (findfile(basedefault + InstructionDir(pcs) + '*.lxf*') <> '') then
       Result := Result + ' <a href=instructions/' + pcs + '>' + '<img src="images\instructions.png"></img></a>'
     else if not instructions_exist then
       Result := Result + ' <a href=instructions/' + pcs + '>' + '<img src="images\instructions_query.png"></img></a>';
@@ -22998,7 +22998,7 @@ begin
   finally
     Screen.Cursor := crDefault;
   end;
-  if ret or InstructionsExist(sset) or (findfile(basedefault + InstructionDir(sset) + '*.pdf') <> '') then
+  if ret or InstructionsExist(sset) or (findfile(basedefault + InstructionDir(sset) + '*.pdf') <> '') or (findfile(basedefault + InstructionDir(sset) + '*.lxf*') <> '') then
     HTMLClick('instructions/' + sset, foo);
 end;
 
@@ -23013,7 +23013,7 @@ begin
   finally
     Screen.Cursor := crDefault;
   end;
-  if ret or InstructionsExist(sset) or (findfile(basedefault + InstructionDir(sset) + '*.pdf') <> '') then
+  if ret or InstructionsExist(sset) or (findfile(basedefault + InstructionDir(sset) + '*.pdf') <> '')  or (findfile(basedefault + InstructionDir(sset) + '*.lxf*') <> '') then
     HTMLClick('refresh', foo);
 end;
 

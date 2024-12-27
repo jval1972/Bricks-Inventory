@@ -9421,8 +9421,8 @@ var
   pi: TPieceInfo;
   stmp: string;
   instructions: TStringList;
-  pdfs: TDStringList;
-  spdfreader: string;
+  pdfs, lxfs: TDStringList;
+  spdfreader, slddreader: string;
   refreshstr: string;
   rotatestr: string;
 begin
@@ -9482,6 +9482,23 @@ begin
     document.write(spdfreader);
   end;
 
+  lxfs := findfiles(basedefault + InstructionDir(pcs) + '*.lxf*');
+  if lxfs.Count > 0 then
+  begin
+    slddreader :=
+      '<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tr>' +
+      '<tr bgcolor=' + THBGCOLOR + '><th><b>LDD Files</b></th></tr></table>' +
+      '<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tr>' +
+      '<tr bgcolor=' + TBGCOLOR + '>';
+    for i := 0 to lxfs.Count - 1 do
+      slddreader := slddreader +
+        '<td><p align=center><a href="lddreader/' + pcs + '/' +
+        ExtractFileName(lxfs.Strings[i]) + '"><img width=64 height=64 src="images\lddreader.png"><br>' +
+        ChangeFileExt(ExtractFileName(lxfs.Strings[i]), '') + '</p></td></a>';
+    slddreader := slddreader + '</tr></table>';
+    document.write(spdfreader);
+  end;
+
   instructions := TStringList.Create;
   GetInstructions(pcs, instructions);
 
@@ -9506,10 +9523,11 @@ begin
     end;
   end;
 
-  if (pdfs.Count = 0) and (instructions.Count = 0) then
+  if (pdfs.Count = 0) and (lxfs.Count = 0) and (instructions.Count = 0) then
     DrawHeadline('No instructions found for ' + pcs);
 
   pdfs.Free;
+  lxfs.Free;
   instructions.Free;
 
   document.EndNavigateSection;
@@ -13157,6 +13175,7 @@ begin
   if s1 = UpperCase('updateinstructionsfromnethost/') then Exit;
   if s1 = UpperCase('updateinstructionsfrompdf/') then Exit;
   if s1 = UpperCase('pdfreader/') then Exit;
+  if s1 = UpperCase('lddreader/') then Exit;
   if s1 = UpperCase('rotatejpegright/') then Exit;
   if s1 = UpperCase('rotatejpegleft/') then Exit;
   if s1 = UpperCase('buildset/') then Exit;
@@ -13392,6 +13411,15 @@ begin
     begin
       splitstring(SRC, s1, s2, s3, '/');
       s4 := InstructionDir(s2) + s3 + '.pdf';
+      ShellExecute(Handle, 'open', PChar(s4), nil, nil, SW_SHOWNORMAL);
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos1('lddreader/', SRC) then
+    begin
+      splitstring(SRC, s1, s2, s3, '/');
+      s4 := InstructionDir(s2) + s3;
       ShellExecute(Handle, 'open', PChar(s4), nil, nil, SW_SHOWNORMAL);
       Handled := True;
       Exit;

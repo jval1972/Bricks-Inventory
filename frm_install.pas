@@ -300,6 +300,12 @@ begin
     Exit;
   end;
 
+  if installstage <> 0 then
+  begin
+    ShowMessage('The installation is already running.');
+    Exit;
+  end;
+
   Timer1.Enabled := True;
 
   installstage := 1;

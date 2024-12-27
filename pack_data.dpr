@@ -26,7 +26,7 @@ var
   wr: TWadWriter;
 
 const
-  NUMFILES = 38;
+  NUMFILES = 39;
   PATH_BEGIN = 23;
 
 var
@@ -47,6 +47,7 @@ var
     'E:\BrickInventory\bin\db\db_gears.txt',
     'E:\BrickInventory\bin\db\db_instructions.txt',
     'E:\BrickInventory\bin\db\db_knownpieces.txt',
+    'E:\BrickInventory\bin\db\db_lddcolors.txt',
     'E:\BrickInventory\bin\db\db_lddmaterials.txt',
     'E:\BrickInventory\bin\db\db_lddprimitives.txt',
     'E:\BrickInventory\bin\db\db_newnames.txt',

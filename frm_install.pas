@@ -93,6 +93,7 @@ begin
     fexists(basedefault + 'db\db_gears.txt') and
     fexists(basedefault + 'db\db_instructions.txt') and
     fexists(basedefault + 'db\db_knownpieces.txt') and
+    fexists(basedefault + 'db\db_lddcolors.txt') and
     fexists(basedefault + 'db\db_lddmaterials.txt') and
     fexists(basedefault + 'db\db_lddprimitives.txt') and
     fexists(basedefault + 'db\db_newnames.txt') and
@@ -340,7 +341,10 @@ begin
     CancelButton.Caption := 'Continue';
     HideSplash;
     Timer1.Enabled := False;
-    ShowMessage('Installation Complete!');
+    if CheckInstallation then
+      ShowMessage('Installation Complete!')
+    else
+      ShowMessage('Installation Failed! Make sure you that database.dat file exists and there is enough free space on your hard drive.');
   end;
 
 end;

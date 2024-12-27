@@ -718,6 +718,7 @@ type
     Missingforwishlist: TStringList;
     Missingformocs: TStringList;
     lastset: string;
+    lddinv: TBrickInventory;
     dismantaledsetsinv: TBrickInventory;
     dismantaledsetslst: TStringList;
     diskmirror: string;
@@ -749,7 +750,7 @@ type
     procedure ShowSetInventory(const setid: string; const flags: integer = 0; const filter: integer = 0);
     procedure ShowInventoryRelatedPieces(const inv: TBrickInventory; const tit, headline: string);
     procedure ShowMyInventoryRelatedPieces;
-    procedure SaveLDDFile(const fname: string; const inv: TBrickInventory; const basename: string);
+    function SaveLDDFile(const fname: string; const inv: TBrickInventory; const basename: string): string;
     procedure ShowSetPartsStorage(const setid: string; const ppreview: boolean);
     procedure DrawInventoryPartsStorage(const psinv: TBrickInventory; const ppreview: boolean);
     procedure PreviewInventoryTable(inv: TBrickInventory);
@@ -971,6 +972,8 @@ type
     procedure _load2setsqry(var set1, set2: string);
     procedure _save2setsqry(const set1, set2: string);
     procedure CleanUp;
+    procedure SetLDDInv(const inv: TBrickInventory);
+    procedure ExecuteLDDWriter(const basefname: string);
   public
     { Public declarations }
     activebits: integer;
@@ -1230,6 +1233,8 @@ begin
 
   dismantaledsetsinv := nil;
   dismantaledsetslst := TStringList.Create;
+
+  lddinv := TBrickInventory.Create;
 
   for i := 0 to 127 do
   begin
@@ -2898,6 +2903,8 @@ begin
   if dismantaledsetsinv <> nil then
     dismantaledsetsinv.Free;
   dismantaledsetslst.Free;
+
+  lddinv.Free;
 
   bstmpsets.Free;
 
@@ -5027,11 +5034,15 @@ begin
     strstats := ''
   else
     strstats :=  ' <a href=sinvstats/' + setid + '><img src="images\stats.png"></a>';
+
+  SetLDDInv(newinv);
+
   ss1 := Format('%s for %s - %s <br>(%d lots, %d parts, %d sets)<br>You have %s%d%s builted and %s%d%s dismantaled (%s%d%s in wish list)<br><img width=360px src=s\' + setid + '.jpg>' +
       ' ' + GetEditSetHtml(setid) +
       ' <a href=editpiecenotes/' + setid + '><img src="images\notes.png"></a>' +
       ' <a href=PreviewSetInventory/' + setid + '><img src="images\print.png"></a>' +
-      ' ' + GetDiagramPieceHtml(setid, '-1') + strstats + '<br>' +
+      ' ' + GetDiagramPieceHtml(setid, '-1') + strstats +
+      ' <a href=lddwriter/' + basefname + '><img src="images\ldd.png"></a>' + '<br>' +
       '[Year: <a href=ShowSetsAtYear/%d>%d</a>]<br>',
     [titpart, GetPieceLinkHtml(setid), db.SetDesc(setid),
      newinv.numlooseparts, newinv.totallooseparts, newinv.totalsetsbuilted + newinv.totalsetsdismantaled,
@@ -5199,12 +5210,18 @@ begin
   Screen.Cursor := crDefault;
 end;
 
-procedure TMainForm.SaveLDDFile(const fname: string; const inv: TBrickInventory; const basename: string);
+function TMainForm.SaveLDDFile(const fname: string; const inv: TBrickInventory; const basename: string): string;
 begin
   if optlddsaveformat = LDD_SAVE_FORMAT_LXFML then
-    ldd.SaveToLXFMLFile(fname + '.LXFML', inv, basename)
+  begin
+    Result := fname + '.LXFML';
+    ldd.SaveToLXFMLFile(Result, inv, basename);
+  end
   else
-    ldd.SaveToLXFFile(fname + '.lxf', inv, basename)
+  begin
+    Result := fname + '.lxf';
+    ldd.SaveToLXFFile(fname + '.lxf', inv, basename);
+  end;
 end;
 
 procedure TMainForm.ShowInventoryRelatedPieces(const inv: TBrickInventory; const tit, headline: string);
@@ -13176,6 +13193,7 @@ begin
   if s1 = UpperCase('updateinstructionsfrompdf/') then Exit;
   if s1 = UpperCase('pdfreader/') then Exit;
   if s1 = UpperCase('lddreader/') then Exit;
+  if s1 = UpperCase('lddwriter/') then Exit;
   if s1 = UpperCase('rotatejpegright/') then Exit;
   if s1 = UpperCase('rotatejpegleft/') then Exit;
   if s1 = UpperCase('buildset/') then Exit;
@@ -13421,6 +13439,14 @@ begin
       splitstring(SRC, s1, s2, s3, '/');
       s4 := InstructionDir(s2) + s3;
       ShellExecute(Handle, 'open', PChar(s4), nil, nil, SW_SHOWNORMAL);
+      Handled := True;
+      Exit;
+    end;
+
+    if Pos1('lddwriter/', SRC) then
+    begin
+      splitstring(SRC, s1, s2, '/');
+      ExecuteLDDWriter(s2);
       Handled := True;
       Exit;
     end;
@@ -24669,6 +24695,25 @@ end;
 procedure TMainForm.HTMLParseBegin(Sender: TObject; var Source: String);
 begin
   repeat until not BI_KeepFileFlash;
+end;
+
+procedure TMainForm.SetLDDInv(const inv: TBrickInventory);
+begin
+  lddinv.Clear;
+  lddinv.MergeWith(inv);
+end;
+
+procedure TMainForm.ExecuteLDDWriter(const basefname: string);
+var
+  fname: string;
+begin
+  Screen.Cursor := crHourGlass;
+  try
+    fname := SaveLDDFile(basedefault + 'ldd\' + basefname, lddinv, basefname);
+    ShellExecute(Handle, 'open', PChar(fname), nil, nil, SW_SHOWNORMAL);
+  finally
+    Screen.Cursor := crDefault;
+  end;
 end;
 
 end.

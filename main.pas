@@ -9470,13 +9470,13 @@ begin
   begin
     spdfreader :=
       '<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tr>' +
-      '<tr bgcolor=' + THBGCOLOR + '><th><b>Files</b></th></tr></table>' +
+      '<tr bgcolor=' + THBGCOLOR + '><th><b>PDF Files</b></th></tr></table>' +
       '<table width=99% bgcolor=' + TBGCOLOR + ' border=2><tr>' +
       '<tr bgcolor=' + TBGCOLOR + '>';
     for i := 0 to pdfs.Count - 1 do
       spdfreader := spdfreader +
         '<td><p align=center><a href="pdfreader/' + pcs + '/' +
-        ChangeFileExt(ExtractFileName(pdfs.Strings[i]), '') + '"><img src="images\pdfreader.png"><br>' +
+        ChangeFileExt(ExtractFileName(pdfs.Strings[i]), '') + '"><img width=64 height=64 src="images\pdfreader.png"><br>' +
         ChangeFileExt(ExtractFileName(pdfs.Strings[i]), '') + '</p></td></a>';
     spdfreader := spdfreader + '</tr></table>';
     document.write(spdfreader);

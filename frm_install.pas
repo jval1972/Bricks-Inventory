@@ -294,6 +294,12 @@ end;
 
 procedure TInstallationForm.StartButtonClick(Sender: TObject);
 begin
+  if not fexists(basedefault + 'database.dat') then
+  begin
+    ShowMessage('The installation can not be completed, "database.dat" is missing.');
+    Exit;
+  end;
+
   Timer1.Enabled := True;
 
   installstage := 1;

@@ -455,13 +455,16 @@ type
   end;
 
 const
-  NUM_EXTRAPRIMITIVES = 5;
+  NUM_EXTRAPRIMITIVES = 8;
   EXTRAPRIMITIVES: array[0..NUM_EXTRAPRIMITIVES - 1] of primitivelookup_t = (
     (part: '38648c01'; prim: '10830'),
     (part: '80440'; prim: '24312'),
     (part: '90370'; prim: '90393'),
     (part: '66897'; prim: '21445'),
-    (part: '1941'; prim: '20612')
+    (part: '1941'; prim: '20612'),
+    (part: '2343'; prim: '6269'),
+    (part: '80179'; prim: '34173'),
+    (part: '2663'; prim: '33048')
   );
 
 function TLDD.Primitive(const part: string): TLDDPrimitiveInfo;

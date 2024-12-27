@@ -821,6 +821,7 @@ begin
 
   tmpinv := inv.Clone;
   tmpinv.DismandalAllSets;
+  tmpinv.DismandalAllParts;
   tmpinv.SortPiecesByPartNumber;
 
   mapp := mallocz(SizeOf(lddmap_t));

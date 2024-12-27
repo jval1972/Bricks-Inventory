@@ -213,6 +213,7 @@ type
     function RemoveSet(const setid: string; const typ: integer): boolean;
     function DismandalSet(const setid: string; const aspartonly: boolean = False): boolean;
     function DismandalAllSets: boolean;
+    function DismandalAllParts: boolean;
     function BuildSet(const setid: string): boolean;
     function BuildAllSets: boolean;
     function CanBuildSet(const setid: string): boolean;
@@ -270,6 +271,7 @@ type
     function DoReorganize: Boolean;
     procedure Clear;
     procedure MergeWith(const inv: TBrickInventory);
+    procedure MergeWithMany(const inv: TBrickInventory; const num: integer);
     procedure TryToRemoveInventory(const inv: TBrickInventory);
     function Clone: TBrickInventory;
     function numlotsbycolor(const col: integer): integer;
@@ -4193,6 +4195,37 @@ begin
   end;
 end;
 
+procedure TBrickInventory.MergeWithMany(const inv: TBrickInventory; const num: integer);
+var
+  i, j: integer;
+  brick: brickpool_p;
+  stoppnt: LongWord;
+begin
+  if inv = nil then
+    Exit;
+
+  for i := 0 to inv.fnumsets - 1 do
+  begin
+    for j := 0 to inv.fsets[i].num * num - 1 do
+      AddSet(inv.fsets[i].setid, AS_NORMAL);
+    for j := 0 to inv.fsets[i].numdismantaled * num - 1 do
+      AddSet(inv.fsets[i].setid, AS_DISMANTALED);
+    for j := 0 to inv.fsets[i].numwishlist * num - 1 do
+      AddSet(inv.fsets[i].setid, AS_WISHLIST);
+  end;
+
+  brick := @inv.flooseparts[0];
+  if brick <> nil then
+  begin
+    stoppnt := LongWord(@inv.flooseparts[inv.fnumlooseparts - 1]);
+    while LongWord(brick) <= stoppnt do
+    begin
+      AddLoosePart(brick.part, brick.color, brick.num * num, brick.pci);
+      inc(brick);
+    end;
+  end;
+end;
+
 procedure TBrickInventory.TryToRemoveInventory(const inv: TBrickInventory);
 var
   i, j: integer;
@@ -5575,6 +5608,53 @@ begin
       ret := DismandalSet(fsets[i].setid);
       Result := Result and ret;
     end;
+end;
+
+function TBrickInventory.DismandalAllParts: boolean;
+const
+  MAXRECURSION = 16;
+var
+  rCnt: integer;
+
+  function Dismantale1: boolean;
+  var
+    i, num: integer;
+    pi: TPieceInfo;
+    inv: TBrickInventory;
+  begin
+    Result := False;
+    if rCnt >= MAXRECURSION then
+      Exit;
+
+    for i := 0 to fnumlooseparts - 1 do
+      if flooseparts[i].color >= 0 then // prevent minifigs
+      begin
+        num := flooseparts[i].num;
+        if num > 0 then
+        begin
+          pi := db.PieceInfo(@flooseparts[i]);
+          if pi.hasinventory then
+          begin
+           inv := pi.Inventory(flooseparts[i].color);
+           inv.DismandalAllParts;
+           flooseparts[i].num := 0;
+           MergeWithMany(inv, num);
+           // Use DoReorganize with causion
+           // It may free and realloc flooseparts and alter fnumlooseparts
+           DoReorganize;
+           inv.Free;
+           Result := True;
+           Exit;
+          end;
+        end;
+      end;
+  end;
+
+begin
+  rCnt := 0;
+  Result := False;
+  while Dismantale1 do
+    Result := True;
 end;
 
 function TBrickInventory.BuildSet(const setid: string): boolean;

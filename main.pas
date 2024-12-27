@@ -3935,7 +3935,8 @@ begin
     num := num + brick.num;
 
     if lite then
-      DrawBrickOrderInfo(brick, '', -1, -1, showreadylist)
+//      DrawBrickOrderInfo(brick, '', -1, -1, showreadylist)
+      DrawBrickOrderInfo(brick, '', 3, 2, showreadylist)
     else if lb <> nil then
       DrawBrickOrderInfo(brick, setid, 4, 4, showreadylist)
     else

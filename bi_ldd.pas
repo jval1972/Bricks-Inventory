@@ -484,6 +484,17 @@ begin
     end;
     related.Free;
   end;
+  if optlddusecounterparts and (idx < 0) then
+  begin
+    related := db.GetCounterpartsForBuild(part);
+    for i := 0 to related.Count - 1 do
+    begin
+      idx := fPrimitives.IndexOf(PrimitiveBaseName(related[i]));
+      if idx >= 0 then
+        Break;
+    end;
+    related.Free;
+  end;
   if idx < 0 then
   begin
     for i := 0 to NUM_EXTRAPRIMITIVES - 1 do

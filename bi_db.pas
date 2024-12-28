@@ -1082,6 +1082,7 @@ type
     function GetUnknownPiecesFromCache: TStringList;
     function RemoveUnknownPiecesFromCache: integer;
     function GetRelatedPieces(const pcs: string): TStringList;
+    function GetCounterpartsForBuild(const pcs: string): TStringList;
     procedure IdleEventHandler(Sender: TObject; var Done: Boolean);
     {$ENDIF}
     procedure GetCacheHashEfficiency(var hits, total: integer);
@@ -21893,13 +21894,53 @@ begin
 
   _AddRelatedPiece(RebrickablePart(pcs));
 
-{
-  for i := 0 to fpiecenewnames.Count - 1 do
+  Result := lst;
+end;
+
+function TSetsDatabase.GetCounterpartsForBuild(const pcs: string): TStringList;
+var
+  lst: TStringList;
+  pi: TPieceInfo;
+  i: integer;
+
+  procedure _AddCounterPartsForBuild(const s: string);
+  var
+    ii, idx: integer;
+    rlst: TStringList;
   begin
-    ptmp := (fpiecenewnames.Objects[i] as TString).text;
-    if lst.IndexOf(ptmp) >= 0 then
-      _AddRelatedPiece(PieceInfo(fpiecenewnames.Strings[i]).name);
-  end;}
+    if s <> '' then
+      if lst.IndexOf(s) < 0 then
+        if s <> '(Unknown)' then
+        begin
+          lst.Add(s);
+          idx := finvpiecenewnames.IndexOf(s);
+          if idx >= 0 then
+          begin
+            rlst := finvpiecenewnames.Objects[idx] as TStringList;
+            for ii := 0 to rlst.Count - 1 do
+              _AddCounterPartsForBuild(PieceInfo(rlst.Strings[ii]).name);
+          end;
+        end;
+  end;
+
+begin
+  lst := TStringList.Create;
+
+  pi := PieceInfo(pcs);
+
+  for i := 0 to pi.moldvariationscount - 1 do
+    _AddCounterPartsForBuild(pi.moldvariations.Strings[i]);
+
+  for i := 0 to pi.alternatescount - 1 do
+    _AddCounterPartsForBuild(pi.alternates.Strings[i]);
+
+  _AddCounterPartsForBuild(pcs);
+
+  _AddCounterPartsForBuild(GetBLNetPieceName(pcs));
+
+  _AddCounterPartsForBuild(BrickLinkPart(pcs));
+
+  _AddCounterPartsForBuild(RebrickablePart(pcs));
 
   Result := lst;
 end;

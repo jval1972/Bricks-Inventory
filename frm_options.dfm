@@ -4,7 +4,7 @@ object OptionsForm: TOptionsForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 291
+  ClientHeight = 334
   ClientWidth = 387
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -551,7 +551,7 @@ object OptionsForm: TOptionsForm
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 250
+    Top = 293
     Width = 387
     Height = 41
     Align = alBottom
@@ -611,7 +611,7 @@ object OptionsForm: TOptionsForm
     Left = 24
     Top = 8
     Width = 345
-    Height = 233
+    Height = 273
     ActivePage = TabSheet6
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clBlack
@@ -823,13 +823,13 @@ object OptionsForm: TOptionsForm
         Left = 16
         Top = 8
         Width = 305
-        Height = 161
+        Height = 185
         ItemHeight = 16
         TabOrder = 0
       end
       object CheckBox15: TCheckBox
         Left = 16
-        Top = 176
+        Top = 208
         Width = 305
         Height = 17
         Caption = 'Use short currency symbol if possible'
@@ -881,7 +881,7 @@ object OptionsForm: TOptionsForm
         Left = 8
         Top = 8
         Width = 105
-        Height = 73
+        Height = 81
         Caption = ' Save Format '
         Items.Strings = (
           'LFXML'
@@ -899,6 +899,14 @@ object OptionsForm: TOptionsForm
         TabOrder = 3
         TickMarks = tmBoth
         OnChange = LDDHeightTrackBarChange
+      end
+      object LDDAlternatesCheckBox: TCheckBox
+        Left = 8
+        Top = 200
+        Width = 305
+        Height = 17
+        Caption = 'Use alternate molds for undefined primitives'
+        TabOrder = 4
       end
     end
   end

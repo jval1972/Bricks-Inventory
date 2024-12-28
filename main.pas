@@ -927,6 +927,7 @@ type
     procedure ShowPieceAlternates(const basepcs: string);
     procedure ShowPiecePatterns(const basepcs: string);
     procedure ShowRelatedPieces(const basepcs: string);
+    procedure ShowCounterparts(const basepcs: string);
     procedure ShowPiecePrints(const basepcs: string);
     function MakeThumbnailImageEx(const pcs1: string; const typof: char; const ncolor: integer = -1000): string;
     function MakeThumbnailImageExCache(const pcs: string; const typof: char; const ncolor: integer = -1000): string;
@@ -7344,6 +7345,11 @@ begin
   srelated := db.GetRelatedPieces(pcs);
   if srelated.Count > 1 then
     srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td><a href=ShowRelatedPieces/' + pcs + '>Related Pieces</a></td></tr>';
+  srelated.Free;
+
+  srelated := db.GetCounterpartsForBuild(pcs);
+  if srelated.Count > 1 then
+    srelationships := srelationships + '<tr bgcolor=' + TBGCOLOR + '><td><a href=ShowCounterparts/' + pcs + '>Building counterparts</a></td></tr>';
   srelated.Free;
 
   if srelationships = '' then
@@ -14858,6 +14864,11 @@ begin
     splitstring(slink, s1, s2, '/');
     ShowRelatedPieces(s2);
   end
+  else if Pos1('ShowCounterparts/', slink) then
+  begin
+    splitstring(slink, s1, s2, '/');
+    ShowCounterparts(s2);
+  end
   else if Pos1('ShowPiecePrints/', slink) then
   begin
     splitstring(slink, s1, s2, '/');
@@ -20816,13 +20827,35 @@ procedure TMainForm.ShowRelatedPieces(const basepcs: string);
 var
   linkstr, titstr: string;
   srelated: TStringList;
+  idx: integer;
 begin
   linkstr := GetPieceLinkHtml(basepcs) + ' ' + MakeThumbnailImage2(basepcs);
   titstr := 'Related Pieces for ' + basepcs;
   srelated := db.GetRelatedPieces(basepcs);
   if srelated.Count > 1 then
   begin
-    srelated.Delete(0);
+    idx := srelated.IndexOf(basepcs);
+    srelated.Delete(idx);
+    DrawMoldList('Related Pieces for ' + linkstr, srelated, False, False, titstr);
+  end
+  else
+    DrawMoldList('No Related Pieces for ' + linkstr, nil, False, False, titstr);
+  srelated.Free;
+end;
+
+procedure TMainForm.ShowCounterparts(const basepcs: string);
+var
+  linkstr, titstr: string;
+  srelated: TStringList;
+  idx: integer;
+begin
+  linkstr := GetPieceLinkHtml(basepcs) + ' ' + MakeThumbnailImage2(basepcs);
+  titstr := 'Buinding counterparts for ' + basepcs;
+  srelated := db.GetCounterpartsForBuild(basepcs);
+  if srelated.Count > 0 then
+  begin
+    idx := srelated.IndexOf(basepcs);
+    srelated.Delete(idx);
     DrawMoldList('Related Pieces for ' + linkstr, srelated, False, False, titstr);
   end
   else

@@ -75,6 +75,7 @@ type
     LDDSaveFormatRadioGroup: TRadioGroup;
     LDDHeightTrackBar: TTrackBar;
     LDDHeightLabel: TLabel;
+    LDDAlternatesCheckBox: TCheckBox;
     procedure Edit1KeyPress(Sender: TObject; var Key: Char);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -149,6 +150,7 @@ begin
       f.LDDSaveFormatRadioGroup.ItemIndex := optlddsaveformat;
     if IsIntegerInRange(optlddsordorder, 0, f.LDDSortRadioGroup.items.Count - 1) then
       f.LDDSortRadioGroup.ItemIndex := optlddsordorder;
+    f.LDDAlternatesCheckBox.Checked := optlddusecounterparts;
 
     f.ShowModal;
     if f.ModalResult = mrOK then
@@ -182,6 +184,7 @@ begin
       optlddalwayssave := f.CheckBoxLDDSave.Checked;
       optlddsaveformat := f.LDDSaveFormatRadioGroup.ItemIndex;
       optlddsordorder := f.LDDSortRadioGroup.ItemIndex;
+      optlddusecounterparts := f.LDDAlternatesCheckBox.Checked;
     end;
   finally
     f.Free;

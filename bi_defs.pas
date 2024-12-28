@@ -73,9 +73,10 @@ var
   optlddalwayssave: boolean;
   optlddsaveformat: integer;
   optlddsordorder: integer;
+  optlddusecounterparts: boolean;
 
 const
-  NUMDEFAULTS = 31;
+  NUMDEFAULTS = 32;
 
   defaults: array[0..NUMDEFAULTS - 1] of default_t = (
     (name: 'General';
@@ -324,7 +325,15 @@ const
      defaultsvalue: '';
      defaultivalue: LDD_SORT_GROUPID_PRIMITIVE;
      defaultbvalue: False;
-     _type: tInteger)
+     _type: tInteger),
+
+    (name: 'optlddusecounterparts';
+     location: @optlddusecounterparts;
+     setable: true;
+     defaultsvalue: '';
+     defaultivalue: 1;
+     defaultbvalue: True;
+     _type: tBoolean)
 
   );
 

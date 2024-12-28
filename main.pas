@@ -20856,10 +20856,10 @@ begin
   begin
     idx := srelated.IndexOf(basepcs);
     srelated.Delete(idx);
-    DrawMoldList('Related Pieces for ' + linkstr, srelated, False, False, titstr);
+    DrawMoldList('Buinding counterparts for ' + linkstr, srelated, False, False, titstr);
   end
   else
-    DrawMoldList('No Related Pieces for ' + linkstr, nil, False, False, titstr);
+    DrawMoldList('No Buinding counterparts for ' + linkstr, nil, False, False, titstr);
   srelated.Free;
 end;
 

@@ -7974,9 +7974,12 @@ end;
 
 procedure TMainForm.ShowCatalogList(const ltyp: string; const year: integer;
   const catid1: integer; const doall: boolean);
+const
+  NUMPLISTS = 128;  // Must be Power of 2
 var
   pilst: TStringList;
-  pilsts: array[0..127] of TStringList;
+  pilsts: array[0..NUMPLISTS - 1] of TStringList;
+  part: string;
   i, j, k, l, idx, idx2: integer;
   pi: TPieceInfo;
   pci: TPieceColorInfo;
@@ -8106,16 +8109,17 @@ begin
         for j := 0 to kp.Count - 1 do
         begin
           pci := kp.Objects[j] as TPieceColorInfo;
+          part := pci.piece;
 
           if typ = 'MC' then
-            okmoc := db.IsMoc(pci.piece)
+            okmoc := db.IsMoc(part)
           else
             okmoc := False;
 
           if typ = 'PI' then
             okpartinv := (pci.ItemType = 'P') and db.PieceInfo(pci).hasinventory
           else if typ = 'SNI' then
-            okpartinv := (pci.ItemType = 'S') and (db.AllSets.IndexOfUCS(pci.piece) < 0)
+            okpartinv := (pci.ItemType = 'S') and (db.AllSets.IndexOfUCS(part) < 0)
           else
             okpartinv := False;
 
@@ -8123,16 +8127,15 @@ begin
             if (year < 0) or (pci.year = year) then
             begin
               pi := db.PieceInfo(pci);
-
-              if ((catid < 0) or (pi.category = catid)) and (pci.piece <> '') then
+              if ((catid < 0) or (pi.category = catid)) and (part <> '') then
               begin
                 hasunknowncategory := hasunknowncategory or (pi.category = 0);
-                l := Ord(pci.piece[1]) div 2;
-                idx := pilsts[l].IndexOf(pci.piece);
+                l := (Ord(part[1]) + Ord(part[Length(part)])) and (NUMPLISTS - 1);
+                idx := pilsts[l].IndexOf(part);
                 if idx < 0 then
                   if not okboxinstructions then
                   begin
-                    idx := pilsts[l].AddObject(pci.piece, TCatalogInfoClass.Create);
+                    idx := pilsts[l].AddObject(part, TCatalogInfoClass.Create);
                     idx2 := ccategories.IndexOf(itoa(pi.category));
                     if idx2 < 0 then
                       idx2 := ccategories.AddObject(itoa(pi.category), TCounterObject.Create);
@@ -8147,8 +8150,8 @@ begin
                     idx2 := cyears.AddObject(itoa(pci.year), TStringList.Create);
                     (cyears.Objects[idx2] as TStringList).Sorted := True;
                   end;
-                  if (cyears.Objects[idx2] as TStringList).IndexOf(pci.piece) < 0 then
-                    (cyears.Objects[idx2] as TStringList).Add(pci.piece);
+                  if (cyears.Objects[idx2] as TStringList).IndexOf(part) < 0 then
+                    (cyears.Objects[idx2] as TStringList).Add(part);
                   (pilsts[l].Objects[idx] as TCatalogInfoClass).N.Add(i);
                   (pilsts[l].Objects[idx] as TCatalogInfoClass).S.AddObject(itoa(i), pci);
                 end;
@@ -8160,13 +8163,6 @@ begin
   end;
 
   cranges.Free;
-
-  pilst := TStringList.Create;
-  for i := 0 to 127 do
-    pilst.AddStrings(pilsts[i]);
-  pilst.Sorted := True;
-  for i := 0 to 127 do
-    pilsts[i].Free;
 
   tit := '<a href="cataloghome">Catalog</a>';
   if (year >= 0) or (catid >= 0) or doall then
@@ -8255,17 +8251,28 @@ begin
   end
   else
   begin
-    fsavename := basedefault + 'out\catalog\';
-    if not DirectoryExists(fsavename) then
-      MkDir(fsavename);
-    fsavename := fsavename + ChangeFileExt(ExtractFileName(diskmirror), '.txt');
-    S_SaveToFile(pilst, fsavename);
-    DrawMoldListCatalog(tit, pilst, year, catid, typ);
+    pilst := TStringList.Create;
+    try
+      for i := 0 to NUMPLISTS - 1 do
+        pilst.AddStrings(pilsts[i]);
+      pilst.Sorted := True;
+
+      fsavename := basedefault + 'out\catalog\';
+      if not DirectoryExists(fsavename) then
+        MkDir(fsavename);
+      fsavename := fsavename + ChangeFileExt(ExtractFileName(diskmirror), '.txt');
+      S_SaveToFile(pilst, fsavename);
+      DrawMoldListCatalog(tit, pilst, year, catid, typ);
+    finally
+      pilst.Free;
+    end;
   end;
+
+  for i := 0 to NUMPLISTS - 1 do
+    FreeList(pilsts[i]);
 
   FreeList(ccategories);
   FreeList(cyears);
-  FreeList(pilst);
   Screen.Cursor := crDefault;
 end;
 

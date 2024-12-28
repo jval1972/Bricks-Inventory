@@ -308,7 +308,7 @@ const
      defaultsvalue: '';
      defaultivalue: 0;
      defaultbvalue: False;
-     _type: tInteger),
+     _type: tBoolean),
 
     (name: 'optlddsaveformat';
      location: @optlddsaveformat;

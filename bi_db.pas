@@ -11755,17 +11755,21 @@ begin
     Exit;
   for i := 1 to s1.Count - 1 do
   begin
-    splitstring(s1.Strings[i], s_Part, s_Color, ss, ',');
-    s2 := string2stringlist(ss, ',');
-    for j := 0 to s2.Count - 1 do
+    stmp := s1.Strings[i];
+    if Pos(st, stmp) > 0 then
     begin
-      stmp := s2.Strings[j];
-      splitstring(stmp, s_Storage, s_Num, s_Remarks, ':');
-      if s_Storage = st then
-        if s_Num <> '' then
-          Result.AddLoosePart(s_Part, atoi(s_Color), atoi(s_Num));
+      splitstring(stmp, s_Part, s_Color, ss, ',');
+      s2 := string2stringlist(ss, ',');
+      for j := 0 to s2.Count - 1 do
+      begin
+        stmp := s2.Strings[j];
+        splitstring(stmp, s_Storage, s_Num, s_Remarks, ':');
+        if s_Storage = st then
+          if s_Num <> '' then
+            Result.AddLoosePart(s_Part, atoi(s_Color), atoi(s_Num));
+      end;
+      s2.Free;
     end;
-    s2.Free;
   end;
   s1.Free;
 end;

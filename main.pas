@@ -5882,7 +5882,8 @@ var
           for ii := 0 to Aoinf.Count - 1 do
           begin
             Aoitem := Aoinf.Objects[ii] as TOrderItemInfo;
-            _AddToStorageList2('order:' + itoa(Aoitem.orderid), Apci.piece, Apci.color, MinI(Aoitem.num, needed));
+            if (orders.order(Aoitem.orderid).ORDERSTATUS = 'Completed') or (orders.order(Aoitem.orderid).ORDERSTATUS = 'Received') then
+              _AddToStorageList2('order:' + itoa(Aoitem.orderid), Apci.piece, Apci.color, MinI(Aoitem.num, needed));
           end;
       end;
     end;

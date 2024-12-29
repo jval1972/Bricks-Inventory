@@ -11815,6 +11815,7 @@ var
   s_Part, s_Color, s_Storage, s_Num, s_Remarks, stmp: string;
   ss: string;
   fn: string;
+  num: integer;
 begin
   Result := TBrickInventory.Create;
   fn := basedefault + 'db\db_storage.txt';
@@ -11833,13 +11834,15 @@ begin
   begin
     splitstring(s1.Strings[i], s_Part, s_Color, ss, ',');
     s2 := string2stringlist(ss, ',');
+    num := 0;
     for j := 0 to s2.Count - 1 do
     begin
       stmp := s2.Strings[j];
       splitstring(stmp, s_Storage, s_Num, s_Remarks, ':');
-      if s_Num <> '' then
-        Result.AddLoosePart(s_Part, atoi(s_Color), atoi(s_Num));
+      num := num + atoi(s_Num);
     end;
+    if num > 0 then
+      Result.AddLoosePart(s_Part, atoi(s_Color), num);
     s2.Free;
   end;
   s1.Free;

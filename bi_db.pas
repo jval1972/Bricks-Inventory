@@ -8867,13 +8867,22 @@ end;
 function TSetsDatabase.ChildMolds(const pcs: string): TStringList;
 var
   idx: integer;
+  rpcs, bpcs: string;
 begin
   idx := fbasemolds.IndexOf(pcs);
   if idx < 0 then
   begin
-    idx := fbasemolds.IndexOf(RebrickablePart(pcs));
-    if idx < 0 then
-      idx := fbasemolds.IndexOf(BricklinkPart(pcs));
+    rpcs := RebrickablePart(pcs);
+    if rpcs <> pcs then
+    begin
+      idx := fbasemolds.IndexOf(rpcs);
+      if idx < 0 then
+      begin
+        bpcs := BricklinkPart(pcs);
+        if bpcs <> pcs then
+          idx := fbasemolds.IndexOf(bpcs);
+      end;
+    end;
   end;
   if idx >= 0 then
     Result := fbasemolds.Objects[idx] as TStringList

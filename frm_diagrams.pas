@@ -819,6 +819,7 @@ var
   P: TPNGObject;
   sstrm: TStream;
   savename: string;
+  iret: boolean;
 begin
   oldcur := optdefaultcurrency;
   P := nil;
@@ -911,15 +912,22 @@ begin
   finally
     f.Free;
   end;
+  iret := False;
   if P <> nil then
   try
-    savename := basedefault + itoa(color) + '\' + part + '.png';
+    iret := True;
+    Screen.Cursor := crHourGlass;
     try
-      P.SaveToFile(savename);
-    except
-      sstrm := BI_KeepFileStream(savename);
-      P.SaveToStream(sstrm);
-      sstrm.Free;
+      savename := basedefault + itoa(color) + '\' + part + '.png';
+      try
+        P.SaveToFile(savename);
+      except
+        sstrm := BI_KeepFileStream(savename);
+        P.SaveToStream(sstrm);
+        sstrm.Free;
+      end;
+    finally
+      Screen.Cursor := crDefault;
     end;
   finally
     P.Free;
@@ -933,6 +941,8 @@ var
   oldcur: string;
   P: TPNGObject;
   imgpath: string;
+  sstrm: TStream;
+  iret: boolean;
 begin
   oldcur := optdefaultcurrency;
   P := nil;
@@ -959,23 +969,35 @@ begin
     f.ShowModal;
     if f.imgchanged then
     begin
+      Screen.Cursor := crHourGlass;
       P := TPNGObject.Create;
       try
         P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
         P.Assign(f.Image1.Picture.Bitmap);
       finally
+        Screen.Cursor := crDefault;
       end;
     end;
   finally
     f.Free;
   end;
+  iret := False;
   if P <> nil then
   try
-    P.SaveToFile(basedefault + 'storage\' + filenamestring(storage) + '.png');
+    iret := True;
+    Screen.Cursor := crHourGlass;
+    try
+      P.SaveToFile(imgpath);
+    except
+      sstrm := BI_KeepFileStream(imgpath);
+      P.SaveToStream(sstrm);
+      sstrm.Free;
+    end;
   finally
     P.Free;
+    Screen.Cursor := crDefault;
   end;
-  Result := oldcur <> optdefaultcurrency;
+  Result := iret or (oldcur <> optdefaultcurrency);
 end;
 
 function DiagramOrder(const order: string): boolean;
@@ -984,6 +1006,8 @@ var
   oldcur: string;
   P: TPNGObject;
   imgpath: string;
+  sstrm: TStream;
+  iret: boolean;
 begin
   oldcur := optdefaultcurrency;
   P := nil;
@@ -1012,23 +1036,35 @@ begin
     f.ShowModal;
     if f.imgchanged then
     begin
+      Screen.Cursor := crHourGlass;
       P := TPNGObject.Create;
       try
         P.CompressionLevel := DEF_PNG_COMPRESSION_LEVEL;
         P.Assign(f.Image1.Picture.Bitmap);
       finally
+        Screen.Cursor := crDefault;
       end;
     end;
   finally
     f.Free;
   end;
+  iret := False;
   if P <> nil then
   try
-    P.SaveToFile(basedefault + 'orders\' + order + '.png');
+    Screen.Cursor := crHourGlass;
+    iret := True;
+    try
+      P.SaveToFile(imgpath);
+    except
+      sstrm := BI_KeepFileStream(imgpath);
+      P.SaveToStream(sstrm);
+      sstrm.Free;
+    end;
   finally
     P.Free;
+    Screen.Cursor := crDefault;
   end;
-  Result := oldcur <> optdefaultcurrency;
+  Result := iret or (oldcur <> optdefaultcurrency);
 end;
 
 procedure TDiagramForm.Button1Click(Sender: TObject);

@@ -8495,7 +8495,7 @@ begin
   fpiececodes.Sort;
   for i := fpiececodes.Count - 1 downto 1 do
     if fpiececodes.Strings[i] = fpiececodes.Strings[i - 1] then
-      FastStringListDeleteObj(fpiececodes, i);
+      StringListDeleteObj(fpiececodes, i);
 
   fpiececodes.Sorted := True;
 end;

@@ -229,7 +229,7 @@ type
 
 procedure FreeListContainer(var s: TStringListContainer);
 
-procedure FastStringListDeleteObj(const lst: TStringList; const idx: integer);
+procedure StringListDeleteObj(const lst: TStringList; const idx: integer);
 
 function ExtractAfterDelimiters(const s: string; const p: integer; const d1, d2: Char): string;
 
@@ -2765,17 +2765,10 @@ begin
   s := nil;
 end;
 
-procedure FastStringListDeleteObj(const lst: TStringList; const idx: integer);
+procedure StringListDeleteObj(const lst: TStringList; const idx: integer);
 begin
-  if idx = lst.Count - 1 then
-  begin
-    lst.Objects[idx].Free;
-    lst.Delete(idx);
-    Exit;
-  end;
   lst.Objects[idx].Free;
-  lst.Objects[idx] := lst.Objects[lst.Count - 1];
-  lst.Strings[idx] := lst.Strings[lst.Count - 1];
+  lst.Delete(idx);
 end;
 
 // Exctract text between d1 & d2 from s, start searching at position p

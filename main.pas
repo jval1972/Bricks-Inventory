@@ -21050,7 +21050,14 @@ begin
     activebits := activebits - 1000;
   if activebits <= 0 then
     if not RandomBrickSetDownload then
-      BI_KeepFileFlash;
+    begin
+      Screen.Cursor := crHourGlass;
+      try
+        BI_KeepFileFlash;
+      finally
+        Screen.Cursor := crDefault;
+      end;
+    end;
   Done := True;
 end;
 

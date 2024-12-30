@@ -3574,7 +3574,7 @@ begin
       else if bp.part = '48252' then begin s.Add(Format('%s,%d,%d', ['92198pr0177', bp.color, bp.num])); end
       else if bp.part = '69901pb02' then begin s.Add(Format('%s,%d,%d', ['69901pr0001', bp.color, bp.num])); end
       else if bp.part = '92252c00pb015' then begin s.Add(Format('%s,%d,%d', ['92820c01pr0131', bp.color, bp.num])); end
-      else if bp.part = '92252c00pb022' then begin s.Add(Format('%s,%d,%d', ['92820c02pr0160', bp.color, bp.num])); end
+      else if bp.part = '92252c00pb022' then begin s.Add(Format('%s,%d,%d', ['92820c01pr0160', bp.color, bp.num])); end
       else if bp.part = '92252c00pb023' then begin s.Add(Format('%s,%d,%d', ['92820c01pr0166', bp.color, bp.num])); end
       else if bp.part = '92253c00pb29' then begin s.Add(Format('%s,%d,%d', ['16925c01pr0132', bp.color, bp.num])); end
       else if (bp.part = '92253c00pb30') and (bp.color = 1) then begin s.Add(Format('%s,%d,%d', ['16925c01pr0147', bp.color, bp.num])); end
@@ -3605,7 +3605,7 @@ begin
       else if bp.part = '37291' then begin s.Add(Format('%s,%d,%d', ['92198pr0124', bp.color, bp.num])); end
       else if bp.part = '37292' then begin s.Add(Format('%s,%d,%d', ['92198pr0125', bp.color, bp.num])); end
       else if bp.part = '92251c00pb13' then begin s.Add(Format('%s,%d,%d', ['92819c01pr0107', bp.color, bp.num])); end
-      else if bp.part = '92252c00pb022' then begin s.Add(Format('%s,%d,%d', ['92820c02pr0160', bp.color, bp.num])); end
+      else if bp.part = '92252c00pb022' then begin s.Add(Format('%s,%d,%d', ['92820c01pr0160', bp.color, bp.num])); end
       else if bp.part = '92252c00pb024' then begin s.Add(Format('%s,%d,%d', ['92820c01pr0165', bp.color, bp.num])); end
       else if bp.part = '92252c00pb023' then begin s.Add(Format('%s,%d,%d', ['92820c01pr0166', bp.color, bp.num])); end
       else if bp.part = '92821pr0002c01' then begin s.Add(Format('%s,%d,%d', ['16925c01pr0002', bp.color, bp.num])); end
@@ -3713,6 +3713,8 @@ begin
       else if bp.part = '2958' then begin s.Add(Format('%s,%d,%d', ['2745', bp.color, bp.num])); end
       //20241223
       else if bp.part = '50746' then begin s.Add(Format('%s,%d,%d', ['54200', bp.color, bp.num])); end
+      //20241230
+      else if bp.part = '4532b' then begin s.Add(Format('%s,%d,%d', ['92410', bp.color, bp.num])); end
       else
         s.Add(Format('%s,%d,%d', [bp.part, bp.color, bp.num]));
     end;

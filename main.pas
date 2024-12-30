@@ -4338,7 +4338,7 @@ begin
         begin
           sinv := db.GetSetInventory(inv.sets[i].setid);
           if sinv <> nil then
-            tot := tot + sinv.totallooseparts * inv.sets[i].num;
+            tot := tot + sinv.totallooseparts * inv.sets[i].numwishlist;
         end;
       DrawHeadLine('My wish list</a> (' + IntToStr(inv.totalsetswishlist) + ' sets)<br><br>' +
         'My wish list sets have <a href=ShowMyWishListPieces>' + IntToStr(tot) + ' parts</a><br><br>' +

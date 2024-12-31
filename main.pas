@@ -20851,16 +20851,16 @@ var
   idx: integer;
 begin
   linkstr := GetPieceLinkHtml(basepcs) + ' ' + MakeThumbnailImage2(basepcs);
-  titstr := 'Buinding counterparts for ' + basepcs;
+  titstr := 'Building counterparts for ' + basepcs;
   srelated := db.GetCounterpartsForBuild(basepcs);
   if srelated.Count > 0 then
   begin
     idx := srelated.IndexOf(basepcs);
     srelated.Delete(idx);
-    DrawMoldList('Buinding counterparts for ' + linkstr, srelated, False, False, titstr);
+    DrawMoldList('Building counterparts for ' + linkstr, srelated, False, False, titstr);
   end
   else
-    DrawMoldList('No Buinding counterparts for ' + linkstr, nil, False, False, titstr);
+    DrawMoldList('No Building counterparts for ' + linkstr, nil, False, False, titstr);
   srelated.Free;
 end;
 
